@@ -126,9 +126,9 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
   late EventChannel _eventChan;
 
   @override
-  void onVolume(OnVolumeCallback? cb) {
+  void onAudioLevelChanged(OnAudioLevelChangedCallback? cb) {
     // TODO(review): add isAvailable check instead of throwing?
-    throw 'onVolume callback is not supported on mobile platforms';
+    throw 'onAudioLevelChanged callback is not supported on mobile platforms';
   }
 
   @override
@@ -191,7 +191,7 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
 /// FFI-based implementation of a [NativeMediaStreamTrack].
 class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   /// Subscriber for the audio volume levl updates of this track.
-  OnVolumeCallback? _onVolume;
+  OnAudioLevelChangedCallback? _onAudioLevelChanged;
 
   /// Creates a [NativeMediaStreamTrack] basing on the provided
   /// [ffi.MediaStreamTrack].
@@ -207,7 +207,7 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
             kind: ffi.MediaType.values[_kind.index])
         .listen((event) {
       if (event is ffi.TrackEvent_VolumeUpdated) {
-        _onVolume?.call(event.field0);
+        _onAudioLevelChanged?.call(event.field0);
         return;
       } else if (event is ffi.TrackEvent_Ended) {
         _onEnded?.call();
@@ -217,13 +217,13 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   }
 
   @override
-  void onVolume(OnVolumeCallback? cb) {
+  void onAudioLevelChanged(OnAudioLevelChangedCallback? cb) {
     api!.setVolumeObserverEnabled(
       peerId: _peerId,
       trackId: _id,
       enabled: cb != null,
     );
-    _onVolume = cb;
+    _onAudioLevelChanged = cb;
   }
 
   @override

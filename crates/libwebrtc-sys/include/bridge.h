@@ -490,10 +490,10 @@ rust::String stop_transceiver(const RtpTransceiverInterface& transceiver);
 std::unique_ptr<TrackEventObserver> create_track_event_observer(
     rust::Box<bridge::DynTrackEventCallback> cb);
 
-// Creates new AudioSourceOnVolumeChangeObserver from the provided
-// `bridge::DynAudioSourceOnVolumeChangeCallback`.
-std::unique_ptr<AudioSourceOnVolumeChangeObserver> create_audio_source_on_volume_change_observer(
-    rust::Box<bridge::DynAudioSourceOnVolumeChangeCallback> cb);
+// Creates new AudioSourceOnAudioLevelChangeObserver from the provided
+// `bridge::DynAudioSourceOnAudioLevelChangeCallback`.
+std::unique_ptr<AudioSourceOnAudioLevelChangeObserver> create_audio_source_on_audio_level_change_observer(
+    rust::Box<bridge::DynAudioSourceOnAudioLevelChangeCallback> cb);
 
 // Changes the `track` member of the provided `TrackEventObserver`.
 void set_track_observer_video_track(TrackEventObserver& obs,
@@ -503,13 +503,13 @@ void set_track_observer_video_track(TrackEventObserver& obs,
 // will be passes to this observer.
 //
 // Previous observer will be disposed. Only one observer at a time is supported.
-void audio_source_register_volume_observer(AudioSourceOnVolumeChangeObserver& obs,
+void audio_source_register_audio_level_observer(AudioSourceOnAudioLevelChangeObserver& obs,
                                     const AudioSourceInterface& audio_source);
 
 // Unregisters audio volume level observer from the provided `LocalAudioSource`.
 //
 // `LocalAudioSource` will not calculate audio level after call to this function.
-void audio_source_unregister_volume_observer(const AudioSourceInterface& audio_source);
+void audio_source_unregister_audio_level_observer(const AudioSourceInterface& audio_source);
 
 // Changes the `track` member of the provided `TrackEventObserver`.
 void set_track_observer_audio_track(TrackEventObserver& obs,

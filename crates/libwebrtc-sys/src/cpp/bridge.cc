@@ -42,8 +42,8 @@ void TrackEventObserver::OnChanged() {
 }
 
 // Called when the `LocalAudioSource` produces new audio volume update.
-void AudioSourceOnVolumeChangeObserver::VolumeChanged(float volume) {
-  bridge::on_volume_change(*cb_, volume);
+void AudioSourceOnAudioLevelChangeObserver::AudioLevelChanged(float volume) {
+  bridge::on_audio_level_change(*cb_, volume);
 }
 
 // Sets the inner `MediaStreamTrackInterface`.
@@ -785,11 +785,11 @@ std::unique_ptr<TrackEventObserver> create_track_event_observer(
       TrackEventObserver(std::move(cb)));
 }
 
-// Creates new AudioSourceOnVolumeChangeObserver from the provided
-// `bridge::DynAudioSourceOnVolumeChangeCallback`.
-std::unique_ptr<AudioSourceOnVolumeChangeObserver> create_audio_source_on_volume_change_observer(
-    rust::Box<bridge::DynAudioSourceOnVolumeChangeCallback> cb) {
-  return std::make_unique<AudioSourceOnVolumeChangeObserver>(AudioSourceOnVolumeChangeObserver(std::move(cb)));
+// Creates new AudioSourceOnAudioLevelChangeObserver from the provided
+// `bridge::DynAudioSourceOnAudioLevelChangeCallback`.
+std::unique_ptr<AudioSourceOnAudioLevelChangeObserver> create_audio_source_on_audio_level_change_observer(
+    rust::Box<bridge::DynAudioSourceOnAudioLevelChangeCallback> cb) {
+  return std::make_unique<AudioSourceOnAudioLevelChangeObserver>(AudioSourceOnAudioLevelChangeObserver(std::move(cb)));
 }
 
 // Changes the `track` member of the provided `TrackEventObserver`.
@@ -808,21 +808,21 @@ void set_track_observer_audio_track(TrackEventObserver& obs,
 // will be passes to this observer.
 //
 // Previous observer will be disposed. Only one observer at a time is supported.
-void audio_source_register_volume_observer(AudioSourceOnVolumeChangeObserver& obs,
+void audio_source_register_audio_level_observer(AudioSourceOnAudioLevelChangeObserver& obs,
                                     const AudioSourceInterface& audio_source) {
   LocalAudioSource* local_audio_source = dynamic_cast<LocalAudioSource*>(audio_source.get());
   if (local_audio_source) {
-    local_audio_source->RegisterVolumeObserver(&obs);
+    local_audio_source->RegisterAudioLevelObserver(&obs);
   }
 }
 
 // Unregisters audio volume level observer from the provided `LocalAudioSource`.
 //
 // `LocalAudioSource` will not calculate audio level after call to this function.
-void audio_source_unregister_volume_observer(const AudioSourceInterface& audio_source) {
+void audio_source_unregister_audio_level_observer(const AudioSourceInterface& audio_source) {
   LocalAudioSource* local_audio_source = dynamic_cast<LocalAudioSource*>(audio_source.get());
   if (local_audio_source) {
-    local_audio_source->UnregisterVolumeObserver();
+    local_audio_source->UnregisterAudioLevelObserver();
   }
 }
 

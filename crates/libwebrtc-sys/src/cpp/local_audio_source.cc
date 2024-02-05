@@ -2,9 +2,9 @@
 
 namespace bridge {
 
-// Creates new `AudioSourceOnVolumeChangeObserver` with a provided `DynAudioSourceOnVolumeChangeCallback`.
-AudioSourceOnVolumeChangeObserver::AudioSourceOnVolumeChangeObserver(
-    rust::Box<bridge::DynAudioSourceOnVolumeChangeCallback> cb)
+// Creates new `AudioSourceOnAudioLevelChangeObserver` with a provided `DynAudioSourceOnAudioLevelChangeCallback`.
+AudioSourceOnAudioLevelChangeObserver::AudioSourceOnAudioLevelChangeObserver(
+    rust::Box<bridge::DynAudioSourceOnAudioLevelChangeCallback> cb)
     : cb_(std::move(cb)){};
 
 // Calculates audio level based on the provided audio data.
@@ -47,7 +47,7 @@ void LocalAudioSource::OnData(const void* audio_data,
     if (_frames_without_volume_recalculation > 10) {
       _frames_without_volume_recalculation = 0;
       auto volume = calculate_audio_level((int16_t*) audio_data, number_of_channels * sample_rate / 100);
-      (*observer_)->VolumeChanged(volume);
+      (*observer_)->AudioLevelChanged(volume);
     } else {
       _frames_without_volume_recalculation++;
     }
@@ -59,11 +59,11 @@ void LocalAudioSource::OnData(const void* audio_data,
   }
 }
 
-void LocalAudioSource::RegisterVolumeObserver(AudioSourceOnVolumeChangeObserver* obs) {
+void LocalAudioSource::RegisterAudioLevelObserver(AudioSourceOnAudioLevelChangeObserver* obs) {
   observer_ = obs;
 }
 
-void LocalAudioSource::UnregisterVolumeObserver() {
+void LocalAudioSource::UnregisterAudioLevelObserver() {
   observer_ = nullptr;
 }
 

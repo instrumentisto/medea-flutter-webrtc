@@ -9770,38 +9770,39 @@ mixin _$TrackEvent {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() ended,
-    required TResult Function(int field0) volumeUpdated,
+    required TResult Function(int field0) audioLevelUpdated,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? ended,
-    TResult? Function(int field0)? volumeUpdated,
+    TResult? Function(int field0)? audioLevelUpdated,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? ended,
-    TResult Function(int field0)? volumeUpdated,
+    TResult Function(int field0)? audioLevelUpdated,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(TrackEvent_Ended value) ended,
-    required TResult Function(TrackEvent_VolumeUpdated value) volumeUpdated,
+    required TResult Function(TrackEvent_AudioLevelUpdated value)
+        audioLevelUpdated,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(TrackEvent_Ended value)? ended,
-    TResult? Function(TrackEvent_VolumeUpdated value)? volumeUpdated,
+    TResult? Function(TrackEvent_AudioLevelUpdated value)? audioLevelUpdated,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(TrackEvent_Ended value)? ended,
-    TResult Function(TrackEvent_VolumeUpdated value)? volumeUpdated,
+    TResult Function(TrackEvent_AudioLevelUpdated value)? audioLevelUpdated,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -9864,7 +9865,7 @@ class _$TrackEvent_EndedImpl implements TrackEvent_Ended {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() ended,
-    required TResult Function(int field0) volumeUpdated,
+    required TResult Function(int field0) audioLevelUpdated,
   }) {
     return ended();
   }
@@ -9873,7 +9874,7 @@ class _$TrackEvent_EndedImpl implements TrackEvent_Ended {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? ended,
-    TResult? Function(int field0)? volumeUpdated,
+    TResult? Function(int field0)? audioLevelUpdated,
   }) {
     return ended?.call();
   }
@@ -9882,7 +9883,7 @@ class _$TrackEvent_EndedImpl implements TrackEvent_Ended {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? ended,
-    TResult Function(int field0)? volumeUpdated,
+    TResult Function(int field0)? audioLevelUpdated,
     required TResult orElse(),
   }) {
     if (ended != null) {
@@ -9895,7 +9896,8 @@ class _$TrackEvent_EndedImpl implements TrackEvent_Ended {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(TrackEvent_Ended value) ended,
-    required TResult Function(TrackEvent_VolumeUpdated value) volumeUpdated,
+    required TResult Function(TrackEvent_AudioLevelUpdated value)
+        audioLevelUpdated,
   }) {
     return ended(this);
   }
@@ -9904,7 +9906,7 @@ class _$TrackEvent_EndedImpl implements TrackEvent_Ended {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(TrackEvent_Ended value)? ended,
-    TResult? Function(TrackEvent_VolumeUpdated value)? volumeUpdated,
+    TResult? Function(TrackEvent_AudioLevelUpdated value)? audioLevelUpdated,
   }) {
     return ended?.call(this);
   }
@@ -9913,7 +9915,7 @@ class _$TrackEvent_EndedImpl implements TrackEvent_Ended {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(TrackEvent_Ended value)? ended,
-    TResult Function(TrackEvent_VolumeUpdated value)? volumeUpdated,
+    TResult Function(TrackEvent_AudioLevelUpdated value)? audioLevelUpdated,
     required TResult orElse(),
   }) {
     if (ended != null) {
@@ -9928,22 +9930,22 @@ abstract class TrackEvent_Ended implements TrackEvent {
 }
 
 /// @nodoc
-abstract class _$$TrackEvent_VolumeUpdatedImplCopyWith<$Res> {
-  factory _$$TrackEvent_VolumeUpdatedImplCopyWith(
-          _$TrackEvent_VolumeUpdatedImpl value,
-          $Res Function(_$TrackEvent_VolumeUpdatedImpl) then) =
-      __$$TrackEvent_VolumeUpdatedImplCopyWithImpl<$Res>;
+abstract class _$$TrackEvent_AudioLevelUpdatedImplCopyWith<$Res> {
+  factory _$$TrackEvent_AudioLevelUpdatedImplCopyWith(
+          _$TrackEvent_AudioLevelUpdatedImpl value,
+          $Res Function(_$TrackEvent_AudioLevelUpdatedImpl) then) =
+      __$$TrackEvent_AudioLevelUpdatedImplCopyWithImpl<$Res>;
   @useResult
   $Res call({int field0});
 }
 
 /// @nodoc
-class __$$TrackEvent_VolumeUpdatedImplCopyWithImpl<$Res>
-    extends _$TrackEventCopyWithImpl<$Res, _$TrackEvent_VolumeUpdatedImpl>
-    implements _$$TrackEvent_VolumeUpdatedImplCopyWith<$Res> {
-  __$$TrackEvent_VolumeUpdatedImplCopyWithImpl(
-      _$TrackEvent_VolumeUpdatedImpl _value,
-      $Res Function(_$TrackEvent_VolumeUpdatedImpl) _then)
+class __$$TrackEvent_AudioLevelUpdatedImplCopyWithImpl<$Res>
+    extends _$TrackEventCopyWithImpl<$Res, _$TrackEvent_AudioLevelUpdatedImpl>
+    implements _$$TrackEvent_AudioLevelUpdatedImplCopyWith<$Res> {
+  __$$TrackEvent_AudioLevelUpdatedImplCopyWithImpl(
+      _$TrackEvent_AudioLevelUpdatedImpl _value,
+      $Res Function(_$TrackEvent_AudioLevelUpdatedImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
@@ -9951,7 +9953,7 @@ class __$$TrackEvent_VolumeUpdatedImplCopyWithImpl<$Res>
   $Res call({
     Object? field0 = null,
   }) {
-    return _then(_$TrackEvent_VolumeUpdatedImpl(
+    return _then(_$TrackEvent_AudioLevelUpdatedImpl(
       null == field0
           ? _value.field0
           : field0 // ignore: cast_nullable_to_non_nullable
@@ -9962,22 +9964,23 @@ class __$$TrackEvent_VolumeUpdatedImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$TrackEvent_VolumeUpdatedImpl implements TrackEvent_VolumeUpdated {
-  const _$TrackEvent_VolumeUpdatedImpl(this.field0);
+class _$TrackEvent_AudioLevelUpdatedImpl
+    implements TrackEvent_AudioLevelUpdated {
+  const _$TrackEvent_AudioLevelUpdatedImpl(this.field0);
 
   @override
   final int field0;
 
   @override
   String toString() {
-    return 'TrackEvent.volumeUpdated(field0: $field0)';
+    return 'TrackEvent.audioLevelUpdated(field0: $field0)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$TrackEvent_VolumeUpdatedImpl &&
+            other is _$TrackEvent_AudioLevelUpdatedImpl &&
             (identical(other.field0, field0) || other.field0 == field0));
   }
 
@@ -9987,37 +9990,38 @@ class _$TrackEvent_VolumeUpdatedImpl implements TrackEvent_VolumeUpdated {
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$TrackEvent_VolumeUpdatedImplCopyWith<_$TrackEvent_VolumeUpdatedImpl>
-      get copyWith => __$$TrackEvent_VolumeUpdatedImplCopyWithImpl<
-          _$TrackEvent_VolumeUpdatedImpl>(this, _$identity);
+  _$$TrackEvent_AudioLevelUpdatedImplCopyWith<
+          _$TrackEvent_AudioLevelUpdatedImpl>
+      get copyWith => __$$TrackEvent_AudioLevelUpdatedImplCopyWithImpl<
+          _$TrackEvent_AudioLevelUpdatedImpl>(this, _$identity);
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() ended,
-    required TResult Function(int field0) volumeUpdated,
+    required TResult Function(int field0) audioLevelUpdated,
   }) {
-    return volumeUpdated(field0);
+    return audioLevelUpdated(field0);
   }
 
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? ended,
-    TResult? Function(int field0)? volumeUpdated,
+    TResult? Function(int field0)? audioLevelUpdated,
   }) {
-    return volumeUpdated?.call(field0);
+    return audioLevelUpdated?.call(field0);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? ended,
-    TResult Function(int field0)? volumeUpdated,
+    TResult Function(int field0)? audioLevelUpdated,
     required TResult orElse(),
   }) {
-    if (volumeUpdated != null) {
-      return volumeUpdated(field0);
+    if (audioLevelUpdated != null) {
+      return audioLevelUpdated(field0);
     }
     return orElse();
   }
@@ -10026,40 +10030,42 @@ class _$TrackEvent_VolumeUpdatedImpl implements TrackEvent_VolumeUpdated {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(TrackEvent_Ended value) ended,
-    required TResult Function(TrackEvent_VolumeUpdated value) volumeUpdated,
+    required TResult Function(TrackEvent_AudioLevelUpdated value)
+        audioLevelUpdated,
   }) {
-    return volumeUpdated(this);
+    return audioLevelUpdated(this);
   }
 
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(TrackEvent_Ended value)? ended,
-    TResult? Function(TrackEvent_VolumeUpdated value)? volumeUpdated,
+    TResult? Function(TrackEvent_AudioLevelUpdated value)? audioLevelUpdated,
   }) {
-    return volumeUpdated?.call(this);
+    return audioLevelUpdated?.call(this);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(TrackEvent_Ended value)? ended,
-    TResult Function(TrackEvent_VolumeUpdated value)? volumeUpdated,
+    TResult Function(TrackEvent_AudioLevelUpdated value)? audioLevelUpdated,
     required TResult orElse(),
   }) {
-    if (volumeUpdated != null) {
-      return volumeUpdated(this);
+    if (audioLevelUpdated != null) {
+      return audioLevelUpdated(this);
     }
     return orElse();
   }
 }
 
-abstract class TrackEvent_VolumeUpdated implements TrackEvent {
-  const factory TrackEvent_VolumeUpdated(final int field0) =
-      _$TrackEvent_VolumeUpdatedImpl;
+abstract class TrackEvent_AudioLevelUpdated implements TrackEvent {
+  const factory TrackEvent_AudioLevelUpdated(final int field0) =
+      _$TrackEvent_AudioLevelUpdatedImpl;
 
   int get field0;
   @JsonKey(ignore: true)
-  _$$TrackEvent_VolumeUpdatedImplCopyWith<_$TrackEvent_VolumeUpdatedImpl>
+  _$$TrackEvent_AudioLevelUpdatedImplCopyWith<
+          _$TrackEvent_AudioLevelUpdatedImpl>
       get copyWith => throw _privateConstructorUsedError;
 }

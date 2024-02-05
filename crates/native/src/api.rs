@@ -1098,9 +1098,8 @@ pub enum TrackEvent {
     /// because no further data is available.
     Ended,
 
-    // TODO(review): it is rather audioLevel than volume
     /// Event which indicates that new audio volume level occurred.
-    VolumeUpdated(u32),
+    AudioLevelUpdated(u32),
 }
 
 /// [RTCIceGatheringState][1] representation.
@@ -2453,13 +2452,13 @@ pub fn register_track_observer(
     )
 }
 
-pub fn set_volume_observer_enabled(
+pub fn set_audio_level_observer_enabled(
     track_id: String,
     peer_id: Option<u64>,
     enabled: bool,
 ) -> anyhow::Result<()> {
     let track_origin = TrackOrigin::from(peer_id.map(PeerConnectionId::from));
-    WEBRTC.lock().unwrap().set_volume_observer_enabled(
+    WEBRTC.lock().unwrap().set_audio_level_observer_enabled(
         track_id,
         track_origin,
         enabled,

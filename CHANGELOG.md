@@ -15,7 +15,7 @@ All user visible changes to this project will be documented in this file. This p
 
 - `PeerConnection.videoDecoders()` and `PeerConnection.videoEncoders()` methods enumerating available video codecs and their capability of hardware acceleration. ([#144])
 - Support for multiple input audio devices usage at one time on desktop platforms. ([#145])
-- `MediaStreamTrack.onVolume` callback for detecting input audio volume level of `MediaStreamTrack`. ([#149])
+- `MediaStreamTrack.onAudioLevelChanged` callback for detecting input audio volume level of `MediaStreamTrack`. ([#149])
 
 ### Fixed
 

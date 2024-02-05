@@ -4,8 +4,8 @@ import '/src/model/track.dart';
 /// Representation of the `onEnded` callback.
 typedef OnEndedCallback = void Function();
 
-/// Representation of the `onVolume` callback.
-typedef OnVolumeCallback = void Function(int);
+/// Representation of the `onAudioLevelChanged` callback.
+typedef OnAudioLevelChangedCallback = void Function(int);
 
 /// Abstract representation of a single media unit on native or web side.
 abstract class MediaStreamTrack {
@@ -47,7 +47,7 @@ abstract class MediaStreamTrack {
   void onEnded(OnEndedCallback cb);
 
   /// Subscribes provided callback to the audio level volume updates of this [MediaStreamTrack].
-  void onVolume(OnVolumeCallback? cb);
+  void onAudioLevelChanged(OnAudioLevelChangedCallback? cb);
 
   /// Creates a new instance of [MediaStreamTrack], which will depend on the same
   /// media source as this [MediaStreamTrack].

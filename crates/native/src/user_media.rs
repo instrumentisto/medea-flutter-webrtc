@@ -8,7 +8,7 @@ use std::{
 use anyhow::{anyhow, bail, Context};
 use derive_more::{AsRef, Display, From, Into};
 use libwebrtc_sys::{
-    self as sys, OnFrameCallback, TrackEventObserver, VolumeObserverId,
+    self as sys, OnFrameCallback, TrackEventObserver, AudioLevelObserverId,
 };
 // TODO: Use `std::sync::OnceLock` instead, once it support `.wait()` API.
 use once_cell::sync::OnceCell;
@@ -91,7 +91,7 @@ impl Webrtc {
         #[allow(clippy::mutable_key_type)] // false positive
         let senders = match kind {
             api::MediaType::Audio => {
-                if let Some((_,mut track)) = self
+                if let Some((_, mut track)) = self
                     .audio_tracks
                     .remove(&(AudioTrackId::from(track_id), track_origin))
                 {
@@ -545,7 +545,7 @@ impl Webrtc {
     ///
     /// Returns error message if cannot find any [`AudioTrack`] by the
     /// specified `id`.
-    pub fn set_volume_observer_enabled(
+    pub fn set_audio_level_observer_enabled(
         &self,
         id: String,
         track_origin: TrackOrigin,
@@ -557,9 +557,9 @@ impl Webrtc {
             .get_mut(&(id.clone(), track_origin))
             .ok_or_else(|| anyhow!("Cannot find track with ID `{id}`"))?;
         if enabled {
-            track.subscribe_to_volume();
+            track.subscribe_to_audio_level();
         } else {
-            track.unsubscribe_from_volume();
+            track.unsubscribe_from_audio_level();
         }
 
         Ok(())
@@ -1200,10 +1200,10 @@ pub struct AudioTrack {
     /// Peers and transceivers sending this [`VideoTrack`].
     pub senders: HashMap<Arc<PeerConnection>, HashSet<Arc<RtpTransceiver>>>,
 
-    /// [`VolumeObserverId`] related to this [`AudioTrack`].
+    /// [`AudioLevelObserverId`] related to this [`AudioTrack`].
     ///
     /// This ID can be used when [`AudioTrack`] needs to dispose observer.
-    volume_observer_id: Option<VolumeObserverId>,
+    volume_observer_id: Option<AudioLevelObserverId>,
 }
 
 impl AudioTrack {
@@ -1237,12 +1237,12 @@ impl AudioTrack {
     ///
     /// Volume updates will be passed to the [`StreamSink`] of
     /// this [`AudioTrack`].
-    pub fn subscribe_to_volume(&mut self) {
+    pub fn subscribe_to_audio_level(&mut self) {
         if let Some(sink) = self.stream_sink.clone() {
             match &self.source {
                 MediaTrackSource::Local(src) => {
-                    let observer = src.subscribe_on_volume(Box::new(
-                        AudioSourceVolumeHandler(sink),
+                    let observer = src.subscribe_on_audio_level(Box::new(
+                        AudioSourceAudioLevelHandler(sink),
                     ));
                     self.volume_observer_id = Some(observer);
                 }
@@ -1252,11 +1252,11 @@ impl AudioTrack {
     }
 
     /// Unsubscribes this [`AudioTrack`] from the audio volume level updates.
-    pub fn unsubscribe_from_volume(&self) {
+    pub fn unsubscribe_from_audio_level(&self) {
         match &self.source {
             MediaTrackSource::Local(src) => {
                 if let Some(id) = self.volume_observer_id {
-                    src.unsubscribe_volume_observer(id);
+                    src.unsubscribe_audio_level(id);
                 }
             }
             MediaTrackSource::Remote { mid: _, peer: _ } => (),
@@ -1330,7 +1330,7 @@ impl From<&AudioTrack> for api::MediaStreamTrack {
 
 impl Drop for AudioTrack {
     fn drop(&mut self) {
-        self.unsubscribe_from_volume();
+        self.unsubscribe_from_audio_level();
     }
 }
 
@@ -1426,12 +1426,12 @@ impl sys::TrackEventCallback for TrackEventHandler {
 ///
 /// This handler also will multiply volume by `1000` and cast it to [`u32`], for
 /// more convenient usage.
-struct AudioSourceVolumeHandler(StreamSink<api::TrackEvent>);
+struct AudioSourceAudioLevelHandler(StreamSink<api::TrackEvent>);
 
-impl sys::AudioSourceOnVolumeChangeCallback for AudioSourceVolumeHandler {
+impl sys::AudioSourceOnAudioLevelChangeCallback for AudioSourceAudioLevelHandler {
     #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
-    fn on_volume_change(&self, volume: f32) {
-        self.0.add(api::TrackEvent::VolumeUpdated(
+    fn on_audio_level_change(&self, volume: f32) {
+        self.0.add(api::TrackEvent::AudioLevelUpdated(
             (volume * 1000.0).round() as u32
         ));
     }

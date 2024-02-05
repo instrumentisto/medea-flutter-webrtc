@@ -12,15 +12,15 @@
 
 namespace bridge {
 
-struct DynAudioSourceOnVolumeChangeCallback;
+struct DynAudioSourceOnAudioLevelChangeCallback;
 
-class AudioSourceOnVolumeChangeObserver {
+class AudioSourceOnAudioLevelChangeObserver {
   public:
-  AudioSourceOnVolumeChangeObserver(rust::Box<bridge::DynAudioSourceOnVolumeChangeCallback> cb);
-  void VolumeChanged(float volume);
+  AudioSourceOnAudioLevelChangeObserver(rust::Box<bridge::DynAudioSourceOnAudioLevelChangeCallback> cb);
+  void AudioLevelChanged(float volume);
 
   private:
-    rust::Box<bridge::DynAudioSourceOnVolumeChangeCallback> cb_;
+    rust::Box<bridge::DynAudioSourceOnAudioLevelChangeCallback> cb_;
 };
 
 // Implementation of an `AudioSourceInterface` with settings for switching audio
@@ -45,8 +45,8 @@ class LocalAudioSource : public webrtc::Notifier<webrtc::AudioSourceInterface> {
               size_t number_of_channels,
               size_t number_of_frames);
 
-  void RegisterVolumeObserver(AudioSourceOnVolumeChangeObserver* obs);
-  void UnregisterVolumeObserver();
+  void RegisterAudioLevelObserver(AudioSourceOnAudioLevelChangeObserver* obs);
+  void UnregisterAudioLevelObserver();
 
  protected:
   LocalAudioSource() {}
@@ -57,7 +57,7 @@ class LocalAudioSource : public webrtc::Notifier<webrtc::AudioSourceInterface> {
   std::recursive_mutex sink_lock_;
   uint16_t _frames_without_volume_recalculation = 0;
   std::list<webrtc::AudioTrackSinkInterface*> sinks_;
-  std::optional<AudioSourceOnVolumeChangeObserver*> observer_;
+  std::optional<AudioSourceOnAudioLevelChangeObserver*> observer_;
 };
 
 }  // namespace bridge

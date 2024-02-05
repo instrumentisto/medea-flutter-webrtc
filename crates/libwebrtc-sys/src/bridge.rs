@@ -5,7 +5,7 @@ use cxx::{CxxString, CxxVector, UniquePtr};
 use derive_more::{Deref, DerefMut};
 
 use crate::{
-    AddIceCandidateCallback, AudioSourceOnVolumeChangeCallback,
+    AddIceCandidateCallback, AudioSourceOnAudioLevelChangeCallback,
     CreateSdpCallback, IceCandidateInterface, OnFrameCallback,
     PeerConnectionEventsHandler, RTCStatsCollectorCallback,
     RtpReceiverInterface, RtpTransceiverInterface, SetDescriptionCallback,
@@ -33,9 +33,9 @@ type DynRTCStatsCollectorCallback = Box<dyn RTCStatsCollectorCallback>;
 /// [`TrackEventCallback`] transferable to the C++ side.
 type DynTrackEventCallback = Box<dyn TrackEventCallback>;
 
-/// [`AudioSourceOnVolumeChangeCallback`] transferable to the C++ side.
-type DynAudioSourceOnVolumeChangeCallback =
-    Box<dyn AudioSourceOnVolumeChangeCallback>;
+/// [`AudioSourceOnAudioLevelChangeCallback`] transferable to the C++ side.
+type DynAudioSourceOnAudioLevelChangeCallback =
+    Box<dyn AudioSourceOnAudioLevelChangeCallback>;
 
 /// [`Option`]`<`[`i32`]`>` transferable to the C++ side.
 #[derive(Deref, DerefMut)]
@@ -2183,7 +2183,7 @@ pub(crate) mod webrtc {
         #[namespace = "webrtc"]
         pub type RtcpParameters;
         pub type TrackEventObserver;
-        pub type AudioSourceOnVolumeChangeObserver;
+        pub type AudioSourceOnAudioLevelChangeObserver;
 
         /// Creates a new [`VideoTrackSourceInterface`] sourced by a video input
         /// device with provided `device_index`.
@@ -2233,8 +2233,8 @@ pub(crate) mod webrtc {
         ///
         /// Previous observer will be disposed. Only one observer at a time
         /// is supported.
-        pub fn audio_source_register_volume_observer(
-            obs: Pin<&mut AudioSourceOnVolumeChangeObserver>,
+        pub fn audio_source_register_audio_level_observer(
+            obs: Pin<&mut AudioSourceOnAudioLevelChangeObserver>,
             audio_source: &AudioSourceInterface,
         );
 
@@ -2243,7 +2243,7 @@ pub(crate) mod webrtc {
         ///
         /// [`AudioSourceInterface`] will not calculate audio level after
         /// call to this function.
-        pub fn audio_source_unregister_volume_observer(
+        pub fn audio_source_unregister_audio_level_observer(
             audio_source: &AudioSourceInterface,
         );
 
@@ -2468,11 +2468,11 @@ pub(crate) mod webrtc {
             cb: Box<DynTrackEventCallback>,
         ) -> UniquePtr<TrackEventObserver>;
 
-        /// Creates a new [`AudioSourceOnVolumeChangeObserver`] backed by
-        /// the provided [`DynAudioSourceOnVolumeChangeCallback`].
-        pub fn create_audio_source_on_volume_change_observer(
-            cb: Box<DynAudioSourceOnVolumeChangeCallback>,
-        ) -> UniquePtr<AudioSourceOnVolumeChangeObserver>;
+        /// Creates a new [`AudioSourceOnAudioLevelChangeObserver`] backed by
+        /// the provided [`DynAudioSourceOnAudioLevelChangeCallback`].
+        pub fn create_audio_source_on_audio_level_change_observer(
+            cb: Box<DynAudioSourceOnAudioLevelChangeCallback>,
+        ) -> UniquePtr<AudioSourceOnAudioLevelChangeObserver>;
 
         /// Changes the `track` member of the provided [`TrackEventObserver`].
         pub fn set_track_observer_video_track(
@@ -2548,11 +2548,11 @@ pub(crate) mod webrtc {
     }
 
     extern "Rust" {
-        pub type DynAudioSourceOnVolumeChangeCallback;
+        pub type DynAudioSourceOnAudioLevelChangeCallback;
 
         /// Called when the `LocalAudioSource` produces new audio volume update.
-        fn on_volume_change(
-            cb: &mut DynAudioSourceOnVolumeChangeCallback,
+        fn on_audio_level_change(
+            cb: &mut DynAudioSourceOnAudioLevelChangeCallback,
             volume: f32,
         );
     }
@@ -2926,13 +2926,13 @@ pub fn on_ended(cb: &mut DynTrackEventCallback) {
     cb.on_ended();
 }
 
-/// Notifies provided [`DynAudioSourceOnVolumeChangeCallback`] about audio
+/// Notifies provided [`DynAudioSourceOnAudioLevelChangeCallback`] about audio
 /// volume level update.
-pub fn on_volume_change(
-    cb: &mut DynAudioSourceOnVolumeChangeCallback,
+pub fn on_audio_level_change(
+    cb: &mut DynAudioSourceOnAudioLevelChangeCallback,
     volume: f32,
 ) {
-    cb.on_volume_change(volume);
+    cb.on_audio_level_change(volume);
 }
 
 /// Creates a new [`StringPair`].
