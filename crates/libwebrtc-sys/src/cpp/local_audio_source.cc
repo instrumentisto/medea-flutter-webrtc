@@ -43,13 +43,11 @@ void LocalAudioSource::OnData(const void* audio_data,
   std::lock_guard<std::recursive_mutex> lk(sink_lock_);
 
   if ((*observer_) != nullptr) {
-    // TODO(review): now - last > 100ms?
-    if (_frames_without_volume_recalculation > 10) {
-      _frames_without_volume_recalculation = 0;
+    auto elapsed_time = std::chrono::steady_clock::now() - last_audio_level_recalculation_;
+    if (std::chrono::duration_cast<std::chrono::milliseconds>(elapsed_time).count() > 100) {
+      last_audio_level_recalculation_ = std::chrono::steady_clock::now();
       auto volume = calculate_audio_level((int16_t*) audio_data, number_of_channels * sample_rate / 100);
       (*observer_)->AudioLevelChanged(volume);
-    } else {
-      _frames_without_volume_recalculation++;
     }
   }
 

@@ -206,7 +206,7 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
             trackId: track.id,
             kind: ffi.MediaType.values[_kind.index])
         .listen((event) {
-      if (event is ffi.TrackEvent_VolumeUpdated) {
+      if (event is ffi.TrackEvent_AudioLevelUpdated) {
         _onAudioLevelChanged?.call(event.field0);
         return;
       } else if (event is ffi.TrackEvent_Ended) {
@@ -218,7 +218,7 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
 
   @override
   void onAudioLevelChanged(OnAudioLevelChangedCallback? cb) {
-    api!.setVolumeObserverEnabled(
+    api!.setAudioLevelObserverEnabled(
       peerId: _peerId,
       trackId: _id,
       enabled: cb != null,

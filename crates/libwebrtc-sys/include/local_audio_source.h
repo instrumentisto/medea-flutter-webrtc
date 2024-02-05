@@ -1,6 +1,7 @@
 #ifndef BRIDGE_LOCAL_AUDIO_SOURCE_H_
 #define BRIDGE_LOCAL_AUDIO_SOURCE_H_
 
+#include <chrono>
 #include <mutex>
 #include <optional>
 
@@ -55,9 +56,9 @@ class LocalAudioSource : public webrtc::Notifier<webrtc::AudioSourceInterface> {
  private:
   cricket::AudioOptions _options;
   std::recursive_mutex sink_lock_;
-  uint16_t _frames_without_volume_recalculation = 0;
   std::list<webrtc::AudioTrackSinkInterface*> sinks_;
   std::optional<AudioSourceOnAudioLevelChangeObserver*> observer_;
+  std::chrono::steady_clock::time_point last_audio_level_recalculation_ = std::chrono::steady_clock::now();
 };
 
 }  // namespace bridge
