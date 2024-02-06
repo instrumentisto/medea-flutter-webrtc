@@ -127,8 +127,12 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
 
   @override
   void onAudioLevelChanged(OnAudioLevelChangedCallback? cb) {
-    // TODO(review): add isAvailable check instead of throwing?
     throw 'onAudioLevelChanged callback is not supported on mobile platforms';
+  }
+
+  @override
+  bool isAudioLevelAvailable() {
+    return false;
   }
 
   @override
@@ -224,6 +228,11 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
       enabled: cb != null,
     );
     _onAudioLevelChanged = cb;
+  }
+
+  @override
+  bool isAudioLevelAvailable() {
+    return false;
   }
 
   @override

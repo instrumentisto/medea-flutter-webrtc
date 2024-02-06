@@ -49,6 +49,9 @@ abstract class MediaStreamTrack {
   /// Subscribes provided callback to the audio level volume updates of this [MediaStreamTrack].
   void onAudioLevelChanged(OnAudioLevelChangedCallback? cb);
 
+  /// Flag which indicates availability of `onAudioLevelChanged` callback on the current platform.
+  bool isAudioLevelAvailable();
+
   /// Creates a new instance of [MediaStreamTrack], which will depend on the same
   /// media source as this [MediaStreamTrack].
   ///

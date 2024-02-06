@@ -36,6 +36,11 @@ class WebMediaStreamTrack extends MediaStreamTrack {
   }
 
   @override
+  bool isAudioLevelAvailable() {
+    return false;
+  }
+
+  @override
   bool isEnabled() {
     return jsTrack.enabled ?? false;
   }
