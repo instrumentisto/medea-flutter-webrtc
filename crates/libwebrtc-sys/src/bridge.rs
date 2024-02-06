@@ -2229,7 +2229,7 @@ pub(crate) mod webrtc {
         );
 
         /// Registers provided observer in [`AudioSourceInterface`]. So audio
-        /// volume updates will be passes to this observer.
+        /// level updates will be passes to this observer.
         ///
         /// Previous observer will be disposed. Only one observer at a time
         /// is supported.
@@ -2927,7 +2927,7 @@ pub fn on_ended(cb: &mut DynTrackEventCallback) {
 }
 
 /// Notifies provided [`DynAudioSourceOnAudioLevelChangeCallback`] about audio
-/// volume level update.
+/// level update.
 pub fn on_audio_level_change(
     cb: &mut DynAudioSourceOnAudioLevelChangeCallback,
     volume: f32,

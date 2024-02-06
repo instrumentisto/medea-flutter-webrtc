@@ -1810,9 +1810,11 @@ impl AudioSourceInterface {
         Self(ptr)
     }
 
-    /// Subscribes provided [`AudioSourceOnAudioLevelChangeCallback`] to audio level updates of this [`AudioSourceInterface`].
+    /// Subscribes provided [`AudioSourceOnAudioLevelChangeCallback`] to audio
+    /// level updates of this [`AudioSourceInterface`].
     ///
-    /// Only one [`AudioSourceOnAudioLevelChangeCallback`] at a time is supported.
+    /// Only one [`AudioSourceOnAudioLevelChangeCallback`] at a time is
+    /// supported.
     #[must_use]
     pub fn subscribe(
         &self,
@@ -1821,6 +1823,8 @@ impl AudioSourceInterface {
         AudioSourceAudioLevelObserver::new(cb, self)
     }
 
+    /// Unsubscribes provided [`AudioSourceAudioLevelObserver`] from
+    /// this [`AudioSourceInterface`].
     pub fn unsubscribe(&self, observer: AudioSourceAudioLevelObserver) {
         webrtc::audio_source_unregister_audio_level_observer(&self.0);
         drop(observer);

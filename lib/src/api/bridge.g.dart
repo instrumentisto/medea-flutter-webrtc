@@ -320,6 +320,8 @@ abstract class MedeaFlutterWebrtcNative {
 
   FlutterRustBridgeTaskConstMeta get kRegisterTrackObserverConstMeta;
 
+  /// Enables or disables audio level observer of the [`AudioTrack`]
+  /// with a provided `id`.
   Future<void> setAudioLevelObserverEnabled(
       {required String trackId,
       int? peerId,

@@ -29,7 +29,7 @@ class _LoopbackState extends State<Loopback> {
   bool _cam = true;
   int _volume = -1;
   bool _microIsAvailable = false;
-  double currentAudioLevel = 0.1;
+  double currentAudioLevel = 0.0;
 
   @override
   void initState() {

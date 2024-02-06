@@ -2452,6 +2452,8 @@ pub fn register_track_observer(
     )
 }
 
+/// Enables or disables audio level observer of the [`AudioTrack`]
+/// with a provided `id`.
 pub fn set_audio_level_observer_enabled(
     track_id: String,
     peer_id: Option<u64>,
