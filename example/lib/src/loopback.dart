@@ -123,7 +123,7 @@ class _LoopbackState extends State<Loopback> {
         setState(() {
           currentAudioLevel = volume / 100;
         });
-    });
+      });
 
       await vtrans?.sender.replaceTrack(
           _tracks!.firstWhere((track) => track.kind() == MediaKind.video));
@@ -289,27 +289,30 @@ class _LoopbackState extends State<Loopback> {
       body: OrientationBuilder(
         builder: (context, orientation) {
           return Center(
-              child: Column(children: [Row(
-            children: [
-              Container(
-                margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-                width: MediaQuery.of(context).size.width / 2,
-                height: MediaQuery.of(context).size.height - 66,
-                decoration: const BoxDecoration(color: Colors.black54),
-                child: VideoView(_localRenderer, mirror: true),
-              ),
-              Container(
-                margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-                width: MediaQuery.of(context).size.width / 2,
-                height: MediaQuery.of(context).size.height - 66,
-                decoration: const BoxDecoration(color: Colors.black54),
-                child: VideoView(_remoteRenderer, mirror: true),
-              ),
-            ],
-          ),                     LinearProgressIndicator(
-            value: currentAudioLevel, // Set the progress value here
-            minHeight: 10.0, // Set the minimum height of the progress bar
-          ),]));
+              child: Column(children: [
+            Row(
+              children: [
+                Container(
+                  margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                  width: MediaQuery.of(context).size.width / 2,
+                  height: MediaQuery.of(context).size.height - 66,
+                  decoration: const BoxDecoration(color: Colors.black54),
+                  child: VideoView(_localRenderer, mirror: true),
+                ),
+                Container(
+                  margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                  width: MediaQuery.of(context).size.width / 2,
+                  height: MediaQuery.of(context).size.height - 66,
+                  decoration: const BoxDecoration(color: Colors.black54),
+                  child: VideoView(_remoteRenderer, mirror: true),
+                ),
+              ],
+            ),
+            LinearProgressIndicator(
+              value: currentAudioLevel,
+              minHeight: 10.0,
+            ),
+          ]));
         },
       ),
       floatingActionButton: FloatingActionButton(

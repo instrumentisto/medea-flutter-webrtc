@@ -3,10 +3,7 @@
 
 mod bridge;
 
-use std::{
-    collections::HashMap,
-    mem,
-};
+use std::{collections::HashMap, mem};
 
 use anyhow::{anyhow, bail};
 use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
@@ -1813,12 +1810,15 @@ impl AudioSourceInterface {
         Self(ptr)
     }
 
-    pub fn subscribe(&self, cb: Box<dyn AudioSourceOnAudioLevelChangeCallback>) -> AudioSourceAudioLevelObserver {
-        let observer = AudioSourceAudioLevelObserver::new(
-            cb,
-            self,
-        );
-        observer
+    /// Subscribes provided [`AudioSourceOnAudioLevelChangeCallback`] to audio level updates of this [`AudioSourceInterface`].
+    ///
+    /// Only one [`AudioSourceOnAudioLevelChangeCallback`] at a time is supported.
+    #[must_use]
+    pub fn subscribe(
+        &self,
+        cb: Box<dyn AudioSourceOnAudioLevelChangeCallback>,
+    ) -> AudioSourceAudioLevelObserver {
+        AudioSourceAudioLevelObserver::new(cb, self)
     }
 
     pub fn unsubscribe(&self, observer: AudioSourceAudioLevelObserver) {
@@ -1898,7 +1898,8 @@ impl TrackEventObserver {
 unsafe impl Send for webrtc::TrackEventObserver {}
 unsafe impl Sync for webrtc::TrackEventObserver {}
 
-/// C++ side [`AudioSourceOnAudioLevelChangeCallback`] handling audio level updates.
+/// C++ side [`AudioSourceOnAudioLevelChangeCallback`] handling audio
+/// level updates.
 pub struct AudioSourceAudioLevelObserver(
     UniquePtr<webrtc::AudioSourceOnAudioLevelChangeObserver>,
 );
@@ -1911,7 +1912,9 @@ impl AudioSourceAudioLevelObserver {
         source: &AudioSourceInterface,
     ) -> Self {
         let mut ptr =
-            webrtc::create_audio_source_on_audio_level_change_observer(Box::new(cb));
+            webrtc::create_audio_source_on_audio_level_change_observer(
+                Box::new(cb),
+            );
         webrtc::audio_source_register_audio_level_observer(
             ptr.pin_mut(),
             &source.0,
