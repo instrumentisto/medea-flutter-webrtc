@@ -4,15 +4,18 @@ use std::{
     mem,
     sync::{Arc, RwLock, Weak},
 };
+use std::sync::Mutex;
 
 use anyhow::{anyhow, bail, Context};
 use derive_more::{AsRef, Display, From, Into};
 use libwebrtc_sys::{
-    self as sys, OnFrameCallback, TrackEventObserver, AudioLevelObserverId,
+    self as sys, OnFrameCallback, TrackEventObserver, AudioSourceAudioLevelObserver,
 };
+use dashmap::DashMap;
 // TODO: Use `std::sync::OnceLock` instead, once it support `.wait()` API.
 use once_cell::sync::OnceCell;
 use xxhash::xxh3::xxh3_64;
+use libwebrtc_sys::AudioSourceOnAudioLevelChangeCallback;
 
 use crate::{
     api, devices, next_id,
@@ -54,7 +57,7 @@ impl Webrtc {
                         api::GetMediaError::Audio(err.to_string())
                     })?;
                 let track = self
-                    .create_audio_track(src.0.clone(), Arc::clone(&src.1))
+                    .create_audio_track(Arc::clone(&src))
                     .map_err(|err| {
                         api::GetMediaError::Audio(err.to_string())
                     })?;
@@ -97,9 +100,9 @@ impl Webrtc {
                 {
                     if let MediaTrackSource::Local(src) = &track.source {
                         if Arc::strong_count(src) == 2 {
-                            self.audio_sources.remove(&track.device_id);
+                            self.audio_sources.remove(&src.device_id);
                             self.audio_device_module
-                                .dispose_audio_source(&track.device_id);
+                                .dispose_audio_source(&src.device_id);
                         };
                     }
                     mem::take(&mut track.senders)
@@ -249,12 +252,10 @@ impl Webrtc {
     /// [`sys::AudioSourceInterface`].
     fn create_audio_track(
         &mut self,
-        device_id: AudioDeviceId,
-        source: Arc<sys::AudioSourceInterface>,
+        source: Arc<AudioSource>,
     ) -> anyhow::Result<api::MediaStreamTrack> {
         let track = AudioTrack::new(
             &self.peer_connection_factory,
-            device_id,
             source,
             TrackOrigin::Local,
         )?;
@@ -296,7 +297,7 @@ impl Webrtc {
         let src = if let Some(src) = self.audio_sources.get(&device_id) {
             Arc::clone(src)
         } else {
-            let src = Arc::new(AudioSource(
+            let src = Arc::new(AudioSource::new(
                 device_id.clone(),
                 Arc::new(
                     self.audio_device_module
@@ -436,11 +437,11 @@ impl Webrtc {
         match kind {
             api::MediaType::Audio => {
                 let id = AudioTrackId::from(id);
-                let (device_id, source) = self
+                let source = self
                     .audio_tracks
                     .get(&(id.clone(), track_origin))
                     .map(|track| {
-                        let source = match &track.source {
+                        match &track.source {
                             MediaTrackSource::Local(source) => {
                                 MediaTrackSource::Local(Arc::clone(source))
                             }
@@ -450,8 +451,7 @@ impl Webrtc {
                                     peer: peer.clone(),
                                 }
                             }
-                        };
-                        (track.device_id.clone(), source)
+                        }
                     })
                     .ok_or_else(|| {
                         anyhow!("Cannot find track with ID `{id}`")
@@ -459,7 +459,7 @@ impl Webrtc {
 
                 match source {
                     MediaTrackSource::Local(source) => Ok(self
-                        .create_audio_track(device_id, Arc::clone(&source))?),
+                        .create_audio_track(Arc::clone(&source))?),
                     MediaTrackSource::Remote { mid, peer } => {
                         let peer = peer.upgrade().ok_or_else(|| {
                             anyhow!("`PeerConnection` has been disposed")
@@ -538,7 +538,7 @@ impl Webrtc {
         }
     }
 
-    /// Enables or disables audio volume level observer of the [`AudioTrack`]
+    /// Enables or disables audio level observer of the [`AudioTrack`]
     /// with a provided `id`.
     ///
     /// # Warning
@@ -1185,13 +1185,10 @@ pub struct AudioTrack {
     inner: sys::AudioTrackInterface,
 
     /// [`sys::AudioSourceInterface`] that is used by this [`AudioTrack`].
-    source: MediaTrackSource<sys::AudioSourceInterface>,
+    source: MediaTrackSource<AudioSource>,
 
     /// [`api::TrackKind::kAudio`].
     kind: api::MediaType,
-
-    /// Device ID of the [`AudioTrack`]'s [`sys::AudioSourceInterface`].
-    device_id: AudioDeviceId,
 
     /// [`StreamSink`] which can be used by this [`AudioTrack`] to emit
     /// [`api::TrackEvent`]s to Flutter side.
@@ -1215,17 +1212,15 @@ impl AudioTrack {
     /// returns an error.
     pub fn new(
         pc: &sys::PeerConnectionFactoryInterface,
-        device_id: AudioDeviceId,
-        src: Arc<sys::AudioSourceInterface>,
+        src: Arc<AudioSource>,
         track_origin: TrackOrigin,
     ) -> anyhow::Result<Self> {
         let id = AudioTrackId(next_id().to_string());
         Ok(Self {
             id: id.clone(),
-            inner: pc.create_audio_track(id.into(), &src)?,
+            inner: pc.create_audio_track(id.into(), &src.src)?,
             source: MediaTrackSource::Local(src),
             kind: api::MediaType::Audio,
-            device_id,
             senders: HashMap::new(),
             track_origin,
             stream_sink: None,
@@ -1233,7 +1228,7 @@ impl AudioTrack {
         })
     }
 
-    /// Subscribes this [`AudioTrack`] to the audio volume level updates.
+    /// Subscribes this [`AudioTrack`] to the audio level updates.
     ///
     /// Volume updates will be passed to the [`StreamSink`] of
     /// this [`AudioTrack`].
@@ -1251,7 +1246,7 @@ impl AudioTrack {
         }
     }
 
-    /// Unsubscribes this [`AudioTrack`] from the audio volume level updates.
+    /// Unsubscribes this [`AudioTrack`] from the audio level updates.
     pub fn unsubscribe_from_audio_level(&self) {
         match &self.source {
             MediaTrackSource::Local(src) => {
@@ -1287,7 +1282,6 @@ impl AudioTrack {
                 peer: Arc::downgrade(peer),
             },
             kind: api::MediaType::Audio,
-            device_id: AudioDeviceId::from("remote"),
             senders: HashMap::new(),
             track_origin: TrackOrigin::Remote(peer.id()),
             stream_sink: None,
@@ -1317,7 +1311,14 @@ impl From<&AudioTrack> for api::MediaStreamTrack {
     fn from(track: &AudioTrack) -> Self {
         Self {
             id: track.id.0.clone(),
-            device_id: track.device_id.to_string(),
+            device_id: match &track.source {
+                MediaTrackSource::Local(local) => {
+                    local.device_id.to_string()
+                }
+                MediaTrackSource::Remote { mid: _, peer: _ } => {
+                    String::from("remote")
+                }
+            },
             kind: track.kind,
             enabled: true,
             peer_id: match track.track_origin {
@@ -1334,8 +1335,130 @@ impl Drop for AudioTrack {
     }
 }
 
+/// [`AudioSourceOnAudioLevelChangeCallback`] unique (per [`AudioSourceInterface`])
+/// ID.
+#[derive(Clone, Default, Copy, Hash, PartialEq, Eq, Debug)]
+pub struct AudioLevelObserverId(u64);
+
+/// Storage for the [`AudioSourceOnAudioLevelChangeCallback`].
+type ObserverStorage = Arc<
+    DashMap<
+        AudioLevelObserverId,
+        Box<dyn AudioSourceOnAudioLevelChangeCallback + Send + Sync>,
+    >,
+>;
+
+/// [`AudioSourceOnAudioLevelChangeCallback`] implementation which broadcasts
+/// all audio level updates to the all underlying
+/// [`AudioSourceOnAudioLevelChangeCallback`].
+struct BroadcasterObserver(ObserverStorage);
+
+impl BroadcasterObserver {
+    /// Creates new [`BroadcasterObserver`] with a provided [`ObserverStorage`]
+    /// as sink for audio level broadcasts.
+    pub fn new(observers: ObserverStorage) -> Self {
+        Self(observers)
+    }
+}
+
+impl AudioSourceOnAudioLevelChangeCallback for BroadcasterObserver {
+    /// Calls [`AudioSourceOnAudioLevelChangeCallback::on_audio_level_change`] on all
+    /// underlying [`AudioSourceOnAudioLevelChangeCallback`].
+    fn on_audio_level_change(&self, volume: f32) {
+        self.0.iter().for_each(|i| {
+            i.value().on_audio_level_change(volume);
+        });
+    }
+}
+
 /// [`sys::AudioSourceInterface`] wrapper.
-pub struct AudioSource(AudioDeviceId, Arc<sys::AudioSourceInterface>);
+pub struct AudioSource {
+    /// Storage for the all [`AudioSourceOnAudioLevelChangeCallback`] related
+    /// to this [`AudioSourceInterface`].
+    ///
+    /// This [`ObserverStorage`] is shared with [`BroadcasterObserver`] and
+    /// needed for [`AudioSourceOnAudioLevelChangeCallback`] disposing without
+    /// calling C++ side.
+    observers: ObserverStorage,
+
+    /// Handle for this [`BroadcastObserver`].
+    ///
+    /// C++ side has pointer to this object, so we need to store it, so it
+    /// won't be deallocated.
+    observer: Mutex<Option<AudioSourceAudioLevelObserver>>,
+
+    /// Last ID used for [`AudioLevelObserverId`].
+    last_observer_id: Mutex<AudioLevelObserverId>,
+
+    /// [`AudioDeviceId`] of device to whihc this [`AudioSource`] is related.
+    device_id: AudioDeviceId,
+
+    /// Underlying FFI wrapper for `LocalAudioSource`.
+    src: Arc<sys::AudioSourceInterface>,
+}
+
+impl AudioSource {
+    /// Creates new [`AudioSource`] with a providd parameters.
+    pub fn new(device_id: AudioDeviceId, src: Arc<sys::AudioSourceInterface>) -> Self {
+        Self {
+            device_id,
+            observers: Arc::default(),
+            observer: Mutex::default(),
+            last_observer_id: Mutex::default(),
+            src,
+        }
+    }
+
+    /// Subscribes provided [`AudioSourceOnAudioLevelChangeCallback`] to audio level updates.
+    ///
+    /// This method will initialize new [`BroadcasterObserver`] if it wasn't
+    /// initialized before.
+    ///
+    /// Returns [`AudioLevelObserverId`] which can be used to unsubscibe provided
+    /// here [`AudioSourceOnAudioLevelChangeCallback`].
+    ///
+    /// # Panics
+    ///
+    /// On [`Mutex`] poisoning.
+    pub fn subscribe_on_audio_level(
+        &self,
+        cb: Box<dyn AudioSourceOnAudioLevelChangeCallback + Send + Sync>,
+    ) -> AudioLevelObserverId {
+        if self.observers.is_empty() {
+            let observer = self.src.subscribe(Box::new(BroadcasterObserver::new(Arc::clone(&self.observers))));
+            self.observer.lock().unwrap().replace(observer);
+        }
+
+        let observer_id = {
+            let mut last_observer_id = self.last_observer_id.lock().unwrap();
+            let next_id = AudioLevelObserverId(last_observer_id.0 + 1);
+            *last_observer_id = next_id;
+            next_id
+        };
+        self.observers.insert(observer_id, cb);
+
+        observer_id
+    }
+
+    /// Unsubscribes [`AudioSourceOnAudioLevelChangeCallback`] from audio level updates.
+    ///
+    /// After unsubscribing this callback will be disposed.
+    ///
+    /// If [`AudioSourceInterface`] detects that this was last callback, it
+    /// will stop any audio level calculations to save system resources.
+    ///
+    /// # Panics
+    ///
+    /// On [`Mutex`] poisoning.
+    pub fn unsubscribe_audio_level(&self, id: AudioLevelObserverId) {
+        self.observers.remove(&id);
+        if self.observers.is_empty() {
+            if let Some(observer) = self.observer.lock().unwrap().take() {
+                self.src.unsubscribe(observer);
+            }
+        }
+    }
+}
 
 /// [`sys::VideoTrackSourceInterface`] wrapper.
 pub struct VideoSource {
@@ -1421,7 +1544,7 @@ impl sys::TrackEventCallback for TrackEventHandler {
     }
 }
 
-/// Wrapper around [`StreamSink`] which produces audio volume level
+/// Wrapper around [`StreamSink`] which produces audio level
 /// updates to the Flutter side.
 ///
 /// This handler also will multiply volume by `1000` and cast it to [`u32`], for

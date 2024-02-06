@@ -662,7 +662,6 @@ dependencies = [
  "anyhow",
  "cxx",
  "cxx-build",
- "dashmap",
  "derive_more",
  "flate2",
  "pkg-config",

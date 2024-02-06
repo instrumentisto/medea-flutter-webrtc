@@ -2238,7 +2238,7 @@ pub(crate) mod webrtc {
             audio_source: &AudioSourceInterface,
         );
 
-        /// Unregisters audio volume level observer from the provided
+        /// Unregisters audio level observer from the provided
         /// [`AudioSourceInterface`].
         ///
         /// [`AudioSourceInterface`] will not calculate audio level after
@@ -2550,7 +2550,7 @@ pub(crate) mod webrtc {
     extern "Rust" {
         pub type DynAudioSourceOnAudioLevelChangeCallback;
 
-        /// Called when the `LocalAudioSource` produces new audio volume update.
+        /// Called when the `LocalAudioSource` produces new audio level update.
         fn on_audio_level_change(
             cb: &mut DynAudioSourceOnAudioLevelChangeCallback,
             volume: f32,

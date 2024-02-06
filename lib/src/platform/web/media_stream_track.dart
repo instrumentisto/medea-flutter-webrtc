@@ -31,10 +31,8 @@ class WebMediaStreamTrack extends MediaStreamTrack {
 
   @override
   void onAudioLevelChanged(OnAudioLevelChangedCallback? cb) {
-    // TODO(review): is it? there is audio level in media-source stats and
-    //               audio node and AnalyserNode
-    //               https://webrtc.github.io/samples/src/content/getusermedia/volume/
-    throw 'onAudioLevelChanged callback is not supported on web';
+    // TODO(evdokimovs): implement it using audio level in media-source stats and audio node and AnalyserNode: https://webrtc.github.io/samples/src/content/getusermedia/volume/
+    throw 'onAudioLevelChanged callback currently is not supported on web';
   }
 
   @override

@@ -1098,7 +1098,7 @@ pub enum TrackEvent {
     /// because no further data is available.
     Ended,
 
-    /// Event which indicates that new audio volume level occurred.
+    /// Event which indicates that new audio level occurred.
     AudioLevelUpdated(u32),
 }
 

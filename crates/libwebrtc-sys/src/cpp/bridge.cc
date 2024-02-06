@@ -41,7 +41,7 @@ void TrackEventObserver::OnChanged() {
   }
 }
 
-// Called when the `LocalAudioSource` produces new audio volume update.
+// Called when the `LocalAudioSource` produces new audio level update.
 void AudioSourceOnAudioLevelChangeObserver::AudioLevelChanged(float volume) {
   bridge::on_audio_level_change(*cb_, volume);
 }
@@ -804,7 +804,7 @@ void set_track_observer_audio_track(TrackEventObserver& obs,
   obs.set_track(track);
 }
 
-// Registers provided observer in `LocalAudioSource`. So audio volume updates
+// Registers provided observer in `LocalAudioSource`. So audio level updates
 // will be passes to this observer.
 //
 // Previous observer will be disposed. Only one observer at a time is supported.
@@ -816,7 +816,7 @@ void audio_source_register_audio_level_observer(AudioSourceOnAudioLevelChangeObs
   }
 }
 
-// Unregisters audio volume level observer from the provided `LocalAudioSource`.
+// Unregisters audio level observer from the provided `LocalAudioSource`.
 //
 // `LocalAudioSource` will not calculate audio level after call to this function.
 void audio_source_unregister_audio_level_observer(const AudioSourceInterface& audio_source) {

@@ -1929,7 +1929,7 @@ sealed class TrackEvent with _$TrackEvent {
   /// because no further data is available.
   const factory TrackEvent.ended() = TrackEvent_Ended;
 
-  /// Event which indicates that new audio volume level occurred.
+  /// Event which indicates that new audio level occurred.
   const factory TrackEvent.audioLevelUpdated(
     int field0,
   ) = TrackEvent_AudioLevelUpdated;

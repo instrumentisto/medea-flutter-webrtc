@@ -6,12 +6,10 @@ mod bridge;
 use std::{
     collections::HashMap,
     mem,
-    sync::{Arc, Mutex},
 };
 
 use anyhow::{anyhow, bail};
 use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
-use dashmap::DashMap;
 use derive_more::From;
 
 use self::bridge::webrtc;
@@ -35,9 +33,9 @@ pub trait TrackEventCallback {
     fn on_ended(&mut self);
 }
 
-/// Handler of audio volume level updates from a [`AudioSourceInterface`].
+/// Handler of audio level updates from a [`AudioSourceInterface`].
 pub trait AudioSourceOnAudioLevelChangeCallback {
-    /// Called when new audio volume level update occurs.
+    /// Called when new audio level update occurs.
     fn on_audio_level_change(&self, volume: f32);
 }
 
@@ -1660,7 +1658,7 @@ impl PeerConnectionFactoryInterface {
         id: String,
         audio_src: &AudioSourceInterface,
     ) -> anyhow::Result<AudioTrackInterface> {
-        let inner = webrtc::create_audio_track(&self.0, id, &audio_src.ptr);
+        let inner = webrtc::create_audio_track(&self.0, id, &audio_src.0);
 
         if inner.is_null() {
             bail!(
@@ -1800,136 +1798,32 @@ impl VideoTrackSourceInterface {
 unsafe impl Send for webrtc::VideoTrackSourceInterface {}
 unsafe impl Sync for webrtc::VideoTrackSourceInterface {}
 
-/// [`AudioSourceOnAudioLevelChangeCallback`] unique (per [`AudioSourceInterface`])
-/// ID.
-#[derive(Clone, Default, Copy, Hash, PartialEq, Eq, Debug)]
-pub struct AudioLevelObserverId(u64);
-
-/// Storage for the [`AudioSourceOnAudioLevelChangeCallback`].
-type ObserverStorage = Arc<
-    DashMap<
-        AudioLevelObserverId,
-        Box<dyn AudioSourceOnAudioLevelChangeCallback + Send + Sync>,
-    >,
->;
-
-/// [`AudioSourceOnAudioLevelChangeCallback`] implementation which broadcasts
-/// all audio volume level updates to the all underlying
-/// [`AudioSourceOnAudioLevelChangeCallback`].
-struct BroadcasterObserver(ObserverStorage);
-
-impl BroadcasterObserver {
-    /// Creates new [`BroadcasterObserver`] with a provided [`ObserverStorage`]
-    /// as sink for audio level broadcasts.
-    pub fn new(observers: ObserverStorage) -> Self {
-        Self(observers)
-    }
-}
-
-impl AudioSourceOnAudioLevelChangeCallback for BroadcasterObserver {
-    /// Calls [`AudioSourceOnAudioLevelChangeCallback::on_audio_level_change`] on all
-    /// underlying [`AudioSourceOnAudioLevelChangeCallback`].
-    fn on_audio_level_change(&self, volume: f32) {
-        self.0.iter().for_each(|i| {
-            i.value().on_audio_level_change(volume);
-        });
-    }
-}
-
 /// [`VideoTrackSourceInterface`] captures data from the specific audio input
 /// device.
 ///
 /// It can be later used to create a [`AudioTrackInterface`] with
 /// [`PeerConnectionFactoryInterface::create_audio_track()`].
-pub struct AudioSourceInterface {
-    /// [`UniquePtr`] to the [`webrtc::AudioSourceInterface`] on C++ side.
-    ptr: UniquePtr<webrtc::AudioSourceInterface>,
-
-    // TODO(review): move to native crate?
-    /// Storage for the all [`AudioSourceOnAudioLevelChangeCallback`] related
-    /// to this [`AudioSourceInterface`].
-    ///
-    /// This [`ObserverStorage`] is shared with [`BroadcasterObserver`] and
-    /// needed for [`AudioSourceOnAudioLevelChangeCallback`] disposing without
-    /// calling C++ side.
-    observers: ObserverStorage,
-
-    /// Handle for this [`BroadcastObserver`].
-    ///
-    /// C++ side has pointer to this object, so we need to store it, so it
-    /// won't be deallocated.
-    observer: Mutex<Option<AudioSourceAudioLevelObserver>>,
-
-    // TODO(review): move to native crate?
-    /// Last ID used for [`AudioLevelObserverId`].
-    last_observer_id: Mutex<AudioLevelObserverId>,
-}
+pub struct AudioSourceInterface(UniquePtr<webrtc::AudioSourceInterface>);
 
 impl AudioSourceInterface {
     /// Creates new [`AudioSourceInterface`] with a provided
     /// [`webrtc::AudioSourceInterface`] [`UniquePtr`].
     #[must_use]
     pub fn new(ptr: UniquePtr<webrtc::AudioSourceInterface>) -> Self {
-        Self {
-            ptr,
-            observers: Arc::default(),
-            observer: Mutex::default(),
-            last_observer_id: Mutex::default(),
-        }
+        Self(ptr)
     }
 
-    /// Subscribes provided [`AudioSourceOnAudioLevelChangeCallback`] to audio
-    /// volume level updates.
-    ///
-    /// This method will initialize new [`BroadcasterObserver`] if it wasn't
-    /// initialized before.
-    ///
-    /// Returns [`AudioLevelObserverId`] which can be used to unsubscibe provided
-    /// here [`AudioSourceOnAudioLevelChangeCallback`].
-    ///
-    /// # Panics
-    ///
-    /// On [`Mutex`] poisoning.
-    pub fn subscribe_on_audio_level(
-        &self,
-        cb: Box<dyn AudioSourceOnAudioLevelChangeCallback + Send + Sync>,
-    ) -> AudioLevelObserverId {
-        if self.observers.is_empty() {
-            let observer = AudioSourceAudioLevelObserver::new(
-                Box::new(BroadcasterObserver::new(Arc::clone(&self.observers))),
-                self,
-            );
-            self.observer.lock().unwrap().replace(observer);
-        }
-
-        let observer_id = {
-            let mut last_observer_id = self.last_observer_id.lock().unwrap();
-            let next_id = AudioLevelObserverId(last_observer_id.0 + 1);
-            *last_observer_id = next_id;
-            next_id
-        };
-        self.observers.insert(observer_id, cb);
-
-        observer_id
+    pub fn subscribe(&self, cb: Box<dyn AudioSourceOnAudioLevelChangeCallback>) -> AudioSourceAudioLevelObserver {
+        let observer = AudioSourceAudioLevelObserver::new(
+            cb,
+            self,
+        );
+        observer
     }
 
-    /// Unsubscribes [`AudioSourceOnAudioLevelChangeCallback`] from audio volume
-    /// level updates.
-    ///
-    /// After unsubscribing this callback will be disposed.
-    ///
-    /// If [`AudioSourceInterface`] detects that this was last callback, it
-    /// will stop any audio volume level calculations to save system resources.
-    ///
-    /// # Panics
-    ///
-    /// On [`Mutex`] poisoning.
-    pub fn unsubscribe_audio_level(&self, id: AudioLevelObserverId) {
-        self.observers.remove(&id);
-        if self.observers.is_empty() {
-            webrtc::audio_source_unregister_audio_level_observer(&self.ptr);
-            drop(self.observer.lock().unwrap().take());
-        }
+    pub fn unsubscribe(&self, observer: AudioSourceAudioLevelObserver) {
+        webrtc::audio_source_unregister_audio_level_observer(&self.0);
+        drop(observer);
     }
 }
 
@@ -2004,8 +1898,7 @@ impl TrackEventObserver {
 unsafe impl Send for webrtc::TrackEventObserver {}
 unsafe impl Sync for webrtc::TrackEventObserver {}
 
-/// C++ side [`AudioSourceOnAudioLevelChangeCallback`] handling audio volume
-/// level updates.
+/// C++ side [`AudioSourceOnAudioLevelChangeCallback`] handling audio level updates.
 pub struct AudioSourceAudioLevelObserver(
     UniquePtr<webrtc::AudioSourceOnAudioLevelChangeObserver>,
 );
@@ -2021,7 +1914,7 @@ impl AudioSourceAudioLevelObserver {
             webrtc::create_audio_source_on_audio_level_change_observer(Box::new(cb));
         webrtc::audio_source_register_audio_level_observer(
             ptr.pin_mut(),
-            &source.ptr,
+            &source.0,
         );
         AudioSourceAudioLevelObserver(ptr)
     }
