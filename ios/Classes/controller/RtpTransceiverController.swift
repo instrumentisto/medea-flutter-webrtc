@@ -49,10 +49,11 @@ class RtpTransceiverController {
         var capability = RTCRtpCodecCapability()
 
         capability.name = codec["name"] as! String
-        capability.preferredPayloadType = 
+        capability.preferredPayloadType =
           codec["preferredPayloadType"] as? NSNumber
         capability.clockRate = codec["clockRate"] as? NSNumber
-        capability.kind = MediaType(rawValue: codec["kind"] as! Int)!.intoWebRtc()
+        capability.kind =
+          MediaType(rawValue: codec["kind"] as! Int)!.intoWebRtc()
         capability.numChannels = codec["numChannels"] as? NSNumber
         capability.parameters = codec["parameters"] as! [String: String]
         return capability
