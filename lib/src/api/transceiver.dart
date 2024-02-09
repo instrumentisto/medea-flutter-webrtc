@@ -50,7 +50,8 @@ abstract class RtpTransceiver {
   /// Changes the [TransceiverDirection] of this [RtpTransceiver].
   Future<void> setDirection(TransceiverDirection direction);
 
-  // todo
+  /// Changes the preferred [RtpTransceiver] codecs to the given
+  /// [RtpCodecCapability].
   Future<void> setCodecPreferences(List<RtpCodecCapability> codecs);
 
   /// Changes the receive direction of this [RtpTransceiver].
