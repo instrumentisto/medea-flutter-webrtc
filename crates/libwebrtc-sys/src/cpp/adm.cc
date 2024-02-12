@@ -838,6 +838,7 @@ int32_t OpenALAudioDeviceModule::StartRecording() {
 }
 
 int32_t OpenALAudioDeviceModule::StopRecording() {
+  RTC_LOG(LS_ERROR) << "StopRecording from libwebrtc";
   if (_data) {
     stopCaptureOnThread();
     if (!_data->playing) {

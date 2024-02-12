@@ -60,15 +60,15 @@ class _LoopbackState extends State<Loopback> {
   void initRenderers() async {
     await _localRenderer.initialize();
     await _remoteRenderer.initialize();
-    var caps = DeviceConstraints();
-    caps.audio.mandatory = AudioConstraints();
-    var tracks = await getUserMedia(caps);
-    _initTrack = tracks!.firstWhere((track) => track.kind() == MediaKind.audio);
-    _initTrack!.onAudioLevelChanged((volume) {
-      setState(() {
-        currentAudioLevel = volume / 100;
-      });
-    });
+    // var caps = DeviceConstraints();
+    // caps.audio.mandatory = AudioConstraints();
+    // var tracks = await getUserMedia(caps);
+    // _initTrack = tracks!.firstWhere((track) => track.kind() == MediaKind.audio);
+    // _initTrack!.onAudioLevelChanged((volume) {
+    //   setState(() {
+    //     currentAudioLevel = volume / 100;
+    //   });
+    // });
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -189,6 +189,11 @@ class _LoopbackState extends State<Loopback> {
     caps.audio.mandatory!.deviceId = id;
 
     var newTrack = (await getUserMedia(caps))[0];
+    newTrack.onAudioLevelChanged((volume) {
+      setState(() {
+        currentAudioLevel = volume / 100;
+      });
+    });
     await _audioTxTr!.sender.replaceTrack(newTrack);
 
     _tracks!.add(newTrack);
