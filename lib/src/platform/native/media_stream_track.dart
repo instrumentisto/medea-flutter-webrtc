@@ -197,8 +197,11 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   /// Subscriber for the audio level updates of this track.
   OnAudioLevelChangedCallback? _onAudioLevelChanged;
 
+  /// This [Completer] is used to wait the [ffi.TrackCreated] `event` when
+  /// creating a new [MediaStreamTrack].
   final Completer _initialized = Completer();
 
+  /// Creates a new [MediaStreamTrack] with the provided [ffi.MediaStreamTrack].
   static Future<_NativeMediaStreamTrackFFI> create(
       ffi.MediaStreamTrack track) async {
     var ffiTrack = _NativeMediaStreamTrackFFI(track);
@@ -266,7 +269,7 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
 
   @override
   Future<void> dispose() async {
-    // no-op for FFI implementation
+    await stop();
   }
 
   @override

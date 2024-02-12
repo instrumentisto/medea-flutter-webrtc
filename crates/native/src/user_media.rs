@@ -97,7 +97,7 @@ impl Webrtc {
                     .remove(&(AudioTrackId::from(track_id), track_origin))
                 {
                     if let MediaTrackSource::Local(src) = &track.source {
-                        if Arc::strong_count(src) == 2 {
+                        if Arc::strong_count(src) <= 2 {
                             self.audio_sources.remove(&src.device_id);
                             self.audio_device_module
                                 .dispose_audio_source(&src.device_id);

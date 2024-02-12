@@ -53,6 +53,7 @@ class _LoopbackState extends State<Loopback> {
     if (_inCalling) {
       _hangUp();
     }
+    _initTrack?.dispose();
     _localRenderer.dispose();
     _remoteRenderer.dispose();
   }
