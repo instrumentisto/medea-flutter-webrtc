@@ -716,6 +716,8 @@ OpenALAudioDeviceModule::CreateAudioSource(uint32_t device_index) {
   recorder->StartCapture();
   auto source = recorder->GetSource();
   _recorders[deviceId] = std::move(recorder);
+  ensureThreadStarted();
+  startCaptureOnThread();
 
   return source;
 }
@@ -831,7 +833,7 @@ bool OpenALAudioDeviceModule::RecordingIsInitialized() const {
 }
 
 int32_t OpenALAudioDeviceModule::StartRecording() {
-  startCaptureOnThread();
+  // startCaptureOnThread();
   return 0;
 }
 

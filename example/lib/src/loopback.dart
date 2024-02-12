@@ -16,6 +16,7 @@ class Loopback extends StatefulWidget {
 class _LoopbackState extends State<Loopback> {
   List<MediaDeviceInfo>? _mediaDevicesList;
   List<MediaStreamTrack>? _tracks;
+  MediaStreamTrack? _initTrack;
 
   PeerConnection? _pc1;
   RtpTransceiver? _audioTxTr;
@@ -59,6 +60,18 @@ class _LoopbackState extends State<Loopback> {
   void initRenderers() async {
     await _localRenderer.initialize();
     await _remoteRenderer.initialize();
+    var caps = DeviceConstraints();
+    caps.audio.mandatory = AudioConstraints();
+    var tracks = await getUserMedia(caps);
+    _initTrack = tracks!.firstWhere((track) => track.kind() == MediaKind.audio);
+    print("delay started");
+    // await Future.delayed(Duration(seconds: 1));
+    print("delay ended");
+    _initTrack!.onAudioLevelChanged((volume) {
+      setState(() {
+        currentAudioLevel = volume / 100;
+      });
+    });
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.

@@ -2442,6 +2442,7 @@ pub fn register_track_observer(
     track_id: String,
     kind: MediaType,
 ) -> anyhow::Result<()> {
+    println!("[DEBUG] register_track_observer");
     let track_origin = TrackOrigin::from(peer_id.map(PeerConnectionId::from));
 
     WEBRTC.lock().unwrap().register_track_observer(
@@ -2459,6 +2460,7 @@ pub fn set_audio_level_observer_enabled(
     peer_id: Option<u64>,
     enabled: bool,
 ) -> anyhow::Result<()> {
+    println!("[DEBUG] set_audio_level_observer_enabled");
     let track_origin = TrackOrigin::from(peer_id.map(PeerConnectionId::from));
     WEBRTC.lock().unwrap().set_audio_level_observer_enabled(
         track_id,

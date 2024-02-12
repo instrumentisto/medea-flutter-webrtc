@@ -1,4 +1,5 @@
 #include "local_audio_source.h"
+#include "rtc_base/logging.h"
 
 namespace bridge {
 
@@ -18,6 +19,7 @@ float calculate_audio_level(int16_t* data, int size) {
 
 rtc::scoped_refptr<LocalAudioSource> LocalAudioSource::Create(
     cricket::AudioOptions audio_options) {
+  RTC_LOG(LS_ERROR) << "LocalAudioSource::OnData";
   auto source = rtc::make_ref_counted<LocalAudioSource>();
   source->_options = audio_options;
   return source;
@@ -41,6 +43,7 @@ void LocalAudioSource::OnData(const void* audio_data,
                               size_t number_of_channels,
                               size_t number_of_frames) {
   std::lock_guard<std::recursive_mutex> lk(sink_lock_);
+  RTC_LOG(LS_ERROR) << "LocalAudioSource::OnData";
 
   if ((*observer_) != nullptr) {
     auto elapsed_time = std::chrono::steady_clock::now() - last_audio_level_recalculation_;
@@ -58,6 +61,8 @@ void LocalAudioSource::OnData(const void* audio_data,
 }
 
 void LocalAudioSource::RegisterAudioLevelObserver(AudioSourceOnAudioLevelChangeObserver* obs) {
+  RTC_LOG(LS_ERROR)
+    << "LocalAudioSource::RegisterAudioLevelObserver";
   observer_ = obs;
 }
 

@@ -553,6 +553,7 @@ impl Webrtc {
             .audio_tracks
             .get_mut(&(id.clone(), track_origin))
             .ok_or_else(|| anyhow!("Cannot find track with ID `{id}`"))?;
+        println!("[DEBUG] native::set_audio_level_observer_enabled: {enabled}");
         if enabled {
             track.subscribe_to_audio_level();
         } else {
@@ -577,8 +578,10 @@ impl Webrtc {
     ) -> anyhow::Result<()> {
         let mut obs =
             TrackEventObserver::new(Box::new(TrackEventHandler(cb.clone())));
+        println!("[DEBUG] register_track_observer 1");
         match kind {
             api::MediaType::Audio => {
+        println!("[DEBUG] register_track_observer 2");
                 let id = AudioTrackId::from(id);
                 let mut track = self
                     .audio_tracks
@@ -590,6 +593,7 @@ impl Webrtc {
                 obs.set_audio_track(&track.inner);
                 track.set_stream_sink(cb);
                 track.inner.register_observer(obs);
+        println!("[DEBUG] register_track_observer 3");
             }
             api::MediaType::Video => {
                 let id = VideoTrackId::from(id);
@@ -1230,24 +1234,31 @@ impl AudioTrack {
     /// Volume updates will be passed to the [`StreamSink`] of
     /// this [`AudioTrack`].
     pub fn subscribe_to_audio_level(&mut self) {
+        println!("[DEBUG] native::subscribe_to_audio_level 1");
         if let Some(sink) = self.stream_sink.clone() {
+        println!("[DEBUG] native::subscribe_to_audio_level 12");
             match &self.source {
                 MediaTrackSource::Local(src) => {
+                    log::error!("native::subscribe_to_audio_level 2");
                     let observer = src.subscribe_on_audio_level(Box::new(
                         AudioSourceAudioLevelHandler(sink),
                     ));
                     self.volume_observer_id = Some(observer);
                 }
-                MediaTrackSource::Remote { mid: _, peer: _ } => (),
+                MediaTrackSource::Remote { mid: _, peer: _ } => {
+                    log::error!("native::subscribe_to_audio_level 22");
+                },
             }
         }
     }
 
     /// Unsubscribes this [`AudioTrack`] from the audio level updates.
     pub fn unsubscribe_from_audio_level(&self) {
+        println!("[DEBUG] native::unsubscribe_from_audio_level 1");
         match &self.source {
             MediaTrackSource::Local(src) => {
                 if let Some(id) = self.volume_observer_id {
+                    log::error!("native::unsubscribe_from_audio_level 2");
                     src.unsubscribe_audio_level(id);
                 }
             }

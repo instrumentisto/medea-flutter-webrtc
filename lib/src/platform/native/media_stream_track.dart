@@ -10,7 +10,7 @@ import '/src/api/channel.dart';
 abstract class NativeMediaStreamTrack extends MediaStreamTrack {
   /// Creates a [NativeMediaStreamTrack] basing on the [Map] received from the
   /// native side.
-  static NativeMediaStreamTrack from(dynamic map) {
+  static Future<NativeMediaStreamTrack> from(dynamic map) async {
     if (isDesktop) {
       return _NativeMediaStreamTrackFFI(map);
     } else {
@@ -204,6 +204,7 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
     _deviceId = track.deviceId;
     _peerId = track.peerId;
     _kind = MediaKind.values[track.kind.index];
+    print("registerTrackObserver call");
     _eventSub = api!
         .registerTrackObserver(
             peerId: _peerId,
@@ -222,6 +223,7 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
 
   @override
   void onAudioLevelChanged(OnAudioLevelChangedCallback? cb) {
+    print("[DEBUG] onAudioLevelChanged");
     api!.setAudioLevelObserverEnabled(
       peerId: _peerId,
       trackId: _id,
