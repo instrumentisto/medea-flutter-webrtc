@@ -12,7 +12,7 @@ abstract class NativeMediaStreamTrack extends MediaStreamTrack {
   /// native side.
   static Future<NativeMediaStreamTrack> from(dynamic map) async {
     if (isDesktop) {
-      return await _NativeMediaStreamTrackFFI(map);
+      return await _NativeMediaStreamTrackFFI.create(map);
     } else {
       return _NativeMediaStreamTrackChannel.fromMap(map);
     }
