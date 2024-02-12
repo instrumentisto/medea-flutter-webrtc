@@ -833,12 +833,10 @@ bool OpenALAudioDeviceModule::RecordingIsInitialized() const {
 }
 
 int32_t OpenALAudioDeviceModule::StartRecording() {
-  // startCaptureOnThread();
   return 0;
 }
 
 int32_t OpenALAudioDeviceModule::StopRecording() {
-  RTC_LOG(LS_ERROR) << "StopRecording from libwebrtc";
   if (_data) {
     stopCaptureOnThread();
     if (!_data->playing) {

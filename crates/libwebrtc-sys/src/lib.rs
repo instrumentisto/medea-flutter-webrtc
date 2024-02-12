@@ -1820,14 +1820,12 @@ impl AudioSourceInterface {
         &self,
         cb: Box<dyn AudioSourceOnAudioLevelChangeCallback>,
     ) -> AudioSourceAudioLevelObserver {
-        println!("[DEBUG] libwebrtc_sys::AudioSourceInterface::subscribe");
         AudioSourceAudioLevelObserver::new(cb, self)
     }
 
     /// Unsubscribes provided [`AudioSourceAudioLevelObserver`] from
     /// this [`AudioSourceInterface`].
     pub fn unsubscribe(&self, observer: AudioSourceAudioLevelObserver) {
-        println!("[DEBUG] libwebrtc_sys::AudioSourceInterface::unsubscribe");
         webrtc::audio_source_unregister_audio_level_observer(&self.0);
         drop(observer);
     }

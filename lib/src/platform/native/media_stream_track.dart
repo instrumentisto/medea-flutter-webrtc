@@ -199,7 +199,8 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
 
   final Completer _initialized = Completer();
 
-  static Future<_NativeMediaStreamTrackFFI> create(ffi.MediaStreamTrack track) async {
+  static Future<_NativeMediaStreamTrackFFI> create(
+      ffi.MediaStreamTrack track) async {
     var ffiTrack = _NativeMediaStreamTrackFFI(track);
     await ffiTrack._initialized.future;
     return ffiTrack;
@@ -212,7 +213,6 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
     _deviceId = track.deviceId;
     _peerId = track.peerId;
     _kind = MediaKind.values[track.kind.index];
-    print("registerTrackObserver call");
     _eventSub = api!
         .registerTrackObserver(
             peerId: _peerId,
@@ -234,7 +234,6 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
 
   @override
   void onAudioLevelChanged(OnAudioLevelChangedCallback? cb) {
-    print("[DEBUG] onAudioLevelChanged");
     api!.setAudioLevelObserverEnabled(
       peerId: _peerId,
       trackId: _id,

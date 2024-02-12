@@ -198,7 +198,8 @@ Future<List<NativeMediaStreamTrack>> _getUserMediaChannel(
   try {
     List<dynamic>? res = await _mediaDevicesMethodChannel
         .invokeMethod('getUserMedia', {'constraints': constraints.toMap()});
-    List<Future<NativeMediaStreamTrack>> tracks = res!.map((t) => NativeMediaStreamTrack.from(t)).toList();
+    List<Future<NativeMediaStreamTrack>> tracks =
+        res!.map((t) => NativeMediaStreamTrack.from(t)).toList();
     return await Future.wait(tracks);
   } on PlatformException catch (e) {
     if (e.code == 'GetUserMediaAudioException') {
@@ -241,7 +242,8 @@ Future<List<NativeMediaStreamTrack>> _getUserMediaFFI(
           audio: audioConstraints, video: videoConstraints));
 
   if (result is ffi.GetMediaResult_Ok) {
-    List<Future<NativeMediaStreamTrack>> tracks = result.field0.map((e) => NativeMediaStreamTrack.from(e)).toList();
+    List<Future<NativeMediaStreamTrack>> tracks =
+        result.field0.map((e) => NativeMediaStreamTrack.from(e)).toList();
     return await Future.wait(tracks);
   } else {
     if ((result as ffi.GetMediaResult_Err).field0 is ffi.GetMediaError_Video) {
@@ -259,7 +261,8 @@ Future<List<NativeMediaStreamTrack>> _getDisplayMediaChannel(
     DisplayConstraints constraints) async {
   List<dynamic>? res = await _mediaDevicesMethodChannel
       .invokeMethod('getDisplayMedia', {'constraints': constraints.toMap()});
-  List<Future<NativeMediaStreamTrack>> tracks = res!.map((t) => NativeMediaStreamTrack.from(t)).toList();
+  List<Future<NativeMediaStreamTrack>> tracks =
+      res!.map((t) => NativeMediaStreamTrack.from(t)).toList();
   return await Future.wait(tracks);
 }
 
@@ -292,7 +295,8 @@ Future<List<NativeMediaStreamTrack>> _getDisplayMediaFFI(
           audio: audioConstraints, video: videoConstraints));
 
   if (result is ffi.GetMediaResult_Ok) {
-    List<Future<NativeMediaStreamTrack>> tracks = result.field0.map((e) => NativeMediaStreamTrack.from(e)).toList();
+    List<Future<NativeMediaStreamTrack>> tracks =
+        result.field0.map((e) => NativeMediaStreamTrack.from(e)).toList();
     return await Future.wait(tracks);
   } else {
     if ((result as ffi.GetMediaResult_Err) is ffi.GetMediaError_Video) {
