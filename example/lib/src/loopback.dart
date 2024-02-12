@@ -64,9 +64,6 @@ class _LoopbackState extends State<Loopback> {
     caps.audio.mandatory = AudioConstraints();
     var tracks = await getUserMedia(caps);
     _initTrack = tracks!.firstWhere((track) => track.kind() == MediaKind.audio);
-    print("delay started");
-    // await Future.delayed(Duration(seconds: 1));
-    print("delay ended");
     _initTrack!.onAudioLevelChanged((volume) {
       setState(() {
         currentAudioLevel = volume / 100;

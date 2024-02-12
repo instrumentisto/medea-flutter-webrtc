@@ -9771,18 +9771,21 @@ mixin _$TrackEvent {
   TResult when<TResult extends Object?>({
     required TResult Function() ended,
     required TResult Function(int field0) audioLevelUpdated,
+    required TResult Function() trackCreated,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? ended,
     TResult? Function(int field0)? audioLevelUpdated,
+    TResult? Function()? trackCreated,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? ended,
     TResult Function(int field0)? audioLevelUpdated,
+    TResult Function()? trackCreated,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -9791,18 +9794,21 @@ mixin _$TrackEvent {
     required TResult Function(TrackEvent_Ended value) ended,
     required TResult Function(TrackEvent_AudioLevelUpdated value)
         audioLevelUpdated,
+    required TResult Function(TrackEvent_TrackCreated value) trackCreated,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(TrackEvent_Ended value)? ended,
     TResult? Function(TrackEvent_AudioLevelUpdated value)? audioLevelUpdated,
+    TResult? Function(TrackEvent_TrackCreated value)? trackCreated,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(TrackEvent_Ended value)? ended,
     TResult Function(TrackEvent_AudioLevelUpdated value)? audioLevelUpdated,
+    TResult Function(TrackEvent_TrackCreated value)? trackCreated,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -9866,6 +9872,7 @@ class _$TrackEvent_EndedImpl implements TrackEvent_Ended {
   TResult when<TResult extends Object?>({
     required TResult Function() ended,
     required TResult Function(int field0) audioLevelUpdated,
+    required TResult Function() trackCreated,
   }) {
     return ended();
   }
@@ -9875,6 +9882,7 @@ class _$TrackEvent_EndedImpl implements TrackEvent_Ended {
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? ended,
     TResult? Function(int field0)? audioLevelUpdated,
+    TResult? Function()? trackCreated,
   }) {
     return ended?.call();
   }
@@ -9884,6 +9892,7 @@ class _$TrackEvent_EndedImpl implements TrackEvent_Ended {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? ended,
     TResult Function(int field0)? audioLevelUpdated,
+    TResult Function()? trackCreated,
     required TResult orElse(),
   }) {
     if (ended != null) {
@@ -9898,6 +9907,7 @@ class _$TrackEvent_EndedImpl implements TrackEvent_Ended {
     required TResult Function(TrackEvent_Ended value) ended,
     required TResult Function(TrackEvent_AudioLevelUpdated value)
         audioLevelUpdated,
+    required TResult Function(TrackEvent_TrackCreated value) trackCreated,
   }) {
     return ended(this);
   }
@@ -9907,6 +9917,7 @@ class _$TrackEvent_EndedImpl implements TrackEvent_Ended {
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(TrackEvent_Ended value)? ended,
     TResult? Function(TrackEvent_AudioLevelUpdated value)? audioLevelUpdated,
+    TResult? Function(TrackEvent_TrackCreated value)? trackCreated,
   }) {
     return ended?.call(this);
   }
@@ -9916,6 +9927,7 @@ class _$TrackEvent_EndedImpl implements TrackEvent_Ended {
   TResult maybeMap<TResult extends Object?>({
     TResult Function(TrackEvent_Ended value)? ended,
     TResult Function(TrackEvent_AudioLevelUpdated value)? audioLevelUpdated,
+    TResult Function(TrackEvent_TrackCreated value)? trackCreated,
     required TResult orElse(),
   }) {
     if (ended != null) {
@@ -10000,6 +10012,7 @@ class _$TrackEvent_AudioLevelUpdatedImpl
   TResult when<TResult extends Object?>({
     required TResult Function() ended,
     required TResult Function(int field0) audioLevelUpdated,
+    required TResult Function() trackCreated,
   }) {
     return audioLevelUpdated(field0);
   }
@@ -10009,6 +10022,7 @@ class _$TrackEvent_AudioLevelUpdatedImpl
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? ended,
     TResult? Function(int field0)? audioLevelUpdated,
+    TResult? Function()? trackCreated,
   }) {
     return audioLevelUpdated?.call(field0);
   }
@@ -10018,6 +10032,7 @@ class _$TrackEvent_AudioLevelUpdatedImpl
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? ended,
     TResult Function(int field0)? audioLevelUpdated,
+    TResult Function()? trackCreated,
     required TResult orElse(),
   }) {
     if (audioLevelUpdated != null) {
@@ -10032,6 +10047,7 @@ class _$TrackEvent_AudioLevelUpdatedImpl
     required TResult Function(TrackEvent_Ended value) ended,
     required TResult Function(TrackEvent_AudioLevelUpdated value)
         audioLevelUpdated,
+    required TResult Function(TrackEvent_TrackCreated value) trackCreated,
   }) {
     return audioLevelUpdated(this);
   }
@@ -10041,6 +10057,7 @@ class _$TrackEvent_AudioLevelUpdatedImpl
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(TrackEvent_Ended value)? ended,
     TResult? Function(TrackEvent_AudioLevelUpdated value)? audioLevelUpdated,
+    TResult? Function(TrackEvent_TrackCreated value)? trackCreated,
   }) {
     return audioLevelUpdated?.call(this);
   }
@@ -10050,6 +10067,7 @@ class _$TrackEvent_AudioLevelUpdatedImpl
   TResult maybeMap<TResult extends Object?>({
     TResult Function(TrackEvent_Ended value)? ended,
     TResult Function(TrackEvent_AudioLevelUpdated value)? audioLevelUpdated,
+    TResult Function(TrackEvent_TrackCreated value)? trackCreated,
     required TResult orElse(),
   }) {
     if (audioLevelUpdated != null) {
@@ -10068,4 +10086,116 @@ abstract class TrackEvent_AudioLevelUpdated implements TrackEvent {
   _$$TrackEvent_AudioLevelUpdatedImplCopyWith<
           _$TrackEvent_AudioLevelUpdatedImpl>
       get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$TrackEvent_TrackCreatedImplCopyWith<$Res> {
+  factory _$$TrackEvent_TrackCreatedImplCopyWith(
+          _$TrackEvent_TrackCreatedImpl value,
+          $Res Function(_$TrackEvent_TrackCreatedImpl) then) =
+      __$$TrackEvent_TrackCreatedImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$TrackEvent_TrackCreatedImplCopyWithImpl<$Res>
+    extends _$TrackEventCopyWithImpl<$Res, _$TrackEvent_TrackCreatedImpl>
+    implements _$$TrackEvent_TrackCreatedImplCopyWith<$Res> {
+  __$$TrackEvent_TrackCreatedImplCopyWithImpl(
+      _$TrackEvent_TrackCreatedImpl _value,
+      $Res Function(_$TrackEvent_TrackCreatedImpl) _then)
+      : super(_value, _then);
+}
+
+/// @nodoc
+
+class _$TrackEvent_TrackCreatedImpl implements TrackEvent_TrackCreated {
+  const _$TrackEvent_TrackCreatedImpl();
+
+  @override
+  String toString() {
+    return 'TrackEvent.trackCreated()';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$TrackEvent_TrackCreatedImpl);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() ended,
+    required TResult Function(int field0) audioLevelUpdated,
+    required TResult Function() trackCreated,
+  }) {
+    return trackCreated();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? ended,
+    TResult? Function(int field0)? audioLevelUpdated,
+    TResult? Function()? trackCreated,
+  }) {
+    return trackCreated?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? ended,
+    TResult Function(int field0)? audioLevelUpdated,
+    TResult Function()? trackCreated,
+    required TResult orElse(),
+  }) {
+    if (trackCreated != null) {
+      return trackCreated();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(TrackEvent_Ended value) ended,
+    required TResult Function(TrackEvent_AudioLevelUpdated value)
+        audioLevelUpdated,
+    required TResult Function(TrackEvent_TrackCreated value) trackCreated,
+  }) {
+    return trackCreated(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(TrackEvent_Ended value)? ended,
+    TResult? Function(TrackEvent_AudioLevelUpdated value)? audioLevelUpdated,
+    TResult? Function(TrackEvent_TrackCreated value)? trackCreated,
+  }) {
+    return trackCreated?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(TrackEvent_Ended value)? ended,
+    TResult Function(TrackEvent_AudioLevelUpdated value)? audioLevelUpdated,
+    TResult Function(TrackEvent_TrackCreated value)? trackCreated,
+    required TResult orElse(),
+  }) {
+    if (trackCreated != null) {
+      return trackCreated(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class TrackEvent_TrackCreated implements TrackEvent {
+  const factory TrackEvent_TrackCreated() = _$TrackEvent_TrackCreatedImpl;
 }

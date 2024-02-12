@@ -1100,6 +1100,9 @@ pub enum TrackEvent {
 
     /// Event which indicates that new audio level occurred.
     AudioLevelUpdated(u32),
+
+    /// Event which indicates that [`MediaStreamTrack`] completely initialized.
+    TrackCreated,
 }
 
 /// [RTCIceGatheringState][1] representation.

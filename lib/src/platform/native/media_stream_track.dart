@@ -12,7 +12,7 @@ abstract class NativeMediaStreamTrack extends MediaStreamTrack {
   /// native side.
   static Future<NativeMediaStreamTrack> from(dynamic map) async {
     if (isDesktop) {
-      return _NativeMediaStreamTrackFFI(map);
+      return await _NativeMediaStreamTrackFFI(map);
     } else {
       return _NativeMediaStreamTrackChannel.fromMap(map);
     }
@@ -197,6 +197,14 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   /// Subscriber for the audio level updates of this track.
   OnAudioLevelChangedCallback? _onAudioLevelChanged;
 
+  final Completer _initialized = Completer();
+
+  static Future<_NativeMediaStreamTrackFFI> create(ffi.MediaStreamTrack track) async {
+    var ffiTrack = _NativeMediaStreamTrackFFI(track);
+    await ffiTrack._initialized.future;
+    return ffiTrack;
+  }
+
   /// Creates a [NativeMediaStreamTrack] basing on the provided
   /// [ffi.MediaStreamTrack].
   _NativeMediaStreamTrackFFI(ffi.MediaStreamTrack track) {
@@ -216,6 +224,9 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
         return;
       } else if (event is ffi.TrackEvent_Ended) {
         _onEnded?.call();
+        return;
+      } else if (event is ffi.TrackEvent_TrackCreated) {
+        _initialized.complete();
         return;
       }
     });

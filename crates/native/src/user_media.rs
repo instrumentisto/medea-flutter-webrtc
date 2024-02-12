@@ -577,7 +577,7 @@ impl Webrtc {
         cb: StreamSink<api::TrackEvent>,
     ) -> anyhow::Result<()> {
         let mut obs =
-            TrackEventObserver::new(Box::new(TrackEventHandler(cb.clone())));
+            TrackEventObserver::new(Box::new(TrackEventHandler::new(cb.clone())));
         println!("[DEBUG] register_track_observer 1");
         match kind {
             api::MediaType::Audio => {
@@ -1551,6 +1551,13 @@ impl VideoSource {
 /// Wrapper around [`TrackObserverInterface`] implementing
 /// [`sys::TrackEventCallback`].
 struct TrackEventHandler(StreamSink<api::TrackEvent>);
+
+impl TrackEventHandler {
+    pub fn new(cb: StreamSink<api::TrackEvent>) -> Self {
+        cb.add(api::TrackEvent::TrackCreated);
+        Self(cb)
+    }
+}
 
 impl sys::TrackEventCallback for TrackEventHandler {
     fn on_ended(&mut self) {

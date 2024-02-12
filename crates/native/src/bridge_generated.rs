@@ -1661,6 +1661,7 @@ impl support::IntoDart for TrackEvent {
             Self::AudioLevelUpdated(field0) => {
                 vec![1.into_dart(), field0.into_into_dart().into_dart()]
             }
+            Self::TrackCreated => vec![2.into_dart()],
         }
         .into_dart()
     }
