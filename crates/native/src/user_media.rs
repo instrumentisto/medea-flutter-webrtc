@@ -1,4 +1,5 @@
 use std::{
+    cmp,
     collections::{HashMap, HashSet},
     hash::Hash,
     mem,
@@ -1570,8 +1571,9 @@ impl sys::AudioSourceOnAudioLevelChangeCallback
 {
     #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
     fn on_audio_level_change(&self, volume: f32) {
-        self.0.add(api::TrackEvent::AudioLevelUpdated(
+        self.0.add(api::TrackEvent::AudioLevelUpdated(cmp::min(
             (volume * 1000.0).round() as u32,
-        ));
+            100,
+        )));
     }
 }
