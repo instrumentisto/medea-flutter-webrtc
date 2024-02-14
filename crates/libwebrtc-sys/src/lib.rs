@@ -309,7 +309,7 @@ impl AudioDeviceModule {
                   ::CreateFakeAudioSource()`",
             );
         }
-        Ok(AudioSourceInterface::new(ptr))
+        Ok(AudioSourceInterface(ptr))
     }
 
     /// Creates a new [`AudioSourceInterface`].
@@ -325,7 +325,7 @@ impl AudioDeviceModule {
                  `webrtc::PeerConnectionFactoryInterface::CreateAudioSource()`",
             );
         }
-        Ok(AudioSourceInterface::new(ptr))
+        Ok(AudioSourceInterface(ptr))
     }
 
     /// Disposes the [`AudioSourceInterface`] with the provided `device_id`.
@@ -1803,13 +1803,6 @@ unsafe impl Sync for webrtc::VideoTrackSourceInterface {}
 pub struct AudioSourceInterface(UniquePtr<webrtc::AudioSourceInterface>);
 
 impl AudioSourceInterface {
-    /// Creates new [`AudioSourceInterface`] with a provided
-    /// [`webrtc::AudioSourceInterface`] [`UniquePtr`].
-    #[must_use]
-    pub fn new(ptr: UniquePtr<webrtc::AudioSourceInterface>) -> Self {
-        Self(ptr)
-    }
-
     /// Subscribes provided [`AudioSourceOnAudioLevelChangeCallback`] to audio
     /// level updates of this [`AudioSourceInterface`].
     ///
@@ -1819,15 +1812,17 @@ impl AudioSourceInterface {
     pub fn subscribe(
         &self,
         cb: Box<dyn AudioSourceOnAudioLevelChangeCallback>,
-    ) -> AudioSourceAudioLevelObserver {
-        AudioSourceAudioLevelObserver::new(cb, self)
+    ) {
+        webrtc::audio_source_register_audio_level_observer(
+            Box::new(cb),
+            &self.0,
+        );
     }
 
     /// Unsubscribes provided [`AudioSourceAudioLevelObserver`] from
     /// this [`AudioSourceInterface`].
-    pub fn unsubscribe(&self, observer: AudioSourceAudioLevelObserver) {
+    pub fn unsubscribe(&self) {
         webrtc::audio_source_unregister_audio_level_observer(&self.0);
-        drop(observer);
     }
 }
 
@@ -1901,34 +1896,6 @@ impl TrackEventObserver {
 
 unsafe impl Send for webrtc::TrackEventObserver {}
 unsafe impl Sync for webrtc::TrackEventObserver {}
-
-/// C++ side [`AudioSourceOnAudioLevelChangeCallback`] handling audio
-/// level updates.
-pub struct AudioSourceAudioLevelObserver(
-    UniquePtr<webrtc::AudioSourceOnAudioLevelChangeObserver>,
-);
-
-impl AudioSourceAudioLevelObserver {
-    /// Creates and registers a new [`AudioSourceAudioLevelObserver`].
-    #[must_use]
-    pub fn new(
-        cb: Box<dyn AudioSourceOnAudioLevelChangeCallback>,
-        source: &AudioSourceInterface,
-    ) -> Self {
-        let mut ptr =
-            webrtc::create_audio_source_on_audio_level_change_observer(
-                Box::new(cb),
-            );
-        webrtc::audio_source_register_audio_level_observer(
-            ptr.pin_mut(),
-            &source.0,
-        );
-        AudioSourceAudioLevelObserver(ptr)
-    }
-}
-
-unsafe impl Send for webrtc::AudioSourceOnAudioLevelChangeObserver {}
-unsafe impl Sync for webrtc::AudioSourceOnAudioLevelChangeObserver {}
 
 /// Video [`MediaStreamTrack`][1].
 ///

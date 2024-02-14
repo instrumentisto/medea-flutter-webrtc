@@ -126,16 +126,6 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
   late EventChannel _eventChan;
 
   @override
-  void onAudioLevelChanged(OnAudioLevelChangedCallback? cb) {
-    throw 'onAudioLevelChanged callback is not supported on mobile platforms';
-  }
-
-  @override
-  bool isAudioLevelAvailable() {
-    return false;
-  }
-
-  @override
   Future<void> setEnabled(bool enabled) async {
     await _chan.invokeMethod('setEnabled', {'enabled': enabled});
     _enabled = enabled;
@@ -197,11 +187,11 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   /// Subscriber for the audio level updates of this track.
   OnAudioLevelChangedCallback? _onAudioLevelChanged;
 
-  /// This [Completer] is used to wait the [ffi.TrackCreated] `event` when
-  /// creating a new [MediaStreamTrack].
+  /// [Completer] used to await for the [ffi.TrackCreated] event after creating
+  /// a new [MediaStreamTrack].
   final Completer _initialized = Completer();
 
-  /// Creates a new [MediaStreamTrack] with the provided [ffi.MediaStreamTrack].
+  /// Creates a new [MediaStreamTrack] from the provided [ffi.MediaStreamTrack].
   static Future<_NativeMediaStreamTrackFFI> create(
       ffi.MediaStreamTrack track) async {
     var ffiTrack = _NativeMediaStreamTrackFFI(track);
@@ -224,13 +214,10 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
         .listen((event) {
       if (event is ffi.TrackEvent_AudioLevelUpdated) {
         _onAudioLevelChanged?.call(event.field0);
-        return;
       } else if (event is ffi.TrackEvent_Ended) {
         _onEnded?.call();
-        return;
       } else if (event is ffi.TrackEvent_TrackCreated) {
         _initialized.complete();
-        return;
       }
     });
   }
@@ -246,8 +233,12 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   }
 
   @override
-  bool isAudioLevelAvailable() {
-    return false;
+  bool isOnAudioLevelAvailable() {
+    if (_kind != MediaKind.audio || _deviceId == 'remote') {
+      return false;
+    } else {
+      return true;
+    }
   }
 
   @override

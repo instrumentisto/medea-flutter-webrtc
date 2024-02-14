@@ -4,7 +4,8 @@ import '/src/model/track.dart';
 /// Representation of the `onEnded` callback.
 typedef OnEndedCallback = void Function();
 
-/// Representation of the `onAudioLevelChanged` callback.
+/// Representation of the `onAudioLevelChanged` callback. The provided value
+/// wil be in [0; 100] range.
 typedef OnAudioLevelChangedCallback = void Function(int);
 
 /// Abstract representation of a single media unit on native or web side.
@@ -43,14 +44,34 @@ abstract class MediaStreamTrack {
   /// [MediaStreamTrack]s of some device.
   Future<void> stop();
 
-  /// Subscribes provided callback to the `onEnded` events of this [MediaStreamTrack].
+  /// Sets the provided [OnEndedCallback] for this [MediaStreamTrack]. It is
+  /// called when playback or streaming has stopped because the end of the media
+  /// was reached or because no further data is available. This is a terminate
+  /// state.
   void onEnded(OnEndedCallback cb);
 
-  /// Subscribes provided callback to the audio level volume updates of this [MediaStreamTrack].
-  void onAudioLevelChanged(OnAudioLevelChangedCallback? cb);
+  /// Indicates whether [MediaStreamTrack.onAudioLevelChanged] callback is
+  /// supported for this [MediaStreamTrack].
+  ///
+  /// Currently, it's only supported for local audio tracks on desktop platforms.
+  bool isOnAudioLevelAvailable() {
+    // TODO(evdokimovs): Might be implemented on web using audio level in
+    //                   media-source rtc=stats or audio node and AnalyserNode:
+    // https://webrtc.github.io/samples/src/content/getusermedia/volume/
+    return false;
+  }
 
-  /// Flag which indicates availability of `onAudioLevelChanged` callback on the current platform.
-  bool isAudioLevelAvailable();
+  /// Sets the provided [OnEndedCallback] for this [MediaStreamTrack]. It is
+  /// called for live tracks when audio level of this track changes.
+  ///
+  /// [MediaStreamTrack.isOnAudioLevelAvailable] should be called to ensure
+  /// [MediaStreamTrack.onAudioLevelChanged] is supported on the current
+  /// platform.
+  void onAudioLevelChanged(OnAudioLevelChangedCallback? cb) {
+    throw 'onAudioLevelChanged callback is only support for local audio tracks '
+        'on desktop platforms. isOnAudioLevelAvailable() should be called '
+        'before trying to set onAudioLevelChanged callback';
+  }
 
   /// Creates a new instance of [MediaStreamTrack], which will depend on the same
   /// media source as this [MediaStreamTrack].

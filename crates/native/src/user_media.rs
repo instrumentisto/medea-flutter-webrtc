@@ -7,14 +7,9 @@ use std::{
 };
 
 use anyhow::{anyhow, bail, Context};
-use dashmap::DashMap;
 use derive_more::{AsRef, Display, From, Into};
-use libwebrtc_sys::{
-    self as sys, AudioSourceAudioLevelObserver, OnFrameCallback,
-    TrackEventObserver,
-};
+use libwebrtc_sys as sys;
 // TODO: Use `std::sync::OnceLock` instead, once it support `.wait()` API.
-use libwebrtc_sys::AudioSourceOnAudioLevelChangeCallback;
 use once_cell::sync::OnceCell;
 use xxhash::xxh3::xxh3_64;
 
@@ -576,7 +571,7 @@ impl Webrtc {
         kind: api::MediaType,
         cb: StreamSink<api::TrackEvent>,
     ) -> anyhow::Result<()> {
-        let mut obs = TrackEventObserver::new(Box::new(
+        let mut obs = sys::TrackEventObserver::new(Box::new(
             TrackEventHandler::new(cb.clone()),
         ));
         match kind {
@@ -1011,7 +1006,7 @@ struct VideoFormatSink {
     height: Arc<OnceCell<RwLock<i32>>>,
 }
 
-impl OnFrameCallback for VideoFormatSink {
+impl sys::OnFrameCallback for VideoFormatSink {
     fn on_frame(&mut self, frame: cxx::UniquePtr<sys::VideoFrame>) {
         if self.width.get().is_none() {
             self.width.set(RwLock::from(frame.width())).unwrap();
@@ -1229,15 +1224,15 @@ impl AudioTrack {
 
     /// Subscribes this [`AudioTrack`] to the audio level updates.
     ///
-    /// Volume updates will be passed to the [`StreamSink`] of
-    /// this [`AudioTrack`].
+    /// Volume updates will be passed to the [`StreamSink`] of this
+    /// [`AudioTrack`].
     pub fn subscribe_to_audio_level(&mut self) {
         if let Some(sink) = self.stream_sink.clone() {
             match &self.source {
                 MediaTrackSource::Local(src) => {
-                    let observer = src.subscribe_on_audio_level(Box::new(
+                    let observer = src.subscribe_on_audio_level(
                         AudioSourceAudioLevelHandler(sink),
-                    ));
+                    );
                     self.volume_observer_id = Some(observer);
                 }
                 MediaTrackSource::Remote { mid: _, peer: _ } => (),
@@ -1332,22 +1327,18 @@ impl Drop for AudioTrack {
     }
 }
 
-/// [`AudioSourceOnAudioLevelChangeCallback`]
-/// unique (per [`AudioSourceInterface`]) ID.
+/// [`sys::AudioSourceOnAudioLevelChangeCallback`] unique (per
+/// [`AudioSourceInterface`]) ID.
 #[derive(Clone, Default, Copy, Hash, PartialEq, Eq, Debug)]
 pub struct AudioLevelObserverId(u64);
 
-/// Storage for the [`AudioSourceOnAudioLevelChangeCallback`].
-type ObserverStorage = Arc<
-    DashMap<
-        AudioLevelObserverId,
-        Box<dyn AudioSourceOnAudioLevelChangeCallback + Send + Sync>,
-    >,
->;
+/// Storage for the [`sys::AudioSourceOnAudioLevelChangeCallback`].
+type ObserverStorage =
+    Arc<RwLock<HashMap<AudioLevelObserverId, AudioSourceAudioLevelHandler>>>;
 
-/// [`AudioSourceOnAudioLevelChangeCallback`] implementation which broadcasts
-/// all audio level updates to the all underlying
-/// [`AudioSourceOnAudioLevelChangeCallback`].
+/// [`sys::AudioSourceOnAudioLevelChangeCallback`] implementation which
+/// broadcasts all audio level updates to the all underlying
+/// [`sys::AudioSourceOnAudioLevelChangeCallback`].
 struct BroadcasterObserver(ObserverStorage);
 
 impl BroadcasterObserver {
@@ -1358,31 +1349,27 @@ impl BroadcasterObserver {
     }
 }
 
-impl AudioSourceOnAudioLevelChangeCallback for BroadcasterObserver {
-    /// Calls [`AudioSourceOnAudioLevelChangeCallback::on_audio_level_change`]
-    /// on all underlying [`AudioSourceOnAudioLevelChangeCallback`].
+impl sys::AudioSourceOnAudioLevelChangeCallback for BroadcasterObserver {
+    /// Propagates audio level change to all underlying
+    /// [`sys::AudioSourceOnAudioLevelChangeCallback`]s.
     fn on_audio_level_change(&self, volume: f32) {
-        self.0.iter().for_each(|i| {
-            i.value().on_audio_level_change(volume);
+        let observers = self.0.read().unwrap();
+
+        observers.values().for_each(|observer| {
+            observer.on_audio_level_change(volume);
         });
     }
 }
 
 /// [`sys::AudioSourceInterface`] wrapper.
 pub struct AudioSource {
-    /// Storage for the all [`AudioSourceOnAudioLevelChangeCallback`] related
-    /// to this [`AudioSourceInterface`].
+    /// Storage for the all [`sys::AudioSourceOnAudioLevelChangeCallback`]
+    /// related to this [`AudioSourceInterface`].
     ///
     /// This [`ObserverStorage`] is shared with [`BroadcasterObserver`] and
-    /// needed for [`AudioSourceOnAudioLevelChangeCallback`] disposing without
-    /// calling C++ side.
+    /// needed for [`sys::AudioSourceOnAudioLevelChangeCallback`] disposing
+    /// without calling C++ side.
     observers: ObserverStorage,
-
-    /// Handle for this [`BroadcastObserver`].
-    ///
-    /// C++ side has pointer to this object, so we need to store it, so it
-    /// won't be deallocated.
-    observer: Mutex<Option<AudioSourceAudioLevelObserver>>,
 
     /// Last ID used for [`AudioLevelObserverId`].
     last_observer_id: Mutex<AudioLevelObserverId>,
@@ -1404,33 +1391,34 @@ impl AudioSource {
         Self {
             device_id,
             observers: Arc::default(),
-            observer: Mutex::default(),
             last_observer_id: Mutex::default(),
             src,
         }
     }
 
-    /// Subscribes provided [`AudioSourceOnAudioLevelChangeCallback`] to audio
-    /// level updates.
+    /// Subscribes provided [`sys::AudioSourceOnAudioLevelChangeCallback`] to
+    /// audio level updates.
     ///
     /// This method will initialize new [`BroadcasterObserver`] if it wasn't
     /// initialized before.
     ///
     /// Returns [`AudioLevelObserverId`] which can be used to unsubscibe
-    /// provided here [`AudioSourceOnAudioLevelChangeCallback`].
+    /// provided here [`sys::AudioSourceOnAudioLevelChangeCallback`].
     ///
     /// # Panics
     ///
     /// On [`Mutex`] poisoning.
     pub fn subscribe_on_audio_level(
         &self,
-        cb: Box<dyn AudioSourceOnAudioLevelChangeCallback + Send + Sync>,
+        cb: AudioSourceAudioLevelHandler,
     ) -> AudioLevelObserverId {
-        if self.observers.is_empty() {
-            let observer = self.src.subscribe(Box::new(
-                BroadcasterObserver::new(Arc::clone(&self.observers)),
-            ));
-            self.observer.lock().unwrap().replace(observer);
+        let mut observers = self.observers.write().unwrap();
+
+        if observers.is_empty() {
+            self.src
+                .subscribe(Box::new(BroadcasterObserver::new(Arc::clone(
+                    &self.observers,
+                ))))
         }
 
         let observer_id = {
@@ -1439,13 +1427,13 @@ impl AudioSource {
             *last_observer_id = next_id;
             next_id
         };
-        self.observers.insert(observer_id, cb);
+        observers.insert(observer_id, cb);
 
         observer_id
     }
 
-    /// Unsubscribes [`AudioSourceOnAudioLevelChangeCallback`] from audio level
-    /// updates.
+    /// Unsubscribes [`sys::AudioSourceOnAudioLevelChangeCallback`] from audio
+    /// level updates.
     ///
     /// After unsubscribing this callback will be disposed.
     ///
@@ -1456,11 +1444,11 @@ impl AudioSource {
     ///
     /// On [`Mutex`] poisoning.
     pub fn unsubscribe_audio_level(&self, id: AudioLevelObserverId) {
-        self.observers.remove(&id);
-        if self.observers.is_empty() {
-            if let Some(observer) = self.observer.lock().unwrap().take() {
-                self.src.unsubscribe(observer);
-            }
+        let mut observers = self.observers.write().unwrap();
+
+        observers.remove(&id);
+        if observers.is_empty() {
+            self.src.unsubscribe()
         }
     }
 }
@@ -1559,20 +1547,20 @@ impl sys::TrackEventCallback for TrackEventHandler {
     }
 }
 
-/// Wrapper around [`StreamSink`] which produces audio level
-/// updates to the Flutter side.
+/// Wrapper around [`StreamSink`] which emits [`AudioLevelUpdated`] events to
+/// the Dart side.
 ///
 /// This handler also will multiply volume by `1000` and cast it to [`u32`], for
 /// more convenient usage.
+///
+/// [`AudioLevelUpdated`]: api::TrackEvent::AudioLevelUpdated
 struct AudioSourceAudioLevelHandler(StreamSink<api::TrackEvent>);
 
-impl sys::AudioSourceOnAudioLevelChangeCallback
-    for AudioSourceAudioLevelHandler
-{
+impl AudioSourceAudioLevelHandler {
     #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
-    fn on_audio_level_change(&self, volume: f32) {
+    fn on_audio_level_change(&self, level: f32) {
         self.0.add(api::TrackEvent::AudioLevelUpdated(cmp::min(
-            (volume * 1000.0).round() as u32,
+            (level * 1000.0).round() as u32,
             100,
         )));
     }

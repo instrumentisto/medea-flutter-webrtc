@@ -769,6 +769,9 @@ void OpenALAudioDeviceModule::processRecordingQueued() {
 }
 
 void OpenALAudioDeviceModule::startCaptureOnThread() {
+  if (_data && _data->recording) {
+    return;
+  }
   _data->_recordingThread->Start();
   _data->_recordingThread->PostTask([=]() {
     std::lock_guard<std::recursive_mutex> lk(_recording_mutex);

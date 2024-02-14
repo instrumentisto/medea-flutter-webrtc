@@ -1,18 +1,15 @@
 #include "local_audio_source.h"
+#include "libwebrtc-sys/src/bridge.rs.h"
 
 namespace bridge {
-
-// Creates new `AudioSourceOnAudioLevelChangeObserver` with a provided `DynAudioSourceOnAudioLevelChangeCallback`.
-AudioSourceOnAudioLevelChangeObserver::AudioSourceOnAudioLevelChangeObserver(
-    rust::Box<bridge::DynAudioSourceOnAudioLevelChangeCallback> cb)
-    : cb_(std::move(cb)){};
 
 // Calculates audio level based on the provided audio data.
 float calculate_audio_level(int16_t* data, int size) {
   double sum = 0.0;
-  for (int i = 0; i<size; ++i) {
+  for (int i = 0; i < size; ++i) {
     sum += data[i] * data[i];
   }
+
   return std::sqrt(sum / size) / INT16_MAX;
 }
 
@@ -42,12 +39,17 @@ void LocalAudioSource::OnData(const void* audio_data,
                               size_t number_of_frames) {
   std::lock_guard<std::recursive_mutex> lk(sink_lock_);
 
-  if ((*observer_) != nullptr) {
-    auto elapsed_time = std::chrono::steady_clock::now() - last_audio_level_recalculation_;
-    if (std::chrono::duration_cast<std::chrono::milliseconds>(elapsed_time).count() > 100) {
-      last_audio_level_recalculation_ = std::chrono::steady_clock::now();
-      auto volume = calculate_audio_level((int16_t*) audio_data, number_of_channels * sample_rate / 100);
-      (*observer_)->AudioLevelChanged(volume);
+  if (cb_) {
+    auto now = std::chrono::steady_clock::now();
+    auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+                          now - last_audio_level_recalculation_)
+                          .count();
+
+    if (elapsed_ms > 100) {
+      last_audio_level_recalculation_ = now;
+      auto volume = calculate_audio_level(
+          (int16_t*)audio_data, number_of_channels * sample_rate / 100);
+      bridge::on_audio_level_change(*cb_.value(), volume);
     }
   }
 
@@ -57,12 +59,17 @@ void LocalAudioSource::OnData(const void* audio_data,
   }
 }
 
-void LocalAudioSource::RegisterAudioLevelObserver(AudioSourceOnAudioLevelChangeObserver* obs) {
-  observer_ = obs;
+void LocalAudioSource::RegisterAudioLevelObserver(
+    rust::Box<bridge::DynAudioSourceOnAudioLevelChangeCallback> cb) {
+  std::lock_guard<std::recursive_mutex> lk(sink_lock_);
+
+  cb_ = std::move(cb);
 }
 
 void LocalAudioSource::UnregisterAudioLevelObserver() {
-  observer_ = nullptr;
+  std::lock_guard<std::recursive_mutex> lk(sink_lock_);
+
+  cb_ = std::nullopt;
 }
 
 }  // namespace bridge

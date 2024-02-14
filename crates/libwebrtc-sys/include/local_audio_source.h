@@ -15,15 +15,6 @@ namespace bridge {
 
 struct DynAudioSourceOnAudioLevelChangeCallback;
 
-class AudioSourceOnAudioLevelChangeObserver {
-  public:
-  AudioSourceOnAudioLevelChangeObserver(rust::Box<bridge::DynAudioSourceOnAudioLevelChangeCallback> cb);
-  void AudioLevelChanged(float volume);
-
-  private:
-    rust::Box<bridge::DynAudioSourceOnAudioLevelChangeCallback> cb_;
-};
-
 // Implementation of an `AudioSourceInterface` with settings for switching audio
 // processing on and off.
 class LocalAudioSource : public webrtc::Notifier<webrtc::AudioSourceInterface> {
@@ -46,7 +37,9 @@ class LocalAudioSource : public webrtc::Notifier<webrtc::AudioSourceInterface> {
               size_t number_of_channels,
               size_t number_of_frames);
 
-  void RegisterAudioLevelObserver(AudioSourceOnAudioLevelChangeObserver* obs);
+  void RegisterAudioLevelObserver(
+      rust::Box<bridge::DynAudioSourceOnAudioLevelChangeCallback> cb);
+
   void UnregisterAudioLevelObserver();
 
  protected:
@@ -57,8 +50,12 @@ class LocalAudioSource : public webrtc::Notifier<webrtc::AudioSourceInterface> {
   cricket::AudioOptions _options;
   std::recursive_mutex sink_lock_;
   std::list<webrtc::AudioTrackSinkInterface*> sinks_;
-  std::optional<AudioSourceOnAudioLevelChangeObserver*> observer_;
-  std::chrono::steady_clock::time_point last_audio_level_recalculation_ = std::chrono::steady_clock::now();
+
+  // Rust side callback that the audio level changes are be forwarded to.
+  std::optional<rust::Box<bridge::DynAudioSourceOnAudioLevelChangeCallback>>
+      cb_;
+  std::chrono::steady_clock::time_point last_audio_level_recalculation_ =
+      std::chrono::steady_clock::now();
 };
 
 }  // namespace bridge

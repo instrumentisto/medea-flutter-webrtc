@@ -1098,10 +1098,12 @@ pub enum TrackEvent {
     /// because no further data is available.
     Ended,
 
-    /// Event which indicates that new audio level occurred.
+    /// Event which indicates that audio level of this [`MediaStreamTrack`]
+    /// has changed.
     AudioLevelUpdated(u32),
 
-    /// Event which indicates that [`MediaStreamTrack`] completely initialized.
+    /// Event which indicates that [`MediaStreamTrack`] is completely
+    /// initialized and can be used on Dart side.
     TrackCreated,
 }
 
@@ -2455,8 +2457,8 @@ pub fn register_track_observer(
     )
 }
 
-/// Enables or disables audio level observer of the [`AudioTrack`]
-/// with a provided `id`.
+/// Enables or disables audio level observer of the audio [`MediaStreamTrack`]
+/// with a provided `track_id`.
 pub fn set_audio_level_observer_enabled(
     track_id: String,
     peer_id: Option<u64>,

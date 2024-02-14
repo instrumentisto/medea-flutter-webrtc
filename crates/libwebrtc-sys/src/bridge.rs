@@ -2183,7 +2183,6 @@ pub(crate) mod webrtc {
         #[namespace = "webrtc"]
         pub type RtcpParameters;
         pub type TrackEventObserver;
-        pub type AudioSourceOnAudioLevelChangeObserver;
 
         /// Creates a new [`VideoTrackSourceInterface`] sourced by a video input
         /// device with provided `device_index`.
@@ -2234,7 +2233,7 @@ pub(crate) mod webrtc {
         /// Previous observer will be disposed. Only one observer at a time
         /// is supported.
         pub fn audio_source_register_audio_level_observer(
-            obs: Pin<&mut AudioSourceOnAudioLevelChangeObserver>,
+            obs: Box<DynAudioSourceOnAudioLevelChangeCallback>,
             audio_source: &AudioSourceInterface,
         );
 
@@ -2467,12 +2466,6 @@ pub(crate) mod webrtc {
         pub fn create_track_event_observer(
             cb: Box<DynTrackEventCallback>,
         ) -> UniquePtr<TrackEventObserver>;
-
-        /// Creates a new [`AudioSourceOnAudioLevelChangeObserver`] backed by
-        /// the provided [`DynAudioSourceOnAudioLevelChangeCallback`].
-        pub fn create_audio_source_on_audio_level_change_observer(
-            cb: Box<DynAudioSourceOnAudioLevelChangeCallback>,
-        ) -> UniquePtr<AudioSourceOnAudioLevelChangeObserver>;
 
         /// Changes the `track` member of the provided [`TrackEventObserver`].
         pub fn set_track_observer_video_track(
