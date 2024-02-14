@@ -1408,7 +1408,7 @@ impl AudioSource {
     /// # Panics
     ///
     /// On [`Mutex`] poisoning.
-    pub fn subscribe_on_audio_level(
+    fn subscribe_on_audio_level(
         &self,
         cb: AudioSourceAudioLevelHandler,
     ) -> AudioLevelObserverId {
@@ -1418,7 +1418,7 @@ impl AudioSource {
             self.src
                 .subscribe(Box::new(BroadcasterObserver::new(Arc::clone(
                     &self.observers,
-                ))))
+                ))));
         }
 
         let observer_id = {
@@ -1443,12 +1443,12 @@ impl AudioSource {
     /// # Panics
     ///
     /// On [`Mutex`] poisoning.
-    pub fn unsubscribe_audio_level(&self, id: AudioLevelObserverId) {
+    fn unsubscribe_audio_level(&self, id: AudioLevelObserverId) {
         let mut observers = self.observers.write().unwrap();
 
         observers.remove(&id);
         if observers.is_empty() {
-            self.src.unsubscribe()
+            self.src.unsubscribe();
         }
     }
 }

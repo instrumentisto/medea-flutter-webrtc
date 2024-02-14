@@ -1808,7 +1808,6 @@ impl AudioSourceInterface {
     ///
     /// Only one [`AudioSourceOnAudioLevelChangeCallback`] at a time is
     /// supported.
-    #[must_use]
     pub fn subscribe(
         &self,
         cb: Box<dyn AudioSourceOnAudioLevelChangeCallback>,
