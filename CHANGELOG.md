@@ -15,7 +15,7 @@ All user visible changes to this project will be documented in this file. This p
 
 - `PeerConnection.videoDecoders()` and `PeerConnection.videoEncoders()` methods enumerating available video codecs and their capability of hardware acceleration. ([#144])
 - Support for multiple input audio devices usage at one time on desktop platforms. ([#145])
-- `MediaStreamTrack.isAudioLevelAvailable` function and `MediaStreamTrack.onAudioLevelChanged` callback for detecting input audio level of a local `MediaStreamTrack`. ([#149])
+- `MediaStreamTrack.isAudioLevelAvailable` function and `MediaStreamTrack.onAudioLevelChanged` callback for detecting input audio level changes of local `MediaStreamTrack`. ([#149])
 
 ### Fixed
 
@@ -30,7 +30,7 @@ All user visible changes to this project will be documented in this file. This p
 [#144]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/144
 [#145]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/145
 [#146]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/146
-[#146]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/149
+[#149]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/149
 
 
 

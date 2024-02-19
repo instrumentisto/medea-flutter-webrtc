@@ -48,13 +48,12 @@ impl Webrtc {
             }
 
             if let Some(audio) = constraints.audio {
-                let src =
-                    self.get_or_create_audio_source(&audio).map_err(|err| {
-                        api::GetMediaError::Audio(err.to_string())
-                    })?;
-                let track = self.create_audio_track(Arc::clone(&src)).map_err(
-                    |err| api::GetMediaError::Audio(err.to_string()),
-                )?;
+                let src = self
+                    .get_or_create_audio_source(&audio)
+                    .map_err(|e| api::GetMediaError::Audio(e.to_string()))?;
+                let track = self
+                    .create_audio_track(Arc::clone(&src))
+                    .map_err(|e| api::GetMediaError::Audio(e.to_string()))?;
                 tracks.push(track);
             }
 
@@ -531,13 +530,13 @@ impl Webrtc {
         }
     }
 
-    /// Enables or disables audio level observer of the [`AudioTrack`]
-    /// with a provided `id`.
+    /// Enables or disables audio level observing of the [`AudioTrack`] with the
+    /// provided `id`.
     ///
     /// # Warning
     ///
-    /// Returns error message if cannot find any [`AudioTrack`] by the
-    /// specified `id`.
+    /// Returns error message if cannot find any [`AudioTrack`] by the provided
+    /// `id`.
     pub fn set_audio_level_observer_enabled(
         &self,
         id: String,
@@ -1193,7 +1192,8 @@ pub struct AudioTrack {
 
     /// [`AudioLevelObserverId`] related to this [`AudioTrack`].
     ///
-    /// This ID can be used when [`AudioTrack`] needs to dispose observer.
+    /// This ID can be used when this [`AudioTrack`] needs to dispose its
+    /// observer.
     volume_observer_id: Option<AudioLevelObserverId>,
 }
 
@@ -1222,7 +1222,7 @@ impl AudioTrack {
         })
     }
 
-    /// Subscribes this [`AudioTrack`] to the audio level updates.
+    /// Subscribes this [`AudioTrack`] to audio level updates.
     ///
     /// Volume updates will be passed to the [`StreamSink`] of this
     /// [`AudioTrack`].
@@ -1240,7 +1240,7 @@ impl AudioTrack {
         }
     }
 
-    /// Unsubscribes this [`AudioTrack`] from the audio level updates.
+    /// Unsubscribes this [`AudioTrack`] from audio level updates.
     pub fn unsubscribe_from_audio_level(&self) {
         match &self.source {
             MediaTrackSource::Local(src) => {
@@ -1252,7 +1252,7 @@ impl AudioTrack {
         }
     }
 
-    /// Sets [`StreamSink`] used by this [`AudioTrack`] for
+    /// Sets the provided [`StreamSink`] for this [`AudioTrack`] to use for
     /// [`api::TrackEvent`]s emitting.
     pub fn set_stream_sink(&mut self, sink: StreamSink<api::TrackEvent>) {
         drop(self.stream_sink.replace(sink));
@@ -1307,9 +1307,7 @@ impl From<&AudioTrack> for api::MediaStreamTrack {
             id: track.id.0.clone(),
             device_id: match &track.source {
                 MediaTrackSource::Local(local) => local.device_id.to_string(),
-                MediaTrackSource::Remote { mid: _, peer: _ } => {
-                    String::from("remote")
-                }
+                MediaTrackSource::Remote { mid: _, peer: _ } => "remote".into(),
             },
             kind: track.kind,
             enabled: true,
@@ -1329,28 +1327,28 @@ impl Drop for AudioTrack {
 
 /// [`sys::AudioSourceOnAudioLevelChangeCallback`] unique (per
 /// [`AudioSourceInterface`]) ID.
-#[derive(Clone, Default, Copy, Hash, PartialEq, Eq, Debug)]
+#[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
 pub struct AudioLevelObserverId(u64);
 
-/// Storage for the [`sys::AudioSourceOnAudioLevelChangeCallback`].
+/// Storage for a [`sys::AudioSourceOnAudioLevelChangeCallback`].
 type ObserverStorage =
     Arc<RwLock<HashMap<AudioLevelObserverId, AudioSourceAudioLevelHandler>>>;
 
 /// [`sys::AudioSourceOnAudioLevelChangeCallback`] implementation which
-/// broadcasts all audio level updates to the all underlying
-/// [`sys::AudioSourceOnAudioLevelChangeCallback`].
+/// broadcasts all audio level updates to all the underlying
+/// [`sys::AudioSourceOnAudioLevelChangeCallback`]s.
 struct BroadcasterObserver(ObserverStorage);
 
 impl BroadcasterObserver {
-    /// Creates new [`BroadcasterObserver`] with a provided [`ObserverStorage`]
-    /// as sink for audio level broadcasts.
+    /// Creates a new [`BroadcasterObserver`] with the provided
+    /// [`ObserverStorage`] as a sink for audio level broadcasts.
     pub fn new(observers: ObserverStorage) -> Self {
         Self(observers)
     }
 }
 
 impl sys::AudioSourceOnAudioLevelChangeCallback for BroadcasterObserver {
-    /// Propagates audio level change to all underlying
+    /// Propagates audio level change to all the underlying
     /// [`sys::AudioSourceOnAudioLevelChangeCallback`]s.
     fn on_audio_level_change(&self, volume: f32) {
         let observers = self.0.read().unwrap();
@@ -1363,26 +1361,26 @@ impl sys::AudioSourceOnAudioLevelChangeCallback for BroadcasterObserver {
 
 /// [`sys::AudioSourceInterface`] wrapper.
 pub struct AudioSource {
-    /// Storage for the all [`sys::AudioSourceOnAudioLevelChangeCallback`]
+    /// Storage for the all the [`sys::AudioSourceOnAudioLevelChangeCallback`]
     /// related to this [`AudioSourceInterface`].
     ///
-    /// This [`ObserverStorage`] is shared with [`BroadcasterObserver`] and
-    /// needed for [`sys::AudioSourceOnAudioLevelChangeCallback`] disposing
-    /// without calling C++ side.
+    /// This [`ObserverStorage`] is shared with the [`BroadcasterObserver`] and
+    /// needed for a [`sys::AudioSourceOnAudioLevelChangeCallback`] disposing
+    /// without calling the C++ side.
     observers: ObserverStorage,
 
-    /// Last ID used for [`AudioLevelObserverId`].
+    /// Last ID used for the [`AudioLevelObserverId`].
     last_observer_id: Mutex<AudioLevelObserverId>,
 
-    /// [`AudioDeviceId`] of device to whihc this [`AudioSource`] is related.
+    /// [`AudioDeviceId`] of the device this [`AudioSource`] is related to.
     device_id: AudioDeviceId,
 
-    /// Underlying FFI wrapper for `LocalAudioSource`.
+    /// Underlying FFI wrapper for the `LocalAudioSource`.
     src: Arc<sys::AudioSourceInterface>,
 }
 
 impl AudioSource {
-    /// Creates new [`AudioSource`] with a providd parameters.
+    /// Creates a new [`AudioSource`] with the provided parameters.
     #[must_use]
     pub fn new(
         device_id: AudioDeviceId,
@@ -1396,13 +1394,13 @@ impl AudioSource {
         }
     }
 
-    /// Subscribes provided [`sys::AudioSourceOnAudioLevelChangeCallback`] to
-    /// audio level updates.
+    /// Subscribes the provided [`sys::AudioSourceOnAudioLevelChangeCallback`]
+    /// to audio level updates.
     ///
     /// This method will initialize new [`BroadcasterObserver`] if it wasn't
     /// initialized before.
     ///
-    /// Returns [`AudioLevelObserverId`] which can be used to unsubscibe
+    /// Returns [`AudioLevelObserverId`] which can be used to unsubscribe the
     /// provided here [`sys::AudioSourceOnAudioLevelChangeCallback`].
     ///
     /// # Panics
@@ -1432,12 +1430,12 @@ impl AudioSource {
         observer_id
     }
 
-    /// Unsubscribes [`sys::AudioSourceOnAudioLevelChangeCallback`] from audio
-    /// level updates.
+    /// Unsubscribes the current [`sys::AudioSourceOnAudioLevelChangeCallback`]
+    /// from audio level updates.
     ///
     /// After unsubscribing this callback will be disposed.
     ///
-    /// If [`AudioSourceInterface`] detects that this was last callback, it
+    /// If [`AudioSourceInterface`] detects that this was the last callback, it
     /// will stop any audio level calculations to save system resources.
     ///
     /// # Panics
@@ -1532,9 +1530,10 @@ impl VideoSource {
 struct TrackEventHandler(StreamSink<api::TrackEvent>);
 
 impl TrackEventHandler {
-    /// Creates new [`TrackEventHandler`] with the provided [`StreamSink`].
+    /// Creates a new [`TrackEventHandler`] with the provided [`StreamSink`].
     ///
-    /// Sends [`api::TrackEvent::TrackCreated`] to the provided [`StreamSink`].
+    /// Sends an [`api::TrackEvent::TrackCreated`] to the provided
+    /// [`StreamSink`].
     pub fn new(cb: StreamSink<api::TrackEvent>) -> Self {
         cb.add(api::TrackEvent::TrackCreated);
         Self(cb)
@@ -1547,8 +1546,8 @@ impl sys::TrackEventCallback for TrackEventHandler {
     }
 }
 
-/// Wrapper around [`StreamSink`] which emits [`AudioLevelUpdated`] events to
-/// the Dart side.
+/// Wrapper around a [`StreamSink`] which emits [`AudioLevelUpdated`] events to
+/// the Flutter side.
 ///
 /// This handler also will multiply volume by `1000` and cast it to [`u32`], for
 /// more convenient usage.

@@ -30,9 +30,9 @@ pub trait TrackEventCallback {
     fn on_ended(&mut self);
 }
 
-/// Handler of audio level updates from a [`AudioSourceInterface`].
+/// Handler of audio level updates from an [`AudioSourceInterface`].
 pub trait AudioSourceOnAudioLevelChangeCallback {
-    /// Called when new audio level update occurs.
+    /// Called once a new audio level update occurs.
     fn on_audio_level_change(&self, volume: f32);
 }
 
@@ -1803,8 +1803,8 @@ unsafe impl Sync for webrtc::VideoTrackSourceInterface {}
 pub struct AudioSourceInterface(UniquePtr<webrtc::AudioSourceInterface>);
 
 impl AudioSourceInterface {
-    /// Subscribes provided [`AudioSourceOnAudioLevelChangeCallback`] to audio
-    /// level updates of this [`AudioSourceInterface`].
+    /// Subscribes the provided [`AudioSourceOnAudioLevelChangeCallback`] to any
+    /// audio level updates of this [`AudioSourceInterface`].
     ///
     /// Only one [`AudioSourceOnAudioLevelChangeCallback`] at a time is
     /// supported.
@@ -1818,7 +1818,7 @@ impl AudioSourceInterface {
         );
     }
 
-    /// Unsubscribes provided [`AudioSourceAudioLevelObserver`] from
+    /// Unsubscribes the provided [`AudioSourceAudioLevelObserver`] from
     /// this [`AudioSourceInterface`].
     pub fn unsubscribe(&self) {
         webrtc::audio_source_unregister_audio_level_observer(&self.0);

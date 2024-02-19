@@ -4,8 +4,9 @@ import '/src/model/track.dart';
 /// Representation of the `onEnded` callback.
 typedef OnEndedCallback = void Function();
 
-/// Representation of the `onAudioLevelChanged` callback. The provided value
-/// wil be in [0; 100] range.
+/// Representation of an `onAudioLevelChanged` callback.
+///
+/// The provided values will be in [0; 100] range.
 typedef OnAudioLevelChangedCallback = void Function(int);
 
 /// Abstract representation of a single media unit on native or web side.
@@ -44,25 +45,30 @@ abstract class MediaStreamTrack {
   /// [MediaStreamTrack]s of some device.
   Future<void> stop();
 
-  /// Sets the provided [OnEndedCallback] for this [MediaStreamTrack]. It is
-  /// called when playback or streaming has stopped because the end of the media
-  /// was reached or because no further data is available. This is a terminate
-  /// state.
+  /// Sets the provided [OnEndedCallback] for this [MediaStreamTrack].
+  ///
+  /// It's called when a playback or streaming has stopped because the end of
+  /// the media was reached or because no further data is available.
+  ///
+  /// This is a terminate state.
   void onEnded(OnEndedCallback cb);
 
   /// Indicates whether [MediaStreamTrack.onAudioLevelChanged] callback is
   /// supported for this [MediaStreamTrack].
   ///
-  /// Currently, it's only supported for local audio tracks on desktop platforms.
+  /// Currently, it's only supported for local audio tracks on desktop
+  /// platforms.
   bool isOnAudioLevelAvailable() {
     // TODO(evdokimovs): Might be implemented on web using audio level in
-    //                   media-source rtc=stats or audio node and AnalyserNode:
-    // https://webrtc.github.io/samples/src/content/getusermedia/volume/
+    //                   media-source `rtc=stats` or audio node and
+    //                   `AnalyserNode`:
+    // https://webrtc.github.io/samples/src/content/getusermedia/volume
     return false;
   }
 
-  /// Sets the provided [OnEndedCallback] for this [MediaStreamTrack]. It is
-  /// called for live tracks when audio level of this track changes.
+  /// Sets the provided [OnEndedCallback] for this [MediaStreamTrack].
+  ///
+  /// It's called for live tracks when audio level of this track changes.
   ///
   /// [MediaStreamTrack.isOnAudioLevelAvailable] should be called to ensure
   /// [MediaStreamTrack.onAudioLevelChanged] is supported on the current

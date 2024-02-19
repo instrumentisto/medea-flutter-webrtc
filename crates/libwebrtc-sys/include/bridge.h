@@ -494,17 +494,17 @@ std::unique_ptr<TrackEventObserver> create_track_event_observer(
 void set_track_observer_video_track(TrackEventObserver& obs,
                                     const VideoTrackInterface& track);
 
-// Registers provided observer in `LocalAudioSource`. So audio level updates
-// will be passes to this observer.
+// Registers the provided observer in the provided `LocalAudioSource`, so any
+// audio level updates will be passes to this observer.
 //
 // Previous observer will be disposed. Only one observer at a time is supported.
 void audio_source_register_audio_level_observer(
     rust::Box<bridge::DynAudioSourceOnAudioLevelChangeCallback> cb,
     const AudioSourceInterface& audio_source);
 
-// Unregisters audio level observer from the provided `LocalAudioSource`.
+// Unregisters an audio level observer from the provided `LocalAudioSource`.
 //
-// `LocalAudioSource` will not calculate audio level after call to this
+// `LocalAudioSource` will not calculate audio level after calling this
 // function.
 void audio_source_unregister_audio_level_observer(
     const AudioSourceInterface& audio_source);

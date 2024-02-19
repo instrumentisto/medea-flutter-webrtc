@@ -184,7 +184,7 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
 
 /// FFI-based implementation of a [NativeMediaStreamTrack].
 class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
-  /// Subscriber for the audio level updates of this track.
+  /// Subscriber for audio level updates of this track.
   OnAudioLevelChangedCallback? _onAudioLevelChanged;
 
   /// [Completer] used to await for the [ffi.TrackCreated] event after creating

@@ -51,7 +51,7 @@ class LocalAudioSource : public webrtc::Notifier<webrtc::AudioSourceInterface> {
   std::recursive_mutex sink_lock_;
   std::list<webrtc::AudioTrackSinkInterface*> sinks_;
 
-  // Rust side callback that the audio level changes are be forwarded to.
+  // Rust side callback that audio level changes are forwarded to.
   std::optional<rust::Box<bridge::DynAudioSourceOnAudioLevelChangeCallback>>
       cb_;
   std::chrono::steady_clock::time_point last_audio_level_recalculation_ =

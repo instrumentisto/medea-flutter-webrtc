@@ -2227,11 +2227,12 @@ pub(crate) mod webrtc {
             device_id: String,
         );
 
-        /// Registers provided observer in [`AudioSourceInterface`]. So audio
-        /// level updates will be passes to this observer.
+        /// Registers the provided observer in the provided
+        /// [`AudioSourceInterface`], so any audio level updates will be passes
+        /// to this observer.
         ///
-        /// Previous observer will be disposed. Only one observer at a time
-        /// is supported.
+        /// Previous observer will be disposed. Only one observer at a time is
+        /// supported.
         pub fn audio_source_register_audio_level_observer(
             obs: Box<DynAudioSourceOnAudioLevelChangeCallback>,
             audio_source: &AudioSourceInterface,
@@ -2241,7 +2242,7 @@ pub(crate) mod webrtc {
         /// [`AudioSourceInterface`].
         ///
         /// [`AudioSourceInterface`] will not calculate audio level after
-        /// call to this function.
+        /// calling this function.
         pub fn audio_source_unregister_audio_level_observer(
             audio_source: &AudioSourceInterface,
         );
@@ -2543,7 +2544,8 @@ pub(crate) mod webrtc {
     extern "Rust" {
         pub type DynAudioSourceOnAudioLevelChangeCallback;
 
-        /// Called when the `LocalAudioSource` produces new audio level update.
+        /// Called once the `LocalAudioSource` produces a new audio level
+        /// update.
         fn on_audio_level_change(
             cb: &mut DynAudioSourceOnAudioLevelChangeCallback,
             volume: f32,
@@ -2919,8 +2921,8 @@ pub fn on_ended(cb: &mut DynTrackEventCallback) {
     cb.on_ended();
 }
 
-/// Notifies provided [`DynAudioSourceOnAudioLevelChangeCallback`] about audio
-/// level update.
+/// Notifies the provided [`DynAudioSourceOnAudioLevelChangeCallback`] about an
+/// audio level update.
 pub fn on_audio_level_change(
     cb: &mut DynAudioSourceOnAudioLevelChangeCallback,
     volume: f32,

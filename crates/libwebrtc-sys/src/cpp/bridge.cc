@@ -792,8 +792,8 @@ void set_track_observer_audio_track(TrackEventObserver& obs,
   obs.set_track(track);
 }
 
-// Registers the provided observer in `LocalAudioSource` to receive audio level
-// updates.
+// Registers the provided observer in the provided `LocalAudioSource` to receive
+// audio level updates.
 //
 // Previous observer will be disposed. Only one observer at a time is supported.
 void audio_source_register_audio_level_observer(
@@ -808,7 +808,7 @@ void audio_source_register_audio_level_observer(
 
 // Unregisters audio level observer from the provided `LocalAudioSource`.
 //
-// `LocalAudioSource` will not calculate audio level after call to this
+// `LocalAudioSource` will not calculate audio level after calling this
 // function.
 void audio_source_unregister_audio_level_observer(
     const AudioSourceInterface& audio_source) {
