@@ -653,11 +653,11 @@ pub(crate) mod webrtc {
         stats: UniquePtr<RTCStats>,
     }
 
-    #[derive(Debug, Eq, Hash, PartialEq)]
-    #[repr(u8)]
     /// [ScalabilityMode][0] representation.
     ///
     /// [0]: https://tinyurl.com/35ae3mbe
+    #[derive(Debug, Eq, Hash, PartialEq)]
+    #[repr(u8)]
     pub enum ScalabilityMode {
         /// [ScalabilityMode.L1T1][0] representation.
         ///
@@ -830,9 +830,9 @@ pub(crate) mod webrtc {
         kS3T3h,
     }
 
+    /// Type of the [`RtcpFeedback`].
     #[derive(Debug, Eq, Hash, PartialEq)]
     #[repr(i32)]
-    // Used in RtcpFeedback struct.
     pub enum RtcpFeedbackType {
         CCM,
         LNTF, // "goog-lntf"
@@ -841,11 +841,14 @@ pub(crate) mod webrtc {
         TRANSPORT_CC,
     }
 
-    // Used in RtcpFeedback struct when type is NACK or CCM.
+    /// Message type of [`RtcpFeedback`].
+    ///
+    /// This enum is used only when [`RtcpFeedback`] type is
+    /// [`RtcpFeedbackType::NACK`] or [`RtcpFeedbackType::CCM`].
     #[derive(Debug, Eq, Hash, PartialEq)]
     #[repr(i32)]
     pub enum RtcpFeedbackMessageType {
-        /// Equivalent to {type: "nack", parameter: undefined} in ORTC.
+        /// Equivalent to `{ type: "nack", parameter: undefined }` in ORTC.
         GENERIC_NACK,
 
         /// Usable with NACK.
@@ -2400,14 +2403,14 @@ pub(crate) mod webrtc {
             kind: MediaType,
             clock_rate: i32,
             num_channels: i32,
-            parameters: Vec<StringPair> 
+            parameters: Vec<StringPair>,
         ) -> UniquePtr<RtpCodecCapability>;
 
         /// Changes the preferred [`RtpTransceiverInterface`] codecs
         /// to the given [`Vec<RtpCodecCapability>`].
         pub fn set_codec_preferences(
             transceiver: &RtpTransceiverInterface,
-            codecs: Vec<RtpCodecCapabilityContainer>
+            codecs: Vec<RtpCodecCapabilityContainer>,
         );
 
         /// Returns the [`RtpReceiverInterface`] of the provided
@@ -2422,46 +2425,46 @@ pub(crate) mod webrtc {
         #[must_use]
         pub fn get_rtp_sender_capabilities(
             peer_connection_factory: &PeerConnectionFactoryInterface,
-            kind: MediaType
+            kind: MediaType,
         ) -> UniquePtr<RtpCapabilities>;
 
         /// Returns the [`RtpCodecCapabilityContainer`] of the provided
         /// [`RtpCapabilities`].
         #[must_use]
         pub fn rtp_capabilities_codecs(
-            capability: &RtpCapabilities
+            capability: &RtpCapabilities,
         ) -> Vec<RtpCodecCapabilityContainer>;
 
         /// Returns the [`RtpHeaderExtensionCapability`] of the provided
         /// [`RtpCapabilities`].
         #[must_use]
         pub fn rtp_capabilities_header_extensions(
-            capability: &RtpCapabilities
+            capability: &RtpCapabilities,
         ) -> Vec<RtpHeaderExtensionCapabilityContainer>;
 
         /// Returns the `payload_type` of the provided [`RtpCodecCapability`].
         #[must_use]
         pub fn preferred_payload_type(
-            capability: &RtpCodecCapability
+            capability: &RtpCodecCapability,
         ) -> Box<OptionI32>;
 
         /// Returns the [`ScalabilityMode`]'s of the provided
         /// [`RtpCodecCapability`].
         #[must_use]
         pub fn scalability_modes(
-            capability: &RtpCodecCapability
+            capability: &RtpCodecCapability,
         ) -> Vec<ScalabilityMode>;
 
         /// Returns the `mime_type` of the provided [`RtpCodecCapability`].
         #[must_use]
         pub fn rtc_codec_mime_type(
-            capability: &RtpCodecCapability
+            capability: &RtpCodecCapability,
         ) -> UniquePtr<CxxString>;
 
         /// Returns the `name` of the provided [`RtpCodecCapability`].
         #[must_use]
         pub fn rtc_codec_name(
-            capability: &RtpCodecCapability
+            capability: &RtpCodecCapability,
         ) -> UniquePtr<CxxString>;
 
         /// Returns the `kind` of the provided [`RtpCodecCapability`].
@@ -2471,26 +2474,26 @@ pub(crate) mod webrtc {
         /// Returns the `clock_rate` of the provided [`RtpCodecCapability`].
         #[must_use]
         pub fn rtc_codec_clock_rate(
-            capability: &RtpCodecCapability
+            capability: &RtpCodecCapability,
         ) -> Box<OptionI32>;
 
         /// Returns the `num_channels` of the provided [`RtpCodecCapability`].
         #[must_use]
         pub fn rtc_codec_num_channels(
-            capability: &RtpCodecCapability
+            capability: &RtpCodecCapability,
         ) -> Box<OptionI32>;
 
         /// Returns the `parameters` of the provided [`RtpCodecCapability`].
         #[must_use]
         pub fn rtc_codec_parameters(
-            capability: &RtpCodecCapability
+            capability: &RtpCodecCapability,
         ) -> UniquePtr<CxxVector<StringPair>>;
 
         /// Returns the [`RtcpFeedback`]'s of the provided
         /// [`RtpCodecCapability`].
         #[must_use]
         pub fn rtc_codec_rtcp_feedback(
-            capability: &RtpCodecCapability
+            capability: &RtpCodecCapability,
         ) -> Vec<RtcpFeedbackContainer>;
 
         /// Returns the [`RtcpFeedbackType`] of the provided [`RtcpFeedback`].
@@ -2501,34 +2504,34 @@ pub(crate) mod webrtc {
         /// [`RtcpFeedback`].
         #[must_use]
         pub fn rtcp_feedback_message_type(
-            feedback: &RtcpFeedback
+            feedback: &RtcpFeedback,
         ) -> Box<OptionI32>;
 
         /// Returns the `uri` of the provided [`RtpHeaderExtensionCapability`].
         #[must_use]
         pub fn header_extensions_uri(
-            header_extensions: &RtpHeaderExtensionCapability
+            header_extensions: &RtpHeaderExtensionCapability,
         ) -> UniquePtr<CxxString>;
 
         /// Returns the `preferred_id` of the provided
         /// [`RtpHeaderExtensionCapability`].
         #[must_use]
         pub fn header_extensions_preferred_id(
-            header_extensions: &RtpHeaderExtensionCapability
+            header_extensions: &RtpHeaderExtensionCapability,
         ) -> Box<OptionI32>;
 
         /// Returns the `preferred_encrypted` of the provided
         /// [`RtpHeaderExtensionCapability`].
         #[must_use]
         pub fn header_extensions_preferred_encrypted(
-            header_extensions: &RtpHeaderExtensionCapability
+            header_extensions: &RtpHeaderExtensionCapability,
         ) -> bool;
 
         /// Returns the [`RtpTransceiverDirection`] of the provided
         /// [`RtpHeaderExtensionCapability`].
         #[must_use]
         pub fn header_extensions_direction(
-            header_extensions: &RtpHeaderExtensionCapability
+            header_extensions: &RtpHeaderExtensionCapability,
         ) -> RtpTransceiverDirection;
     }
 

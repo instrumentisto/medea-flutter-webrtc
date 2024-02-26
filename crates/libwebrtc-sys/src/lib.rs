@@ -936,35 +936,36 @@ pub struct RtpHeaderExtensionCapability(
 );
 
 impl RtpHeaderExtensionCapability {
-    // URI of this extension, as defined in RFC8285.
+    /// URI of this extension, as defined in [RFC8285].
+    ///
+    /// [RFC8285]: https://datatracker.ietf.org/doc/html/rfc8285
     #[must_use]
     pub fn uri(&self) -> String {
         webrtc::header_extensions_uri(&self.0).to_string()
     }
 
-    // Preferred value of ID that goes in the packet.
+    /// Preferred value of ID that goes in the packet.
     #[must_use]
     pub fn preferred_id(&self) -> Option<i32> {
         webrtc::header_extensions_preferred_id(&self.0).take()
     }
 
-    // If true, it's preferred that the value in the header is encrypted.
+    /// If `true``, it's preferred that the value in the header is encrypted.
     #[must_use]
     pub fn preferred_encrypted(&self) -> bool {
         webrtc::header_extensions_preferred_encrypted(&self.0)
     }
 
-    // The direction of the extension.
+    /// The [`RtpTransceiverDirection`] of the extension.
     #[must_use]
     pub fn direction(&self) -> RtpTransceiverDirection {
         webrtc::header_extensions_direction(&self.0)
     }
 }
 
-/// [`RtpCodecCapability`] is to [`RtpCodecParameters`] as [`RtpCapabilities`]
-/// is to [`RtpParameters`].
-/// This represents the static capabilities of an endpoint's implementation of
-/// a codec.
+/// [`RtpCodecCapabilities`] is used to represent the static capabilities of an
+/// endpoint. An application can use these capabilities to construct an
+/// [`RtpCodecParameters`].
 pub struct RtpCodecCapability(UniquePtr<webrtc::RtpCodecCapability>);
 
 impl RtpCodecCapability {
@@ -1739,7 +1740,7 @@ unsafe impl Sync for webrtc::Thread {}
 pub struct RtpCapabilities(UniquePtr<webrtc::RtpCapabilities>);
 
 impl RtpCapabilities {
-    /// Supported codecs.
+    /// Returns list of supported [`RtpCodecCapability`]s.
     #[must_use]
     pub fn codecs(&self) -> Vec<RtpCodecCapability> {
         webrtc::rtp_capabilities_codecs(&self.0)

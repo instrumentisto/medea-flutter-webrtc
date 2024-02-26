@@ -521,10 +521,10 @@ impl From<sys::IceCandidateStats> for IceCandidateStats {
 /// [`RtpParameters`].
 #[derive(Debug)]
 pub struct RtpCapabilities {
-    // Supported codecs.
+    /// Supported codecs.
     pub codecs: Vec<RtpCodecCapability>,
 
-    // Supported RTP header extensions.
+    /// Supported RTP header extensions.
     pub header_extensions: Vec<RtpHeaderExtensionCapability>,
 }
 
@@ -583,11 +583,11 @@ impl From<sys::RtcpFeedback> for RtcpFeedback {
     }
 }
 
-#[derive(Debug, Eq, Hash, PartialEq)]
-#[repr(u8)]
 /// [ScalabilityMode][0] representation.
 ///
 /// [0]: https://tinyurl.com/35ae3mbe
+#[derive(Debug, Eq, Hash, PartialEq)]
+#[repr(u8)]
 pub enum ScalabilityMode {
     /// [ScalabilityMode.L1T1][0] representation.
     ///
@@ -760,9 +760,9 @@ pub enum ScalabilityMode {
     S3T3h,
 }
 
+/// Used in RtcpFeedback struct.
 #[derive(Debug, Eq, Hash, PartialEq)]
 #[repr(i32)]
-// Used in RtcpFeedback struct.
 #[allow(clippy::upper_case_acronyms)]
 pub enum RtcpFeedbackType {
     CCM,
@@ -772,12 +772,12 @@ pub enum RtcpFeedbackType {
     TransportCC,
 }
 
-// Used in RtcpFeedback struct when type is NACK or CCM.
+/// Used in RtcpFeedback struct when type is NACK or CCM.
 #[derive(Debug, Eq, Hash, PartialEq)]
 #[repr(i32)]
 #[allow(clippy::upper_case_acronyms)]
 pub enum RtcpFeedbackMessageType {
-    /// Equivalent to {type: "nack", parameter: undefined} in ORTC.
+    /// Equivalent to `{ type: "nack", parameter: undefined }` in ORTC.
     GenericNACK,
 
     /// Usable with NACK.

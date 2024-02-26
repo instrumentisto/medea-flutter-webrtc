@@ -1,6 +1,7 @@
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <iostream>
 
 #include <chrono>
 #include <thread>
@@ -22,7 +23,6 @@
 #include "libyuv.h"
 #include "modules/audio_device/include/audio_device_factory.h"
 #include "pc/proxy.h"
-#include <iostream>
 
 namespace bridge {
 

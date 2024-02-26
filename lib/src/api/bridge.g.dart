@@ -335,8 +335,8 @@ abstract class MedeaFlutterWebrtcNative {
 
   FlutterRustBridgeTaskConstMeta get kRegisterTrackObserverConstMeta;
 
-  /// Enables or disables audio level observer of the [`AudioTrack`]
-  /// with a provided `id`.
+  /// Enables or disables audio level observing of the audio [`MediaStreamTrack`]
+  /// with the provided `track_id`.
   Future<void> setAudioLevelObserverEnabled(
       {required String trackId,
       int? peerId,
@@ -1801,8 +1801,9 @@ class RtcpFeedback {
   });
 }
 
+/// Used in RtcpFeedback struct when type is NACK or CCM.
 enum RtcpFeedbackMessageType {
-  /// Equivalent to {type: "nack", parameter: undefined} in ORTC.
+  /// Equivalent to `{ type: "nack", parameter: undefined }` in ORTC.
   genericNack,
 
   /// Usable with NACK.
@@ -1812,6 +1813,7 @@ enum RtcpFeedbackMessageType {
   fir,
 }
 
+/// Used in RtcpFeedback struct.
 enum RtcpFeedbackType {
   ccm,
   lntf,
@@ -1824,7 +1826,10 @@ enum RtcpFeedbackType {
 /// endpoint. An application can use these capabilities to construct an
 /// [`RtpParameters`].
 class RtpCapabilities {
+  /// Supported codecs.
   final List<RtpCodecCapability> codecs;
+
+  /// Supported RTP header extensions.
   final List<RtpHeaderExtensionCapability> headerExtensions;
 
   const RtpCapabilities({
@@ -2246,12 +2251,13 @@ sealed class TrackEvent with _$TrackEvent {
   /// because no further data is available.
   const factory TrackEvent.ended() = TrackEvent_Ended;
 
-  /// Event which indicates that new audio level occurred.
+  /// Event indicating an audio level change in the [`MediaStreamTrack`].
   const factory TrackEvent.audioLevelUpdated(
     int field0,
   ) = TrackEvent_AudioLevelUpdated;
 
-  /// Event which indicates that [`MediaStreamTrack`] completely initialized.
+  /// Event indicating that the [`MediaStreamTrack`] has completely
+  /// initialized and can be used on Flutter side.
   const factory TrackEvent.trackCreated() = TrackEvent_TrackCreated;
 }
 
