@@ -70,6 +70,7 @@ struct RtpEncodingParametersContainer;
 
 struct OptionF64;
 struct OptionI32;
+struct OptionRtcpFeedbackMessageType;
 struct OptionString;
 
 using Thread = rtc::Thread;
@@ -635,7 +636,7 @@ rust::Vec<RtcpFeedbackContainer> rtc_codec_rtcp_feedback(
 webrtc::RtcpFeedbackType rtcp_feedback_type(const RtcpFeedback& feedback);
 
 // Returns the `message_type` of the provided `RtcpFeedback`.
-rust::Box<bridge::OptionI32> rtcp_feedback_message_type(
+rust::Box<bridge::OptionRtcpFeedbackMessageType> rtcp_feedback_message_type(
     const RtcpFeedback& feedback);
 
 // Calls `Candidate->ToString`.

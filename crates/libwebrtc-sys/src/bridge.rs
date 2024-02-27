@@ -54,6 +54,27 @@ pub fn init_option_i32() -> Box<OptionI32> {
     Box::new(OptionI32(None))
 }
 
+/// [`Option`]`<`[`RtcpFeedbackMessageType`]`>` transferable to the C++ side.
+#[derive(Deref, DerefMut)]
+pub struct OptionRtcpFeedbackMessageType(
+    Option<crate::RtcpFeedbackMessageType>,
+);
+
+impl OptionRtcpFeedbackMessageType {
+    /// Sets this [`Option`]`<`[`RtcpFeedbackMessageType`]`>`
+    /// to [`Some`]`(value)`.
+    fn set_value(&mut self, value: crate::RtcpFeedbackMessageType) {
+        self.0 = Some(value);
+    }
+}
+
+/// Creates an empty Rust [`Option`]`<`[`RtcpFeedbackMessageType`]`>`.
+#[allow(clippy::unnecessary_box_returns)]
+pub fn init_option_rtcp_feedback_message_type(
+) -> Box<OptionRtcpFeedbackMessageType> {
+    Box::new(OptionRtcpFeedbackMessageType(None))
+}
+
 /// [`Option`]`<`[`String`]`>` transferable to the C++ side.
 #[derive(Deref, DerefMut)]
 pub struct OptionString(Option<String>);
@@ -834,10 +855,15 @@ pub(crate) mod webrtc {
     #[derive(Debug, Eq, Hash, PartialEq)]
     #[repr(i32)]
     pub enum RtcpFeedbackType {
+        /// Codec control messages.
         CCM,
-        LNTF, // "goog-lntf"
+        /// Loss notification feedback.
+        LNTF,
+        /// Negative acknowledgemen.
         NACK,
-        REMB, // "goog-remb"
+        /// Receiver estimated maximum bitrate.
+        REMB,
+        /// Transport wide congestion control.
         TRANSPORT_CC,
     }
 
@@ -2137,6 +2163,7 @@ pub(crate) mod webrtc {
         pub type OptionF64;
         pub type OptionI32;
         pub type OptionBool;
+        pub type OptionRtcpFeedbackMessageType;
         pub type OptionU32;
         pub type OptionString;
 
@@ -2175,6 +2202,17 @@ pub(crate) mod webrtc {
 
         /// Sets the provided [`Option`]`<`[`String`]`>` to [`Some`]`(value)`.
         pub fn set_value(self: &mut OptionString, value: String);
+
+        /// Creates an empty Rust [`Option`]`<`[`RtcpFeedbackType`]`>`.
+        pub fn init_option_rtcp_feedback_message_type(
+        ) -> Box<OptionRtcpFeedbackMessageType>;
+
+        /// Sets the provided [`Option`]`<`[`RtcpFeedbackType`]`>`
+        /// to [`Some`]`(value)`.
+        pub fn set_value(
+            self: &mut OptionRtcpFeedbackMessageType,
+            value: RtcpFeedbackMessageType,
+        );
     }
 
     #[rustfmt::skip]
@@ -2500,12 +2538,12 @@ pub(crate) mod webrtc {
         #[must_use]
         pub fn rtcp_feedback_type(feedback: &RtcpFeedback) -> RtcpFeedbackType;
 
-        /// Returns the `message_type` as [`Option<I32>`] of the provided
+        /// Returns the `message_type` as [`Option<RtcpFeedbackMessageType>`] of the provided
         /// [`RtcpFeedback`].
         #[must_use]
         pub fn rtcp_feedback_message_type(
             feedback: &RtcpFeedback,
-        ) -> Box<OptionI32>;
+        ) -> Box<OptionRtcpFeedbackMessageType>;
 
         /// Returns the `uri` of the provided [`RtpHeaderExtensionCapability`].
         #[must_use]

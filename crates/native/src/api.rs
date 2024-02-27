@@ -544,10 +544,10 @@ impl From<sys::RtpCapabilities> for RtpCapabilities {
 impl From<sys::RtcpFeedbackType> for RtcpFeedbackType {
     fn from(value: sys::RtcpFeedbackType) -> Self {
         match value {
-            sys::RtcpFeedbackType::CCM => Self::CCM,
-            sys::RtcpFeedbackType::LNTF => Self::LNTF,
-            sys::RtcpFeedbackType::NACK => Self::NACK,
-            sys::RtcpFeedbackType::REMB => Self::REMB,
+            sys::RtcpFeedbackType::CCM => Self::Ccm,
+            sys::RtcpFeedbackType::LNTF => Self::Lntf,
+            sys::RtcpFeedbackType::NACK => Self::Nack,
+            sys::RtcpFeedbackType::REMB => Self::Remb,
             sys::RtcpFeedbackType::TRANSPORT_CC => Self::TransportCC,
             _ => unreachable!(),
         }
@@ -557,14 +557,15 @@ impl From<sys::RtcpFeedbackMessageType> for RtcpFeedbackMessageType {
     fn from(value: sys::RtcpFeedbackMessageType) -> Self {
         match value {
             sys::RtcpFeedbackMessageType::GENERIC_NACK => Self::GenericNACK,
-            sys::RtcpFeedbackMessageType::PLI => Self::PLI,
-            sys::RtcpFeedbackMessageType::FIR => Self::FIR,
+            sys::RtcpFeedbackMessageType::PLI => Self::Pli,
+            sys::RtcpFeedbackMessageType::FIR => Self::Fir,
             _ => unreachable!(),
         }
     }
 }
 
-/// NACK or CCM feedback.
+/// RTCP feedback message intended to enable congestion control for interactive
+/// real-time traffic using RTP.
 #[derive(Debug)]
 pub struct RtcpFeedback {
     /// Message type of these [`RtcpFeedback`].
@@ -760,31 +761,38 @@ pub enum ScalabilityMode {
     S3T3h,
 }
 
-/// Used in RtcpFeedback struct.
+/// Used in `RtcpFeedback` struct.
 #[derive(Debug, Eq, Hash, PartialEq)]
 #[repr(i32)]
-#[allow(clippy::upper_case_acronyms)]
 pub enum RtcpFeedbackType {
-    CCM,
-    LNTF, // "goog-lntf"
-    NACK,
-    REMB, // "goog-remb"
+    /// Codec control messages.
+    Ccm,
+
+    /// Loss notification feedback.
+    Lntf,
+
+    /// Negative acknowledgemen.
+    Nack,
+
+    /// Receiver estimated maximum bitrate.
+    Remb,
+
+    /// Transport wide congestion control.
     TransportCC,
 }
 
-/// Used in RtcpFeedback struct when type is NACK or CCM.
+/// Used in `RtcpFeedback` struct when type is NACK or CCM.
 #[derive(Debug, Eq, Hash, PartialEq)]
 #[repr(i32)]
-#[allow(clippy::upper_case_acronyms)]
 pub enum RtcpFeedbackMessageType {
     /// Equivalent to `{ type: "nack", parameter: undefined }` in ORTC.
     GenericNACK,
 
     /// Usable with NACK.
-    PLI,
+    Pli,
 
     /// Usable with CCM.
-    FIR,
+    Fir,
 }
 
 impl From<sys::ScalabilityMode> for ScalabilityMode {

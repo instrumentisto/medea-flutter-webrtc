@@ -905,7 +905,8 @@ impl RtpTransceiverInterface {
     }
 }
 
-/// `NACK` or `CCM` feedback.
+/// RTCP feedback message intended to enable congestion control for interactive
+/// real-time traffic using RTP.
 pub struct RtcpFeedback(UniquePtr<webrtc::RtcpFeedback>);
 
 impl RtcpFeedback {
@@ -916,9 +917,7 @@ impl RtcpFeedback {
     /// If [`RtcpFeedbackMessageType`] has invalid type.
     #[must_use]
     pub fn message_type(&self) -> Option<webrtc::RtcpFeedbackMessageType> {
-        webrtc::rtcp_feedback_message_type(&self.0)
-            .take()
-            .map(|v| webrtc::RtcpFeedbackMessageType::try_from(v).unwrap())
+        webrtc::rtcp_feedback_message_type(&self.0).take()
     }
 
     /// Returns the `kind` of these [`RtcpFeedback`].
@@ -950,7 +949,7 @@ impl RtpHeaderExtensionCapability {
         webrtc::header_extensions_preferred_id(&self.0).take()
     }
 
-    /// If `true``, it's preferred that the value in the header is encrypted.
+    /// If `true`, it's preferred that the value in the header is encrypted.
     #[must_use]
     pub fn preferred_encrypted(&self) -> bool {
         webrtc::header_extensions_preferred_encrypted(&self.0)

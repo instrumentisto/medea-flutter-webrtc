@@ -900,12 +900,12 @@ RtcpFeedbackType rtcp_feedback_type(const RtcpFeedback& feedback) {
 }
 
 // Returns the `message_type` of the provided `RtcpFeedback`.
-rust::Box<bridge::OptionI32> rtcp_feedback_message_type(
+rust::Box<bridge::OptionRtcpFeedbackMessageType> rtcp_feedback_message_type(
     const RtcpFeedback& feedback) {
-  auto message_type = init_option_i32();
+  auto message_type = init_option_rtcp_feedback_message_type();
 
   if (feedback.message_type) {
-    message_type->set_value((int)feedback.message_type.value());
+    message_type->set_value(feedback.message_type.value());
   }
   return message_type;
 }

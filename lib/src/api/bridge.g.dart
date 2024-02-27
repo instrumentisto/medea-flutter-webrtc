@@ -1787,7 +1787,8 @@ class RtcTrackEvent {
   });
 }
 
-/// NACK or CCM feedback.
+/// RTCP feedback message intended to enable congestion control for interactive
+/// real-time traffic using RTP.
 class RtcpFeedback {
   /// Message type of these [`RtcpFeedback`].
   final RtcpFeedbackMessageType? messageType;
@@ -1801,7 +1802,7 @@ class RtcpFeedback {
   });
 }
 
-/// Used in RtcpFeedback struct when type is NACK or CCM.
+/// Used in `RtcpFeedback` struct when type is NACK or CCM.
 enum RtcpFeedbackMessageType {
   /// Equivalent to `{ type: "nack", parameter: undefined }` in ORTC.
   genericNack,
@@ -1813,12 +1814,21 @@ enum RtcpFeedbackMessageType {
   fir,
 }
 
-/// Used in RtcpFeedback struct.
+/// Used in `RtcpFeedback` struct.
 enum RtcpFeedbackType {
+  /// Codec control messages.
   ccm,
+
+  /// Loss notification feedback.
   lntf,
+
+  /// Negative acknowledgemen.
   nack,
+
+  /// Receiver estimated maximum bitrate.
   remb,
+
+  /// Transport wide congestion control.
   transportCc,
 }
 

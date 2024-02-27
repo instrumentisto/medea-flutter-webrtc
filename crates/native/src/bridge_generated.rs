@@ -877,8 +877,8 @@ impl Wire2Api<RtcpFeedbackMessageType> for i32 {
     fn wire2api(self) -> RtcpFeedbackMessageType {
         match self {
             0 => RtcpFeedbackMessageType::GenericNACK,
-            1 => RtcpFeedbackMessageType::PLI,
-            2 => RtcpFeedbackMessageType::FIR,
+            1 => RtcpFeedbackMessageType::Pli,
+            2 => RtcpFeedbackMessageType::Fir,
             _ => unreachable!("Invalid variant for RtcpFeedbackMessageType: {}", self),
         }
     }
@@ -886,10 +886,10 @@ impl Wire2Api<RtcpFeedbackMessageType> for i32 {
 impl Wire2Api<RtcpFeedbackType> for i32 {
     fn wire2api(self) -> RtcpFeedbackType {
         match self {
-            0 => RtcpFeedbackType::CCM,
-            1 => RtcpFeedbackType::LNTF,
-            2 => RtcpFeedbackType::NACK,
-            3 => RtcpFeedbackType::REMB,
+            0 => RtcpFeedbackType::Ccm,
+            1 => RtcpFeedbackType::Lntf,
+            2 => RtcpFeedbackType::Nack,
+            3 => RtcpFeedbackType::Remb,
             4 => RtcpFeedbackType::TransportCC,
             _ => unreachable!("Invalid variant for RtcpFeedbackType: {}", self),
         }
@@ -1688,8 +1688,8 @@ impl support::IntoDart for RtcpFeedbackMessageType {
     fn into_dart(self) -> support::DartAbi {
         match self {
             Self::GenericNACK => 0,
-            Self::PLI => 1,
-            Self::FIR => 2,
+            Self::Pli => 1,
+            Self::Fir => 2,
         }
         .into_dart()
     }
@@ -1704,10 +1704,10 @@ impl rust2dart::IntoIntoDart<RtcpFeedbackMessageType> for RtcpFeedbackMessageTyp
 impl support::IntoDart for RtcpFeedbackType {
     fn into_dart(self) -> support::DartAbi {
         match self {
-            Self::CCM => 0,
-            Self::LNTF => 1,
-            Self::NACK => 2,
-            Self::REMB => 3,
+            Self::Ccm => 0,
+            Self::Lntf => 1,
+            Self::Nack => 2,
+            Self::Remb => 3,
             Self::TransportCC => 4,
         }
         .into_dart()

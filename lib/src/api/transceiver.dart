@@ -184,7 +184,6 @@ class _RtpTransceiverFFI extends RtpTransceiver {
         direction: ffi.RtpTransceiverDirection.values[direction.index]);
   }
 
-  // todo
   @override
   Future<void> setCodecPreferences(List<RtpCodecCapability> codecs) async {
     var ffiCodecs = codecs.map((c) {
