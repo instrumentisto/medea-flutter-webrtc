@@ -42,6 +42,7 @@ fn main() -> anyhow::Result<()> {
     let cpp_files = get_cpp_files()?;
 
     println!("cargo:rustc-link-lib=webrtc");
+    println!("cargo:rustc-link-lib=dylib=vdpau");
 
     link_libs()?;
 
