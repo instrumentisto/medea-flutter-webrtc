@@ -2203,11 +2203,11 @@ pub(crate) mod webrtc {
         /// Sets the provided [`Option`]`<`[`String`]`>` to [`Some`]`(value)`.
         pub fn set_value(self: &mut OptionString, value: String);
 
-        /// Creates an empty Rust [`Option`]`<`[`RtcpFeedbackType`]`>`.
+        /// Creates an empty Rust [`Option`]`<`[`RtcpFeedbackMessageType`]`>`.
         pub fn init_option_rtcp_feedback_message_type(
         ) -> Box<OptionRtcpFeedbackMessageType>;
 
-        /// Sets the provided [`Option`]`<`[`RtcpFeedbackType`]`>`
+        /// Sets the provided [`Option`]`<`[`RtcpFeedbackMessageType`]`>`
         /// to [`Some`]`(value)`.
         pub fn set_value(
             self: &mut OptionRtcpFeedbackMessageType,
@@ -3463,19 +3463,6 @@ impl TryFrom<&str> for webrtc::BundlePolicy {
             "maxbundle" => Ok(Self::kBundlePolicyMaxBundle),
             "maxcompat" => Ok(Self::kBundlePolicyMaxCompat),
             v => Err(anyhow!("Invalid `BundlePolicy`: {v}")),
-        }
-    }
-}
-
-impl TryFrom<i32> for webrtc::RtcpFeedbackMessageType {
-    type Error = anyhow::Error;
-
-    fn try_from(v: i32) -> Result<Self, Self::Error> {
-        match v {
-            x if x == Self::GENERIC_NACK.repr => Ok(Self::GENERIC_NACK),
-            x if x == Self::PLI.repr => Ok(Self::PLI),
-            x if x == Self::FIR.repr => Ok(Self::FIR),
-            x => Err(anyhow!("Invalid `RtcpFeedbackMessageType`: {x}")),
         }
     }
 }
