@@ -59,7 +59,7 @@ fn main() -> anyhow::Result<()> {
     build
         .flag("-DNDEBUG")
         .flag("-Wno-error=deprecated-declarations");
-    
+
     #[cfg(not(target_os = "windows"))]
     if env::var_os("PROFILE") == Some(OsString::from("release")) {
         build.flag("-DNDEBUG");
