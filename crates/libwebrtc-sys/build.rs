@@ -12,7 +12,6 @@ use std::{
     process::Command,
 };
 
-use anyhow::bail;
 use flate2::read::GzDecoder;
 use sha2::{Digest, Sha256};
 use tar::Archive;
