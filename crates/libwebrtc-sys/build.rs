@@ -58,8 +58,6 @@ fn main() -> anyhow::Result<()> {
     #[cfg(target_os = "windows")]
     build.flag("-DNDEBUG").flag("-wx3827");
 
-    build.flag_if_supported("/std:c++17");
-
     #[cfg(not(target_os = "windows"))]
     if env::var_os("PROFILE") == Some(OsString::from("release")) {
         build.flag("-DNDEBUG");
