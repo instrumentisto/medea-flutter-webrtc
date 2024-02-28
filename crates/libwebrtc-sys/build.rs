@@ -56,7 +56,7 @@ fn main() -> anyhow::Result<()> {
         .flag("-DWEBRTC_USE_H264");
 
     #[cfg(target_os = "windows")]
-    build.flag("-DNDEBUG");
+    build.flag("-DNDEBUG").flag("-w33827");
 
     #[cfg(not(target_os = "windows"))]
     if env::var_os("PROFILE") == Some(OsString::from("release")) {
