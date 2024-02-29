@@ -72,7 +72,7 @@ bool AudioDeviceRecorder::ProcessRecordedPart(bool isFirstInCycle) {
   _emptyRecordingData = 0;
   alcCaptureSamples(_device, _recordedSamples->data(), kRecordingPart);
 
-  if (checkDeviceFailed()) {
+  if (recorder::CheckDeviceFailed(_device)) {
     restartRecording();
     return false;
   }
@@ -124,16 +124,6 @@ rtc::scoped_refptr<bridge::LocalAudioSource> AudioDeviceRecorder::GetSource() {
   return _source;
 }
 
-bool AudioDeviceRecorder::checkDeviceFailed() {
-  if (auto code = alcGetError(_device); code != ALC_NO_ERROR) {
-    RTC_LOG(LS_ERROR) << "OpenAL Error " << code << ": "
-                      << (const char*)alcGetString(_device, code);
-    return true;
-  }
-
-  return false;
-}
-
 bool AudioDeviceRecorder::validateRecordingDeviceId() {
   auto valid = false;
   recorder::EnumerateDevices(ALC_CAPTURE_DEVICE_SPECIFIER,
@@ -164,15 +154,15 @@ void AudioDeviceRecorder::restartRecording() {
   closeRecordingDevice();
 
   if (!validateRecordingDeviceId()) {
-    std::lock_guard<std::recursive_mutex> lk(_mutex);
-
     _recording = true;
     _recordingFailed = true;
     return;
   }
 
-  _recordingFailed = false;
   openRecordingDevice();
+  if (_device && !_recordingFailed) {
+     StartCapture();;
+  }
 
   return;
 }
@@ -197,6 +187,7 @@ void AudioDeviceRecorder::openRecordingDevice() {
 
   if (!_device) {
     _recordingFailed = true;
-    return;
+  } else {
+    _recordingFailed = false;
   }
 }

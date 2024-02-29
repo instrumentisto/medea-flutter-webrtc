@@ -73,8 +73,8 @@ class _LoopbackState extends State<Loopback> {
     try {
       _mediaDevicesList = await enumerateDevices();
       _tracks = await getUserMedia(caps);
-      await _localRenderer.setSrcObject(
-          _tracks!.firstWhere((track) => track.kind() == MediaKind.video));
+      // await _localRenderer.setSrcObject(
+      //     _tracks!.firstWhere((track) => track.kind() == MediaKind.video));
 
       var server = IceServer(['stun:stun.l.google.com:19302']);
       _pc1 = await PeerConnection.create(IceTransportType.all, [server]);
@@ -89,7 +89,7 @@ class _LoopbackState extends State<Loopback> {
 
       _pc2?.onTrack((track, trans) async {
         if (track.kind() == MediaKind.video) {
-          await _remoteRenderer.setSrcObject(track);
+//           await _remoteRenderer.setSrcObject(track);
         }
       });
 
@@ -140,6 +140,22 @@ class _LoopbackState extends State<Loopback> {
         _microIsAvailable = value;
       });
     });
+
+    var outputDevice = _mediaDevicesList!
+        .where((device) => device.kind == MediaDeviceKind.audiooutput)
+        .firstOrNull!
+        .deviceId;
+    var inputDevice = _mediaDevicesList!
+        .where((device) => device.kind == MediaDeviceKind.audioinput)
+        .firstOrNull!
+        .deviceId;
+
+    // while (true) {
+    //   await Future.delayed(const Duration(milliseconds: 200));
+    //   // await setOutputAudioId(outputDevice);
+    //   // print("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ");
+    //   await _setInputAudioId(inputDevice);
+    // }
   }
 
   void _hangUp() async {
@@ -165,7 +181,7 @@ class _LoopbackState extends State<Loopback> {
     }
   }
 
-  void _setInputAudioId(String id) async {
+  Future<void> _setInputAudioId(String id) async {
     for (var track in _tracks!) {
       if (track.kind() == MediaKind.audio) {
         await track.stop();
