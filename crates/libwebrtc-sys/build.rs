@@ -23,7 +23,7 @@ use walkdir::{DirEntry, WalkDir};
 /// [`libwebrtc-bin`]: https://github.com/instrumentisto/libwebrtc-bin
 static LIBWEBRTC_URL: &str =
     "https://github.com/instrumentisto/libwebrtc-bin/releases/download\
-                                                    /122.0.6261.69";
+                                                    /122.0.6261.94";
 
 /// URL for downloading `openal-soft` source code.
 static OPENAL_URL: &str =
@@ -56,7 +56,7 @@ fn main() -> anyhow::Result<()> {
         .flag("-DWEBRTC_USE_H264");
 
     #[cfg(target_os = "windows")]
-    build.flag("-DNDEBUG").flag("-wx3827");
+    build.flag("-DNDEBUG");
 
     #[cfg(not(target_os = "windows"))]
     if env::var_os("PROFILE") == Some(OsString::from("release")) {
@@ -122,19 +122,19 @@ fn get_target() -> anyhow::Result<String> {
 fn get_expected_libwebrtc_hash() -> anyhow::Result<&'static str> {
     Ok(match get_target()?.as_str() {
         "aarch64-unknown-linux-gnu" => {
-            "eb513bdce3dc3b08cbac30a16461f531ef05576c0f7f9893bb0af1a2054cd4fb"
+            "eaea5e677d6815f1f6933db3211ba3ebf5f78e081ee2dc7bff253281b87d4c0e"
         }
         "x86_64-unknown-linux-gnu" => {
-            "730263926498b8fe3eae809794f4813a0701798dcdbf4f1c659e7094c6b9f047"
+            "9f9069c7e5d5eb1af5a79705bde54e7f6cb0a2508b5d5c7e1fea86d30d99494c"
         }
         "aarch64-apple-darwin" => {
-            "dbf0eccc0d64575022904d9d8f5cf776846bf4f098e3055332a22a40dc9dbe2c"
+            "738eb716752164c0e56654db361593fff6064bd4f753bfa1ea5d7609d85ff6f6"
         }
         "x86_64-apple-darwin" => {
-            "7fb4bb27efd0e4b063a3a950db22c138b7f866dd9f0375ce8ab12113b0fb969e"
+            "f786b7c840750ef68e1d5fc499a3c496b8526f08d0a1c81cc0839b7b3824c431"
         }
         "x86_64-pc-windows-msvc" => {
-            "31797614af5a31faf62f7314a5c81cbbb69904b0a7f7543a817460782047ed80"
+            "2ed26bdfc523bc54168daf647c5f2a5afd0a4ee151850ff6f8c2b9373feb6d37"
         }
         arch => return Err(anyhow::anyhow!("Unsupported target: {arch}")),
     })
