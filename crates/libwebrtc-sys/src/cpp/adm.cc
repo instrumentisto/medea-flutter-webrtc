@@ -481,6 +481,9 @@ void OpenALAudioDeviceModule::processPlayoutQueued() {
           processPlayout();
         }
         processPlayoutQueued();
+
+        // If this thread is quitting, then task was not scheduled and must
+        // be rescheduled when thread will be restarted.
         _data->playingQueued = !rtc::Thread::Current()->IsQuitting();
       },
       webrtc::TimeDelta::Millis(10));
@@ -762,7 +765,8 @@ void OpenALAudioDeviceModule::processRecordingQueued() {
         std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
 
         for (const auto& [_, recorder] : _recorders) {
-          for (auto first = true; recorder->ProcessRecordedPart(first); first = false) {
+          for (auto first = true; recorder->ProcessRecordedPart(first);
+               first = false) {
           }
         }
         processRecordingQueued();

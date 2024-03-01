@@ -1,8 +1,5 @@
 #include <iostream>
 
-#include <algorithm>
-#include <chrono>
-#include <vector>
 #include "api/make_ref_counted.h"
 #include "audio_device_recorder.h"
 #include "rtc_base/logging.h"
@@ -161,7 +158,7 @@ void AudioDeviceRecorder::restartRecording() {
 
   openRecordingDevice();
   if (_device && !_recordingFailed) {
-     StartCapture();;
+    StartCapture();
   }
 
   return;
