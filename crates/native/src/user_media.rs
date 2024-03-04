@@ -902,7 +902,8 @@ impl AudioDeviceModule {
         self.inner.stop_playout()
     }
 
-    /// Sets stereo availability of this playout [`AudioDeviceModule`].
+    /// Indicates whether stereo is available in this playout
+    /// [`AudioDeviceModule`].
     ///
     /// # Errors
     ///

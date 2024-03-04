@@ -482,8 +482,8 @@ void OpenALAudioDeviceModule::processPlayoutQueued() {
         }
         processPlayoutQueued();
 
-        // If this thread is quitting, then task was not scheduled and must
-        // be rescheduled when thread will be restarted.
+        // If this thread is quitting, then the task was not scheduled and must
+        // be rescheduled when the thread will be restarted.
         _data->playingQueued = !rtc::Thread::Current()->IsQuitting();
       },
       webrtc::TimeDelta::Millis(10));
