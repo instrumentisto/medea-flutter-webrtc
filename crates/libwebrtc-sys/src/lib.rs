@@ -1025,7 +1025,7 @@ impl RtpCodecCapability {
         webrtc::rtc_codec_name(&self.0).to_string()
     }
 
-    /// Returns the [MediaType] of the codec. Equivalent to [MIME] top-level
+    /// Returns the [`MediaType`] of the codec. Equivalent to [MIME] top-level
     /// type.
     ///
     /// [MIME]: https://en.wikipedia.org/wiki/Media_type
