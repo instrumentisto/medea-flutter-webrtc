@@ -863,8 +863,8 @@ impl RtpTransceiverInterface {
         Ok(())
     }
 
-    /// Changes the preferred [`RtpTransceiverInterface`] codecs
-    /// to the given [`Vec<RtpCodecCapability>`].
+    /// Changes the preferred [`RtpTransceiverInterface`] codecs to the provided
+    /// [`Vec`]`<`[`RtpCodecCapability`]`>`.
     pub fn set_codec_preferences(&self, codecs: Vec<RtpCodecCapability>) {
         let codecs = codecs
             .into_iter()
@@ -904,66 +904,69 @@ impl RtpTransceiverInterface {
     }
 }
 
-/// RTCP feedback message intended to enable congestion control for interactive
-/// real-time traffic using RTP.
+/// [RTCP] feedback message intended to enable congestion control for
+/// interactive real-time traffic using [RTP].
+///
+/// [RTCP]: https://en.wikipedia.org/wiki/RTP_Control_Protocol
+/// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
 pub struct RtcpFeedback(UniquePtr<webrtc::RtcpFeedback>);
 
 impl RtcpFeedback {
-    /// Returns the `message_type` of these [`RtcpFeedback`].
+    /// Returns the `message_type` of this [`RtcpFeedback`].
     ///
     /// # Panics
     ///
-    /// If [`RtcpFeedbackMessageType`] has invalid type.
+    /// If the [`RtcpFeedbackMessageType`] has invalid type.
     #[must_use]
     pub fn message_type(&self) -> Option<webrtc::RtcpFeedbackMessageType> {
         webrtc::rtcp_feedback_message_type(&self.0).take()
     }
 
-    /// Returns the `kind` of these [`RtcpFeedback`].
+    /// Returns the `kind` of this [`RtcpFeedback`].
     #[must_use]
     pub fn kind(&self) -> webrtc::RtcpFeedbackType {
         webrtc::rtcp_feedback_type(&self.0)
     }
 }
 
-/// Used in [`RtpCapabilities`] header extensions query and setup methods:
-/// represents the capabilities/preferences of an implementation for a header
-/// extension.
+/// Representation of capabilities/preferences of an implementation for a header
+/// extension of [`RtpCapabilities`].
 pub struct RtpHeaderExtensionCapability(
     UniquePtr<webrtc::RtpHeaderExtensionCapability>,
 );
 
 impl RtpHeaderExtensionCapability {
-    /// URI of this extension, as defined in [RFC8285].
+    /// Returns [URI] of this extension, as defined in [RFC 8285].
     ///
-    /// [RFC8285]: https://datatracker.ietf.org/doc/html/rfc8285
+    /// [RFC 8285]: https://tools.ietf.org/html/rfc8285
+    /// [URI]: https://en.wikipedia.org/wiki/Uniform_Resource_Identifier
     #[must_use]
     pub fn uri(&self) -> String {
         webrtc::header_extensions_uri(&self.0).to_string()
     }
 
-    /// Preferred value of ID that goes in the packet.
+    /// Returns the preferred value of ID that goes in the packet.
     #[must_use]
     pub fn preferred_id(&self) -> Option<i32> {
         webrtc::header_extensions_preferred_id(&self.0).take()
     }
 
-    /// If `true`, it's preferred that the value in the header is encrypted.
+    /// Indicates, whether it's preferred that the value in the header is
+    /// encrypted.
     #[must_use]
     pub fn preferred_encrypted(&self) -> bool {
         webrtc::header_extensions_preferred_encrypted(&self.0)
     }
 
-    /// The [`RtpTransceiverDirection`] of the extension.
+    /// Returns the [`RtpTransceiverDirection`] of the extension.
     #[must_use]
     pub fn direction(&self) -> RtpTransceiverDirection {
         webrtc::header_extensions_direction(&self.0)
     }
 }
 
-/// [`RtpCodecCapabilities`] is used to represent the static capabilities of an
-/// endpoint. An application can use these capabilities to construct an
-/// [`RtpCodecParameters`].
+/// Representation of static capabilities of an endpoint's implementation of a
+/// codec.
 pub struct RtpCodecCapability(UniquePtr<webrtc::RtpCodecCapability>);
 
 impl RtpCodecCapability {
@@ -991,58 +994,72 @@ impl RtpCodecCapability {
         Self(ptr)
     }
 
-    /// Default payload type for this codec. Mainly needed for codecs that have
-    /// statically assigned payload types.
+    /// Returns default payload type for the codec.
+    ///
+    /// Mainly needed for codecs that have statically assigned payload types.
     #[must_use]
     pub fn preferred_payload_type(&self) -> Option<i32> {
         webrtc::preferred_payload_type(&self.0).take()
     }
 
-    /// List of scalability modes supported by the video codec.
+    /// Returns the list of scalability modes supported by the video codec.
     #[must_use]
     pub fn scalability_modes(&self) -> Vec<webrtc::ScalabilityMode> {
         webrtc::scalability_modes(&self.0)
     }
 
-    /// Build MIME "type/subtype" string from `name` and `kind`.
+    /// Builds [MIME "type/subtype"][0] string from `name` and `kind`.
+    ///
+    /// [0]: https://en.wikipedia.org/wiki/Media_type
     #[must_use]
     pub fn mime_type(&self) -> String {
         webrtc::rtc_codec_mime_type(&self.0).to_string()
     }
 
-    /// Used to identify the codec. Equivalent to MIME subtype.
+    /// Returns the name, used to identify the codec. Equivalent to
+    /// [MIME subtype][0].
+    ///
+    /// [0]: https://en.wikipedia.org/wiki/Media_type#Subtypes
     #[must_use]
     pub fn name(&self) -> String {
         webrtc::rtc_codec_name(&self.0).to_string()
     }
 
-    /// The media type of this codec. Equivalent to MIME top-level type.
+    /// Returns the [MediaType] of the codec. Equivalent to [MIME] top-level
+    /// type.
+    ///
+    /// [MIME]: https://en.wikipedia.org/wiki/Media_type
     #[must_use]
     pub fn kind(&self) -> MediaType {
         webrtc::rtc_codec_kind(&self.0)
     }
 
-    /// If unset, the implementation default is used.
+    /// If [`None`] is returned, the implementation default is used.
     #[must_use]
     pub fn clock_rate(&self) -> Option<i32> {
         webrtc::rtc_codec_clock_rate(&self.0).take()
     }
 
-    /// The number of audio channels used. Unset for video codecs. If unset for
-    /// audio, the implementation default is used.
+    /// Returns the number of audio channels used.
+    ///
+    /// [`None`] for video codecs.
+    ///
+    /// If [`None`] for audio, the implementation default is used.
     #[must_use]
     pub fn num_channels(&self) -> Option<i32> {
         webrtc::rtc_codec_num_channels(&self.0).take()
     }
 
-    /// Codec-specific parameters that must be signaled to the remote party.
+    /// Returns the codec-specific parameters that must be signaled to the
+    /// remote party.
     ///
-    /// Corresponds to "a=fmtp" parameters in SDP.
+    /// Corresponds to `a=fmtp` parameters in [SDP].
     ///
     /// Contrary to ORTC, these parameters are named using all lowercase
-    /// strings. This helps make the mapping to SDP simpler, mimeTypeif an
-    /// application is using SDP. Boolean values are represented by the string
-    /// "1".
+    /// strings. This helps make the mapping to [SDP] simpler, if an application
+    /// is using [SDP]. Boolean values are represented by the string "1".
+    ///
+    /// [SDP]: https://en.wikipedia.org/wiki/Session_Description_Protocol
     #[must_use]
     pub fn parameters(&self) -> HashMap<String, String> {
         let mut result = HashMap::new();
@@ -1053,7 +1070,7 @@ impl RtpCodecCapability {
         result
     }
 
-    /// Feedback mechanisms to be used for this codec.
+    /// Returns feedback mechanisms to be used for the codec.
     #[must_use]
     pub fn rtcp_feedback(&self) -> Vec<RtcpFeedback> {
         webrtc::rtc_codec_rtcp_feedback(&self.0)
@@ -1732,9 +1749,9 @@ impl Thread {
 unsafe impl Send for webrtc::Thread {}
 unsafe impl Sync for webrtc::Thread {}
 
-/// [`RtpCapabilities`] is used to represent the static capabilities of an
-/// endpoint. An application can use these capabilities to construct an
-/// [`RtpParameters`].
+/// Representation of the static capabilities of an endpoint.
+///
+/// Applications can use these capabilities to construct [`RtpParameters`].
 pub struct RtpCapabilities(UniquePtr<webrtc::RtpCapabilities>);
 
 impl RtpCapabilities {
@@ -1747,7 +1764,9 @@ impl RtpCapabilities {
             .collect()
     }
 
-    /// Supported RTP header extensions.
+    /// Returns supported [RTP] header extensions.
+    ///
+    /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
     #[must_use]
     pub fn header_extensions(&self) -> Vec<RtpHeaderExtensionCapability> {
         webrtc::rtp_capabilities_header_extensions(&self.0)

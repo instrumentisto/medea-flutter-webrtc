@@ -516,15 +516,17 @@ impl From<sys::IceCandidateStats> for IceCandidateStats {
     }
 }
 
-/// [`RtpCapabilities`] is used to represent the static capabilities of an
-/// endpoint. An application can use these capabilities to construct an
-/// [`RtpParameters`].
+/// Representation of the static capabilities of an endpoint.
+///
+/// Applications can use these capabilities to construct [`RtpParameters`].
 #[derive(Debug)]
 pub struct RtpCapabilities {
     /// Supported codecs.
     pub codecs: Vec<RtpCodecCapability>,
 
-    /// Supported RTP header extensions.
+    /// Supported [RTP] header extensions.
+    ///
+    /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
     pub header_extensions: Vec<RtpHeaderExtensionCapability>,
 }
 
@@ -564,14 +566,17 @@ impl From<sys::RtcpFeedbackMessageType> for RtcpFeedbackMessageType {
     }
 }
 
-/// RTCP feedback message intended to enable congestion control for interactive
-/// real-time traffic using RTP.
+/// [RTCP] feedback message intended to enable congestion control for
+/// interactive real-time traffic using [RTP].
+///
+/// [RTCP]: https://en.wikipedia.org/wiki/RTP_Control_Protocol
+/// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
 #[derive(Debug)]
 pub struct RtcpFeedback {
-    /// Message type of these [`RtcpFeedback`].
+    /// Message type of this [`RtcpFeedback`].
     pub message_type: Option<RtcpFeedbackMessageType>,
 
-    /// Kind of these [`RtcpFeedback`].
+    /// Kind of this [`RtcpFeedback`].
     pub kind: RtcpFeedbackType,
 }
 
@@ -590,178 +595,178 @@ impl From<sys::RtcpFeedback> for RtcpFeedback {
 #[derive(Debug, Eq, Hash, PartialEq)]
 #[repr(u8)]
 pub enum ScalabilityMode {
-    /// [ScalabilityMode.L1T1][0] representation.
+    /// [ScalabilityMode.L1T1][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#L1T1*
+    /// [0]: https://w3.org/TR/webrtc-svc#L1T1*
     L1T1 = 0,
 
-    /// [ScalabilityMode.L1T2][0] representation.
+    /// [ScalabilityMode.L1T2][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#L1T2*
+    /// [0]: https://w3.org/TR/webrtc-svc#L1T2*
     L1T2,
 
-    /// [ScalabilityMode.L1T3][0] representation.
+    /// [ScalabilityMode.L1T3][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#L1T3*
+    /// [0]: https://w3.org/TR/webrtc-svc#L1T3*
     L1T3,
 
-    /// [ScalabilityMode.L2T1][0] representation.
+    /// [ScalabilityMode.L2T1][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#L2T1*
+    /// [0]: https://w3.org/TR/webrtc-svc#L2T1*
     L2T1,
 
-    /// [ScalabilityMode.L2T1h][0] representation.
+    /// [ScalabilityMode.L2T1h][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#L2T1*
+    /// [0]: https://w3.org/TR/webrtc-svc#L2T1*
     L2T1h,
 
-    /// [ScalabilityMode.L2T1_KEY][0] representation.
+    /// [ScalabilityMode.L2T1_KEY][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#L2T1_KEY*
+    /// [0]: https://w3.org/TR/webrtc-svc#L2T1_KEY*
     L2t1Key,
 
-    /// [ScalabilityMode.L2T2][0] representation.
+    /// [ScalabilityMode.L2T2][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#L2T2h*
+    /// [0]: https://w3.org/TR/webrtc-svc#L2T2h*
     L2T2,
 
-    /// [ScalabilityMode.L2T2h][0] representation.
+    /// [ScalabilityMode.L2T2h][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#L2T2*
+    /// [0]: https://w3.org/TR/webrtc-svc#L2T2*
     L2T2h,
 
-    /// [ScalabilityMode.L2T2_KEY][0] representation.
+    /// [ScalabilityMode.L2T2_KEY][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#L2T2_KEY*
+    /// [0]: https://w3.org/TR/webrtc-svc#L2T2_KEY*
     L2T2Key,
 
-    /// [ScalabilityMode.L2T2_KEY_SHIFT][0] representation.
+    /// [ScalabilityMode.L2T2_KEY_SHIFT][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#L2T2_KEY_SHIFT*
+    /// [0]: https://w3.org/TR/webrtc-svc#L2T2_KEY_SHIFT*
     L2T2KeyShift,
 
-    /// [ScalabilityMode.L2T3][0] representation.
+    /// [ScalabilityMode.L2T3][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#L2T3*
+    /// [0]: https://w3.org/TR/webrtc-svc#L2T3*
     L2T3,
 
-    /// [ScalabilityMode.L2T3h][0] representation.
+    /// [ScalabilityMode.L2T3h][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#L2T3*
+    /// [0]: https://w3.org/TR/webrtc-svc#L2T3*
     L2T3h,
 
-    /// [ScalabilityMode.L2T3_KEY][0] representation.
+    /// [ScalabilityMode.L2T3_KEY][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#L2T3_KEY*
+    /// [0]: https://w3.org/TR/webrtc-svc#L2T3_KEY*
     L2T3Key,
 
-    /// [ScalabilityMode.L3T1][0] representation.
+    /// [ScalabilityMode.L3T1][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#L3T1*
+    /// [0]: https://w3.org/TR/webrtc-svc#L3T1*
     L3T1,
 
-    /// [ScalabilityMode.L3T1h][0] representation.
+    /// [ScalabilityMode.L3T1h][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#L3T1*
+    /// [0]: https://w3.org/TR/webrtc-svc#L3T1*
     L3T1h,
 
-    /// [ScalabilityMode.L3T1_KEY][0] representation.
+    /// [ScalabilityMode.L3T1_KEY][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#L3T1_KEY*
+    /// [0]: https://w3.org/TR/webrtc-svc#L3T1_KEY*
     L3T1Key,
 
-    /// [ScalabilityMode.L3T2][0] representation.
+    /// [ScalabilityMode.L3T2][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#L3T2h*
+    /// [0]: https://w3.org/TR/webrtc-svc#L3T2h*
     L3T2,
 
-    /// [ScalabilityMode.L3T2h][0] representation.
+    /// [ScalabilityMode.L3T2h][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#L3T2*
+    /// [0]: https://w3.org/TR/webrtc-svc#L3T2*
     L3T2h,
 
-    /// [ScalabilityMode.L3T2_KEY][0] representation.
+    /// [ScalabilityMode.L3T2_KEY][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#L3T2_KEY*
+    /// [0]: https://w3.org/TR/webrtc-svc#L3T2_KEY*
     L3T2Key,
 
-    /// [ScalabilityMode.kL3T3][0] representation.
+    /// [ScalabilityMode.kL3T3][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#kL3T3*
+    /// [0]: https://w3.org/TR/webrtc-svc#kL3T3*
     L3T3,
 
-    /// [ScalabilityMode.kL3T3h][0] representation.
+    /// [ScalabilityMode.kL3T3h][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#kL3T3*
+    /// [0]: https://w3.org/TR/webrtc-svc#kL3T3*
     L3T3h,
 
-    /// [ScalabilityMode.kL3T3_KEY][0] representation.
+    /// [ScalabilityMode.kL3T3_KEY][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#L3T3_KEY*
+    /// [0]: https://w3.org/TR/webrtc-svc#L3T3_KEY*
     L3T3Key,
 
-    /// [ScalabilityMode.kS2T1][0] representation.
+    /// [ScalabilityMode.kS2T1][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#kS2T1*
+    /// [0]: https://w3.org/TR/webrtc-svc#kS2T1*
     S2T1,
 
-    /// [ScalabilityMode.kS2T1h][0] representation.
+    /// [ScalabilityMode.kS2T1h][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#kS2T1*
+    /// [0]: https://w3.org/TR/webrtc-svc#kS2T1*
     S2T1h,
 
-    /// [ScalabilityMode.kS2T2][0] representation.
+    /// [ScalabilityMode.kS2T2][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#kS2T2*
+    /// [0]: https://w3.org/TR/webrtc-svc#kS2T2*
     S2T2,
 
-    /// [ScalabilityMode.kS2T2h][0] representation.
+    /// [ScalabilityMode.kS2T2h][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#kS2T2*
+    /// [0]: https://w3.org/TR/webrtc-svc#kS2T2*
     S2T2h,
 
-    /// [ScalabilityMode.S2T3][0] representation.
+    /// [ScalabilityMode.S2T3][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#S2T3h*
+    /// [0]: https://w3.org/TR/webrtc-svc#S2T3h*
     S2T3,
 
-    /// [ScalabilityMode.S2T3h][0] representation.
+    /// [ScalabilityMode.S2T3h][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#S2T3*
+    /// [0]: https://w3.org/TR/webrtc-svc#S2T3*
     S2T3h,
 
-    /// [ScalabilityMode.S3T1h][0] representation.
+    /// [ScalabilityMode.S3T1h][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#S3T1*
+    /// [0]: https://w3.org/TR/webrtc-svc#S3T1*
     S3T1,
 
-    /// [ScalabilityMode.S3T1h][0] representation.
+    /// [ScalabilityMode.S3T1h][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#S3T1*
+    /// [0]: https://w3.org/TR/webrtc-svc#S3T1*
     S3T1h,
 
-    /// [ScalabilityMode.S3T2][0] representation.
+    /// [ScalabilityMode.S3T2][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#S3T2*
+    /// [0]: https://w3.org/TR/webrtc-svc#S3T2*
     S3T2,
 
-    /// [ScalabilityMode.S3T2h][0] representation.
+    /// [ScalabilityMode.S3T2h][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#S3T2*
+    /// [0]: https://w3.org/TR/webrtc-svc#S3T2*
     S3T2h,
 
-    /// [ScalabilityMode.S3T3][0] representation.
+    /// [ScalabilityMode.S3T3][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#S3T3*
+    /// [0]: https://w3.org/TR/webrtc-svc#S3T3*
     S3T3,
 
-    /// [ScalabilityMode.S3T3h][0] representation.
+    /// [ScalabilityMode.S3T3h][0] mode.
     ///
-    /// [0]: https://www.w3.org/TR/webrtc-svc/#S3T3*
+    /// [0]: https://w3.org/TR/webrtc-svc#S3T3*
     S3T3h,
 }
 
-/// Used in `RtcpFeedback` struct.
+/// Possible types of an [`RtcpFeedback`].
 #[derive(Debug, Eq, Hash, PartialEq)]
 #[repr(i32)]
 pub enum RtcpFeedbackType {
@@ -781,17 +786,18 @@ pub enum RtcpFeedbackType {
     TransportCC,
 }
 
-/// Used in `RtcpFeedback` struct when type is NACK or CCM.
+/// Possible message types of an [`RtcpFeedback`], when is type is
+/// [`RtcpFeedbackType::Nack`] or [`RtcpFeedbackType::Ccm`].
 #[derive(Debug, Eq, Hash, PartialEq)]
 #[repr(i32)]
 pub enum RtcpFeedbackMessageType {
     /// Equivalent to `{ type: "nack", parameter: undefined }` in ORTC.
     GenericNACK,
 
-    /// Usable with NACK.
+    /// Usable with [`RtcpFeedbackType::Nack`].
     Pli,
 
-    /// Usable with CCM.
+    /// Usable with [`RtcpFeedbackType::Ccm`].
     Fir,
 }
 
@@ -837,23 +843,27 @@ impl From<sys::ScalabilityMode> for ScalabilityMode {
     }
 }
 
-/// Used in [`RtpCapabilities`] header extensions query and setup methods:
-/// represents the capabilities/preferences
-/// of an implementation for a header extension.
+/// Representation of capabilities/preferences of an implementation for a header
+/// extension of [`RtpCapabilities`].
 #[derive(Debug)]
 pub struct RtpHeaderExtensionCapability {
-    /// URI of this extension, as defined in RFC8285.
+    /// [URI] of this extension, as defined in [RFC 8285].
+    ///
+    /// [RFC 8285]: https://tools.ietf.org/html/rfc8285
+    /// [URI]: https://en.wikipedia.org/wiki/Uniform_Resource_Identifier
     pub uri: String,
 
     /// Preferred value of ID that goes in the packet.
     pub preferred_id: Option<i32>,
 
-    /// If true, it's preferred that the value in the header is encrypted.
+    /// If [`true`], it's preferred that the value in the header is encrypted.
     pub preferred_encrypted: bool,
 
-    /// The direction of the extension. The kStopped value is only used with
-    /// RtpTransceiverInterface::SetHeaderExtensionsToNegotiate() and
-    /// SetHeaderExtensionsToNegotiate().
+    /// Direction of the extension.
+    ///
+    /// [`RtpTransceiverDirection::Stopped`] value is only used with
+    /// `RtpTransceiverInterface::SetHeaderExtensionsToNegotiate()` and
+    /// `SetHeaderExtensionsToNegotiate()`.
     pub direction: RtpTransceiverDirection,
 }
 
@@ -868,42 +878,52 @@ impl From<sys::RtpHeaderExtensionCapability> for RtpHeaderExtensionCapability {
     }
 }
 
-/// This represents the static capabilities of an endpoint's
-/// implementation of a codec.
+/// Representation of static capabilities of an endpoint's implementation of a
+/// codec.
 #[derive(Debug)]
 pub struct RtpCodecCapability {
-    /// Default payload type for this codec. Mainly needed for codecs that have
-    /// statically assigned payload types.
+    /// Default payload type for the codec.
+    ///
+    /// Mainly needed for codecs that have statically assigned payload types.
     pub preferred_payload_type: Option<i32>,
 
-    /// List of scalability modes supported by the video codec.
+    /// List of [`ScalabilityMode`]s supported by the video codec.
     pub scalability_modes: Vec<ScalabilityMode>,
 
-    /// Build MIME "type/subtype" string from `name` and `kind`.
+    /// Built [MIME "type/subtype"][0] string from `name` and `kind`.
+    ///
+    /// [0]: https://en.wikipedia.org/wiki/Media_type
     pub mime_type: String,
 
-    /// Used to identify the codec. Equivalent to MIME subtype.
+    /// Used to identify the codec. Equivalent to [MIME subtype][0].
+    ///
+    /// [0]: https://en.wikipedia.org/wiki/Media_type#Subtypes
     pub name: String,
 
-    /// The media type of this codec. Equivalent to MIME top-level type.
+    /// [`MediaType`] of this codec. Equivalent to [MIME] top-level type.
+    ///
+    /// [MIME]: https://en.wikipedia.org/wiki/Media_type
     pub kind: MediaType,
 
-    /// If unset, the implementation default is used.
+    /// If [`None`], the implementation default is used.
     pub clock_rate: Option<i32>,
 
-    /// The number of audio channels used. Unset for video codecs. If unset for
-    /// audio, the implementation default is used.
+    /// Number of audio channels used.
+    ///
+    /// [`None`] for video codecs.
+    ///
+    /// If [`None`] for audio, the implementation default is used.
     pub num_channels: Option<i32>,
 
     /// Codec-specific parameters that must be signaled to the remote party.
     ///
-    /// Corresponds to "a=fmtp" parameters in SDP.
+    /// Corresponds to `a=fmtp` parameters in [SDP].
     ///
-    /// Contrary to ORTC, these parameters
-    /// are named using all lowercase strings.
-    /// This helps make the mapping to SDP simpler,
-    /// if an application is using SDP.
-    /// Boolean values are represented by the string "1".
+    /// Contrary to ORTC, these parameters are named using all lowercase
+    /// strings. This helps make the mapping to [SDP] simpler, if an application
+    /// is using [SDP]. Boolean values are represented by the string "1".
+    ///
+    /// [SDP]: https://en.wikipedia.org/wiki/Session_Description_Protocol
     pub parameters: Vec<(String, String)>,
 
     /// Feedback mechanisms to be used for this codec.
@@ -2669,8 +2689,8 @@ pub fn stop_transceiver(
     transceiver.stop()
 }
 
-/// Changes the preferred [`RtpTransceiver`] codecs
-/// to the given [`Vec<RtpCodecCapability>`].
+/// Changes the preferred [`RtpTransceiver`] codecs to the provided
+/// [`Vec`]`<`[`RtpCodecCapability`]`>`.
 #[allow(clippy::needless_pass_by_value)]
 pub fn set_codec_preferences(
     transceiver: RustOpaque<Arc<RtpTransceiver>>,
@@ -2701,7 +2721,9 @@ pub fn sender_get_parameters(
     RtcRtpSendParameters::from(transceiver.sender_get_parameters())
 }
 
-/// Returns the capabilities of an RTP sender of type `kind`.
+/// Returns the capabilities of an [RTP] sender of the specified [`MediaType`].
+///
+/// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
 #[allow(clippy::needless_pass_by_value)]
 pub fn get_rtp_sender_capabilities(kind: MediaType) -> RtpCapabilities {
     RtpCapabilities::from(

@@ -1,16 +1,15 @@
 import WebRTC
 
-/// Used in RtpCapabilities header extensions query and setup methods:
-/// represents the capabilities/preferences of an implementation for a header
-/// extension.
+/// Representation of capabilities/preferences of an implementation for a header
+/// extension of `RtpCapabilities`.
 class HeaderExtensionCapability {
-  /// URI of this extension, as defined in RFC8285.
+  /// URI of this extension, as defined in RFC 8285.
   var uri: String
 
   /// Preferred value of ID that goes in the packet.
   var preferredId: Int
 
-  /// If true, it's preferred that the value in the header is encrypted.
+  /// If `true`, it's preferred that the value in the header is encrypted.
   var preferredEncrypted: Bool
 
   init(uri: String, preferredId: Int, preferredEncrypted: Bool) {
@@ -28,38 +27,42 @@ class HeaderExtensionCapability {
   }
 }
 
-/// RtpCodecCapability is to RtpCodecParameters as RtpCapabilities is to
-/// RtpParameters. This represents the static capabilities of an endpoint's
-/// implementation of a codec.
+/// Representation of the static capabilities of an endpoint's implementation of
+/// a codec.
 class CodecCapability {
-  /// Default payload type for this codec. Mainly needed for codecs that have
-  /// statically assigned payload types.
+  /// Default payload type for the codec.
+  ///
+  /// Mainly needed for codecs that have statically assigned payload types.
   var preferredPayloadType: Int
 
   /// Used to identify the codec. Equivalent to MIME subtype.
   var name: String
 
-  /// The media type of this codec. Equivalent to MIME top-level type.
+  /// `MediaType` of this codec. Equivalent to MIME top-level type.
   var kind: MediaType
 
   /// If unset, the implementation default is used.
   var clockRate: Int
 
-  /// The number of audio channels used. Unset for video codecs. If unset for
-  /// audio, the implementation default is used.
+  /// Number of audio channels used.
+  ///
+  /// Unset for video codecs.
+  ///
+  /// If unset for audio, the implementation default is used.
   var numChannels: Int?
 
   /// Codec-specific parameters that must be signaled to the remote party.
   ///
-  /// Corresponds to "a=fmtp" parameters in SDP.
+  /// Corresponds to `a=fmtp` parameters in SDP.
   ///
   /// Contrary to ORTC, these parameters are named using all lowercase strings.
   /// This helps make the mapping to SDP simpler, if an application is using
   /// SDP.
+  ///
   /// Boolean values are represented by the string "1".
   var parameters: [String: String]
 
-  /// Build MIME "type/subtype" string from `name` and `kind`.
+  /// Built MIME "type/subtype" string from `name` and `kind`.
   var mimeType: String
 
   init(
@@ -93,8 +96,9 @@ class CodecCapability {
   }
 }
 
-/// RtpCapabilities is used to represent the static capabilities of an endpoint.
-/// An application can use these capabilities to construct an RtpParameters.
+/// Representation of static capabilities of an endpoint.
+///
+/// Applications can use these capabilities to construct `RtpParameters`.
 class RtpCapabilities {
   /// Supported codecs.
   var codecs: [CodecCapability]

@@ -549,7 +549,7 @@ void audio_track_unregister_observer(AudioTrackInterface& track,
 std::unique_ptr<RtpSenderInterface> transceiver_sender(
     const RtpTransceiverInterface& transceiver);
 
-// Changes the preferred `RtpTransceiverInterface` codecs to the given
+// Changes the preferred `RtpTransceiverInterface` codecs to the provided
 // `Vec<RtpCodecCapability>`.
 void set_codec_preferences(const RtpTransceiverInterface& transceiver,
                            rust::Vec<RtpCodecCapabilityContainer> codecs);

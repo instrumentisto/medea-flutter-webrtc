@@ -68,8 +68,8 @@ impl OptionRtcpFeedbackMessageType {
     }
 }
 
-/// Creates an empty Rust [`Option`]`<`[`RtcpFeedbackMessageType`]`>`.
-#[allow(clippy::unnecessary_box_returns)]
+/// Creates an empty Rust [`Option`]`<`[`RtcpFeedbackMessageType`]`>` value.
+#[allow(clippy::unnecessary_box_returns)] // required for FFI
 pub fn init_option_rtcp_feedback_message_type(
 ) -> Box<OptionRtcpFeedbackMessageType> {
     Box::new(OptionRtcpFeedbackMessageType(None))
@@ -680,196 +680,200 @@ pub(crate) mod webrtc {
     #[derive(Debug, Eq, Hash, PartialEq)]
     #[repr(u8)]
     pub enum ScalabilityMode {
-        /// [ScalabilityMode.L1T1][0] representation.
+        /// [ScalabilityMode.L1T1][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#L1T1*
+        /// [0]: https://w3.org/TR/webrtc-svc#L1T1*
         kL1T1 = 0,
 
-        /// [ScalabilityMode.L1T2][0] representation.
+        /// [ScalabilityMode.L1T2][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#L1T2*
+        /// [0]: https://w3.org/TR/webrtc-svc#L1T2*
         kL1T2,
 
-        /// [ScalabilityMode.L1T3][0] representation.
+        /// [ScalabilityMode.L1T3][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#L1T3*
+        /// [0]: https://w3.org/TR/webrtc-svc#L1T3*
         kL1T3,
 
-        /// [ScalabilityMode.L2T1][0] representation.
+        /// [ScalabilityMode.L2T1][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#L2T1*
+        /// [0]: https://w3.org/TR/webrtc-svc#L2T1*
         kL2T1,
 
-        /// [ScalabilityMode.L2T1h][0] representation.
+        /// [ScalabilityMode.L2T1h][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#L2T1*
+        /// [0]: https://w3.org/TR/webrtc-svc#L2T1*
         kL2T1h,
 
-        /// [ScalabilityMode.L2T1_KEY][0] representation.
+        /// [ScalabilityMode.L2T1_KEY][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#L2T1_KEY*
+        /// [0]: https://w3.org/TR/webrtc-svc#L2T1_KEY*
         kL2T1_KEY,
 
-        /// [ScalabilityMode.L2T2][0] representation.
+        /// [ScalabilityMode.L2T2][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#L2T2h*
+        /// [0]: https://w3.org/TR/webrtc-svc#L2T2h*
         kL2T2,
 
-        /// [ScalabilityMode.L2T2h][0] representation.
+        /// [ScalabilityMode.L2T2h][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#L2T2*
+        /// [0]: https://w3.org/TR/webrtc-svc#L2T2*
         kL2T2h,
 
-        /// [ScalabilityMode.L2T2_KEY][0] representation.
+        /// [ScalabilityMode.L2T2_KEY][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#L2T2_KEY*
+        /// [0]: https://w3.org/TR/webrtc-svc#L2T2_KEY*
         kL2T2_KEY,
 
-        /// [ScalabilityMode.L2T2_KEY_SHIFT][0] representation.
+        /// [ScalabilityMode.L2T2_KEY_SHIFT][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#L2T2_KEY_SHIFT*
+        /// [0]: https://w3.org/TR/webrtc-svc#L2T2_KEY_SHIFT*
         kL2T2_KEY_SHIFT,
 
-        /// [ScalabilityMode.L2T3][0] representation.
+        /// [ScalabilityMode.L2T3][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#L2T3*
+        /// [0]: https://w3.org/TR/webrtc-svc#L2T3*
         kL2T3,
 
-        /// [ScalabilityMode.L2T3h][0] representation.
+        /// [ScalabilityMode.L2T3h][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#L2T3*
+        /// [0]: https://w3.org/TR/webrtc-svc#L2T3*
         kL2T3h,
 
-        /// [ScalabilityMode.L2T3_KEY][0] representation.
+        /// [ScalabilityMode.L2T3_KEY][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#L2T3_KEY*
+        /// [0]: https://w3.org/TR/webrtc-svc#L2T3_KEY*
         kL2T3_KEY,
 
-        /// [ScalabilityMode.L3T1][0] representation.
+        /// [ScalabilityMode.L3T1][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#L3T1*
+        /// [0]: https://w3.org/TR/webrtc-svc#L3T1*
         kL3T1,
 
-        /// [ScalabilityMode.L3T1h][0] representation.
+        /// [ScalabilityMode.L3T1h][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#L3T1*
+        /// [0]: https://w3.org/TR/webrtc-svc#L3T1*
         kL3T1h,
 
-        /// [ScalabilityMode.L3T1_KEY][0] representation.
+        /// [ScalabilityMode.L3T1_KEY][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#L3T1_KEY*
+        /// [0]: https://w3.org/TR/webrtc-svc#L3T1_KEY*
         kL3T1_KEY,
 
-        /// [ScalabilityMode.L3T2][0] representation.
+        /// [ScalabilityMode.L3T2][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#L3T2h*
+        /// [0]: https://w3.org/TR/webrtc-svc#L3T2h*
         kL3T2,
 
-        /// [ScalabilityMode.L3T2h][0] representation.
+        /// [ScalabilityMode.L3T2h][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#L3T2*
+        /// [0]: https://w3.org/TR/webrtc-svc#L3T2*
         kL3T2h,
 
-        /// [ScalabilityMode.L3T2_KEY][0] representation.
+        /// [ScalabilityMode.L3T2_KEY][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#L3T2_KEY*
+        /// [0]: https://w3.org/TR/webrtc-svc#L3T2_KEY*
         kL3T2_KEY,
 
-        /// [ScalabilityMode.kL3T3][0] representation.
+        /// [ScalabilityMode.kL3T3][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#kL3T3*
+        /// [0]: https://w3.org/TR/webrtc-svc#kL3T3*
         kL3T3,
 
-        /// [ScalabilityMode.kL3T3h][0] representation.
+        /// [ScalabilityMode.kL3T3h][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#kL3T3*
+        /// [0]: https://w3.org/TR/webrtc-svc#kL3T3*
         kL3T3h,
 
-        /// [ScalabilityMode.kL3T3_KEY][0] representation.
+        /// [ScalabilityMode.kL3T3_KEY][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#L3T3_KEY*
+        /// [0]: https://w3.org/TR/webrtc-svc#L3T3_KEY*
         kL3T3_KEY,
 
-        /// [ScalabilityMode.kS2T1][0] representation.
+        /// [ScalabilityMode.kS2T1][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#kS2T1*
+        /// [0]: https://w3.org/TR/webrtc-svc#kS2T1*
         kS2T1,
 
-        /// [ScalabilityMode.kS2T1h][0] representation.
+        /// [ScalabilityMode.kS2T1h][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#kS2T1*
+        /// [0]: https://w3.org/TR/webrtc-svc#kS2T1*
         kS2T1h,
 
-        /// [ScalabilityMode.kS2T2][0] representation.
+        /// [ScalabilityMode.kS2T2][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#kS2T2*
+        /// [0]: https://w3.org/TR/webrtc-svc#kS2T2*
         kS2T2,
 
-        /// [ScalabilityMode.kS2T2h][0] representation.
+        /// [ScalabilityMode.kS2T2h][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#kS2T2*
+        /// [0]: https://w3.org/TR/webrtc-svc#kS2T2*
         kS2T2h,
 
-        /// [ScalabilityMode.S2T3][0] representation.
+        /// [ScalabilityMode.S2T3][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#S2T3h*
+        /// [0]: https://w3.org/TR/webrtc-svc#S2T3h*
         kS2T3,
 
-        /// [ScalabilityMode.S2T3h][0] representation.
+        /// [ScalabilityMode.S2T3h][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#S2T3*
+        /// [0]: https://w3.org/TR/webrtc-svc#S2T3*
         kS2T3h,
 
-        /// [ScalabilityMode.S3T1h][0] representation.
+        /// [ScalabilityMode.S3T1h][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#S3T1*
+        /// [0]: https://w3.org/TR/webrtc-svc#S3T1*
         kS3T1,
 
-        /// [ScalabilityMode.S3T1h][0] representation.
+        /// [ScalabilityMode.S3T1h][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#S3T1*
+        /// [0]: https://w3.org/TR/webrtc-svc#S3T1*
         kS3T1h,
 
-        /// [ScalabilityMode.S3T2][0] representation.
+        /// [ScalabilityMode.S3T2][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#S3T2*
+        /// [0]: https://w3.org/TR/webrtc-svc#S3T2*
         kS3T2,
 
-        /// [ScalabilityMode.S3T2h][0] representation.
+        /// [ScalabilityMode.S3T2h][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#S3T2*
+        /// [0]: https://w3.org/TR/webrtc-svc#S3T2*
         kS3T2h,
 
-        /// [ScalabilityMode.S3T3][0] representation.
+        /// [ScalabilityMode.S3T3][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#S3T3*
+        /// [0]: https://w3.org/TR/webrtc-svc#S3T3*
         kS3T3,
 
-        /// [ScalabilityMode.S3T3h][0] representation.
+        /// [ScalabilityMode.S3T3h][0] mode.
         ///
-        /// [0]: https://www.w3.org/TR/webrtc-svc/#S3T3*
+        /// [0]: https://w3.org/TR/webrtc-svc#S3T3*
         kS3T3h,
     }
 
-    /// Type of the [`RtcpFeedback`].
+    /// Possible types of an [`RtcpFeedback`].
     #[derive(Debug, Eq, Hash, PartialEq)]
     #[repr(i32)]
     pub enum RtcpFeedbackType {
         /// Codec control messages.
         CCM,
+
         /// Loss notification feedback.
         LNTF,
+
         /// Negative acknowledgemen.
         NACK,
+
         /// Receiver estimated maximum bitrate.
         REMB,
+
         /// Transport wide congestion control.
         TRANSPORT_CC,
     }
 
-    /// Message type of [`RtcpFeedback`].
+    /// Possible message types of an [`RtcpFeedback`].
     ///
-    /// This enum is used only when [`RtcpFeedback`] type is
+    /// This enum is used only when an [`RtcpFeedback`] type is
     /// [`RtcpFeedbackType::NACK`] or [`RtcpFeedbackType::CCM`].
     #[derive(Debug, Eq, Hash, PartialEq)]
     #[repr(i32)]
@@ -877,10 +881,10 @@ pub(crate) mod webrtc {
         /// Equivalent to `{ type: "nack", parameter: undefined }` in ORTC.
         GENERIC_NACK,
 
-        /// Usable with NACK.
+        /// Usable with [`RtcpFeedbackType::NACK`].
         PLI,
 
-        /// Usable with CCM.
+        /// Usable with [`RtcpFeedbackType::CCM`].
         FIR,
     }
 
@@ -2203,11 +2207,12 @@ pub(crate) mod webrtc {
         /// Sets the provided [`Option`]`<`[`String`]`>` to [`Some`]`(value)`.
         pub fn set_value(self: &mut OptionString, value: String);
 
-        /// Creates an empty Rust [`Option`]`<`[`RtcpFeedbackMessageType`]`>`.
+        /// Creates an empty Rust [`Option`]`<`[`RtcpFeedbackMessageType`]`>`
+        /// value.
         pub fn init_option_rtcp_feedback_message_type(
         ) -> Box<OptionRtcpFeedbackMessageType>;
 
-        /// Sets the provided [`Option`]`<`[`RtcpFeedbackMessageType`]`>`
+        /// Sets the specified [`Option`]`<`[`RtcpFeedbackMessageType`]`>`
         /// to [`Some`]`(value)`.
         pub fn set_value(
             self: &mut OptionRtcpFeedbackMessageType,
@@ -2444,8 +2449,8 @@ pub(crate) mod webrtc {
             parameters: Vec<StringPair>,
         ) -> UniquePtr<RtpCodecCapability>;
 
-        /// Changes the preferred [`RtpTransceiverInterface`] codecs
-        /// to the given [`Vec<RtpCodecCapability>`].
+        /// Changes the preferred [`RtpTransceiverInterface`] codecs to the
+        /// provided [`Vec`]`<`[`RtpCodecCapability`]`>`.
         pub fn set_codec_preferences(
             transceiver: &RtpTransceiverInterface,
             codecs: Vec<RtpCodecCapabilityContainer>,
@@ -2538,8 +2543,8 @@ pub(crate) mod webrtc {
         #[must_use]
         pub fn rtcp_feedback_type(feedback: &RtcpFeedback) -> RtcpFeedbackType;
 
-        /// Returns the `message_type` as [`Option<RtcpFeedbackMessageType>`] of the provided
-        /// [`RtcpFeedback`].
+        /// Returns the `message_type` as [`Option<RtcpFeedbackMessageType>`] of
+        /// the provided [`RtcpFeedback`].
         #[must_use]
         pub fn rtcp_feedback_message_type(
             feedback: &RtcpFeedback,

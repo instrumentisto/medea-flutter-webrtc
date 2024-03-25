@@ -45,7 +45,7 @@ abstract class RtpSender {
   /// Sets the provided [RtpParameters].
   Future<void> setParameters(RtpParameters parameters);
 
-  /// Capabilities of an RTP sender of type `kind`.
+  /// [RtpCapabilities] of an RTP sender of the specified [MediaKind].
   Future<RtpCapabilities> getCapabilities(MediaKind kind);
 }
 
