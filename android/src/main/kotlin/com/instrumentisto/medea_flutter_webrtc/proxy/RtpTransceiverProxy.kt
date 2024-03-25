@@ -65,10 +65,7 @@ class RtpTransceiverProxy(obj: RtpTransceiver) : Proxy<RtpTransceiver>(obj) {
     obj.direction = direction.intoWebRtc()
   }
 
-  /**
-   * Changes the preferred [RtpTransceiver] codecs to the providded
-   * [List<CodecCapability>].
-   */
+  /** Changes the preferred [RtpTransceiver] codecs to the providded [List<CodecCapability>]. */
   fun setCodecPreferences(codecs: List<CodecCapability>) {
     var webrtcCodecs =
         codecs.map {
