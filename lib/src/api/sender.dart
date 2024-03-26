@@ -46,7 +46,7 @@ abstract class RtpSender {
   Future<void> setParameters(RtpParameters parameters);
 
   /// Capabilities of an RTP sender of type `kind`.
-  Future<RtpCapabilities> getCapabilities(MediaKind kind);
+  static Future<RtpCapabilities> getCapabilities(MediaKind kind) {}
 }
 
 /// [MethodChannel]-based implementation of a [RtpSender].
@@ -83,7 +83,7 @@ class _RtpSenderChannel extends RtpSender {
   }
 
   @override
-  Future<RtpCapabilities> getCapabilities(MediaKind kind) async {
+  static Future<RtpCapabilities> getCapabilities(MediaKind kind) async {
     var map = await _peerConnectionFactoryMethodChannel
         .invokeMethod('getRtpSenderCapabilities', {'kind': kind.index});
     return RtpCapabilities.fromMap(map);
@@ -124,7 +124,7 @@ class _RtpSenderFFI extends RtpSender {
   }
 
   @override
-  Future<RtpCapabilities> getCapabilities(MediaKind kind) async {
+  static Future<RtpCapabilities> getCapabilities(MediaKind kind) async {
     return RtpCapabilities.fromFFI(await api!
         .getRtpSenderCapabilities(kind: ffi.MediaType.values[kind.index]));
   }
