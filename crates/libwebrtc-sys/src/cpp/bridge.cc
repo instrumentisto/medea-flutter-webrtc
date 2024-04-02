@@ -35,7 +35,7 @@ TrackEventObserver::TrackEventObserver(
 // is attached to, has its state changed.
 void TrackEventObserver::OnChanged() {
   if (track_) {
-    if (track_.value()->state() ==
+    if ((*track_)->state() ==
         webrtc::MediaStreamTrackInterface::TrackState::kEnded) {
       bridge::on_ended(*cb_);
     }
