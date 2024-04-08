@@ -218,6 +218,8 @@ void main() {
         decoders.where((dec) => dec.codec == VideoCodec.AV1).length, isNonZero);
     expect(
         decoders.where((dec) => dec.codec == VideoCodec.H264).length, isZero);
+    expect(
+        decoders.where((enc) => enc.codec == VideoCodec.H265).length, isZero);
 
     var encoders = await PeerConnection.videoEncoders();
     expect(
@@ -228,6 +230,8 @@ void main() {
         encoders.where((enc) => enc.codec == VideoCodec.AV1).length, isNonZero);
     expect(
         encoders.where((enc) => enc.codec == VideoCodec.H264).length, isZero);
+    expect(
+        encoders.where((enc) => enc.codec == VideoCodec.H265).length, isZero);
   });
 
   testWidgets('Get capabilities', (WidgetTester tester) async {
@@ -257,6 +261,11 @@ void main() {
             .where((cap) => cap.mimeType == 'video/H264')
             .firstOrNull,
         isNull);
+    expect(
+        capabilities.codecs
+            .where((cap) => cap.mimeType == 'video/H265')
+            .firstOrNull,
+        isNull);
   });
 
   testWidgets('SetCodecPreferences', (WidgetTester tester) async {
@@ -270,8 +279,9 @@ void main() {
     expect(names.contains("VP9"), isTrue);
     expect(names.contains("VP8"), isTrue);
     expect(names.contains("AV1"), isTrue);
-    // H264 is intentionally disabled
+    // H264 and H265 are intentionally disabled
     expect(names.contains("H264"), isFalse);
+    expect(names.contains("H265"), isFalse);
 
     var vp8Preferences = capabilities.codecs.where((element) {
       return element.name == 'VP8';

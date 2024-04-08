@@ -2421,11 +2421,13 @@ pub enum VideoCodec {
     /// [H.264] Advanced Video Coding (AVC).
     ///
     /// [H.264]: https://en.wikipedia.org/wiki/Advanced_Video_Coding
+    #[allow(dead_code)]
     H264,
 
     /// [H.265] High Efficiency Video Coding (HEVC).
     ///
     /// [H.265]: https://en.wikipedia.org/wiki/High_Efficiency_Video_Coding
+    #[allow(dead_code)]
     H265,
 
     /// [VP8] codec.
@@ -2464,10 +2466,6 @@ pub fn video_encoders() -> Vec<VideoCodecInfo> {
             is_hardware_accelerated: false,
             codec: VideoCodec::AV1,
         },
-        VideoCodecInfo {
-            is_hardware_accelerated: false,
-            codec: VideoCodec::H265,
-        },
     ]
 }
 
@@ -2486,10 +2484,6 @@ pub fn video_decoders() -> Vec<VideoCodecInfo> {
         VideoCodecInfo {
             is_hardware_accelerated: false,
             codec: VideoCodec::AV1,
-        },
-        VideoCodecInfo {
-            is_hardware_accelerated: false,
-            codec: VideoCodec::H265,
         },
     ]
 }
