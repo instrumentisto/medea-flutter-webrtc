@@ -11,6 +11,7 @@ class State {
   init() {
     let decoderFactory = RTCDefaultVideoDecoderFactory()
     let encoderFactory = RTCDefaultVideoEncoderFactory()
+
     self.factory = RTCPeerConnectionFactory(
       encoderFactory: encoderFactory, decoderFactory: decoderFactory
     )
@@ -21,3 +22,15 @@ class State {
     self.factory
   }
 }
+
+// private class VideoEncoderFactory: RTCDefaultVideoEncoderFactory {
+//     override func supportedCodecs() -> [RTCVideoCodecInfo] {
+//         super.supportedCodecs().rewriteCodecsIfNeeded()
+//     }
+// }
+//
+// private class VideoDecoderFactory: RTCDefaultVideoDecoderFactory {
+//     override func supportedCodecs() -> [RTCVideoCodecInfo] {
+//         super.supportedCodecs().rewriteCodecsIfNeeded()
+//     }
+// }

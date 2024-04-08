@@ -11,8 +11,7 @@ import org.webrtc.VideoEncoderFallback
 
 class WebrtcVideoEncoderFactory
 /** Creates encoder factory using default hardware encoder factory. */
-(eglContext: EglBase.Context?, enableIntelVp8Encoder: Boolean, enableH264HighProfile: Boolean) :
-    VideoEncoderFactory {
+(eglContext: EglBase.Context?, enableIntelVp8Encoder: Boolean) : VideoEncoderFactory {
 
   /** [VideoEncoderFactory] capable of creating hardware-accelerated [VideoEncoder]s. */
   private val hwFactory: HardwareVideoEncoderFactory
@@ -24,8 +23,7 @@ class WebrtcVideoEncoderFactory
   private val swFactory: SoftwareVideoEncoderFactory = SoftwareVideoEncoderFactory()
 
   init {
-    hwFactory =
-        HardwareVideoEncoderFactory(eglContext, enableIntelVp8Encoder, enableH264HighProfile)
+    hwFactory = HardwareVideoEncoderFactory(eglContext, enableIntelVp8Encoder, false)
   }
 
   override fun createEncoder(info: VideoCodecInfo): VideoEncoder? {
@@ -48,6 +46,10 @@ class WebrtcVideoEncoderFactory
   }
 
   override fun queryCodecSupport(codecInfo: VideoCodecInfo, scalability: String): CodecSupport {
+    if (codecInfo.name == "H264") {
+      return CodecSupport(false, false)
+    }
+
     val support = hwFactory.queryCodecSupport(codecInfo, scalability)
     if (support.is_supported) {
       return support
@@ -56,8 +58,8 @@ class WebrtcVideoEncoderFactory
   }
 
   /** Enumerates the list of video codecs that can be hardware-accelerated. */
-  fun getHWCodecs(): Array<VideoCodecInfo> {
-    return hwFactory.supportedCodecs
+  fun getHWCodecs(): List<VideoCodecInfo> {
+    return hwFactory.supportedCodecs.filterNot { it.name == "H264" }
   }
 
   /** Enumerates the list of video codecs that only have software implementation. */

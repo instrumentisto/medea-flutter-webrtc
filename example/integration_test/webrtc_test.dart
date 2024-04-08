@@ -180,9 +180,6 @@ void main() {
     var offer = (await pc1.createOffer()).description;
 
     var codecs = ['VP8/90000', 'VP9/90000', 'AV1/90000'];
-    if (!Platform.isAndroid) {
-      codecs.add('H264/90000');
-    }
 
     for (var codec in codecs) {
       var reg = RegExp(r'a=rtpmap:\d{2,3} ' + codec);
@@ -212,58 +209,54 @@ void main() {
   });
 
   testWidgets('Video codec info', (WidgetTester tester) async {
-    if (!Platform.isAndroid && !Platform.isIOS) {
-      var decoders = await PeerConnection.videoDecoders();
-      expect(decoders.where((dec) => dec.codec == VideoCodec.VP8).length,
-          isNonZero);
-      expect(decoders.where((dec) => dec.codec == VideoCodec.VP9).length,
-          isNonZero);
-      expect(decoders.where((dec) => dec.codec == VideoCodec.AV1).length,
-          isNonZero);
-      expect(decoders.where((dec) => dec.codec == VideoCodec.H264).length,
-          isNonZero);
+    var decoders = await PeerConnection.videoDecoders();
+    expect(
+        decoders.where((dec) => dec.codec == VideoCodec.VP8).length, isNonZero);
+    expect(
+        decoders.where((dec) => dec.codec == VideoCodec.VP9).length, isNonZero);
+    expect(
+        decoders.where((dec) => dec.codec == VideoCodec.AV1).length, isNonZero);
+    expect(
+        decoders.where((dec) => dec.codec == VideoCodec.H264).length, isZero);
 
-      var encoders = await PeerConnection.videoEncoders();
-      expect(encoders.where((enc) => enc.codec == VideoCodec.VP8).length,
-          isNonZero);
-      expect(encoders.where((enc) => enc.codec == VideoCodec.VP9).length,
-          isNonZero);
-      expect(encoders.where((enc) => enc.codec == VideoCodec.AV1).length,
-          isNonZero);
-      expect(encoders.where((enc) => enc.codec == VideoCodec.H264).length,
-          isNonZero);
-    }
+    var encoders = await PeerConnection.videoEncoders();
+    expect(
+        encoders.where((enc) => enc.codec == VideoCodec.VP8).length, isNonZero);
+    expect(
+        encoders.where((enc) => enc.codec == VideoCodec.VP9).length, isNonZero);
+    expect(
+        encoders.where((enc) => enc.codec == VideoCodec.AV1).length, isNonZero);
+    expect(
+        encoders.where((enc) => enc.codec == VideoCodec.H264).length, isZero);
   });
 
   testWidgets('Get capabilities', (WidgetTester tester) async {
-    if (!Platform.isAndroid && !Platform.isIOS) {
-      var pc = await PeerConnection.create(IceTransportType.all, []);
-      var t1 = await pc.addTransceiver(
-          MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
+    var pc = await PeerConnection.create(IceTransportType.all, []);
+    var t1 = await pc.addTransceiver(
+        MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
 
-      var capabilities = await t1.sender.getCapabilities(MediaKind.video);
+    var capabilities = await t1.sender.getCapabilities(MediaKind.video);
 
-      expect(
-          capabilities.codecs
-              .where((cap) => cap.mimeType == 'video/H264')
-              .firstOrNull,
-          isNotNull);
-      expect(
-          capabilities.codecs
-              .where((cap) => cap.mimeType == 'video/VP9')
-              .firstOrNull,
-          isNotNull);
-      expect(
-          capabilities.codecs
-              .where((cap) => cap.mimeType == 'video/VP8')
-              .firstOrNull,
-          isNotNull);
-      expect(
-          capabilities.codecs
-              .where((cap) => cap.mimeType == 'video/AV1')
-              .firstOrNull,
-          isNotNull);
-    }
+    expect(
+        capabilities.codecs
+            .where((cap) => cap.mimeType == 'video/VP9')
+            .firstOrNull,
+        isNotNull);
+    expect(
+        capabilities.codecs
+            .where((cap) => cap.mimeType == 'video/VP8')
+            .firstOrNull,
+        isNotNull);
+    expect(
+        capabilities.codecs
+            .where((cap) => cap.mimeType == 'video/AV1')
+            .firstOrNull,
+        isNotNull);
+    expect(
+        capabilities.codecs
+            .where((cap) => cap.mimeType == 'video/H264')
+            .firstOrNull,
+        isNull);
   });
 
   testWidgets('SetCodecPreferences', (WidgetTester tester) async {
@@ -276,12 +269,15 @@ void main() {
     var names = capabilities.codecs.map((c) => c.name).toList();
     expect(names.contains("VP9"), isTrue);
     expect(names.contains("VP8"), isTrue);
+    expect(names.contains("AV1"), isTrue);
+    // H264 is intentionally disabled
+    expect(names.contains("H264"), isFalse);
 
-    var h264Preferences = capabilities.codecs.where((element) {
+    var vp8Preferences = capabilities.codecs.where((element) {
       return element.name == 'VP8';
     }).toList();
 
-    await vtrans.setCodecPreferences(h264Preferences);
+    await vtrans.setCodecPreferences(vp8Preferences);
 
     var offer = await pc.createOffer();
 

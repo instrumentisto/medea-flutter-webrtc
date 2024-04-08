@@ -2462,10 +2462,6 @@ pub fn video_encoders() -> Vec<VideoCodecInfo> {
         },
         VideoCodecInfo {
             is_hardware_accelerated: false,
-            codec: VideoCodec::H264,
-        },
-        VideoCodecInfo {
-            is_hardware_accelerated: false,
             codec: VideoCodec::AV1,
         },
         VideoCodecInfo {
@@ -2486,10 +2482,6 @@ pub fn video_decoders() -> Vec<VideoCodecInfo> {
         VideoCodecInfo {
             is_hardware_accelerated: false,
             codec: VideoCodec::VP9,
-        },
-        VideoCodecInfo {
-            is_hardware_accelerated: false,
-            codec: VideoCodec::H264,
         },
         VideoCodecInfo {
             is_hardware_accelerated: false,
