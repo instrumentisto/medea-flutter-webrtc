@@ -1,11 +1,11 @@
 package com.instrumentisto.medea_flutter_webrtc.model
 
 /**
- * Representation of [org.webrtc.RtpCapabilities.HeaderExtensionCapability].
+ * Representation of an [org.webrtc.RtpCapabilities.HeaderExtensionCapability].
  *
- * @property uri `uri` of these [HeaderExtensionCapability].
- * @property preferredId `preferredId` of these [HeaderExtensionCapability].
- * @property preferredEncrypted `preferredEncrypted` of these [HeaderExtensionCapability].
+ * @property uri `uri` of this [HeaderExtensionCapability].
+ * @property preferredId `preferredId` of this [HeaderExtensionCapability].
+ * @property preferredEncrypted `preferredEncrypted` of this [HeaderExtensionCapability].
  */
 data class HeaderExtensionCapability(
     val uri: String,
@@ -27,7 +27,7 @@ data class HeaderExtensionCapability(
   }
 
   /**
-   * Converts these [HeaderExtensionCapability] into a [Map] which can be returned to the Flutter
+   * Converts this [HeaderExtensionCapability] into a [Map] which can be returned to the Flutter
    * side.
    */
   fun asFlutterResult(): Map<String, Any> {
@@ -37,15 +37,15 @@ data class HeaderExtensionCapability(
 }
 
 /**
- * Representation of [org.webrtc.RtpCapabilities.CodecCapability].
+ * Representation of an [org.webrtc.RtpCapabilities.CodecCapability].
  *
- * @property preferredPayloadType `preferredPayloadType` of these [CodecCapability].
- * @property name `name` of these [CodecCapability].
- * @property kind `kind` of these [CodecCapability].
- * @property clockRate `clockRate` of these [CodecCapability].
- * @property numChannels `numChannels` of these [CodecCapability].
- * @property parameters `parameters` of these [CodecCapability].
- * @property mimeType `mimeType` of these [CodecCapability].
+ * @property preferredPayloadType `preferredPayloadType` of this [CodecCapability].
+ * @property name `name` of this [CodecCapability].
+ * @property kind `kind` of this [CodecCapability].
+ * @property clockRate `clockRate` of this [CodecCapability].
+ * @property numChannels `numChannels` of this [CodecCapability].
+ * @property parameters `parameters` of this [CodecCapability].
+ * @property mimeType `mimeType` of this [CodecCapability].
  */
 data class CodecCapability(
     val preferredPayloadType: Int,
@@ -58,7 +58,7 @@ data class CodecCapability(
 ) {
   companion object {
     /**
-     * Converts the provided [org.webrtc.RtpCapabilities.CodecCapability] into [CodecCapability].
+     * Converts the provided [org.webrtc.RtpCapabilities.CodecCapability] into a [CodecCapability].
      *
      * @return [CodecCapability] created based on the provided
      * [org.webrtc.RtpCapabilities.CodecCapability].
@@ -76,7 +76,7 @@ data class CodecCapability(
     }
   }
 
-  /** Converts these [CodecCapability] into a [Map] which can be returned to the Flutter side. */
+  /** Converts this [CodecCapability] into a [Map] which can be returned to the Flutter side. */
   fun asFlutterResult(): Map<String, Any?> {
     return mapOf(
         "preferredPayloadType" to preferredPayloadType,
@@ -90,7 +90,7 @@ data class CodecCapability(
 }
 
 /**
- * Representation of [org.webrtc.RtpCapabilities].
+ * Representation of an [org.webrtc.RtpCapabilities].
  *
  * @property codecs `codecs` of these [RtpCapabilities].
  * @property headerExtensions `headerExtensions` of these [RtpCapabilities].

@@ -1,8 +1,9 @@
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';
 import '/src/api/bridge.g.dart' as ffi;
 
-/// RtpCapabilities is used to represent the static capabilities of an endpoint.
-/// An application can use these capabilities to construct an RtpParameters.
+/// Representation of the static capabilities of an endpoint.
+///
+/// Applications can use these capabilities to construct [RtpParameters].
 class RtpCapabilities {
   RtpCapabilities(this.codecs, this.headerExtensions);
 
@@ -30,12 +31,14 @@ class RtpCapabilities {
   /// Supported codecs.
   List<RtpCodecCapability> codecs;
 
-  /// Supported RTP header extensions.
+  /// Supported [RTP] header extensions.
+  ///
+  /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
   List<RtpHeaderExtensionCapability> headerExtensions;
 }
 
-/// Used in RtpCapabilities header extensions query and setup methods:
-/// represents the capabilities/preferences of an implementation for a header extension.
+/// Representation of capabilities/preferences of an implementation for a header
+/// extension of [RtpCapabilities].
 class RtpHeaderExtensionCapability {
   RtpHeaderExtensionCapability(this.uri, this.direction);
 
@@ -52,16 +55,18 @@ class RtpHeaderExtensionCapability {
     return RtpHeaderExtensionCapability(map['uri'], direction);
   }
 
-  /// URI of this extension, as defined in RFC8285.
+  /// [URI] of this extension, as defined in [RFC 8285].
+  ///
+  /// [RFC 8285]: https://tools.ietf.org/html/rfc8285
+  /// [URI]: https://en.wikipedia.org/wiki/Uniform_Resource_Identifier
   String uri;
 
-  /// The direction of the extension.
+  /// Direction of the extension.
   TransceiverDirection direction;
 }
 
-/// RtpCodecCapability is to RtpCodecParameters as RtpCapabilities is to
-/// RtpParameters. This represents the static capabilities of an endpoint's
-/// implementation of a codec.
+/// Representation of static capabilities of an endpoint's implementation of a
+/// codec.
 class RtpCodecCapability {
   RtpCodecCapability(this.mimeType, this.clockRate, this.parameters, this.kind,
       this.name, this.numChannels, this.preferredPayloadType);
@@ -111,32 +116,44 @@ class RtpCodecCapability {
     };
   }
 
-  /// Build MIME "type/subtype" string from `name` and `kind`.
+  /// Built [MIME "type/subtype"] string from [name] and [kind].
+  ///
+  /// [MIME "type/subtype"]: https://en.wikipedia.org/wiki/Media_type
   String mimeType;
 
   /// If unset, the implementation default is used.
   int? clockRate;
 
-  /// Default payload type for this codec. Mainly needed for codecs that have
-  /// statically assigned payload types.
+  /// Default payload type for the codec.
+  ///
+  /// Mainly needed for codecs that have statically assigned payload types.
   int? preferredPayloadType;
 
-  /// Used to identify the codec. Equivalent to MIME subtype.
+  /// Used to identify the codec. Equivalent to [MIME subtype][0].
+  ///
+  /// [0]: https://en.wikipedia.org/wiki/Media_type#Subtypes
   String name;
 
-  /// The media type of this codec. Equivalent to MIME top-level type.
+  /// [MediaKind] of this codec. Equivalent to [MIME] top-level type.
+  ///
+  /// [MIME]: https://en.wikipedia.org/wiki/Media_type
   MediaKind kind;
 
-  /// The number of audio channels used. Unset for video codecs. If unset for
-  /// audio, the implementation default is used.
+  /// Number of audio channels used.
+  ///
+  /// Unset for video codecs.
+  ///
+  /// If unset for audio, the implementation default is used.
   int? numChannels;
 
   /// Codec-specific parameters that must be signaled to the remote party.
   ///
-  /// Corresponds to "a=fmtp" parameters in SDP.
+  /// Corresponds to `a=fmtp` parameters in [SDP].
   ///
   /// Contrary to ORTC, these parameters are named using all lowercase strings.
-  /// This helps make the mapping to SDP simpler, if an application is using SDP.
-  /// Boolean values are represented by the string "1".
+  /// This helps make the mapping to [SDP] simpler, if an application is using
+  /// [SDP]. Boolean values are represented by the string "1".
+  ///
+  /// [SDP]: https://en.wikipedia.org/wiki/Session_Description_Protocol
   Map<String, String> parameters;
 }

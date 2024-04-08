@@ -769,8 +769,8 @@ impl RtpTransceiver {
         self.inner.lock().unwrap().set_direction(direction.into())
     }
 
-    /// Changes the preferred [`RtpTransceiver`] codecs
-    /// to the given [`Vec<RtpCodecCapability>`].
+    /// Changes the preferred [`RtpTransceiver`] codecs to the provided
+    /// [`Vec`]`<`[`RtpCodecCapability`]`>`.
     ///
     /// # Panics
     ///

@@ -35,8 +35,8 @@ class RtpTransceiverProxy {
     self.transceiver.setDirection(direction.intoWebRtc(), error: nil)
   }
 
-  /// Changes the preferred `RTCRtpTransceiver` codecs to the given
-  /// `RTCRtpCodecCapability`.
+  /// Changes the preferred `RTCRtpTransceiver` codecs to the provided list of
+  /// `RTCRtpCodecCapability`s.
   func setCodecPreferences(capability: [RTCRtpCodecCapability]) {
     self.transceiver.setCodecPreferences(capability)
   }

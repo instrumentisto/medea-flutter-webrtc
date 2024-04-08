@@ -1,4 +1,5 @@
 #include <cstdint>
+#include <iostream>
 #include <memory>
 #include <string>
 #include <iostream>
@@ -1011,7 +1012,7 @@ std::unique_ptr<RtpSenderInterface> transceiver_sender(
   return std::make_unique<RtpSenderInterface>(transceiver->sender());
 }
 
-// Changes the preferred `RtpTransceiverInterface` codecs to the given
+// Changes the preferred `RtpTransceiverInterface` codecs to the provided
 // `Vec<RtpCodecCapability>`.
 void set_codec_preferences(const RtpTransceiverInterface& transceiver,
                            rust::Vec<RtpCodecCapabilityContainer> codecs) {
