@@ -24,19 +24,27 @@ class State {
 }
 
 private class VideoEncoderFactory: RTCDefaultVideoEncoderFactory {
+  // Disabled codecs.
+  static var codecBlocklist: [String] = ["H264", "H265"]
+
   override func supportedCodecs() -> [RTCVideoCodecInfo] {
-    super.supportedCodecs().filterDisabledCodecs()
+    super.supportedCodecs()
+      .filterDisabledCodecs(codecBlocklist: VideoEncoderFactory.codecBlocklist)
   }
 }
 
 private class VideoDecoderFactory: RTCDefaultVideoDecoderFactory {
+  // Disabled codecs.
+  static var codecBlocklist: [String] = ["H264", "H265"]
+
   override func supportedCodecs() -> [RTCVideoCodecInfo] {
-    super.supportedCodecs().filterDisabledCodecs()
+    super.supportedCodecs()
+      .filterDisabledCodecs(codecBlocklist: VideoEncoderFactory.codecBlocklist)
   }
 }
 
 private extension Array where Element: RTCVideoCodecInfo {
-  func filterDisabledCodecs() -> [RTCVideoCodecInfo] {
-    return filter { $0.name != kRTCVideoCodecH264Name }
+  func filterDisabledCodecs(codecBlocklist: [String]) -> [RTCVideoCodecInfo] {
+    return filter { !codecBlocklist.contains($0.name) }
   }
 }
