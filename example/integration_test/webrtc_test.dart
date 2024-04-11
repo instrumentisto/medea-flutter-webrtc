@@ -237,10 +237,6 @@ void main() {
 
   testWidgets('Get capabilities', (WidgetTester tester) async {
     if (!Platform.isAndroid && !Platform.isIOS) {
-      var pc = await PeerConnection.create(IceTransportType.all, []);
-      var t1 = await pc.addTransceiver(
-          MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
-
       var capabilities = await RtpSender.getCapabilities(MediaKind.video);
 
       expect(
