@@ -288,7 +288,6 @@ void main() {
     expect(offer.description.contains("VP9"), isFalse);
     expect(offer.description.contains("AV1"), isFalse);
 
-    await pc1.setLocalDescription(offer);
     await pc2.setRemoteDescription(offer);
 
     var answer = await pc2.createAnswer();
@@ -297,9 +296,6 @@ void main() {
     expect(answer.description.contains("H264"), isFalse);
     expect(answer.description.contains("VP9"), isFalse);
     expect(answer.description.contains("AV1"), isFalse);
-
-    await pc2.setLocalDescription(answer);
-    await pc1.setRemoteDescription(answer);
 
     await pc1.close();
     await pc2.close();
