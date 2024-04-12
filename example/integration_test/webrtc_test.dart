@@ -180,9 +180,6 @@ void main() {
     var offer = (await pc1.createOffer()).description;
 
     var codecs = ['VP8/90000', 'VP9/90000', 'AV1/90000'];
-    if (!Platform.isAndroid && !Platform.isLinux) {
-      codecs.add('H264/90000');
-    }
 
     for (var codec in codecs) {
       var reg = RegExp(r'a=rtpmap:\d{2,3} ' + codec);
