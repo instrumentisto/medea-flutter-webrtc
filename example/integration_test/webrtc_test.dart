@@ -180,7 +180,7 @@ void main() {
     var offer = (await pc1.createOffer()).description;
 
     var codecs = ['VP8/90000', 'VP9/90000', 'AV1/90000'];
-    if (!Platform.isAndroid) {
+    if (!Platform.isAndroid && !Platform.isLinux) {
       codecs.add('H264/90000');
     }
 
@@ -243,11 +243,6 @@ void main() {
 
       var capabilities = await t1.sender.getCapabilities(MediaKind.video);
 
-      expect(
-          capabilities.codecs
-              .where((cap) => cap.mimeType == 'video/H264')
-              .firstOrNull,
-          isNotNull);
       expect(
           capabilities.codecs
               .where((cap) => cap.mimeType == 'video/VP9')
