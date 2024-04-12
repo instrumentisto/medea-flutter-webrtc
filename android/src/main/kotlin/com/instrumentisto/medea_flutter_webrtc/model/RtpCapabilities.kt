@@ -9,7 +9,7 @@ package com.instrumentisto.medea_flutter_webrtc.model
  */
 data class HeaderExtensionCapability(
     val uri: String,
-    val preferredId: Int,
+    val preferredId: Int?,
     val preferredEncrypted: Boolean,
 ) {
   companion object {
