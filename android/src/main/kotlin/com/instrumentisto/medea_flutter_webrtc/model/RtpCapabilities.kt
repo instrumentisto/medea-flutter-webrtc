@@ -30,9 +30,9 @@ data class HeaderExtensionCapability(
    * Converts this [HeaderExtensionCapability] into a [Map] which can be returned to the Flutter
    * side.
    */
-  fun asFlutterResult(): Map<String, Any> {
+  fun asFlutterResult(): Map<String, Any?> {
     return mapOf(
-        "uri" to uri, "preferredId" to preferredId, "preferredEncrypted" to preferredEncrypted)
+        "uri" to uri, "preferredId" to preferredId as Any?, "preferredEncrypted" to preferredEncrypted)
   }
 }
 
