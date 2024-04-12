@@ -32,7 +32,9 @@ data class HeaderExtensionCapability(
    */
   fun asFlutterResult(): Map<String, Any?> {
     return mapOf(
-        "uri" to uri, "preferredId" to preferredId as Any?, "preferredEncrypted" to preferredEncrypted)
+        "uri" to uri,
+        "preferredId" to preferredId as Any?,
+        "preferredEncrypted" to preferredEncrypted)
   }
 }
 
