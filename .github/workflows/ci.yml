@@ -52,7 +52,7 @@ jobs:
           - linux
           - macos
           - windows
-    runs-on: ${{ (matrix.platform == 'linux' &&   'ubuntu-latest')
+    runs-on: ${{ (matrix.platform == 'linux' &&   'ubuntu-20.04') # TODO: Ubuntu-20.04 while Ubuntu-22.04 dependencies is broken.
               || (matrix.platform == 'windows' && 'windows-latest')
               ||                                  'macos-latest' }}
     steps:
@@ -64,9 +64,6 @@ jobs:
 
       - name: Install `${{ matrix.platform }}` platform dependencies
         run: |
-          sudo apt-get clean
-          sudo rm -rf /var/lib/apt/lists/*
-          sudo apt-get clean
           sudo apt-get update
           sudo apt-get install -y \
                        libgtk-3-dev libpulse-dev libudev-dev libxcomposite-dev \
@@ -297,7 +294,7 @@ jobs:
           - linux
           - macos
           - windows
-    runs-on: ${{ (matrix.platform == 'linux' &&   'ubuntu-latest')
+    runs-on: ${{ (matrix.platform == 'linux' &&   'ubuntu-20.04') # TODO: Ubuntu-20.04 while Ubuntu-22.04 dependencies is broken.
               || (matrix.platform == 'windows' && 'windows-latest')
               ||                                  'macos-latest' }}
     steps:
