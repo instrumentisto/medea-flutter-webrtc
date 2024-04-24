@@ -215,7 +215,8 @@ jobs:
           - linux
           - macos
           - windows
-    runs-on: ${{ (matrix.platform == 'linux' &&   'ubuntu-latest')
+    # TODO: Ubuntu-20.04 while Ubuntu-22.04 dependencies is broken.
+    runs-on: ${{ (matrix.platform == 'linux' &&   'ubuntu-20.04')
               || (matrix.platform == 'windows' && 'windows-latest')
               ||                                  'macos-13' }}
     steps:
