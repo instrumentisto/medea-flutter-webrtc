@@ -78,6 +78,7 @@ class AudioConstraints implements DeviceMediaConstraints {
   ///
   /// First device will be chosen if an empty [`String`] is provided.
   String? deviceId;
+
   /// Automatically manages changes in the volume of its source
   /// media to maintain a steady overall volume level.
   bool? autoGainControl;
