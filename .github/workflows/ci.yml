@@ -52,8 +52,8 @@ jobs:
           - linux
           - macos
           - windows
-    # TODO: Ubuntu-20.04 while Ubuntu-22.04 dependencies is broken.
-    runs-on: ${{ (matrix.platform == 'linux' &&   'ubuntu-20.04')
+    # TODO: Ubuntu-22.04 while Ubuntu-latest dependencies is broken.
+    runs-on: ${{ (matrix.platform == 'linux' &&   'ubuntu-22.04')
               || (matrix.platform == 'windows' && 'windows-latest')
               ||                                  'macos-latest' }}
     steps:
@@ -215,8 +215,8 @@ jobs:
           - linux
           - macos
           - windows
-    # TODO: Ubuntu-20.04 while Ubuntu-22.04 dependencies is broken.
-    runs-on: ${{ (matrix.platform == 'linux' &&   'ubuntu-20.04')
+    # TODO: Ubuntu-22.04 while Ubuntu-latest dependencies is broken.
+    runs-on: ${{ (matrix.platform == 'linux' &&   'ubuntu-22.04')
               || (matrix.platform == 'windows' && 'windows-latest')
               ||                                  'macos-13' }}
     steps:
@@ -296,8 +296,8 @@ jobs:
           - linux
           - macos
           - windows
-    # TODO: Ubuntu-20.04 while Ubuntu-22.04 dependencies is broken.
-    runs-on: ${{ (matrix.platform == 'linux' &&   'ubuntu-20.04')
+    # TODO: Ubuntu-22.04 while Ubuntu-latest dependencies is broken.
+    runs-on: ${{ (matrix.platform == 'linux' &&   'ubuntu-22.04')
               || (matrix.platform == 'windows' && 'windows-latest')
               ||                                  'macos-latest' }}
     steps:
