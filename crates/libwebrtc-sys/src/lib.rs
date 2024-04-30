@@ -549,10 +549,7 @@ impl AudioProcessing {
     }
 
     /// Applies settings to audio processing.
-    pub fn apply_config(
-        &self,
-        config: &AudioProcessingConfig,
-    ) {
+    pub fn apply_config(&self, config: &AudioProcessingConfig) {
         webrtc::audio_processing_apply_config(&self.0, &config.0);
     }
 }
