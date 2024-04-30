@@ -90,7 +90,7 @@ class AudioConstraints implements DeviceMediaConstraints {
     if (deviceId != null) {
       map['deviceId'] = deviceId;
     }
-    map['googAutoGainControl'] = autoGainControl;
+    map['googAutoGainControl'] = autoGainControl ?? true;
     return map;
   }
 }
