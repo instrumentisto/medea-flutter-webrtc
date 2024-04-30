@@ -2103,6 +2103,10 @@ pub struct AudioConstraints {
     ///           changing device will affect all previously obtained audio
     ///           tracks.
     pub device_id: Option<String>,
+
+    /// Automatically manages changes in the volume of its source
+    /// media to maintain a steady overall volume level.
+    pub auto_gain_control: Option<bool>,
 }
 
 /// Representation of a single media track within a [`MediaStream`].
