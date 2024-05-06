@@ -74,13 +74,13 @@ abstract class DeviceMediaConstraints {
 /// [DeviceMediaConstraints] for audio devices.
 class AudioConstraints implements DeviceMediaConstraints {
   /// Identifier of the device generating the content of the
-  /// [`MediaStreamTrack`].
+  /// [MediaStreamTrack].
   ///
-  /// First device will be chosen if an empty [`String`] is provided.
+  /// First device will be chosen if an empty [String] is provided.
   String? deviceId;
 
-  /// Automatically manages changes in the volume of its source
-  /// media to maintain a steady overall volume level.
+  /// Indicator whether to automatically manage changes in the volume of its
+  /// source media to maintain a steady overall volume level.
   bool? autoGainControl;
 
   /// Converts this model to the [Map] expected by Flutter.
