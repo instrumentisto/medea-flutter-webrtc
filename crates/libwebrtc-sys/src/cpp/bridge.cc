@@ -117,8 +117,11 @@ std::unique_ptr<AudioDeviceModule> create_audio_device_module(
     TaskQueueFactory& task_queue_factory,
     const AudioProcessing& ap) {
   AudioDeviceModule adm = worker_thread.BlockingCall([audio_layer,
-                                                      &task_queue_factory, &ap] {
-    return ::OpenALAudioDeviceModule::Create(audio_layer, &task_queue_factory, ap.get());
+                                                      &task_queue_factory,
+                                                      &ap] {
+    return ::OpenALAudioDeviceModule::Create(audio_layer,
+                                             &task_queue_factory,
+                                             ap.get());
   });
 
   if (adm == nullptr) {
@@ -1167,7 +1170,7 @@ std::unique_ptr<std::string> display_source_title(const DisplaySource& source) {
   return std::make_unique<std::string>(source.title);
 }
 
-// Creates a new audio processing config.
+// Creates a new `AudioProcessingConfig`.
 std::unique_ptr<AudioProcessingConfig> create_audio_processing_config() {
   webrtc::AudioProcessing::Config apm_config;
   apm_config.echo_canceller.enabled = true;
@@ -1179,19 +1182,24 @@ std::unique_ptr<AudioProcessingConfig> create_audio_processing_config() {
   return std::make_unique<AudioProcessingConfig>(apm_config);
 }
 
-// Sets `AudioProcessing` auto gain control.
-void config_gain_controller1_set_enabled(AudioProcessingConfig& config, bool enabled) {
+// Enables/disables AGC (auto gain control) in the provided
+// `AudioProcessingConfig`.
+void config_gain_controller1_set_enabled(AudioProcessingConfig& config,
+                                         bool enabled) {
   config.gain_controller1.enabled = enabled;
   config.gain_controller1.analog_gain_controller.enabled = enabled;
 }
 
-// Returns `AudioProcessing` config.
-std::unique_ptr<AudioProcessingConfig> audio_processing_get_config(const AudioProcessing& ap) {
+// Returns `AudioProcessingConfig` of the provided `AudioProcessing`.
+std::unique_ptr<AudioProcessingConfig> audio_processing_get_config(
+    const AudioProcessing& ap) {
   return std::make_unique<AudioProcessingConfig>(ap->GetConfig());
 }
 
-// Applies settings to audio processing.
-void audio_processing_apply_config(const AudioProcessing& ap, const AudioProcessingConfig& config) {
+// Applies the provided  `AudioProcessingConfig` to the provided
+// `AudioProcessing`.
+void audio_processing_apply_config(const AudioProcessing& ap,
+                                   const AudioProcessingConfig& config) {
   ap->ApplyConfig(config);
 }
 

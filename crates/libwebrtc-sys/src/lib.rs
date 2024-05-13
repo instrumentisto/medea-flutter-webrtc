@@ -505,7 +505,7 @@ unsafe impl Sync for webrtc::AudioDeviceModule {}
 /// voice processing components designed for real-time communications software.
 pub struct AudioProcessing(UniquePtr<webrtc::AudioProcessing>);
 
-/// Representation of the audio processing config.
+/// Representation of an audio processing config.
 pub struct AudioProcessingConfig(UniquePtr<webrtc::AudioProcessingConfig>);
 
 impl Default for AudioProcessingConfig {
@@ -515,7 +515,7 @@ impl Default for AudioProcessingConfig {
 }
 
 impl AudioProcessingConfig {
-    /// Enables/disables AGC (Auto Gain Control) in this
+    /// Enables/disables AGC (auto gain control) in this
     /// [`AudioProcessingConfig`].
     pub fn set_gain_controller_enabled(&mut self, enabled: bool) {
         webrtc::config_gain_controller1_set_enabled(self.0.pin_mut(), enabled);
@@ -549,7 +549,8 @@ impl AudioProcessing {
         AudioProcessingConfig(webrtc::audio_processing_get_config(&self.0))
     }
 
-    /// Applies provided [`AudioProcessingConfig`] to this [`AudioProcessing`].
+    /// Applies the provided [`AudioProcessingConfig`] to this
+    /// [`AudioProcessing`].
     pub fn apply_config(&self, config: &AudioProcessingConfig) {
         webrtc::audio_processing_apply_config(&self.0, &config.0);
     }

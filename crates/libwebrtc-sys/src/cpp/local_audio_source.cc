@@ -14,7 +14,8 @@ float calculate_audio_level(int16_t* data, int size) {
 }
 
 rtc::scoped_refptr<LocalAudioSource> LocalAudioSource::Create(
-    cricket::AudioOptions audio_options, std::optional<webrtc::AudioProcessing*> audio_processing) {
+    cricket::AudioOptions audio_options,
+    std::optional<webrtc::AudioProcessing*> audio_processing) {
   auto source = rtc::make_ref_counted<LocalAudioSource>();
   source->audio_processing_ = audio_processing;
   source->_options = audio_options;

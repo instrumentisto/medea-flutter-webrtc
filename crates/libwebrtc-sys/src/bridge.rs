@@ -1610,14 +1610,14 @@ pub(crate) mod webrtc {
             ap: &AudioProcessing,
         ) -> UniquePtr<AudioProcessingConfig>;
 
-        /// Enables/disables AGC (Auto Gain Control) in the provided
+        /// Enables/disables AGC (auto gain control) in the provided
         /// [`AudioProcessingConfig`].
         pub fn config_gain_controller1_set_enabled(
             config: Pin<&mut AudioProcessingConfig>,
             enabled: bool,
         );
 
-        /// Aplies provided [`AudioProcessingConfig`] to the provided
+        /// Applies the provided [`AudioProcessingConfig`] to the provided
         /// [`AudioProcessing`].
         pub fn audio_processing_apply_config(
             ap: &AudioProcessing,
