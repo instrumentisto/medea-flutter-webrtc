@@ -17,10 +17,11 @@ All user visible changes to this project will be documented in this file. This p
 - Support for multiple input audio devices usage at one time on desktop platforms. ([#145])
 - `MediaStreamTrack.isAudioLevelAvailable` function and `MediaStreamTrack.onAudioLevelChanged` callback for detecting input audio level changes of local `MediaStreamTrack`. ([#149])
 - `RtpSender.getCapabilities()` and `RtpTransceiver.setCodecPreferences()` operating by `RtpCapabilities`, `RtpHeaderExtensionCapability` and `RtpCodecCapability`. ([#137])
+- `AudioConstraints.autoGainControl` field. ([#156])
 
 ### Changed
 
-- Upgraded [libwebrtc] to [122.0.6261.94] version. ([#137])
+- Upgraded [libwebrtc] to [123.0.6312.105] version. ([#155])
 
 ### Fixed
 
@@ -39,7 +40,9 @@ All user visible changes to this project will be documented in this file. This p
 [#146]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/146
 [#149]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/149
 [#151]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/151
-[122.0.6261.94]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/122.0.6261.94
+[#155]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/155
+[#156]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/156
+[123.0.6312.105]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/123.0.6312.105
 
 
 
