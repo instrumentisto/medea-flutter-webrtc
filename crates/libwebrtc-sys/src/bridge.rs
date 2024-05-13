@@ -1587,7 +1587,6 @@ pub(crate) mod webrtc {
 
     unsafe extern "C++" {
         pub type AudioProcessing;
-        pub type RuntimeSetting;
         pub type AudioProcessingConfig;
 
         /// Creates a new [`AudioProcessing`].

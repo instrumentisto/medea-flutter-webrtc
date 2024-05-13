@@ -1187,10 +1187,7 @@ void config_gain_controller1_set_enabled(AudioProcessingConfig& config, bool ena
 
 // Returns `AudioProcessing` config.
 std::unique_ptr<AudioProcessingConfig> audio_processing_get_config(const AudioProcessing& ap) {
-  auto a = ap->GetConfig();
-  std::cout << "AAAA" << a.ToString() << std::endl;
-
-  return std::make_unique<AudioProcessingConfig>(a);
+  return std::make_unique<AudioProcessingConfig>(ap->GetConfig());
 }
 
 // Applies settings to audio processing.
