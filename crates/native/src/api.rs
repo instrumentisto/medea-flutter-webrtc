@@ -2104,8 +2104,8 @@ pub struct AudioConstraints {
     ///           tracks.
     pub device_id: Option<String>,
 
-    /// Automatically manages changes in the volume of its source
-    /// media to maintain a steady overall volume level.
+    /// Indicator whether the audio volume level should be automatically tuned
+    /// to maintain a steady overall volume level.
     pub auto_gain_control: Option<bool>,
 }
 

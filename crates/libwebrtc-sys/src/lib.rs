@@ -515,7 +515,8 @@ impl Default for AudioProcessingConfig {
 }
 
 impl AudioProcessingConfig {
-    /// Sets [`AudioProcessing`] auto gain control.
+    /// Enables/disables AGC (Auto Gain Control) in this
+    /// [`AudioProcessingConfig`].
     pub fn set_gain_controller_enabled(&mut self, enabled: bool) {
         webrtc::config_gain_controller1_set_enabled(self.0.pin_mut(), enabled);
     }
@@ -542,13 +543,13 @@ impl AudioProcessing {
         webrtc::set_output_will_be_muted(&self.0, muted);
     }
 
-    /// Returns `AudioProcessing` config.
+    /// Returns [`AudioProcessingConfig`] of this [`AudioProcessing`].
     #[must_use]
     pub fn config(&self) -> AudioProcessingConfig {
         AudioProcessingConfig(webrtc::audio_processing_get_config(&self.0))
     }
 
-    /// Applies settings to audio processing.
+    /// Applies provided [`AudioProcessingConfig`] to this [`AudioProcessing`].
     pub fn apply_config(&self, config: &AudioProcessingConfig) {
         webrtc::audio_processing_apply_config(&self.0, &config.0);
     }

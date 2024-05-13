@@ -263,7 +263,7 @@ impl Webrtc {
         Ok(api_track)
     }
 
-    /// Sets [`AudioProcessing`] config.
+    /// Sets [`api::AudioConstraints`] for this [`Webrtc`] session.
     fn set_audio_processing_config(&mut self, caps: &api::AudioConstraints) {
         if let Some(auto_gain_control) = caps.auto_gain_control {
             let mut config = self.ap.config();
