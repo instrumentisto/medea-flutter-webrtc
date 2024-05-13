@@ -1604,7 +1604,8 @@ pub(crate) mod webrtc {
         pub fn create_audio_processing_config(
         ) -> UniquePtr<AudioProcessingConfig>;
 
-        /// Returns `AudioProcessing` config.
+        /// Returns [`AudioProcessingConfig`] of the provided
+        /// [`AudioProcessing`].
         pub fn audio_processing_get_config(
             ap: &AudioProcessing,
         ) -> UniquePtr<AudioProcessingConfig>;

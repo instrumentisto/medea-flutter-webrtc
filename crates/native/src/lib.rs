@@ -87,8 +87,8 @@ impl Webrtc {
 
         let mut signaling_thread = sys::Thread::create(false)?;
         signaling_thread.start()?;
-        let ap = sys::AudioProcessing::new()?;
 
+        let ap = sys::AudioProcessing::new()?;
         let mut config = ap.config();
         config.set_gain_controller_enabled(true);
         ap.apply_config(&config);

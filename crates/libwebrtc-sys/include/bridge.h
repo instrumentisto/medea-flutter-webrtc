@@ -690,16 +690,16 @@ std::unique_ptr<webrtc::IceCandidateInterface> create_ice_candidate(
     rust::Str candidate,
     rust::String& error);
 
-// Creates a new audio processing config.
+// Creates a new `AudioProcessingConfig`.
 std::unique_ptr<AudioProcessingConfig> create_audio_processing_config();
 
-// Applies settings to audio processing.
+// Applies `AudioProcessingConfig` to the provided `AudioProcessing`.
 void audio_processing_apply_config(const AudioProcessing& ap, const AudioProcessingConfig& config);
 
-// Returns `AudioProcessing` config.
+// Returns `AudioProcessingConfig` of the provided `AudioProcessing`.
 std::unique_ptr<AudioProcessingConfig> audio_processing_get_config(const AudioProcessing& ap);
 
-// Sets `AudioProcessing` auto gain control.
+// Enables/disables AGC (Auto Gain Control) in the provided `AudioProcessingConfig`.
 void config_gain_controller1_set_enabled(AudioProcessingConfig& config, bool enabled);
 
 }  // namespace bridge
