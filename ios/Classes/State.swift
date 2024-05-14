@@ -9,9 +9,8 @@ class State {
 
   /// Initializes a new `State`.
   init() {
-    let decoderFactory = VideoDecoderFactory()
-    let encoderFactory = VideoEncoderFactory()
-
+    let decoderFactory = RTCDefaultVideoDecoderFactory()
+    let encoderFactory = RTCDefaultVideoEncoderFactory()
     self.factory = RTCPeerConnectionFactory(
       encoderFactory: encoderFactory, decoderFactory: decoderFactory
     )
@@ -20,31 +19,5 @@ class State {
   /// Returns the `RTCPeerConnectionFactory` of this `State`.
   func getPeerFactory() -> RTCPeerConnectionFactory {
     self.factory
-  }
-}
-
-private class VideoEncoderFactory: RTCDefaultVideoEncoderFactory {
-  // Disabled codecs.
-  static var codecBlocklist: [String] = ["H264", "H265"]
-
-  override func supportedCodecs() -> [RTCVideoCodecInfo] {
-    super.supportedCodecs()
-      .filterDisabledCodecs(codecBlocklist: VideoEncoderFactory.codecBlocklist)
-  }
-}
-
-private class VideoDecoderFactory: RTCDefaultVideoDecoderFactory {
-  // Disabled codecs.
-  static var codecBlocklist: [String] = ["H264", "H265"]
-
-  override func supportedCodecs() -> [RTCVideoCodecInfo] {
-    super.supportedCodecs()
-      .filterDisabledCodecs(codecBlocklist: VideoEncoderFactory.codecBlocklist)
-  }
-}
-
-private extension Array where Element: RTCVideoCodecInfo {
-  func filterDisabledCodecs(codecBlocklist: [String]) -> [RTCVideoCodecInfo] {
-    return filter { !codecBlocklist.contains($0.name) }
   }
 }
