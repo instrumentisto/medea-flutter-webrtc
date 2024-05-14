@@ -40,10 +40,6 @@ class WebrtcVideoDecoderFactory
   }
 
   override fun createDecoder(codecType: VideoCodecInfo): VideoDecoder? {
-    if (codecType.name == "H264") {
-      return null
-    }
-
     var sw = swFactory.createDecoder(codecType)
     val wh = hwFactory.createDecoder(codecType)
     if (sw == null) {
@@ -66,18 +62,17 @@ class WebrtcVideoDecoderFactory
   }
 
   /** Enumerates the list of video codecs that can be hardware-accelerated. */
-  fun getHWCodecs(): List<VideoCodecInfo> {
-    return hwFactory.supportedCodecs.filterNot { it.name == "H264" }
+  fun getHWCodecs(): Array<VideoCodecInfo> {
+    return hwFactory.supportedCodecs
   }
 
   /** Enumerates the list of video codecs that only have software implementation. */
-  fun getSWCodecs(): List<VideoCodecInfo> {
+  fun getSWCodecs(): Array<VideoCodecInfo> {
     val codecs = LinkedHashSet<VideoCodecInfo>()
 
     codecs.addAll(swFactory.supportedCodecs)
-    // H264 is disabled in native code but hardcoded in MediaCodecVideoDecoderFactory
-    codecs.addAll(platformSWFactory.supportedCodecs.filterNot { it.name == "H264" })
+    codecs.addAll(platformSWFactory.supportedCodecs)
 
-    return codecs.toList()
+    return codecs.toTypedArray()
   }
 }

@@ -21,14 +21,7 @@ class _State extends State<VideoCodecInfoSample> {
   }
 
   void _renderState() async {
-    var pc = await PeerConnection.create(IceTransportType.all, []);
-    var t1 = await pc.addTransceiver(
-        MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
-
-    var senderCaps = await t1.sender.getCapabilities(MediaKind.video);
-    await t1.dispose();
-    await pc.close();
-
+    var senderCaps = await RtpSender.getCapabilities(MediaKind.video);
     var encoders = await PeerConnection.videoEncoders();
     var decoders = await PeerConnection.videoDecoders();
 

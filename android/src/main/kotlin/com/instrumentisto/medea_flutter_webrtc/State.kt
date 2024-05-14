@@ -38,7 +38,9 @@ class State(private val context: Context) {
             .setEnableInternalTracer(BuildConfig.DEBUG)
             .createInitializationOptions())
 
-    encoder = WebrtcVideoEncoderFactory(EglUtils.rootEglBaseContext, enableIntelVp8Encoder = true)
+    encoder =
+        WebrtcVideoEncoderFactory(
+            EglUtils.rootEglBaseContext, enableIntelVp8Encoder = true, enableH264HighProfile = true)
     decoder = WebrtcVideoDecoderFactory(EglUtils.rootEglBaseContext)
   }
 

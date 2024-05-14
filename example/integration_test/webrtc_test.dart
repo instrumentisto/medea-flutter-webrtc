@@ -216,10 +216,12 @@ void main() {
         decoders.where((dec) => dec.codec == VideoCodec.VP9).length, isNonZero);
     expect(
         decoders.where((dec) => dec.codec == VideoCodec.AV1).length, isNonZero);
-    expect(
-        decoders.where((dec) => dec.codec == VideoCodec.H264).length, isZero);
-    expect(
-        decoders.where((enc) => enc.codec == VideoCodec.H265).length, isZero);
+    if (!Platform.isAndroid && !Platform.isIOS) {
+      expect(
+          decoders.where((dec) => dec.codec == VideoCodec.H264).length, isZero);
+      expect(
+          decoders.where((enc) => enc.codec == VideoCodec.H265).length, isZero);
+    }
 
     var encoders = await PeerConnection.videoEncoders();
     expect(
@@ -228,10 +230,12 @@ void main() {
         encoders.where((enc) => enc.codec == VideoCodec.VP9).length, isNonZero);
     expect(
         encoders.where((enc) => enc.codec == VideoCodec.AV1).length, isNonZero);
-    expect(
-        encoders.where((enc) => enc.codec == VideoCodec.H264).length, isZero);
-    expect(
-        encoders.where((enc) => enc.codec == VideoCodec.H265).length, isZero);
+    if (!Platform.isAndroid && !Platform.isIOS) {
+      expect(
+          encoders.where((enc) => enc.codec == VideoCodec.H264).length, isZero);
+      expect(
+          encoders.where((enc) => enc.codec == VideoCodec.H265).length, isZero);
+    }
   });
 
   testWidgets('Get capabilities', (WidgetTester tester) async {
@@ -239,7 +243,7 @@ void main() {
     var t1 = await pc.addTransceiver(
         MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
 
-    var capabilities = await t1.sender.getCapabilities(MediaKind.video);
+    var capabilities = await RtpSender.getCapabilities(MediaKind.video);
 
     expect(
         capabilities.codecs
@@ -256,32 +260,37 @@ void main() {
             .where((cap) => cap.mimeType == 'video/AV1')
             .firstOrNull,
         isNotNull);
-    expect(
-        capabilities.codecs
-            .where((cap) => cap.mimeType == 'video/H264')
-            .firstOrNull,
-        isNull);
-    expect(
-        capabilities.codecs
-            .where((cap) => cap.mimeType == 'video/H265')
-            .firstOrNull,
-        isNull);
+    if (!Platform.isAndroid && !Platform.isIOS) {
+      expect(
+          capabilities.codecs
+              .where((cap) => cap.mimeType == 'video/H264')
+              .firstOrNull,
+          isNull);
+      expect(
+          capabilities.codecs
+              .where((cap) => cap.mimeType == 'video/H265')
+              .firstOrNull,
+          isNull);
+    }
   });
 
   testWidgets('SetCodecPreferences', (WidgetTester tester) async {
-    var pc = await PeerConnection.create(IceTransportType.all, []);
-    var vtrans = await pc.addTransceiver(
+    var pc1 = await PeerConnection.create(IceTransportType.all, []);
+    var pc2 = await PeerConnection.create(IceTransportType.all, []);
+
+    var vtrans = await pc1.addTransceiver(
         MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
 
-    var capabilities = await vtrans.sender.getCapabilities(MediaKind.video);
+    var capabilities = await RtpSender.getCapabilities(MediaKind.video);
 
     var names = capabilities.codecs.map((c) => c.name).toList();
     expect(names.contains("VP9"), isTrue);
     expect(names.contains("VP8"), isTrue);
     expect(names.contains("AV1"), isTrue);
-    // H264 and H265 are intentionally disabled
-    expect(names.contains("H264"), isFalse);
-    expect(names.contains("H265"), isFalse);
+    if (!Platform.isAndroid && !Platform.isIOS) {
+      expect(names.contains("H264"), isFalse);
+      expect(names.contains("H265"), isFalse);
+    }
 
     var vp8Preferences = capabilities.codecs.where((element) {
       return element.name == 'VP8';
@@ -289,12 +298,25 @@ void main() {
 
     await vtrans.setCodecPreferences(vp8Preferences);
 
-    var offer = await pc.createOffer();
+    var offer = await pc1.createOffer();
 
     expect(offer.description.contains("VP8"), isTrue);
     expect(offer.description.contains("H264"), isFalse);
     expect(offer.description.contains("VP9"), isFalse);
     expect(offer.description.contains("AV1"), isFalse);
+
+    await pc2.setRemoteDescription(offer);
+
+    var answer = await pc2.createAnswer();
+
+    expect(answer.description.contains("VP8"), isTrue);
+    expect(answer.description.contains("H264"), isFalse);
+    expect(answer.description.contains("VP9"), isFalse);
+    expect(answer.description.contains("AV1"), isFalse);
+
+    await pc1.close();
+    await pc2.close();
+    await vtrans.dispose();
   });
 
   testWidgets('Get transceivers', (WidgetTester tester) async {
