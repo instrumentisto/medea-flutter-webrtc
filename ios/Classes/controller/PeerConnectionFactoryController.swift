@@ -77,6 +77,10 @@ class PeerConnectionFactoryController {
           isHardwareAccelerated: false,
           codec: VideoCodec.AV1
         ),
+        VideoCodecInfo(
+          isHardwareAccelerated: true,
+          codec: VideoCodec.H264
+        ),
       ].map {
         $0.asFlutterResult()
       }
@@ -94,6 +98,10 @@ class PeerConnectionFactoryController {
         VideoCodecInfo(
           isHardwareAccelerated: false,
           codec: VideoCodec.AV1
+        ),
+        VideoCodecInfo(
+          isHardwareAccelerated: true,
+          codec: VideoCodec.H264
         ),
       ].map {
         $0.asFlutterResult()
