@@ -843,6 +843,12 @@ bool OpenALAudioDeviceModule::RecordingIsInitialized() const {
 }
 
 int32_t OpenALAudioDeviceModule::StartRecording() {
+  for (const auto& [_, recorder] : _recorders) {
+    recorder->StartCapture();
+  }
+  ensureThreadStarted();
+  startCaptureOnThread();
+
   return 0;
 }
 
