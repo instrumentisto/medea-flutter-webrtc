@@ -39,6 +39,7 @@ class PeerConnectionProxy {
     self.id
   }
 
+  /// Returns `RtcStats` of this `PeerConnectionProxy`.
   func getStats() async throws -> RtcStats {
     return try await withCheckedThrowingContinuation { continuation in
       do {

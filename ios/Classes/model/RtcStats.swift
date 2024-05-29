@@ -1,6 +1,9 @@
+/// Representation of `RTCStatisticsReport`.
 class RtcStats {
+  /// List of all RTC stats reports converted to flat `Map`.
   var statsList: [[String: Any]] = []
 
+  /// Converts the provided `RTCStatisticsReport` into `RtcStats`.
   init(report: RTCStatisticsReport) {
     for (_, stats) in report.statistics {
       var statDetails: [String: Any] = [:]
@@ -16,6 +19,8 @@ class RtcStats {
     }
   }
 
+  /// Converts these `RtcStats` into a `Map` which can be returned to the
+  /// Flutter side.
   func asFlutterResult() -> [[String: Any]] {
     return self.statsList
   }
