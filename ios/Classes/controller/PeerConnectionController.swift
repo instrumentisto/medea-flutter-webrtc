@@ -143,22 +143,7 @@ class PeerConnectionController {
       Task {
         do {
           let report = try await self.peer.getStats()
-
-          var statsList: [[String: Any]] = []
-          for (_, stats) in report.statistics {
-            var statDetails: [String: Any] = [:]
-            statDetails["id"] = stats.id
-            statDetails["type"] = stats.type
-            statDetails["timestampUs"] = Int(stats.timestamp_us * 1000.0)
-
-            for (statName, statValue) in stats.values {
-              statDetails[statName] = statValue
-            }
-
-            statsList.append(statDetails)
-          }
-
-          self.sendResultFromTask(result, statsList)
+          self.sendResultFromTask(result, report.asFlutterResult())
         } catch {
           self.sendResultFromTask(result, getFlutterError(error))
         }

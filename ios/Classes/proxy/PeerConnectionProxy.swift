@@ -39,10 +39,10 @@ class PeerConnectionProxy {
     self.id
   }
 
-  func getStats() async throws -> RTCStatisticsReport {
+  func getStats() async throws -> RtcStats {
     return try await withCheckedThrowingContinuation { continuation in
       self.peer.statistics { (report: RTCStatisticsReport) in
-        continuation.resume(returning: report)
+        continuation.resume(returning: RtcStats(report: report))
       }
     }
   }
