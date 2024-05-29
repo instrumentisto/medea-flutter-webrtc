@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:flutter/services.dart';
 
@@ -456,6 +457,7 @@ class _PeerConnectionChannel extends PeerConnection {
   Future<List<RtcStats>> getStats() async {
     List<dynamic> stats = await _chan.invokeMethod('getStats');
     List<RtcStats> result = List.empty(growable: true);
+    // print(jsonEncode(stats));
 
     for (var s in stats) {
       var stat = RtcStats.fromMap(s);
