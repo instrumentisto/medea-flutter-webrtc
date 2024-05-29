@@ -39,6 +39,14 @@ class PeerConnectionProxy {
     self.id
   }
 
+  func getStats() async throws -> RTCStatisticsReport {
+    return try await withCheckedThrowingContinuation { continuation in
+      self.peer.statistics { (report: RTCStatisticsReport) in
+        continuation.resume(returning: report)
+      }
+    }
+  }
+
   /// Synchronizes and returns all the `RtpTransceiverProxy`s of this
   /// `PeerConnectionProxy`.
   func getTransceivers() -> [RtpTransceiverProxy] {
