@@ -9,7 +9,7 @@ class RtcStats {
       var statDetails: [String: Any] = [:]
       statDetails["id"] = stats.id
       statDetails["type"] = stats.type
-      statDetails["timestampUs"] = Int(stats.timestamp_us * 1000.0)
+      statDetails["timestampUs"] = Int(stats.timestamp_us)
 
       for (statName, statValue) in stats.values {
         statDetails[statName] = statValue
