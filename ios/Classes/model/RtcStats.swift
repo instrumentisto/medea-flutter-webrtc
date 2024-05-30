@@ -1,4 +1,4 @@
-/// Representation of `RTCStatisticsReport`.
+/// Representation of an `RTCStatisticsReport`.
 class RtcStats {
   /// List of all RTC stats reports converted to flat `Map`.
   var statsList: [[String: Any]] = []
