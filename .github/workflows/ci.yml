@@ -208,10 +208,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # TODO: Run tests on iOS.
         platform:
           - android
-#          - ios
+          - ios
           - linux
           - macos
           - windows
