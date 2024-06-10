@@ -16,7 +16,7 @@ class MediaDevices {
   init(state: State) {
     try! AVAudioSession.sharedInstance().setCategory(
       AVAudioSession.Category.playAndRecord,
-      options: AVAudioSession.CategoryOptions.allowBluetooth
+      options: AVAudioSession.CategoryOptions.defaultToSpeaker
     )
     try! AVAudioSession.sharedInstance().setActive(true)
     self.state = state
