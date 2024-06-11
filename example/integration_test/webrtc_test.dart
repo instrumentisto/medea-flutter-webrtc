@@ -1,3 +1,5 @@
+@Timeout(Duration(minutes: 3))
+
 import 'dart:async';
 import 'dart:io' show Platform;
 
