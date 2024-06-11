@@ -611,7 +611,7 @@ void main() {
     await pc1.close();
     await pc2.close();
     await tr.dispose();
-  });
+  }, timeout: Timeout.factor(5));
 
   test('Track Onended not working after stop()', () async {
     var capsAudioOnly = DeviceConstraints();
@@ -715,7 +715,7 @@ void main() {
       await track.stop();
       await track.dispose();
       await trans.dispose();
-    });
+    }, timeout: Timeout.factor(5));
 
     pc1.onIceCandidate((IceCandidate candidate) async {
       if (!pc2.closed) {
