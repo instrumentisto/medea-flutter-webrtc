@@ -6,7 +6,7 @@ import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';
 import 'package:integration_test/integration_test.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   setUpAll(() async {
     await enableFakeMedia();
@@ -654,6 +654,21 @@ void main() {
     var answer = await pc2.createAnswer();
     await pc2.setLocalDescription(answer);
     await pc1.setRemoteDescription(answer);
+
+    final int size = 500; // Size of the matrix
+    // Generate two matrices
+    List<List<int>> matrixA = List.generate(size, (_) => List.generate(size, (_) => Random().nextInt(100)));
+    List<List<int>> matrixB = List.generate(size, (_) => List.generate(size, (_) => Random().nextInt(100)));
+    List<List<int>> matrixC = List.generate(size, (_) => List.generate(size, (_) => 0));
+
+    // Perform matrix multiplication
+    for (int i = 0; i < size; i++) {
+      for (int j = 0; j < size; j++) {
+        for (int k = 0; k < size; k++) {
+          matrixC[i][j] += matrixA[i][k] * matrixB[k][j];
+        }
+      }
+    }
 
     expect(await track.state(), equals(MediaStreamTrackState.live));
 
