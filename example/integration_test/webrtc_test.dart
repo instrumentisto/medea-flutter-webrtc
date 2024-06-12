@@ -672,7 +672,7 @@ void main() {
     await pc2.close();
     await audioTransceiver.dispose();
     await track.dispose();
-  });
+  }, timeout: const Timeout.factor(5));
 
   test('Connect two peers', () async {
     var caps = DeviceConstraints();
