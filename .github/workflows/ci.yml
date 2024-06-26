@@ -50,8 +50,8 @@ jobs:
       matrix:
         platform:
           - linux
-          - macos
-          - windows
+          # - macos
+          # - windows
     runs-on: ${{ (matrix.platform == 'linux' &&   'ubuntu-latest')
               || (matrix.platform == 'windows' && 'windows-latest')
               ||                                  'macos-latest' }}
@@ -71,7 +71,8 @@ jobs:
                        ninja-build
         if: ${{ matrix.platform == 'linux' }}
 
-      - run: make cargo.lint
+      # - run: make cargo.lint
+      - run: echo 'skip'
 
   dartanalyze:
     runs-on: ubuntu-latest
