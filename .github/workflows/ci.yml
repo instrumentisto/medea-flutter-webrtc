@@ -50,8 +50,8 @@ jobs:
       matrix:
         platform:
           - linux
-          # - macos
-          # - windows
+          - macos
+          - windows
     runs-on: ${{ (matrix.platform == 'linux' &&   'ubuntu-latest')
               || (matrix.platform == 'windows' && 'windows-latest')
               ||                                  'macos-latest' }}
