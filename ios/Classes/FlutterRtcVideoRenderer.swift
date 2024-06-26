@@ -171,23 +171,23 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
     }
 
     let buffer = RTCI420Buffer(width: rotatedWidth, height: rotatedHeight)
-    libyuv_I420Rotate(
-      src.dataY,
-      src.strideY,
-      src.dataU,
-      src.strideU,
-      src.dataV,
-      src.strideV,
-      UnsafeMutablePointer(mutating: buffer.dataY),
-      buffer.strideY,
-      UnsafeMutablePointer(mutating: buffer.dataU),
-      buffer.strideU,
-      UnsafeMutablePointer(mutating: buffer.dataV),
-      buffer.strideV,
-      src.width,
-      src.height,
-      rotation
-    )
+    // libyuv_I420Rotate(
+    //   src.dataY,
+    //   src.strideY,
+    //   src.dataU,
+    //   src.strideU,
+    //   src.dataV,
+    //   src.strideV,
+    //   UnsafeMutablePointer(mutating: buffer.dataY),
+    //   buffer.strideY,
+    //   UnsafeMutablePointer(mutating: buffer.dataU),
+    //   buffer.strideU,
+    //   UnsafeMutablePointer(mutating: buffer.dataV),
+    //   buffer.strideV,
+    //   src.width,
+    //   src.height,
+    //   rotation
+    // )
     return buffer
   }
 
@@ -287,18 +287,18 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
     )
     let dst = CVPixelBufferGetBaseAddress(self.pixelBuffer!)!
     let bytesPerRow = CVPixelBufferGetBytesPerRow(self.pixelBuffer!)
-    libyuv_I420ToARGB(
-      buffer.dataY,
-      buffer.strideY,
-      buffer.dataU,
-      buffer.strideU,
-      buffer.dataV,
-      buffer.strideV,
-      UnsafeMutablePointer<UInt8>(OpaquePointer(dst)),
-      Int32(bytesPerRow),
-      buffer.width,
-      buffer.height
-    )
+    // libyuv_I420ToARGB(
+    //   buffer.dataY,
+    //   buffer.strideY,
+    //   buffer.dataU,
+    //   buffer.strideU,
+    //   buffer.dataV,
+    //   buffer.strideV,
+    //   UnsafeMutablePointer<UInt8>(OpaquePointer(dst)),
+    //   Int32(bytesPerRow),
+    //   buffer.width,
+    //   buffer.height
+    // )
     CVPixelBufferUnlockBaseAddress(
       self.pixelBuffer!,
       CVPixelBufferLockFlags(rawValue: 0)
