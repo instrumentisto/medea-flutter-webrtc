@@ -50,8 +50,8 @@ jobs:
       matrix:
         platform:
           - linux
-          - macos
-          - windows
+          # - macos
+          # - windows
     runs-on: ${{ (matrix.platform == 'linux' &&   'ubuntu-latest')
               || (matrix.platform == 'windows' && 'windows-latest')
               ||                                  'macos-latest' }}
@@ -139,7 +139,7 @@ jobs:
           - macos
           - windows
     runs-on: ${{ (matrix.platform == 'windows' && 'windows-latest')
-              || 'macos-11' }}
+              || 'macos-13' }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@v1
