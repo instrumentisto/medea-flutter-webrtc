@@ -1,5 +1,3 @@
-@Timeout(Duration(minutes: 3))
-
 import 'dart:async';
 import 'dart:io' show Platform;
 
@@ -14,7 +12,7 @@ void main() {
     await enableFakeMedia();
   });
 
-  test('Add transceiver', () async {
+  testWidgets('Add transceiver', (WidgetTester tester) async {
     var pc = await PeerConnection.create(IceTransportType.all, []);
     var trans = await pc.addTransceiver(
         MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
@@ -30,7 +28,7 @@ void main() {
     await trans.dispose();
   });
 
-  test('Add transceiver with simulcast', () async {
+  testWidgets('Add transceiver with simulcast', (WidgetTester tester) async {
     var pc = await PeerConnection.create(IceTransportType.all, []);
 
     var videoInit1 = RtpTransceiverInit(TransceiverDirection.sendOnly);
@@ -80,7 +78,7 @@ void main() {
     await videoTrans1.dispose();
   });
 
-  test('Get/set sender parameters', () async {
+  testWidgets('Get/set sender parameters', (WidgetTester tester) async {
     var pc = await PeerConnection.create(IceTransportType.all, []);
 
     var videoInit1 = RtpTransceiverInit(TransceiverDirection.sendOnly);
@@ -172,7 +170,7 @@ void main() {
     await videoTrans1.dispose();
   });
 
-  test('Correct codecs', () async {
+  testWidgets('Correct codecs', (WidgetTester tester) async {
     var server = IceServer(['stun:stun.l.google.com:19302']);
     var pc1 = await PeerConnection.create(IceTransportType.all, [server]);
 
@@ -210,7 +208,7 @@ void main() {
     await videoTransceiver.dispose();
   });
 
-  test('Video codec info', () async {
+  testWidgets('Video codec info', (WidgetTester tester) async {
     var decoders = await PeerConnection.videoDecoders();
     expect(
         decoders.where((dec) => dec.codec == VideoCodec.VP8).length, isNonZero);
@@ -240,7 +238,7 @@ void main() {
     }
   });
 
-  test('Get capabilities', () async {
+  testWidgets('Get capabilities', (WidgetTester tester) async {
     var capabilities = await RtpSender.getCapabilities(MediaKind.video);
 
     expect(
@@ -272,7 +270,7 @@ void main() {
     }
   });
 
-  test('SetCodecPreferences', () async {
+  testWidgets('SetCodecPreferences', (WidgetTester tester) async {
     var pc1 = await PeerConnection.create(IceTransportType.all, []);
     var pc2 = await PeerConnection.create(IceTransportType.all, []);
 
@@ -317,7 +315,7 @@ void main() {
     await vtrans.dispose();
   });
 
-  test('Get transceivers', () async {
+  testWidgets('Get transceivers', (WidgetTester tester) async {
     var pc = await PeerConnection.create(IceTransportType.all, []);
     var t1 = await pc.addTransceiver(
         MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
@@ -354,7 +352,7 @@ void main() {
     }
   });
 
-  test('Get transceiver direction', () async {
+  testWidgets('Get transceiver direction', (WidgetTester tester) async {
     var pc = await PeerConnection.create(IceTransportType.all, []);
     var trans = await pc.addTransceiver(
         MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
@@ -366,7 +364,7 @@ void main() {
     await trans.dispose();
   });
 
-  test('Set transceiver direction', () async {
+  testWidgets('Set transceiver direction', (WidgetTester tester) async {
     var pc = await PeerConnection.create(IceTransportType.all, []);
     var trans = await pc.addTransceiver(
         MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
@@ -391,7 +389,7 @@ void main() {
     await trans.dispose();
   });
 
-  test('Stop transceiver', () async {
+  testWidgets('Stop transceiver', (WidgetTester tester) async {
     var pc = await PeerConnection.create(IceTransportType.all, []);
     var trans = await pc.addTransceiver(
         MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
@@ -410,7 +408,7 @@ void main() {
     await trans.dispose();
   });
 
-  test('Get transceiver mid', () async {
+  testWidgets('Get transceiver mid', (WidgetTester tester) async {
     var pc = await PeerConnection.create(IceTransportType.all, []);
     var trans = await pc.addTransceiver(
         MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
@@ -426,7 +424,7 @@ void main() {
     await trans.dispose();
   });
 
-  test('Add Ice Candidate', () async {
+  testWidgets('Add Ice Candidate', (WidgetTester tester) async {
     var pc1 = await PeerConnection.create(IceTransportType.all, []);
     var pc2 = await PeerConnection.create(IceTransportType.all, []);
     final completer = Completer<void>();
@@ -466,7 +464,7 @@ void main() {
     await t.dispose();
   });
 
-  test('Restart Ice', () async {
+  testWidgets('Restart Ice', (WidgetTester tester) async {
     var pc1 = await PeerConnection.create(IceTransportType.all, []);
     var pc2 = await PeerConnection.create(IceTransportType.all, []);
 
@@ -515,7 +513,7 @@ void main() {
     await t.dispose();
   });
 
-  test('Ice state PeerConnection', () async {
+  testWidgets('Ice state PeerConnection', (WidgetTester tester) async {
     var pc1 = await PeerConnection.create(IceTransportType.all, []);
     var pc2 = await PeerConnection.create(IceTransportType.all, []);
 
@@ -563,7 +561,7 @@ void main() {
     await t.dispose();
   });
 
-  test('Peer connection event on track', () async {
+  testWidgets('Peer connection event on track', (WidgetTester tester) async {
     var pc1 = await PeerConnection.create(IceTransportType.all, []);
     var t = await pc1.addTransceiver(
         MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
@@ -584,7 +582,7 @@ void main() {
     await t.dispose();
   });
 
-  test('Track Onended', () async {
+  testWidgets('Track Onended', (WidgetTester tester) async {
     var pc1 = await PeerConnection.create(IceTransportType.all, []);
     var tr = await pc1.addTransceiver(
         MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
@@ -611,9 +609,10 @@ void main() {
     await pc1.close();
     await pc2.close();
     await tr.dispose();
-  }, timeout: const Timeout.factor(5));
+  });
 
-  test('Track Onended not working after stop()', () async {
+  testWidgets('Track Onended not working after stop()',
+      (WidgetTester tester) async {
     var capsAudioOnly = DeviceConstraints();
     capsAudioOnly.audio.mandatory = AudioConstraints();
 
@@ -672,9 +671,9 @@ void main() {
     await pc2.close();
     await audioTransceiver.dispose();
     await track.dispose();
-  }, timeout: const Timeout.factor(5));
+  });
 
-  test('Connect two peers', () async {
+  testWidgets('Connect two peers', (WidgetTester tester) async {
     var caps = DeviceConstraints();
     caps.audio.mandatory = AudioConstraints();
     caps.video.mandatory = DeviceVideoConstraints();
@@ -764,9 +763,9 @@ void main() {
     await audioTrack.dispose();
     await videoTransceiver.dispose();
     await audioTransceiver.dispose();
-  }, timeout: const Timeout.factor(5));
+  });
 
-  test('Clone track', () async {
+  testWidgets('Clone track', (WidgetTester tester) async {
     var caps = DeviceConstraints();
     caps.video.mandatory = DeviceVideoConstraints();
     caps.video.mandatory!.width = 640;
@@ -826,7 +825,7 @@ void main() {
     await cloneVideoTrack.dispose();
   });
 
-  test('Media stream constraints', () async {
+  testWidgets('Media stream constraints', (WidgetTester tester) async {
     var capsVideoDeviceOnly = DeviceConstraints();
     capsVideoDeviceOnly.video.mandatory = DeviceVideoConstraints();
     capsVideoDeviceOnly.video.mandatory!.width = 640;
@@ -872,7 +871,7 @@ void main() {
     }
   });
 
-  test('ICE transport types', () async {
+  testWidgets('ICE transport types', (WidgetTester tester) async {
     // IceTransportType.all, STUN server
     {
       var server =
@@ -959,7 +958,7 @@ void main() {
     }
   });
 
-  test('Set recv direction', () async {
+  testWidgets('Set recv direction', (WidgetTester tester) async {
     var pc = await PeerConnection.create(IceTransportType.all, []);
     // ignore: prefer_function_declarations_over_variables
     var testEnableRecv = (beforeDirection, afterDirection) async {
@@ -1010,7 +1009,7 @@ void main() {
     await pc.close();
   });
 
-  test('Set send direction', () async {
+  testWidgets('Set send direction', (WidgetTester tester) async {
     var pc = await PeerConnection.create(IceTransportType.all, []);
     // ignore: prefer_function_declarations_over_variables
     var testEnableRecv = (beforeDirection, afterDirection) async {
@@ -1061,7 +1060,8 @@ void main() {
     await pc.close();
   });
 
-  test('Handles still work after Peer close', () async {
+  testWidgets('Handles still work after Peer close',
+      (WidgetTester tester) async {
     var caps = DeviceConstraints();
     caps.audio.mandatory = AudioConstraints();
     caps.video.mandatory = DeviceVideoConstraints();
@@ -1127,7 +1127,7 @@ void main() {
     }
   });
 
-  test('Video dimensions', () async {
+  testWidgets('Video dimensions', (WidgetTester tester) async {
     // iOS simulator does not have camera
     if (!Platform.isIOS) {
       var caps = DeviceConstraints();
@@ -1165,7 +1165,8 @@ void main() {
     }
   });
 
-  test('on_track when peer has transceiver.', () async {
+  testWidgets('on_track when peer has transceiver.',
+      (WidgetTester tester) async {
     var pc1 = await PeerConnection.create(IceTransportType.all, []);
     var pc2 = await PeerConnection.create(IceTransportType.all, []);
 
@@ -1184,7 +1185,7 @@ void main() {
     await t2.dispose();
   });
 
-  test('Peer connection get stats.', () async {
+  testWidgets('Peer connection get stats.', (WidgetTester tester) async {
     var pc1 = await PeerConnection.create(IceTransportType.all, []);
     var pc2 = await PeerConnection.create(IceTransportType.all, []);
 
