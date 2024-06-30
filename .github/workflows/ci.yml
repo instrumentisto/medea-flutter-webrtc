@@ -265,6 +265,7 @@ jobs:
         with:
           os_version: '>=13.0'
           os: iOS
+          erase_before_boot: false
         if: ${{ matrix.platform == 'ios' }}
       - name: Test on `${{ matrix.platform }}` platform with simulator
         run: make flutter.test.mobile device=${{ steps.simulator.outputs.udid }}
