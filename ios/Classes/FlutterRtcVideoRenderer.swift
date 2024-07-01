@@ -171,24 +171,25 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
     }
 
     let buffer = RTCI420Buffer(width: rotatedWidth, height: rotatedHeight)
-    // libyuv_I420Rotate(
-    //   src.dataY,
-    //   src.strideY,
-    //   src.dataU,
-    //   src.strideU,
-    //   src.dataV,
-    //   src.strideV,
-    //   UnsafeMutablePointer(mutating: buffer.dataY),
-    //   buffer.strideY,
-    //   UnsafeMutablePointer(mutating: buffer.dataU),
-    //   buffer.strideU,
-    //   UnsafeMutablePointer(mutating: buffer.dataV),
-    //   buffer.strideV,
-    //   src.width,
-    //   src.height,
-    //   rotation
-    // )
-    return buffer
+    RTCYUVHelper.i420Rotate(
+      src.dataY,
+      srcStrideY: src.strideY,
+      srcU: src.dataU,
+      srcStrideU: src.strideU,
+      srcV: src.dataV,
+      srcStrideV: src.strideV,
+      dstY: UnsafeMutablePointer(mutating: buffer.dataY),
+      dstStrideY: buffer.strideY,
+      dstU: UnsafeMutablePointer(mutating: buffer.dataU),
+      dstStrideU: buffer.strideU,
+      dstV: UnsafeMutablePointer(mutating: buffer.dataV),
+      dstStrideV: buffer.strideV,
+      width: src.width,
+      height: src.height,
+      mode: rotation
+    )
+
+    return rotatedFrame
   }
 
   /// Sets the `MediaStreamTrackProxy` which will be rendered by this renderer.
@@ -287,18 +288,18 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
     )
     let dst = CVPixelBufferGetBaseAddress(self.pixelBuffer!)!
     let bytesPerRow = CVPixelBufferGetBytesPerRow(self.pixelBuffer!)
-    // libyuv_I420ToARGB(
-    //   buffer.dataY,
-    //   buffer.strideY,
-    //   buffer.dataU,
-    //   buffer.strideU,
-    //   buffer.dataV,
-    //   buffer.strideV,
-    //   UnsafeMutablePointer<UInt8>(OpaquePointer(dst)),
-    //   Int32(bytesPerRow),
-    //   buffer.width,
-    //   buffer.height
-    // )
+    RTCYUVHelper.i420Rotate(
+      buffer.dataY,
+      buffer.strideY,
+      buffer.dataU,
+      buffer.strideU,
+      buffer.dataV,
+      buffer.strideV,
+      UnsafeMutablePointer<UInt8>(OpaquePointer(dst)),
+      Int32(bytesPerRow),
+      buffer.width,
+      buffer.height
+    )
     CVPixelBufferUnlockBaseAddress(
       self.pixelBuffer!,
       CVPixelBufferLockFlags(rawValue: 0)
