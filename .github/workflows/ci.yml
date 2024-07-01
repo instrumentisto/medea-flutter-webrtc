@@ -50,8 +50,8 @@ jobs:
       matrix:
         platform:
           - linux
-          # - macos
-          # - windows
+          - macos
+          - windows
     runs-on: ${{ (matrix.platform == 'linux' &&   'ubuntu-latest')
               || (matrix.platform == 'windows' && 'windows-latest')
               ||                                  'macos-latest' }}
@@ -71,8 +71,7 @@ jobs:
                        ninja-build
         if: ${{ matrix.platform == 'linux' }}
 
-      # - run: make cargo.lint
-      - run: echo 'skip'
+      - run: make cargo.lint
 
   dartanalyze:
     runs-on: ubuntu-latest
@@ -217,7 +216,8 @@ jobs:
           - windows
     runs-on: ${{ (matrix.platform == 'linux' &&   'ubuntu-latest')
               || (matrix.platform == 'windows' && 'windows-latest')
-              ||                                  'macos-14' }}
+              || (matrix.platform == 'ios' && 'macos-14')
+              ||                              'macos-13' }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@v1
@@ -265,7 +265,6 @@ jobs:
         with:
           os_version: '>=13.0'
           os: iOS
-          erase_before_boot: true
         if: ${{ matrix.platform == 'ios' }}
       - name: Test on `${{ matrix.platform }}` platform with simulator
         run: make flutter.test.mobile device=${{ steps.simulator.outputs.udid }}
