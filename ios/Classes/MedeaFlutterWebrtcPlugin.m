@@ -1,5 +1,4 @@
 #import "MedeaFlutterWebrtcPlugin.h"
-// #include "libyuv.h"
 #if __has_include(<medea_flutter_webrtc/medea_flutter_webrtc-Swift.h>)
 #import <medea_flutter_webrtc/medea_flutter_webrtc-Swift.h>
 #else
