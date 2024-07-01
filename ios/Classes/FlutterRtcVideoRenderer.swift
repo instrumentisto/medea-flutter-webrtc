@@ -173,23 +173,22 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
     let buffer = RTCI420Buffer(width: rotatedWidth, height: rotatedHeight)
     RTCYUVHelper.i420Rotate(
       src.dataY,
-      srcStrideY: src.strideY,
-      srcU: src.dataU,
-      srcStrideU: src.strideU,
-      srcV: src.dataV,
-      srcStrideV: src.strideV,
-      dstY: UnsafeMutablePointer(mutating: buffer.dataY),
-      dstStrideY: buffer.strideY,
-      dstU: UnsafeMutablePointer(mutating: buffer.dataU),
-      dstStrideU: buffer.strideU,
-      dstV: UnsafeMutablePointer(mutating: buffer.dataV),
-      dstStrideV: buffer.strideV,
-      width: src.width,
-      height: src.height,
-      mode: rotation
+      src.strideY,
+      src.dataU,
+      src.strideU,
+      src.dataV,
+      src.strideV,
+      UnsafeMutablePointer(mutating: buffer.dataY),
+      buffer.strideY,
+      UnsafeMutablePointer(mutating: buffer.dataU),
+      buffer.strideU,
+      UnsafeMutablePointer(mutating: buffer.dataV),
+      buffer.strideV,
+      src.width,
+      src.height,
+      rotation
     )
-
-    return rotatedFrame
+    return buffer
   }
 
   /// Sets the `MediaStreamTrackProxy` which will be rendered by this renderer.
@@ -288,7 +287,7 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
     )
     let dst = CVPixelBufferGetBaseAddress(self.pixelBuffer!)!
     let bytesPerRow = CVPixelBufferGetBytesPerRow(self.pixelBuffer!)
-    RTCYUVHelper.i420Rotate(
+    RTCYUVHelper.I420ToARGB(
       buffer.dataY,
       buffer.strideY,
       buffer.dataU,
