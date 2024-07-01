@@ -448,7 +448,7 @@ pub mod linux_device_change {
             /// [PulseAudio]: https://freedesktop.org/wiki/Software/PulseAudio
             // It's not readed, but it's required to live for correct
             // destruction of a PulseAudio Context.
-            #[allow(clippy::dead_code)]
+            #[allow(dead_code)]
             pub context: Context,
 
             /// [PulseAudio] main loop.
