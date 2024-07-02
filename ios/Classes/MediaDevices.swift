@@ -16,9 +16,8 @@ class MediaDevices {
   init(state: State) {
     try! AVAudioSession.sharedInstance().setCategory(
       AVAudioSession.Category.playAndRecord,
-      options: AVAudioSession.CategoryOptions.defaultToSpeaker
+      options: AVAudioSession.CategoryOptions.allowBluetooth
     )
-    try! AVAudioSession.sharedInstance().setActive(true)
     self.state = state
     NotificationCenter.default.addObserver(
       forName: AVAudioSession.routeChangeNotification, object: nil,
