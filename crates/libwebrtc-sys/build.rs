@@ -23,7 +23,7 @@ use walkdir::{DirEntry, WalkDir};
 /// [`libwebrtc-bin`]: https://github.com/instrumentisto/libwebrtc-bin
 static LIBWEBRTC_URL: &str =
     "https://github.com/instrumentisto/libwebrtc-bin/releases/download\
-                                                    /126.0.6478.126";
+                                                    /126.0.6478.182";
 
 /// URL for downloading `openal-soft` source code.
 static OPENAL_URL: &str =
