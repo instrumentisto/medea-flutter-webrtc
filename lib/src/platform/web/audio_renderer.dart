@@ -1,4 +1,4 @@
-import 'dart:html' as html;
+import 'package:web/web.dart' as web;
 
 import '/src/model/track.dart';
 import '/src/platform/audio_renderer.dart';
@@ -25,8 +25,8 @@ class WebAudioRenderer extends AudioRenderer {
   /// Unique ID of this [WebAudioRenderer].
   final int _id;
 
-  /// [html.AudioElement] playing the [_srcObject].
-  html.AudioElement? _element;
+  /// [web.HTMLAudioElement] playing the [_srcObject].
+  web.HTMLAudioElement? _element;
 
   /// ID of the `audio` HTML element of this [WebAudioRenderer].
   String get _elementId => 'audio-renderer-$_id';
@@ -40,8 +40,8 @@ class WebAudioRenderer extends AudioRenderer {
     _element?.srcObject = null;
     _element?.remove();
     _element = null;
-    final audioManager = html.document.getElementById(_elementIdForAudioManager)
-        as html.DivElement?;
+    final audioManager = web.document.getElementById(_elementIdForAudioManager)
+        as web.HTMLDivElement?;
     if (audioManager != null && !audioManager.hasChildNodes()) {
       audioManager.remove();
     }
@@ -66,11 +66,11 @@ class WebAudioRenderer extends AudioRenderer {
 
     _srcObject = srcObject;
 
-    var stream = html.MediaStream();
+    var stream = web.MediaStream();
     stream.addTrack(srcObject.jsTrack);
 
     if (_element == null) {
-      _element = html.AudioElement()
+      _element = web.HTMLAudioElement()
         ..id = _elementId
         ..autoplay = true;
       _getAudioManagerDiv().append(_element!);
@@ -78,20 +78,20 @@ class WebAudioRenderer extends AudioRenderer {
     _element!.srcObject = stream;
   }
 
-  /// Returns the [html.DivElement] for the audio manager.
+  /// Returns the [web.HTMLDivElement] for the audio manager.
   ///
-  /// If [html.DivElement] doesn't exist, then creates and returns it.
-  html.DivElement _getAudioManagerDiv() {
-    var div = html.document.getElementById(_elementIdForAudioManager);
+  /// If [web.HTMLDivElement] doesn't exist, then creates and returns it.
+  web.HTMLDivElement _getAudioManagerDiv() {
+    var div = web.document.getElementById(_elementIdForAudioManager);
     if (div != null) {
-      return div as html.DivElement;
+      return div as web.HTMLDivElement;
     }
 
-    div = html.DivElement()
+    div = web.HTMLDivElement()
       ..id = _elementIdForAudioManager
       ..style.display = 'none';
-    html.document.body?.append(div);
+    web.document.body?.append(div);
 
-    return div as html.DivElement;
+    return div as web.HTMLDivElement;
   }
 }
