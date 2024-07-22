@@ -2,6 +2,7 @@
 
 import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
+
 import 'package:web/web.dart' as web;
 
 /// Configures media acquisition to use fake devices instead of actual camera
