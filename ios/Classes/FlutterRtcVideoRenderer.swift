@@ -185,7 +185,7 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
       dstV: UnsafeMutablePointer(mutating: buffer.dataV),
       dstStrideV: buffer.strideV,
       width: src.width,
-      width: src.height,
+      height: src.height,
       mode: rotation
     )
     return buffer
