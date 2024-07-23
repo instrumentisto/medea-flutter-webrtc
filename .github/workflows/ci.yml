@@ -260,8 +260,7 @@ jobs:
         if: ${{ matrix.platform == 'android' }}
 
       - name: Debug screenshot
-        run:
-          - (sleep 600; screencapture debugscreen_${{ matrix.runner }}.png) &
+        run: (sleep 600; screencapture debugscreen_${{ matrix.runner }}.png) &
         if: ${{ matrix.platform == 'ios' }}
 
       - name: Workaround macOS GHA permission issues
