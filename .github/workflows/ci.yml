@@ -259,9 +259,10 @@ jobs:
           script: make flutter.test.mobile
         if: ${{ matrix.platform == 'android' }}
 
-      - name: Grant microphone access
+      - name: Workaround macOS GHA permission issues
         run: |
           sqlite3 $HOME/Library/Application\ Support/com.apple.TCC/TCC.db "INSERT OR IGNORE INTO access VALUES ('kTCCServiceMicrophone','/usr/local/opt/runner/provisioner/provisioner',1,2,4,1,NULL,NULL,0,'UNUSED',NULL,0,1687786159,NULL,NULL,'UNUSED',1687786159);"
+          sqlite3 $HOME/Library/Application\ Support/com.apple.TCC/TCC.db "INSERT OR IGNORE INTO access VALUES ('kTCCServiceMicrophone','/opt/off/opt/runner/provisioner/provisioner',1,2,4,1,NULL,NULL,0,'UNUSED',NULL,0,1687786159,NULL,NULL,'UNUSED',1687786159);"
         if: ${{ matrix.platform == 'ios' }}
 
       - name: Start iOS simulator
