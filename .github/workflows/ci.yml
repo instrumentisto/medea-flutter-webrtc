@@ -259,10 +259,17 @@ jobs:
           script: make flutter.test.mobile
         if: ${{ matrix.platform == 'android' }}
 
+      - name: Debug screenshot
+        run:
+          - (sleep 600; screencapture debugscreen_${{ matrix.runner }}.png) &
+        if: ${{ matrix.platform == 'ios' }}
+
       - name: Workaround macOS GHA permission issues
         run: |
           sqlite3 $HOME/Library/Application\ Support/com.apple.TCC/TCC.db "INSERT OR IGNORE INTO access VALUES ('kTCCServiceMicrophone','/usr/local/opt/runner/provisioner/provisioner',1,2,4,1,NULL,NULL,0,'UNUSED',NULL,0,1687786159,NULL,NULL,'UNUSED',1687786159);"
           sqlite3 $HOME/Library/Application\ Support/com.apple.TCC/TCC.db "INSERT OR IGNORE INTO access VALUES ('kTCCServiceMicrophone','/opt/off/opt/runner/provisioner/provisioner',1,2,4,1,NULL,NULL,0,'UNUSED',NULL,0,1687786159,NULL,NULL,'UNUSED',1687786159);"
+          sqlite3 $HOME/Library/Application\ Support/com.apple.TCC/TCC.db "INSERT OR IGNORE INTO access VALUES ('kTCCServiceCamera','/usr/local/opt/runner/provisioner/provisioner',1,2,4,1,NULL,NULL,0,'UNUSED',NULL,0,1687786159,NULL,NULL,'UNUSED',1687786159);"
+          sqlite3 $HOME/Library/Application\ Support/com.apple.TCC/TCC.db "INSERT OR IGNORE INTO access VALUES ('kTCCServiceCamera','/opt/off/opt/runner/provisioner/provisioner',1,2,4,1,NULL,NULL,0,'UNUSED',NULL,0,1687786159,NULL,NULL,'UNUSED',1687786159);"
         if: ${{ matrix.platform == 'ios' }}
 
       - name: Start iOS simulator
@@ -285,6 +292,13 @@ jobs:
         run: make flutter.test.desktop device=${{ matrix.platform }}
         if: ${{ matrix.platform == 'macos'
              || matrix.platform == 'windows' }}
+
+      - name: Publish debug screenshot
+        if: ${{ matrix.platform == 'ios' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: debugscreen_${{ matrix.runner }}.png
+          path: debugscreen_${{ matrix.runner }}.png
 
 
 
