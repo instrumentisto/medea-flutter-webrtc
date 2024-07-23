@@ -18,10 +18,10 @@ class MediaDevices {
 //      AVAudioSession.Category.playAndRecord,
 //      options: AVAudioSession.CategoryOptions.allowBluetooth
 //    )
-         try! AVAudioSession.sharedInstance().setCategory(
-           AVAudioSession.Category.playAndRecord,
-           options: AVAudioSession.CategoryOptions.defaultToSpeaker
-         )
+    try! AVAudioSession.sharedInstance().setCategory(
+      AVAudioSession.Category.playAndRecord,
+      options: AVAudioSession.CategoryOptions.defaultToSpeaker
+    )
     try! AVAudioSession.sharedInstance().setActive(true)
     self.state = state
     NotificationCenter.default.addObserver(
