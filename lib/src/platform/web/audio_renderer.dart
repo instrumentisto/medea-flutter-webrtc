@@ -1,3 +1,6 @@
+import 'dart:js_interop';
+import 'dart:js_interop_unsafe';
+
 import 'package:web/web.dart' as web;
 
 import '/src/model/track.dart';
@@ -6,6 +9,31 @@ import '/src/platform/track.dart';
 import '/src/platform/web/media_stream_track.dart';
 
 // ignore_for_file: avoid_web_libraries_in_flutter
+
+/// Current global output audio sink ID.
+String? _outputAudioSinkId;
+
+/// Switches the current audio output sink of all [WebAudioRenderer]s to the
+/// provided [deviceId].
+void setOutputAudioSinkId(String deviceId) {
+  _outputAudioSinkId = deviceId;
+
+  final audioManager =
+      web.document.getElementById(WebAudioRenderer._elementIdForAudioManager)
+          as web.HTMLDivElement?;
+
+  if (audioManager != null) {
+    final children = audioManager.children;
+    for (int i = 0; i < children.length; ++i) {
+      final child = children.item(i);
+      if (child is web.HTMLAudioElement) {
+        // TODO: Replace when dart-lang/web#205 is fixed:
+        //       https://github.com/dart-lang/web/issues/205
+        child.callMethod('setSinkId'.toJS, deviceId.toJS);
+      }
+    }
+  }
+}
 
 /// Creates a new [AudioRenderer] for the web platform.
 AudioRenderer createPlatformSpecificAudioRenderer() {
@@ -16,7 +44,7 @@ class WebAudioRenderer extends AudioRenderer {
   /// Constructs a new [WebAudioRenderer].
   WebAudioRenderer() : _id = _textureCounter++;
 
-  /// HTML element ID for the audio manager's [html.DivElement].
+  /// HTML element ID for the audio manager's [web.HTMLDivElement].
   static const _elementIdForAudioManager = 'html_webrtc_audio_manager_list';
 
   /// Counter for the [_id].
@@ -60,7 +88,8 @@ class WebAudioRenderer extends AudioRenderer {
 
     if (srcObject.kind() != MediaKind.audio) {
       throw Exception(
-          "MediaStreamTracks with video kind isn't supported in AudioRenderer");
+        'MediaStreamTracks with video kind isn\'t supported in AudioRenderer',
+      );
     }
     srcObject as WebMediaStreamTrack;
 
@@ -74,6 +103,16 @@ class WebAudioRenderer extends AudioRenderer {
         ..id = _elementId
         ..autoplay = true;
       _getAudioManagerDiv().append(_element!);
+
+      try {
+        if (_outputAudioSinkId != null) {
+          // TODO: Replace when dart-lang/web#205 is fixed:
+          //       https://github.com/dart-lang/web/issues/205
+          _element?.callMethod('setSinkId'.toJS, _outputAudioSinkId!.toJS);
+        }
+      } catch (_) {
+        // No-op, as `setSinkId` might not be available in the browser.
+      }
     }
     _element!.srcObject = stream;
   }
