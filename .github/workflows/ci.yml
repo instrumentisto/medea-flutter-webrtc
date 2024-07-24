@@ -259,13 +259,45 @@ jobs:
           script: make flutter.test.mobile
         if: ${{ matrix.platform == 'android' }}
 
-      - name: Workaround macOS GHA permission issues
-        run: |
-          sqlite3 $HOME/Library/Application\ Support/com.apple.TCC/TCC.db "INSERT OR IGNORE INTO access VALUES ('kTCCServiceMicrophone','/usr/local/opt/runner/provisioner/provisioner',1,2,4,1,NULL,NULL,0,'UNUSED',NULL,0,1687786159,NULL,NULL,'UNUSED',1687786159);"
-          sqlite3 $HOME/Library/Application\ Support/com.apple.TCC/TCC.db "INSERT OR IGNORE INTO access VALUES ('kTCCServiceMicrophone','/opt/off/opt/runner/provisioner/provisioner',1,2,4,1,NULL,NULL,0,'UNUSED',NULL,0,1687786159,NULL,NULL,'UNUSED',1687786159);"
-          sqlite3 $HOME/Library/Application\ Support/com.apple.TCC/TCC.db "INSERT OR IGNORE INTO access VALUES ('kTCCServiceCamera','/usr/local/opt/runner/provisioner/provisioner',1,2,4,1,NULL,NULL,0,'UNUSED',NULL,0,1687786159,NULL,NULL,'UNUSED',1687786159);"
-          sqlite3 $HOME/Library/Application\ Support/com.apple.TCC/TCC.db "INSERT OR IGNORE INTO access VALUES ('kTCCServiceCamera','/opt/off/opt/runner/provisioner/provisioner',1,2,4,1,NULL,NULL,0,'UNUSED',NULL,0,1687786159,NULL,NULL,'UNUSED',1687786159);"
+#      - name: Workaround macOS GHA permission issues
+#        run: |
+#          sqlite3 $HOME/Library/Application\ Support/com.apple.TCC/TCC.db "INSERT OR IGNORE INTO access VALUES ('kTCCServiceMicrophone','/usr/local/opt/runner/provisioner/provisioner',1,2,4,1,NULL,NULL,0,'UNUSED',NULL,0,1687786159,NULL,NULL,'UNUSED',1687786159);"
+#          sqlite3 $HOME/Library/Application\ Support/com.apple.TCC/TCC.db "INSERT OR IGNORE INTO access VALUES ('kTCCServiceMicrophone','/opt/off/opt/runner/provisioner/provisioner',1,2,4,1,NULL,NULL,0,'UNUSED',NULL,0,1687786159,NULL,NULL,'UNUSED',1687786159);"
+#          sqlite3 $HOME/Library/Application\ Support/com.apple.TCC/TCC.db "INSERT OR IGNORE INTO access VALUES ('kTCCServiceCamera','/usr/local/opt/runner/provisioner/provisioner',1,2,4,1,NULL,NULL,0,'UNUSED',NULL,0,1687786159,NULL,NULL,'UNUSED',1687786159);"
+#          sqlite3 $HOME/Library/Application\ Support/com.apple.TCC/TCC.db "INSERT OR IGNORE INTO access VALUES ('kTCCServiceCamera','/opt/off/opt/runner/provisioner/provisioner',1,2,4,1,NULL,NULL,0,'UNUSED',NULL,0,1687786159,NULL,NULL,'UNUSED',1687786159);"
+      - name: Add TCC permissions on macOS
         if: ${{ matrix.platform == 'ios' }}
+        run: |
+          configure_user_tccdb () {
+          local values=$1
+          local dbPath="$HOME/Library/Application Support/com.apple.TCC/TCC.db"
+          local sqlQuery="INSERT OR REPLACE INTO access VALUES($values);"
+          sqlite3 "$dbPath" "$sqlQuery"
+          }
+          
+          configure_sys_tccdb () {
+          local values=$1
+          local dbPath="/Library/Application Support/com.apple.TCC/TCC.db"
+          local sqlQuery="INSERT OR REPLACE INTO access VALUES($values);"
+          sudo sqlite3 "$dbPath" "$sqlQuery"
+          }
+          
+          userValuesArray=(
+           "'kTCCServiceMicrophone','/usr/local/opt/runner/provisioner/provisioner',1,2,4,1,NULL,NULL,0,'UNUSED',NULL,0,1687786159"
+           "'kTCCServiceCamera','/usr/local/opt/runner/provisioner/provisioner',1,2,4,1,NULL,NULL,0,'UNUSED',NULL,0,1687786159"
+           "'kTCCServiceBluetoothAlways','/usr/local/opt/runner/provisioner/provisioner',1,2,4,1,NULL,NULL,0,'UNUSED',NULL,0,1687786159"
+          )
+          for values in "${userValuesArray[@]}"; do
+          # Sonoma and higher have a few extra values
+          # Ref: https://github.com/actions/runner-images/blob/main/images/macos/scripts/build/configure-tccdb-macos.sh
+          if [ "$OSTYPE" = "darwin23" ]; then
+           configure_user_tccdb "$values,NULL,NULL,'UNUSED',${values##*,}"
+           configure_sys_tccdb "$values,NULL,NULL,'UNUSED',${values##*,}"
+          else
+           configure_user_tccdb "$values"
+           configure_sys_tccdb "$values"
+          fi
+          done
 
       - name: Start iOS simulator
         id: simulator
