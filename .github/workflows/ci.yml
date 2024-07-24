@@ -259,9 +259,10 @@ jobs:
           script: make flutter.test.mobile
         if: ${{ matrix.platform == 'android' }}
 
-      - name: Debug screenshot
-        run: (sleep 600; screencapture debugscreen_${{ matrix.runner }}.png) &
-        if: ${{ matrix.platform == 'ios' }}
+      - name: Screenshot before running tests
+        uses: OrbitalOwen/desktop-screenshot-action@0.1
+        with:
+          file-name: 'before-test.jpg'
 
       - name: Workaround macOS GHA permission issues
         run: |
@@ -292,12 +293,11 @@ jobs:
         if: ${{ matrix.platform == 'macos'
              || matrix.platform == 'windows' }}
 
-      - name: Publish debug screenshot
+      - name: Screenshot on test failure
         if: ${{ matrix.platform == 'ios' || failure() }}
-        uses: actions/upload-artifact@v4
+        uses: OrbitalOwen/desktop-screenshot-action@0.1
         with:
-          name: debugscreen_${{ matrix.runner }}.png
-          path: debugscreen_${{ matrix.runner }}.png
+          file-name: 'test-failure.jpg'
 
 
 
