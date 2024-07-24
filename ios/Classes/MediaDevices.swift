@@ -14,13 +14,9 @@ class MediaDevices {
   /// Subscribes on `AVAudioSession.routeChangeNotification` notifications for
   /// `onDeviceChange` callback firing.
   init(state: State) {
-//    try! AVAudioSession.sharedInstance().setCategory(
-//      AVAudioSession.Category.playAndRecord,
-//      options: AVAudioSession.CategoryOptions.allowBluetooth
-//    )
     try! AVAudioSession.sharedInstance().setCategory(
       AVAudioSession.Category.playAndRecord,
-      options: AVAudioSession.CategoryOptions.defaultToSpeaker
+      options: AVAudioSession.CategoryOptions.allowBluetooth
     )
     try! AVAudioSession.sharedInstance().setActive(true)
     self.state = state
