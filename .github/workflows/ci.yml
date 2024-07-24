@@ -259,11 +259,6 @@ jobs:
           script: make flutter.test.mobile
         if: ${{ matrix.platform == 'android' }}
 
-      - name: Screenshot before running tests
-        uses: OrbitalOwen/desktop-screenshot-action@0.1
-        with:
-          file-name: 'before-test.jpg'
-
       - name: Workaround macOS GHA permission issues
         run: |
           sqlite3 $HOME/Library/Application\ Support/com.apple.TCC/TCC.db "INSERT OR IGNORE INTO access VALUES ('kTCCServiceMicrophone','/usr/local/opt/runner/provisioner/provisioner',1,2,4,1,NULL,NULL,0,'UNUSED',NULL,0,1687786159,NULL,NULL,'UNUSED',1687786159);"
@@ -279,6 +274,10 @@ jobs:
           os_version: '>=13.0'
           os: iOS
         if: ${{ matrix.platform == 'ios' }}
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+
       - name: Test on `${{ matrix.platform }}` platform with simulator
         run: make flutter.test.mobile device=${{ steps.simulator.outputs.udid }}
                                       debug=yes
@@ -292,13 +291,6 @@ jobs:
         run: make flutter.test.desktop device=${{ matrix.platform }}
         if: ${{ matrix.platform == 'macos'
              || matrix.platform == 'windows' }}
-
-      - name: Screenshot on test failure
-        if: ${{ matrix.platform == 'ios' || failure() }}
-        uses: OrbitalOwen/desktop-screenshot-action@0.1
-        with:
-          file-name: 'test-failure.jpg'
-
 
 
 #
