@@ -271,7 +271,8 @@ jobs:
         id: simulator
         uses: futureware-tech/simulator-action@v3
         with:
-          os_version: '>=13.0'
+#          os_version: '>=13.0'
+          udid: '534077E9-980C-4BC6-A2A0-DC72EB6D8E93'
           os: iOS
         if: ${{ matrix.platform == 'ios' }}
 
