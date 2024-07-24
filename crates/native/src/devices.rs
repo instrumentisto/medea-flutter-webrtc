@@ -446,7 +446,7 @@ pub mod linux_device_change {
             /// [PulseAudio] context.
             ///
             /// [PulseAudio]: https://freedesktop.org/wiki/Software/PulseAudio
-            pub context: Context,
+            pub _context: Context,
 
             /// [PulseAudio] main loop.
             ///
@@ -526,7 +526,10 @@ pub mod linux_device_change {
                     | InterestMaskSet::SERVER;
                 context.subscribe(mask, |_| {});
 
-                Ok(Self { context, main_loop })
+                Ok(Self {
+                    _context: context,
+                    main_loop,
+                })
             }
         }
     }

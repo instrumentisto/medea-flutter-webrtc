@@ -5,8 +5,7 @@ import 'package:flutter/material.dart';
 import 'src/create_peer_connection.dart';
 import 'src/get_display_media.dart';
 import 'src/get_sources.dart';
-import 'src/get_user_media.dart'
-    if (dart.library.js_interop) 'src/get_user_media_sample_web.dart';
+import 'src/get_user_media.dart';
 import 'src/loopback.dart';
 import 'src/on_device_change.dart';
 import 'src/video_codec_info.dart';
