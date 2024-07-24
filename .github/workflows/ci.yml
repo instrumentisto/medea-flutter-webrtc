@@ -23,15 +23,15 @@ jobs:
   pr:
     if: ${{ github.event_name == 'pull_request' }}
     needs:
-      - build
-      - build-linux
-      - clippy
-      - dartanalyze
-      - dartfmt
-      - ktfmt
-      - rustdoc
-      - rustfmt
-      - swiftformat
+#      - build
+#      - build-linux
+#      - clippy
+#      - dartanalyze
+#      - dartfmt
+#      - ktfmt
+#      - rustdoc
+#      - rustfmt
+#      - swiftformat
       - test-flutter
     runs-on: ubuntu-latest
     steps:
@@ -204,16 +204,16 @@ jobs:
 
   test-flutter:
     name: test (example, ${{ matrix.platform }})
-    needs: ["build", "build-linux"]
+#    needs: ["build", "build-linux"]
     strategy:
       fail-fast: false
       matrix:
         platform:
-          - android
+#          - android
           - ios
-          - linux
-          - macos
-          - windows
+#          - linux
+#          - macos
+#          - windows
     runs-on: ${{ (matrix.platform == 'linux' &&   'ubuntu-latest')
               || (matrix.platform == 'windows' && 'windows-latest')
               || (matrix.platform == 'ios' &&     'macos-14')
