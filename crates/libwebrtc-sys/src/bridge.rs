@@ -2605,7 +2605,6 @@ pub(crate) mod webrtc {
         ) -> RtpTransceiverDirection;
     }
 
-    #[allow(clippy::missing_safety_doc)] // in generated code
     unsafe extern "C++" {
         pub type AudioSourceInterface;
         pub type AudioTrackInterface;
