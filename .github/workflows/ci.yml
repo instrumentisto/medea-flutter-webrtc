@@ -138,7 +138,7 @@ jobs:
           - macos
           - windows
     runs-on: ${{ (matrix.platform == 'windows' && 'windows-latest')
-              || 'macos-11' }}
+              || 'macos-12' }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@v1
