@@ -23,7 +23,7 @@ All user visible changes to this project will be documented in this file. This p
 
 - Upgraded [libwebrtc] to [126.0.6478.182-r2] version. ([#155], [#162])
 - Disable [H264] software encoders and decoders. ([#153])
-- Migrated from [`dart:html`] to [`package:web`] package. ([#164])
+- Migrated from [`dart:html`] to [`package:web`]. ([#164])
 
 ### Fixed
 

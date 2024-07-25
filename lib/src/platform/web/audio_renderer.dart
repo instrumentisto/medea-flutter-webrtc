@@ -27,7 +27,7 @@ void setOutputAudioSinkId(String deviceId) {
     for (int i = 0; i < children.length; ++i) {
       final child = children.item(i);
       if (child is web.HTMLAudioElement) {
-        // TODO: Replace when dart-lang/web#205 is fixed:
+        // TODO: Replace once dart-lang/web#205 is fixed:
         //       https://github.com/dart-lang/web/issues/205
         child.callMethod('setSinkId'.toJS, deviceId.toJS);
       }
@@ -106,7 +106,7 @@ class WebAudioRenderer extends AudioRenderer {
 
       try {
         if (_outputAudioSinkId != null) {
-          // TODO: Replace when dart-lang/web#205 is fixed:
+          // TODO: Replace once dart-lang/web#205 is fixed:
           //       https://github.com/dart-lang/web/issues/205
           _element?.callMethod('setSinkId'.toJS, _outputAudioSinkId!.toJS);
         }
