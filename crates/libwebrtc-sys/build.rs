@@ -90,7 +90,7 @@ fn main() -> anyhow::Result<()> {
         build.flag("-DWEBRTC_WIN").flag("/std:c++20");
     }
 
-    #[cfg(feature = "fake_media")]
+    #[cfg(feature = "fake-media")]
     {
         build.flag("-DFAKE_MEDIA");
     }
