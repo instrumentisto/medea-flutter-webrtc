@@ -52,8 +52,6 @@ fn main() -> anyhow::Result<()> {
         .include(libpath.join("include"))
         .include(libpath.join("include/third_party/abseil-cpp"))
         .include(libpath.join("include/third_party/libyuv/include"))
-        .include(libpath.join("include/third_party/perfetto/include"))
-        .include(libpath.join("include/third_party/perfetto/src"))
         .flag("-DNOMINMAX");
 
     #[cfg(target_os = "windows")]
