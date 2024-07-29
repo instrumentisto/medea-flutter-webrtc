@@ -65,14 +65,8 @@ class PeerObserver : PeerConnection.Observer {
   override fun onTrack(transceiver: RtpTransceiver?) {
     if (transceiver != null && peer != null) {
       if (!peer!!.disposed) {
+        val receiverId = transceiver.receiver.id()
         Handler(Looper.getMainLooper()).post {
-          val receiverId: String
-          try {
-            receiverId = transceiver.receiver.id()
-          } catch (e: IllegalStateException) {
-            // Receiver is dead already - exit callback.
-            return@post
-          }
           val transceivers = peer?.getTransceivers()!!
           for (trans in transceivers) {
             if (trans.receiver.id == receiverId) {
