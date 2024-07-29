@@ -66,10 +66,16 @@ class PeerObserver : PeerConnection.Observer {
     if (transceiver != null && peer != null) {
       if (!peer!!.disposed) {
         Handler(Looper.getMainLooper()).post {
-          val receiver = transceiver.receiver
+          val receiverId: String
+          try {
+            receiverId = transceiver.receiver.id()
+          } catch (e: IllegalStateException) {
+            // Receiver is dead already - exit callback.
+            return@post
+          }
           val transceivers = peer?.getTransceivers()!!
           for (trans in transceivers) {
-            if (trans.receiver.id == receiver.id()) {
+            if (trans.receiver.id == receiverId) {
               peer?.observableEventBroadcaster()?.onTrack(trans.receiver.track, trans)
             }
           }
