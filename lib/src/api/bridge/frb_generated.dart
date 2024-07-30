@@ -105,7 +105,7 @@ abstract class RustLibApi extends BaseApi {
       {required PlatformInt64 sinkId,
       int? peerId,
       required String trackId,
-      required BigInt callbackPtr,
+      required PlatformInt64 callbackPtr,
       required PlatformInt64 textureId});
 
   Future<void> crateApiDisposePeerConnection({required ArcPeerConnection peer});
@@ -445,7 +445,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       {required PlatformInt64 sinkId,
       int? peerId,
       required String trackId,
-      required BigInt callbackPtr,
+      required PlatformInt64 callbackPtr,
       required PlatformInt64 textureId}) {
     final cb = RustStreamSink<TextureEvent>();
     unawaited(handler.executeNormal(NormalTask(
@@ -455,7 +455,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         sse_encode_i_64(sinkId, serializer);
         sse_encode_opt_box_autoadd_u_32(peerId, serializer);
         sse_encode_String(trackId, serializer);
-        sse_encode_u_64(callbackPtr, serializer);
+        sse_encode_i_64(callbackPtr, serializer);
         sse_encode_i_64(textureId, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
             funcId: 7, port: port_);

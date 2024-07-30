@@ -320,7 +320,7 @@ fn wire__crate__api__create_video_sink_impl(
             let api_sink_id = <i64>::sse_decode(&mut deserializer);
             let api_peer_id = <Option<u32>>::sse_decode(&mut deserializer);
             let api_track_id = <String>::sse_decode(&mut deserializer);
-            let api_callback_ptr = <u64>::sse_decode(&mut deserializer);
+            let api_callback_ptr = <i64>::sse_decode(&mut deserializer);
             let api_texture_id = <i64>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {

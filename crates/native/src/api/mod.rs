@@ -2954,7 +2954,7 @@ pub fn create_video_sink(
     sink_id: i64,
     peer_id: Option<u32>,
     track_id: String,
-    callback_ptr: u64,
+    callback_ptr: i64,
     texture_id: i64,
 ) -> anyhow::Result<()> {
     let handler = FrameHandler::new(callback_ptr as _, cb, texture_id);

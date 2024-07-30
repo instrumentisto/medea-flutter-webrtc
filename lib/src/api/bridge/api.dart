@@ -312,7 +312,7 @@ Stream<TextureEvent> createVideoSink(
         {required PlatformInt64 sinkId,
         int? peerId,
         required String trackId,
-        required BigInt callbackPtr,
+        required PlatformInt64 callbackPtr,
         required PlatformInt64 textureId}) =>
     RustLib.instance.api.crateApiCreateVideoSink(
         sinkId: sinkId,
