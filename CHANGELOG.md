@@ -21,7 +21,7 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Changed
 
-- Upgraded [libwebrtc] to [127.0.6533.72] version. ([#166])
+- Upgraded [libwebrtc] to [127.0.6533.72] version. ([#155], [#162], [#166])
 - Disable [H264] software encoders and decoders. ([#153])
 - Migrated from [`dart:html`] to [`package:web`]. ([#164])
 
@@ -44,7 +44,9 @@ All user visible changes to this project will be documented in this file. This p
 [#149]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/149
 [#151]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/151
 [#153]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/153
+[#155]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/155
 [#156]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/156
+[#162]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/162
 [#164]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/164
 [#165]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/165
 [#166]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/166
