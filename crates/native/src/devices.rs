@@ -118,7 +118,7 @@ impl DeviceState {
 
     /// Triggers the [`OnDeviceChangeCallback`].
     fn on_device_change(&mut self) {
-        self.cb.add(());
+        _ = self.cb.add(());
     }
 }
 

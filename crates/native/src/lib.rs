@@ -2,11 +2,17 @@
 
 mod api;
 #[allow(
+    clippy::cast_lossless,
+    clippy::cast_possible_truncation,
+    clippy::cast_possible_wrap,
     clippy::default_trait_access,
     clippy::let_underscore_untyped,
     clippy::ptr_as_ptr,
+    clippy::redundant_else,
     clippy::semicolon_if_nothing_returned,
     clippy::too_many_lines,
+    clippy::uninlined_format_args,
+    clippy::unreadable_literal,
     clippy::wildcard_imports,
     let_underscore_drop
 )]

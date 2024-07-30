@@ -41,7 +41,8 @@ impl Webrtc {
         )?;
         obs.add(api::PeerConnectionEvent::PeerCreated {
             peer: RustOpaque::new(peer),
-        });
+        })
+        .map_err(|e| anyhow!(e))?;
 
         Ok(())
     }
@@ -1095,17 +1096,17 @@ struct PeerConnectionObserver {
 
 impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
     fn on_signaling_change(&mut self, new_state: sys::SignalingState) {
-        self.observer
-            .lock()
-            .unwrap()
-            .add(api::PeerConnectionEvent::SignallingChange(new_state.into()));
+        _ =
+            self.observer.lock().unwrap().add(
+                api::PeerConnectionEvent::SignallingChange(new_state.into()),
+            );
     }
 
     fn on_standardized_ice_connection_change(
         &mut self,
         new_state: sys::IceConnectionState,
     ) {
-        self.observer.lock().unwrap().add(
+        _ = self.observer.lock().unwrap().add(
             api::PeerConnectionEvent::IceConnectionStateChange(
                 new_state.into(),
             ),
@@ -1113,19 +1114,20 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
     }
 
     fn on_connection_change(&mut self, new_state: sys::PeerConnectionState) {
-        self.observer.lock().unwrap().add(
+        _ = self.observer.lock().unwrap().add(
             api::PeerConnectionEvent::ConnectionStateChange(new_state.into()),
         );
     }
 
     fn on_ice_gathering_change(&mut self, new_state: sys::IceGatheringState) {
-        self.observer.lock().unwrap().add(
+        _ = self.observer.lock().unwrap().add(
             api::PeerConnectionEvent::IceGatheringStateChange(new_state.into()),
         );
     }
 
     fn on_negotiation_needed_event(&mut self, _: u32) {
-        self.observer
+        _ = self
+            .observer
             .lock()
             .unwrap()
             .add(api::PeerConnectionEvent::NegotiationNeeded);
@@ -1139,7 +1141,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
         error_code: i32,
         error_text: &CxxString,
     ) {
-        self.observer.lock().unwrap().add(
+        _ = self.observer.lock().unwrap().add(
             api::PeerConnectionEvent::IceCandidateError {
                 address: address.to_string(),
                 port,
@@ -1155,7 +1157,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
     }
 
     fn on_ice_candidate(&mut self, candidate: sys::IceCandidateInterface) {
-        self.observer.lock().unwrap().add(
+        _ = self.observer.lock().unwrap().add(
             api::PeerConnectionEvent::IceCandidate {
                 sdp_mid: candidate.mid(),
                 sdp_mline_index: candidate.mline_index(),
@@ -1254,7 +1256,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
                     },
                 };
 
-                observer
+                _ = observer
                     .lock()
                     .unwrap()
                     .add(api::PeerConnectionEvent::Track(result));

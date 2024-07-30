@@ -2524,7 +2524,7 @@ pub fn create_peer_connection(
     WEBRTC
         .lock()
         .unwrap()
-        .create_peer_connection(&(cb.into()), configuration)
+        .create_peer_connection(&cb, configuration)
 }
 
 /// Initiates the creation of an SDP offer for the purpose of starting a new
@@ -2914,7 +2914,7 @@ pub fn register_track_observer(
         track_id,
         track_origin,
         kind,
-        cb.into(),
+        cb,
     )
 }
 
@@ -2939,10 +2939,8 @@ pub fn set_audio_level_observer_enabled(
 /// Only one callback can be set at a time, so the previous one will be dropped,
 /// if any.
 pub fn set_on_device_changed(cb: StreamSink<()>) -> anyhow::Result<()> {
-    let device_state = DeviceState::new(
-        cb.into(),
-        &mut WEBRTC.lock().unwrap().task_queue_factory,
-    )?;
+    let device_state =
+        DeviceState::new(cb, &mut WEBRTC.lock().unwrap().task_queue_factory)?;
     Webrtc::set_on_device_changed(device_state);
     Ok(())
 }
@@ -2959,7 +2957,7 @@ pub fn create_video_sink(
     callback_ptr: u64,
     texture_id: i64,
 ) -> anyhow::Result<()> {
-    let handler = FrameHandler::new(callback_ptr as _, cb.into(), texture_id);
+    let handler = FrameHandler::new(callback_ptr as _, cb, texture_id);
     let track_origin = TrackOrigin::from(peer_id.map(PeerConnectionId::from));
 
     WEBRTC.lock().unwrap().create_video_sink(

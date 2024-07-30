@@ -306,11 +306,6 @@ endif
 		--dart-output=lib/src/api/bridge \
 		--no-web
 
-#	sed -i$(if $(call eq,$(CURRENT_OS),macos), '',) \
-#		's/^pub use io::\*;$$/pub use self::io::*;/' \
-#		crates/native/src/bridge_generated.rs
-	flutter pub run build_runner build --delete-conflicting-outputs
-
 
 # Lint Rust sources with Clippy.
 #
