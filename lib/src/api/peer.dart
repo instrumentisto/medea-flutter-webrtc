@@ -3,6 +3,9 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 
+import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
+import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
+
 import '../model/stats.dart';
 import '/src/model/ice.dart';
 import '/src/model/peer.dart';
@@ -11,12 +14,27 @@ import '/src/model/track.dart';
 import '/src/model/transceiver.dart';
 import '/src/platform/native/media_stream_track.dart';
 import 'bridge/api.dart' as ffi;
+import 'bridge/frb_generated.dart';
 import 'bridge/lib.dart';
 import 'channel.dart';
 import 'transceiver.dart';
 
 /// Checks whether the running platform is a desktop.
 bool isDesktop = Platform.isWindows || Platform.isLinux || Platform.isMacOS;
+
+/// Opens the dynamic library and instantiates ffi bridge to Rust side.
+Future<void> initBridge() async {
+  if (!isDesktop) {
+    return;
+  }
+
+  const stem = 'medea_flutter_webrtc_native';
+
+  var lib = await loadExternalLibrary(const ExternalLibraryLoaderConfig(
+      stem: stem, ioDirectory: '', webPrefix: ''));
+
+  await RustLib.init(externalLibrary: lib);
+}
 
 /// Shortcut for the `on_track` callback.
 typedef OnTrackCallback = void Function(NativeMediaStreamTrack, RtpTransceiver);
