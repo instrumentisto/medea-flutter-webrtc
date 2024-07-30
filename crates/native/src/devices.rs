@@ -28,7 +28,7 @@ use windows::{
 
 use crate::{
     api,
-    stream_sink::StreamSink,
+    frb_generated::StreamSink,
     user_media::{AudioDeviceId, VideoDeviceId},
     AudioDeviceModule, Webrtc,
 };

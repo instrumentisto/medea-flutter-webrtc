@@ -11,14 +11,13 @@ use anyhow::anyhow;
 use cxx::{CxxString, CxxVector};
 use dashmap::DashMap;
 use derive_more::{Display, From, Into};
-use flutter_rust_bridge::RustOpaque;
 use libwebrtc_sys as sys;
 use threadpool::ThreadPool;
 
 use crate::{
     api::{self, RtpCodecCapability, RtpTransceiverInit},
+    frb_generated::{RustOpaque, StreamSink},
     next_id,
-    stream_sink::StreamSink,
     user_media::TrackOrigin,
     AudioTrack, AudioTrackId, VideoTrack, VideoTrackId, Webrtc,
 };
@@ -40,8 +39,9 @@ impl Webrtc {
             configuration,
             self.callback_pool.clone(),
         )?;
-        let peer = RustOpaque::from(Arc::new(peer));
-        obs.add(api::PeerConnectionEvent::PeerCreated { peer });
+        obs.add(api::PeerConnectionEvent::PeerCreated {
+            peer: RustOpaque::new(peer),
+        });
 
         Ok(())
     }
@@ -229,7 +229,7 @@ impl Webrtc {
 
 /// ID of a [`PeerConnection`].
 #[derive(Clone, Copy, Debug, Display, Eq, From, Hash, Into, PartialEq)]
-pub struct PeerConnectionId(u64);
+pub struct PeerConnectionId(u32);
 
 /// Wrapper around a [`sys::PeerConnectionInterface`] with a unique ID.
 pub struct PeerConnection {

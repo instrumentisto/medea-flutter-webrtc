@@ -15,9 +15,10 @@ use sys::AudioProcessing;
 use xxhash::xxh3::xxh3_64;
 
 use crate::{
-    api, devices, next_id,
+    api, devices,
+    frb_generated::StreamSink,
+    next_id,
     pc::{PeerConnectionId, RtpTransceiver},
-    stream_sink::StreamSink,
     PeerConnection, VideoSink, VideoSinkId, Webrtc,
 };
 

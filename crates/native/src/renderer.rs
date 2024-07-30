@@ -2,7 +2,7 @@
 
 use libwebrtc_sys as sys;
 
-use crate::stream_sink::StreamSink;
+use crate::frb_generated::StreamSink;
 
 pub use frame_handler::FrameHandler;
 
@@ -105,8 +105,8 @@ mod frame_handler {
     use libwebrtc_sys as sys;
 
     use crate::{
+        frb_generated::StreamSink,
         renderer::{TextureEvent, TextureEventNotifier},
-        stream_sink::StreamSink,
     };
 
     pub use cpp_api_bindings::{OnFrameCallbackInterface, VideoFrame};

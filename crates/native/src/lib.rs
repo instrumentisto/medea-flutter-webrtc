@@ -11,18 +11,17 @@ mod api;
     let_underscore_drop
 )]
 #[rustfmt::skip]
-mod bridge_generated;
+mod frb_generated;
 mod devices;
 mod pc;
 mod renderer;
-mod stream_sink;
 mod user_media;
 mod video_sink;
 
 use std::{
     collections::HashMap,
     sync::{
-        atomic::{AtomicU64, Ordering},
+        atomic::{AtomicU32, Ordering},
         Arc,
     },
 };
@@ -47,10 +46,10 @@ pub use crate::{
 };
 
 /// Counter used to generate unique IDs.
-static ID_COUNTER: AtomicU64 = AtomicU64::new(1);
+static ID_COUNTER: AtomicU32 = AtomicU32::new(1);
 
 /// Returns a next unique ID.
-pub(crate) fn next_id() -> u64 {
+pub(crate) fn next_id() -> u32 {
     ID_COUNTER.fetch_add(1, Ordering::Relaxed)
 }
 
