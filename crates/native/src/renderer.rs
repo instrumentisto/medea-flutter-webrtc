@@ -245,8 +245,8 @@ mod frame_handler {
     use libwebrtc_sys as sys;
 
     use crate::{
+        frb_generated::StreamSink,
         renderer::{TextureEvent, TextureEventNotifier},
-        stream_sink::StreamSink,
     };
 
     /// Handler for a [`sys::VideoFrame`]s renderer.
