@@ -13,7 +13,7 @@ import 'src/video_codec_info.dart';
 import 'src/route_item.dart';
 
 void main() async {
-  await initBridge();
+  await initFfiBridge();
 
   runApp(const MyApp());
 }

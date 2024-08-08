@@ -9,7 +9,7 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   setUpAll(() async {
-    await initBridge();
+    await initFfiBridge();
     await enableFakeMedia();
   });
 

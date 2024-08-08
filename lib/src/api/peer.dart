@@ -22,15 +22,19 @@ import 'transceiver.dart';
 bool isDesktop = Platform.isWindows || Platform.isLinux || Platform.isMacOS;
 
 /// Opens the dynamic library and instantiates ffi bridge to Rust side.
-Future<void> initBridge() async {
+Future<void> initFfiBridge() async {
   if (!isDesktop) {
     return;
   }
+  if (RustLib.instance.initialized) {
+    return;
+  }
 
-  const stem = 'medea_flutter_webrtc_native';
-
-  var lib = await loadExternalLibrary(const ExternalLibraryLoaderConfig(
-      stem: stem, ioDirectory: '', webPrefix: ''));
+  const base = 'medea_flutter_webrtc_native';
+  final path = Platform.isWindows ? '$base.dll' : 'lib$base.so';
+  late final lib = Platform.isMacOS
+      ? ExternalLibrary.process(iKnowHowToUseIt: true)
+      : ExternalLibrary.open(path);
 
   await RustLib.init(externalLibrary: lib);
 }
