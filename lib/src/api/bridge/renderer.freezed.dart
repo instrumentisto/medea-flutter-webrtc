@@ -65,7 +65,9 @@ mixin _$TextureEvent {
   }) =>
       throw _privateConstructorUsedError;
 
-  @JsonKey(ignore: true)
+  /// Create a copy of TextureEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $TextureEventCopyWith<TextureEvent> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -89,6 +91,8 @@ class _$TextureEventCopyWithImpl<$Res, $Val extends TextureEvent>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of TextureEvent
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -124,6 +128,8 @@ class __$$TextureEvent_OnTextureChangeImplCopyWithImpl<$Res>
       $Res Function(_$TextureEvent_OnTextureChangeImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of TextureEvent
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -201,7 +207,9 @@ class _$TextureEvent_OnTextureChangeImpl extends TextureEvent_OnTextureChange {
   int get hashCode =>
       Object.hash(runtimeType, textureId, width, height, rotation);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of TextureEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$TextureEvent_OnTextureChangeImplCopyWith<
@@ -288,9 +296,8 @@ abstract class TextureEvent_OnTextureChange extends TextureEvent {
       required final int rotation}) = _$TextureEvent_OnTextureChangeImpl;
   const TextureEvent_OnTextureChange._() : super._();
 
-  @override
-
   /// ID of the texture.
+  @override
   int get textureId;
 
   /// Width of the last processed frame.
@@ -301,8 +308,11 @@ abstract class TextureEvent_OnTextureChange extends TextureEvent {
 
   /// Rotation of the last processed frame.
   int get rotation;
+
+  /// Create a copy of TextureEvent
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$TextureEvent_OnTextureChangeImplCopyWith<
           _$TextureEvent_OnTextureChangeImpl>
       get copyWith => throw _privateConstructorUsedError;
@@ -330,6 +340,8 @@ class __$$TextureEvent_OnFirstFrameRenderedImplCopyWithImpl<$Res>
       $Res Function(_$TextureEvent_OnFirstFrameRenderedImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of TextureEvent
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -372,7 +384,9 @@ class _$TextureEvent_OnFirstFrameRenderedImpl
   @override
   int get hashCode => Object.hash(runtimeType, textureId);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of TextureEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$TextureEvent_OnFirstFrameRenderedImplCopyWith<
@@ -456,12 +470,14 @@ abstract class TextureEvent_OnFirstFrameRendered extends TextureEvent {
       {required final int textureId}) = _$TextureEvent_OnFirstFrameRenderedImpl;
   const TextureEvent_OnFirstFrameRendered._() : super._();
 
-  @override
-
   /// ID of the texture.
-  int get textureId;
   @override
-  @JsonKey(ignore: true)
+  int get textureId;
+
+  /// Create a copy of TextureEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$TextureEvent_OnFirstFrameRenderedImplCopyWith<
           _$TextureEvent_OnFirstFrameRenderedImpl>
       get copyWith => throw _privateConstructorUsedError;

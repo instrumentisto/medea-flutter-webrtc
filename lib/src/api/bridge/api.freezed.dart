@@ -56,7 +56,9 @@ mixin _$GetMediaError {
   }) =>
       throw _privateConstructorUsedError;
 
-  @JsonKey(ignore: true)
+  /// Create a copy of GetMediaError
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $GetMediaErrorCopyWith<GetMediaError> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -80,6 +82,8 @@ class _$GetMediaErrorCopyWithImpl<$Res, $Val extends GetMediaError>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of GetMediaError
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -113,6 +117,8 @@ class __$$GetMediaError_AudioImplCopyWithImpl<$Res>
       $Res Function(_$GetMediaError_AudioImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of GetMediaError
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -151,7 +157,9 @@ class _$GetMediaError_AudioImpl extends GetMediaError_Audio {
   @override
   int get hashCode => Object.hash(runtimeType, field0);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of GetMediaError
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$GetMediaError_AudioImplCopyWith<_$GetMediaError_AudioImpl> get copyWith =>
@@ -228,8 +236,11 @@ abstract class GetMediaError_Audio extends GetMediaError {
 
   @override
   String get field0;
+
+  /// Create a copy of GetMediaError
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$GetMediaError_AudioImplCopyWith<_$GetMediaError_AudioImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -253,6 +264,8 @@ class __$$GetMediaError_VideoImplCopyWithImpl<$Res>
       $Res Function(_$GetMediaError_VideoImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of GetMediaError
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -291,7 +304,9 @@ class _$GetMediaError_VideoImpl extends GetMediaError_Video {
   @override
   int get hashCode => Object.hash(runtimeType, field0);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of GetMediaError
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$GetMediaError_VideoImplCopyWith<_$GetMediaError_VideoImpl> get copyWith =>
@@ -368,8 +383,11 @@ abstract class GetMediaError_Video extends GetMediaError {
 
   @override
   String get field0;
+
+  /// Create a copy of GetMediaError
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$GetMediaError_VideoImplCopyWith<_$GetMediaError_VideoImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -433,6 +451,9 @@ class _$GetMediaResultCopyWithImpl<$Res, $Val extends GetMediaResult>
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
+
+  /// Create a copy of GetMediaResult
+  /// with the given fields replaced by the non-null parameter values.
 }
 
 /// @nodoc
@@ -452,6 +473,8 @@ class __$$GetMediaResult_OkImplCopyWithImpl<$Res>
       $Res Function(_$GetMediaResult_OkImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of GetMediaResult
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -498,7 +521,9 @@ class _$GetMediaResult_OkImpl extends GetMediaResult_Ok {
   int get hashCode =>
       Object.hash(runtimeType, const DeepCollectionEquality().hash(_field0));
 
-  @JsonKey(ignore: true)
+  /// Create a copy of GetMediaResult
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$GetMediaResult_OkImplCopyWith<_$GetMediaResult_OkImpl> get copyWith =>
@@ -575,7 +600,10 @@ abstract class GetMediaResult_Ok extends GetMediaResult {
 
   @override
   List<MediaStreamTrack> get field0;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of GetMediaResult
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$GetMediaResult_OkImplCopyWith<_$GetMediaResult_OkImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -599,6 +627,8 @@ class __$$GetMediaResult_ErrImplCopyWithImpl<$Res>
       $Res Function(_$GetMediaResult_ErrImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of GetMediaResult
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -612,6 +642,8 @@ class __$$GetMediaResult_ErrImplCopyWithImpl<$Res>
     ));
   }
 
+  /// Create a copy of GetMediaResult
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $GetMediaErrorCopyWith<$Res> get field0 {
@@ -645,7 +677,9 @@ class _$GetMediaResult_ErrImpl extends GetMediaResult_Err {
   @override
   int get hashCode => Object.hash(runtimeType, field0);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of GetMediaResult
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$GetMediaResult_ErrImplCopyWith<_$GetMediaResult_ErrImpl> get copyWith =>
@@ -722,7 +756,10 @@ abstract class GetMediaResult_Err extends GetMediaResult {
 
   @override
   GetMediaError get field0;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of GetMediaResult
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$GetMediaResult_ErrImplCopyWith<_$GetMediaResult_ErrImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -859,6 +896,9 @@ class _$PeerConnectionEventCopyWithImpl<$Res, $Val extends PeerConnectionEvent>
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
+
+  /// Create a copy of PeerConnectionEvent
+  /// with the given fields replaced by the non-null parameter values.
 }
 
 /// @nodoc
@@ -881,6 +921,8 @@ class __$$PeerConnectionEvent_PeerCreatedImplCopyWithImpl<$Res>
       $Res Function(_$PeerConnectionEvent_PeerCreatedImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of PeerConnectionEvent
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -921,7 +963,9 @@ class _$PeerConnectionEvent_PeerCreatedImpl
   @override
   int get hashCode => Object.hash(runtimeType, peer);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of PeerConnectionEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$PeerConnectionEvent_PeerCreatedImplCopyWith<
@@ -1074,7 +1118,10 @@ abstract class PeerConnectionEvent_PeerCreated extends PeerConnectionEvent {
 
   /// Rust side [`PeerConnection`].
   ArcPeerConnection get peer;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of PeerConnectionEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$PeerConnectionEvent_PeerCreatedImplCopyWith<
           _$PeerConnectionEvent_PeerCreatedImpl>
       get copyWith => throw _privateConstructorUsedError;
@@ -1100,6 +1147,8 @@ class __$$PeerConnectionEvent_IceCandidateImplCopyWithImpl<$Res>
       $Res Function(_$PeerConnectionEvent_IceCandidateImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of PeerConnectionEvent
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1182,7 +1231,9 @@ class _$PeerConnectionEvent_IceCandidateImpl
   int get hashCode =>
       Object.hash(runtimeType, sdpMid, sdpMlineIndex, candidate);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of PeerConnectionEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$PeerConnectionEvent_IceCandidateImplCopyWith<
@@ -1358,7 +1409,10 @@ abstract class PeerConnectionEvent_IceCandidate extends PeerConnectionEvent {
   /// [1]: https://w3.org/TR/webrtc#dom-rtcicecandidate
   /// [RFC 5245]: https://tools.ietf.org/html/rfc5245
   String get candidate;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of PeerConnectionEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$PeerConnectionEvent_IceCandidateImplCopyWith<
           _$PeerConnectionEvent_IceCandidateImpl>
       get copyWith => throw _privateConstructorUsedError;
@@ -1387,6 +1441,8 @@ class __$$PeerConnectionEvent_IceGatheringStateChangeImplCopyWithImpl<$Res>
       $Res Function(_$PeerConnectionEvent_IceGatheringStateChangeImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of PeerConnectionEvent
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1427,7 +1483,9 @@ class _$PeerConnectionEvent_IceGatheringStateChangeImpl
   @override
   int get hashCode => Object.hash(runtimeType, field0);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of PeerConnectionEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$PeerConnectionEvent_IceGatheringStateChangeImplCopyWith<
@@ -1582,7 +1640,10 @@ abstract class PeerConnectionEvent_IceGatheringStateChange
   const PeerConnectionEvent_IceGatheringStateChange._() : super._();
 
   IceGatheringState get field0;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of PeerConnectionEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$PeerConnectionEvent_IceGatheringStateChangeImplCopyWith<
           _$PeerConnectionEvent_IceGatheringStateChangeImpl>
       get copyWith => throw _privateConstructorUsedError;
@@ -1609,6 +1670,8 @@ class __$$PeerConnectionEvent_IceCandidateErrorImplCopyWithImpl<$Res>
       $Res Function(_$PeerConnectionEvent_IceCandidateErrorImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of PeerConnectionEvent
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1711,7 +1774,9 @@ class _$PeerConnectionEvent_IceCandidateErrorImpl
   int get hashCode =>
       Object.hash(runtimeType, address, port, url, errorCode, errorText);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of PeerConnectionEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$PeerConnectionEvent_IceCandidateErrorImplCopyWith<
@@ -1894,7 +1959,10 @@ abstract class PeerConnectionEvent_IceCandidateError
   ///
   /// [1]: https://tinyurl.com/stun-parameters-6
   String get errorText;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of PeerConnectionEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$PeerConnectionEvent_IceCandidateErrorImplCopyWith<
           _$PeerConnectionEvent_IceCandidateErrorImpl>
       get copyWith => throw _privateConstructorUsedError;
@@ -1917,6 +1985,9 @@ class __$$PeerConnectionEvent_NegotiationNeededImplCopyWithImpl<$Res>
       _$PeerConnectionEvent_NegotiationNeededImpl _value,
       $Res Function(_$PeerConnectionEvent_NegotiationNeededImpl) _then)
       : super(_value, _then);
+
+  /// Create a copy of PeerConnectionEvent
+  /// with the given fields replaced by the non-null parameter values.
 }
 
 /// @nodoc
@@ -2104,6 +2175,8 @@ class __$$PeerConnectionEvent_SignallingChangeImplCopyWithImpl<$Res>
       $Res Function(_$PeerConnectionEvent_SignallingChangeImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of PeerConnectionEvent
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -2143,7 +2216,9 @@ class _$PeerConnectionEvent_SignallingChangeImpl
   @override
   int get hashCode => Object.hash(runtimeType, field0);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of PeerConnectionEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$PeerConnectionEvent_SignallingChangeImplCopyWith<
@@ -2295,7 +2370,10 @@ abstract class PeerConnectionEvent_SignallingChange
   const PeerConnectionEvent_SignallingChange._() : super._();
 
   SignalingState get field0;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of PeerConnectionEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$PeerConnectionEvent_SignallingChangeImplCopyWith<
           _$PeerConnectionEvent_SignallingChangeImpl>
       get copyWith => throw _privateConstructorUsedError;
@@ -2324,6 +2402,8 @@ class __$$PeerConnectionEvent_IceConnectionStateChangeImplCopyWithImpl<$Res>
       $Res Function(_$PeerConnectionEvent_IceConnectionStateChangeImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of PeerConnectionEvent
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -2364,7 +2444,9 @@ class _$PeerConnectionEvent_IceConnectionStateChangeImpl
   @override
   int get hashCode => Object.hash(runtimeType, field0);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of PeerConnectionEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$PeerConnectionEvent_IceConnectionStateChangeImplCopyWith<
@@ -2519,7 +2601,10 @@ abstract class PeerConnectionEvent_IceConnectionStateChange
   const PeerConnectionEvent_IceConnectionStateChange._() : super._();
 
   IceConnectionState get field0;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of PeerConnectionEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$PeerConnectionEvent_IceConnectionStateChangeImplCopyWith<
           _$PeerConnectionEvent_IceConnectionStateChangeImpl>
       get copyWith => throw _privateConstructorUsedError;
@@ -2545,6 +2630,8 @@ class __$$PeerConnectionEvent_ConnectionStateChangeImplCopyWithImpl<$Res>
       $Res Function(_$PeerConnectionEvent_ConnectionStateChangeImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of PeerConnectionEvent
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -2585,7 +2672,9 @@ class _$PeerConnectionEvent_ConnectionStateChangeImpl
   @override
   int get hashCode => Object.hash(runtimeType, field0);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of PeerConnectionEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$PeerConnectionEvent_ConnectionStateChangeImplCopyWith<
@@ -2740,7 +2829,10 @@ abstract class PeerConnectionEvent_ConnectionStateChange
   const PeerConnectionEvent_ConnectionStateChange._() : super._();
 
   PeerConnectionState get field0;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of PeerConnectionEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$PeerConnectionEvent_ConnectionStateChangeImplCopyWith<
           _$PeerConnectionEvent_ConnectionStateChangeImpl>
       get copyWith => throw _privateConstructorUsedError;
@@ -2766,6 +2858,8 @@ class __$$PeerConnectionEvent_TrackImplCopyWithImpl<$Res>
       $Res Function(_$PeerConnectionEvent_TrackImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of PeerConnectionEvent
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -2804,7 +2898,9 @@ class _$PeerConnectionEvent_TrackImpl extends PeerConnectionEvent_Track {
   @override
   int get hashCode => Object.hash(runtimeType, field0);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of PeerConnectionEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$PeerConnectionEvent_TrackImplCopyWith<_$PeerConnectionEvent_TrackImpl>
@@ -2954,7 +3050,10 @@ abstract class PeerConnectionEvent_Track extends PeerConnectionEvent {
   const PeerConnectionEvent_Track._() : super._();
 
   RtcTrackEvent get field0;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of PeerConnectionEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$PeerConnectionEvent_TrackImplCopyWith<_$PeerConnectionEvent_TrackImpl>
       get copyWith => throw _privateConstructorUsedError;
 }
@@ -3001,7 +3100,9 @@ mixin _$RtcIceCandidateStats {
   }) =>
       throw _privateConstructorUsedError;
 
-  @JsonKey(ignore: true)
+  /// Create a copy of RtcIceCandidateStats
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $RtcIceCandidateStatsCopyWith<RtcIceCandidateStats> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -3026,6 +3127,8 @@ class _$RtcIceCandidateStatsCopyWithImpl<$Res,
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of RtcIceCandidateStats
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -3062,6 +3165,8 @@ class __$$RtcIceCandidateStats_LocalImplCopyWithImpl<$Res>
       $Res Function(_$RtcIceCandidateStats_LocalImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of RtcIceCandidateStats
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -3100,7 +3205,9 @@ class _$RtcIceCandidateStats_LocalImpl extends RtcIceCandidateStats_Local {
   @override
   int get hashCode => Object.hash(runtimeType, field0);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of RtcIceCandidateStats
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$RtcIceCandidateStats_LocalImplCopyWith<_$RtcIceCandidateStats_LocalImpl>
@@ -3177,8 +3284,11 @@ abstract class RtcIceCandidateStats_Local extends RtcIceCandidateStats {
 
   @override
   IceCandidateStats get field0;
+
+  /// Create a copy of RtcIceCandidateStats
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$RtcIceCandidateStats_LocalImplCopyWith<_$RtcIceCandidateStats_LocalImpl>
       get copyWith => throw _privateConstructorUsedError;
 }
@@ -3205,6 +3315,8 @@ class __$$RtcIceCandidateStats_RemoteImplCopyWithImpl<$Res>
       $Res Function(_$RtcIceCandidateStats_RemoteImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of RtcIceCandidateStats
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -3243,7 +3355,9 @@ class _$RtcIceCandidateStats_RemoteImpl extends RtcIceCandidateStats_Remote {
   @override
   int get hashCode => Object.hash(runtimeType, field0);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of RtcIceCandidateStats
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$RtcIceCandidateStats_RemoteImplCopyWith<_$RtcIceCandidateStats_RemoteImpl>
@@ -3320,8 +3434,11 @@ abstract class RtcIceCandidateStats_Remote extends RtcIceCandidateStats {
 
   @override
   IceCandidateStats get field0;
+
+  /// Create a copy of RtcIceCandidateStats
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$RtcIceCandidateStats_RemoteImplCopyWith<_$RtcIceCandidateStats_RemoteImpl>
       get copyWith => throw _privateConstructorUsedError;
 }
@@ -3447,6 +3564,9 @@ class _$RtcInboundRtpStreamMediaTypeCopyWithImpl<$Res,
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
+
+  /// Create a copy of RtcInboundRtpStreamMediaType
+  /// with the given fields replaced by the non-null parameter values.
 }
 
 /// @nodoc
@@ -3476,6 +3596,8 @@ class __$$RtcInboundRtpStreamMediaType_AudioImplCopyWithImpl<$Res>
       $Res Function(_$RtcInboundRtpStreamMediaType_AudioImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of RtcInboundRtpStreamMediaType
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -3628,7 +3750,9 @@ class _$RtcInboundRtpStreamMediaType_AudioImpl
       totalAudioEnergy,
       totalSamplesDuration);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of RtcInboundRtpStreamMediaType
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$RtcInboundRtpStreamMediaType_AudioImplCopyWith<
@@ -3842,7 +3966,10 @@ abstract class RtcInboundRtpStreamMediaType_Audio
   ///
   /// [1]: https://w3.org/TR/webrtc-stats#dom-rtcaudiosourcestats
   double? get totalSamplesDuration;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of RtcInboundRtpStreamMediaType
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$RtcInboundRtpStreamMediaType_AudioImplCopyWith<
           _$RtcInboundRtpStreamMediaType_AudioImpl>
       get copyWith => throw _privateConstructorUsedError;
@@ -3879,6 +4006,8 @@ class __$$RtcInboundRtpStreamMediaType_VideoImplCopyWithImpl<$Res>
       $Res Function(_$RtcInboundRtpStreamMediaType_VideoImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of RtcInboundRtpStreamMediaType
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -4083,7 +4212,9 @@ class _$RtcInboundRtpStreamMediaType_VideoImpl
       concealmentEvents,
       framesReceived);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of RtcInboundRtpStreamMediaType
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$RtcInboundRtpStreamMediaType_VideoImplCopyWith<
@@ -4324,7 +4455,10 @@ abstract class RtcInboundRtpStreamMediaType_Video
   ///
   /// This metric is incremented when the complete frame is received.
   int? get framesReceived;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of RtcInboundRtpStreamMediaType
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$RtcInboundRtpStreamMediaType_VideoImplCopyWith<
           _$RtcInboundRtpStreamMediaType_VideoImpl>
       get copyWith => throw _privateConstructorUsedError;
@@ -4423,6 +4557,9 @@ class _$RtcMediaSourceStatsMediaTypeCopyWithImpl<$Res,
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
+
+  /// Create a copy of RtcMediaSourceStatsMediaType
+  /// with the given fields replaced by the non-null parameter values.
 }
 
 /// @nodoc
@@ -4450,6 +4587,8 @@ class __$$RtcMediaSourceStatsMediaType_RtcVideoSourceStatsImplCopyWithImpl<$Res>
           _then)
       : super(_value, _then);
 
+  /// Create a copy of RtcMediaSourceStatsMediaType
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -4528,7 +4667,9 @@ class _$RtcMediaSourceStatsMediaType_RtcVideoSourceStatsImpl
   int get hashCode =>
       Object.hash(runtimeType, width, height, frames, framesPerSecond);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of RtcMediaSourceStatsMediaType
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$RtcMediaSourceStatsMediaType_RtcVideoSourceStatsImplCopyWith<
@@ -4658,7 +4799,10 @@ abstract class RtcMediaSourceStatsMediaType_RtcVideoSourceStats
   /// last second. For the first second of this object's lifetime this
   /// attribute is missing.
   double? get framesPerSecond;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of RtcMediaSourceStatsMediaType
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$RtcMediaSourceStatsMediaType_RtcVideoSourceStatsImplCopyWith<
           _$RtcMediaSourceStatsMediaType_RtcVideoSourceStatsImpl>
       get copyWith => throw _privateConstructorUsedError;
@@ -4694,6 +4838,8 @@ class __$$RtcMediaSourceStatsMediaType_RtcAudioSourceStatsImplCopyWithImpl<$Res>
           _then)
       : super(_value, _then);
 
+  /// Create a copy of RtcMediaSourceStatsMediaType
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -4793,7 +4939,9 @@ class _$RtcMediaSourceStatsMediaType_RtcAudioSourceStatsImpl
   int get hashCode => Object.hash(runtimeType, audioLevel, totalAudioEnergy,
       totalSamplesDuration, echoReturnLoss, echoReturnLossEnhancement);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of RtcMediaSourceStatsMediaType
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$RtcMediaSourceStatsMediaType_RtcAudioSourceStatsImplCopyWith<
@@ -4932,7 +5080,10 @@ abstract class RtcMediaSourceStatsMediaType_RtcAudioSourceStats
   ///
   /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
   double? get echoReturnLossEnhancement;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of RtcMediaSourceStatsMediaType
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$RtcMediaSourceStatsMediaType_RtcAudioSourceStatsImplCopyWith<
           _$RtcMediaSourceStatsMediaType_RtcAudioSourceStatsImpl>
       get copyWith => throw _privateConstructorUsedError;
@@ -5008,6 +5159,9 @@ class _$RtcOutboundRtpStreamStatsMediaTypeCopyWithImpl<$Res,
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
+
+  /// Create a copy of RtcOutboundRtpStreamStatsMediaType
+  /// with the given fields replaced by the non-null parameter values.
 }
 
 /// @nodoc
@@ -5030,6 +5184,8 @@ class __$$RtcOutboundRtpStreamStatsMediaType_AudioImplCopyWithImpl<$Res>
       $Res Function(_$RtcOutboundRtpStreamStatsMediaType_AudioImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of RtcOutboundRtpStreamStatsMediaType
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -5086,7 +5242,9 @@ class _$RtcOutboundRtpStreamStatsMediaType_AudioImpl
   int get hashCode =>
       Object.hash(runtimeType, totalSamplesSent, voiceActivityFlag);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of RtcOutboundRtpStreamStatsMediaType
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$RtcOutboundRtpStreamStatsMediaType_AudioImplCopyWith<
@@ -5180,7 +5338,10 @@ abstract class RtcOutboundRtpStreamStatsMediaType_Audio
   /// Whether the last RTP packet sent contained voice activity or not
   /// based on the presence of the V bit in the extension header.
   bool? get voiceActivityFlag;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of RtcOutboundRtpStreamStatsMediaType
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$RtcOutboundRtpStreamStatsMediaType_AudioImplCopyWith<
           _$RtcOutboundRtpStreamStatsMediaType_AudioImpl>
       get copyWith => throw _privateConstructorUsedError;
@@ -5206,6 +5367,8 @@ class __$$RtcOutboundRtpStreamStatsMediaType_VideoImplCopyWithImpl<$Res>
       $Res Function(_$RtcOutboundRtpStreamStatsMediaType_VideoImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of RtcOutboundRtpStreamStatsMediaType
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -5291,7 +5454,9 @@ class _$RtcOutboundRtpStreamStatsMediaType_VideoImpl
   int get hashCode =>
       Object.hash(runtimeType, frameWidth, frameHeight, framesPerSecond);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of RtcOutboundRtpStreamStatsMediaType
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$RtcOutboundRtpStreamStatsMediaType_VideoImplCopyWith<
@@ -5408,7 +5573,10 @@ abstract class RtcOutboundRtpStreamStatsMediaType_Video
   ///
   /// [1]: https://tinyurl.com/rrmkrfk
   double? get framesPerSecond;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of RtcOutboundRtpStreamStatsMediaType
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$RtcOutboundRtpStreamStatsMediaType_VideoImplCopyWith<
           _$RtcOutboundRtpStreamStatsMediaType_VideoImpl>
       get copyWith => throw _privateConstructorUsedError;
@@ -5645,6 +5813,9 @@ class _$RtcStatsTypeCopyWithImpl<$Res, $Val extends RtcStatsType>
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
+
+  /// Create a copy of RtcStatsType
+  /// with the given fields replaced by the non-null parameter values.
 }
 
 /// @nodoc
@@ -5669,6 +5840,8 @@ class __$$RtcStatsType_RtcMediaSourceStatsImplCopyWithImpl<$Res>
       $Res Function(_$RtcStatsType_RtcMediaSourceStatsImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of RtcStatsType
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -5687,6 +5860,8 @@ class __$$RtcStatsType_RtcMediaSourceStatsImplCopyWithImpl<$Res>
     ));
   }
 
+  /// Create a copy of RtcStatsType
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $RtcMediaSourceStatsMediaTypeCopyWith<$Res> get kind {
@@ -5732,7 +5907,9 @@ class _$RtcStatsType_RtcMediaSourceStatsImpl
   @override
   int get hashCode => Object.hash(runtimeType, trackIdentifier, kind);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of RtcStatsType
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$RtcStatsType_RtcMediaSourceStatsImplCopyWith<
@@ -5990,7 +6167,10 @@ abstract class RtcStatsType_RtcMediaSourceStats extends RtcStatsType {
 
   /// Fields which should be in these [`RtcStats`] based on their `kind`.
   RtcMediaSourceStatsMediaType get kind;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of RtcStatsType
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$RtcStatsType_RtcMediaSourceStatsImplCopyWith<
           _$RtcStatsType_RtcMediaSourceStatsImpl>
       get copyWith => throw _privateConstructorUsedError;
@@ -6018,6 +6198,8 @@ class __$$RtcStatsType_RtcIceCandidateStatsImplCopyWithImpl<$Res>
       $Res Function(_$RtcStatsType_RtcIceCandidateStatsImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of RtcStatsType
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -6031,6 +6213,8 @@ class __$$RtcStatsType_RtcIceCandidateStatsImplCopyWithImpl<$Res>
     ));
   }
 
+  /// Create a copy of RtcStatsType
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $RtcIceCandidateStatsCopyWith<$Res> get field0 {
@@ -6065,7 +6249,9 @@ class _$RtcStatsType_RtcIceCandidateStatsImpl
   @override
   int get hashCode => Object.hash(runtimeType, field0);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of RtcStatsType
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$RtcStatsType_RtcIceCandidateStatsImplCopyWith<
@@ -6316,7 +6502,10 @@ abstract class RtcStatsType_RtcIceCandidateStats extends RtcStatsType {
   const RtcStatsType_RtcIceCandidateStats._() : super._();
 
   RtcIceCandidateStats get field0;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of RtcStatsType
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$RtcStatsType_RtcIceCandidateStatsImplCopyWith<
           _$RtcStatsType_RtcIceCandidateStatsImpl>
       get copyWith => throw _privateConstructorUsedError;
@@ -6349,6 +6538,8 @@ class __$$RtcStatsType_RtcOutboundRtpStreamStatsImplCopyWithImpl<$Res>
       $Res Function(_$RtcStatsType_RtcOutboundRtpStreamStatsImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of RtcStatsType
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -6382,6 +6573,8 @@ class __$$RtcStatsType_RtcOutboundRtpStreamStatsImplCopyWithImpl<$Res>
     ));
   }
 
+  /// Create a copy of RtcStatsType
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $RtcOutboundRtpStreamStatsMediaTypeCopyWith<$Res> get mediaType {
@@ -6456,7 +6649,9 @@ class _$RtcStatsType_RtcOutboundRtpStreamStatsImpl
   int get hashCode => Object.hash(
       runtimeType, trackId, mediaType, bytesSent, packetsSent, mediaSourceId);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of RtcStatsType
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$RtcStatsType_RtcOutboundRtpStreamStatsImplCopyWith<
@@ -6735,7 +6930,10 @@ abstract class RtcStatsType_RtcOutboundRtpStreamStats extends RtcStatsType {
   /// ID of the stats object representing the track currently attached to
   /// the sender of the stream.
   String? get mediaSourceId;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of RtcStatsType
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$RtcStatsType_RtcOutboundRtpStreamStatsImplCopyWith<
           _$RtcStatsType_RtcOutboundRtpStreamStatsImpl>
       get copyWith => throw _privateConstructorUsedError;
@@ -6771,6 +6969,8 @@ class __$$RtcStatsType_RtcInboundRtpStreamStatsImplCopyWithImpl<$Res>
       $Res Function(_$RtcStatsType_RtcInboundRtpStreamStatsImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of RtcStatsType
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -6819,6 +7019,8 @@ class __$$RtcStatsType_RtcInboundRtpStreamStatsImplCopyWithImpl<$Res>
     ));
   }
 
+  /// Create a copy of RtcStatsType
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $RtcInboundRtpStreamMediaTypeCopyWith<$Res>? get mediaType {
@@ -6947,7 +7149,9 @@ class _$RtcStatsType_RtcInboundRtpStreamStatsImpl
       jitterBufferEmittedCount,
       mediaType);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of RtcStatsType
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$RtcStatsType_RtcInboundRtpStreamStatsImplCopyWith<
@@ -7278,7 +7482,10 @@ abstract class RtcStatsType_RtcInboundRtpStreamStats extends RtcStatsType {
   /// Fields which should be in these [`RtcStats`] based on their
   /// `media_type`.
   RtcInboundRtpStreamMediaType? get mediaType;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of RtcStatsType
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$RtcStatsType_RtcInboundRtpStreamStatsImplCopyWith<
           _$RtcStatsType_RtcInboundRtpStreamStatsImpl>
       get copyWith => throw _privateConstructorUsedError;
@@ -7311,6 +7518,8 @@ class __$$RtcStatsType_RtcIceCandidatePairStatsImplCopyWithImpl<$Res>
       $Res Function(_$RtcStatsType_RtcIceCandidatePairStatsImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of RtcStatsType
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -7473,7 +7682,9 @@ class _$RtcStatsType_RtcIceCandidatePairStatsImpl
       currentRoundTripTime,
       availableOutgoingBitrate);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of RtcStatsType
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$RtcStatsType_RtcIceCandidatePairStatsImplCopyWith<
@@ -7803,7 +8014,10 @@ abstract class RtcStatsType_RtcIceCandidatePairStats extends RtcStatsType {
   /// [RFC 3890]: https://tools.ietf.org/html/rfc3890
   /// [1]: https://tinyurl.com/rfc72eh
   double? get availableOutgoingBitrate;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of RtcStatsType
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$RtcStatsType_RtcIceCandidatePairStatsImplCopyWith<
           _$RtcStatsType_RtcIceCandidatePairStatsImpl>
       get copyWith => throw _privateConstructorUsedError;
@@ -7834,6 +8048,8 @@ class __$$RtcStatsType_RtcTransportStatsImplCopyWithImpl<$Res>
       $Res Function(_$RtcStatsType_RtcTransportStatsImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of RtcStatsType
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -7936,7 +8152,9 @@ class _$RtcStatsType_RtcTransportStatsImpl
   int get hashCode => Object.hash(runtimeType, packetsSent, packetsReceived,
       bytesSent, bytesReceived, iceRole);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of RtcStatsType
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$RtcStatsType_RtcTransportStatsImplCopyWith<
@@ -8217,7 +8435,10 @@ abstract class RtcStatsType_RtcTransportStats extends RtcStatsType {
   /// [2]: https://w3.org/TR/webrtc#rtcdtlstransport-interface
   /// [3]: https://w3.org/TR/webrtc#dom-rtcdtlstransport-icetransport
   IceRole? get iceRole;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of RtcStatsType
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$RtcStatsType_RtcTransportStatsImplCopyWith<
           _$RtcStatsType_RtcTransportStatsImpl>
       get copyWith => throw _privateConstructorUsedError;
@@ -8252,6 +8473,8 @@ class __$$RtcStatsType_RtcRemoteInboundRtpStreamStatsImplCopyWithImpl<$Res>
       $Res Function(_$RtcStatsType_RtcRemoteInboundRtpStreamStatsImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of RtcStatsType
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -8381,7 +8604,9 @@ class _$RtcStatsType_RtcRemoteInboundRtpStreamStatsImpl
   int get hashCode => Object.hash(runtimeType, localId, jitter, roundTripTime,
       fractionLost, reportsReceived, roundTripTimeMeasurements);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of RtcStatsType
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$RtcStatsType_RtcRemoteInboundRtpStreamStatsImplCopyWith<
@@ -8685,7 +8910,10 @@ abstract class RtcStatsType_RtcRemoteInboundRtpStreamStats
   /// [roundTripTime]: https://tinyurl.com/ssg83hq
   /// [SSRC]: https://w3.org/TR/webrtc-stats#dfn-ssrc
   int? get roundTripTimeMeasurements;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of RtcStatsType
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$RtcStatsType_RtcRemoteInboundRtpStreamStatsImplCopyWith<
           _$RtcStatsType_RtcRemoteInboundRtpStreamStatsImpl>
       get copyWith => throw _privateConstructorUsedError;
@@ -8714,6 +8942,8 @@ class __$$RtcStatsType_RtcRemoteOutboundRtpStreamStatsImplCopyWithImpl<$Res>
       $Res Function(_$RtcStatsType_RtcRemoteOutboundRtpStreamStatsImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of RtcStatsType
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -8796,7 +9026,9 @@ class _$RtcStatsType_RtcRemoteOutboundRtpStreamStatsImpl
   int get hashCode =>
       Object.hash(runtimeType, localId, remoteTimestamp, reportsSent);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of RtcStatsType
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$RtcStatsType_RtcRemoteOutboundRtpStreamStatsImplCopyWith<
@@ -9079,7 +9311,10 @@ abstract class RtcStatsType_RtcRemoteOutboundRtpStreamStats
   ///
   /// [SSRC]: https://w3.org/TR/webrtc-stats#dfn-ssrc
   BigInt? get reportsSent;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of RtcStatsType
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$RtcStatsType_RtcRemoteOutboundRtpStreamStatsImplCopyWith<
           _$RtcStatsType_RtcRemoteOutboundRtpStreamStatsImpl>
       get copyWith => throw _privateConstructorUsedError;
@@ -9101,6 +9336,9 @@ class __$$RtcStatsType_UnimplementedImplCopyWithImpl<$Res>
       _$RtcStatsType_UnimplementedImpl _value,
       $Res Function(_$RtcStatsType_UnimplementedImpl) _then)
       : super(_value, _then);
+
+  /// Create a copy of RtcStatsType
+  /// with the given fields replaced by the non-null parameter values.
 }
 
 /// @nodoc
@@ -9429,6 +9667,9 @@ class _$TrackEventCopyWithImpl<$Res, $Val extends TrackEvent>
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
+
+  /// Create a copy of TrackEvent
+  /// with the given fields replaced by the non-null parameter values.
 }
 
 /// @nodoc
@@ -9445,6 +9686,9 @@ class __$$TrackEvent_EndedImplCopyWithImpl<$Res>
   __$$TrackEvent_EndedImplCopyWithImpl(_$TrackEvent_EndedImpl _value,
       $Res Function(_$TrackEvent_EndedImpl) _then)
       : super(_value, _then);
+
+  /// Create a copy of TrackEvent
+  /// with the given fields replaced by the non-null parameter values.
 }
 
 /// @nodoc
@@ -9560,6 +9804,8 @@ class __$$TrackEvent_AudioLevelUpdatedImplCopyWithImpl<$Res>
       $Res Function(_$TrackEvent_AudioLevelUpdatedImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of TrackEvent
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -9598,7 +9844,9 @@ class _$TrackEvent_AudioLevelUpdatedImpl extends TrackEvent_AudioLevelUpdated {
   @override
   int get hashCode => Object.hash(runtimeType, field0);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of TrackEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$TrackEvent_AudioLevelUpdatedImplCopyWith<
@@ -9682,7 +9930,10 @@ abstract class TrackEvent_AudioLevelUpdated extends TrackEvent {
   const TrackEvent_AudioLevelUpdated._() : super._();
 
   int get field0;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of TrackEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$TrackEvent_AudioLevelUpdatedImplCopyWith<
           _$TrackEvent_AudioLevelUpdatedImpl>
       get copyWith => throw _privateConstructorUsedError;
@@ -9704,6 +9955,9 @@ class __$$TrackEvent_TrackCreatedImplCopyWithImpl<$Res>
       _$TrackEvent_TrackCreatedImpl _value,
       $Res Function(_$TrackEvent_TrackCreatedImpl) _then)
       : super(_value, _then);
+
+  /// Create a copy of TrackEvent
+  /// with the given fields replaced by the non-null parameter values.
 }
 
 /// @nodoc
