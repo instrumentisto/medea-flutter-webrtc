@@ -747,10 +747,16 @@ pub unsafe fn init() {
             None,
             HMODULE(ptr::null_mut()),
             None,
-        )
-        .unwrap();
+        );
 
-        ShowWindow(hwnd, SW_HIDE);
+        let Ok(hwnd) = hwnd else {
+            log::error!(
+                "Failed to create window so on device \
+                change listener is disabled",
+            );
+        };
+
+        let _ = ShowWindow(hwnd, SW_HIDE);
 
         let mut msg: MSG = mem::zeroed();
 
@@ -759,7 +765,7 @@ pub unsafe fn init() {
                 break;
             }
 
-            TranslateMessage(&msg);
+            let _ = TranslateMessage(&msg);
             DispatchMessageW(&msg);
         }
     });
