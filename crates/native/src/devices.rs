@@ -561,7 +561,6 @@ mod win_default_device_callback {
     //! Windows.
 
     use std::{
-        boxed::Box,
         ptr,
         sync::atomic::{AtomicPtr, Ordering},
     };
