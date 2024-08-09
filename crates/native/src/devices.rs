@@ -566,7 +566,7 @@ mod win_default_device_callback {
     };
 
     use windows::{
-        core::{implement, Result, PCWSTR},
+        core::{Result, PCWSTR},
         Win32::{
             Media::Audio::{
                 EDataFlow, ERole, IMMDeviceEnumerator, IMMNotificationClient,
@@ -589,7 +589,7 @@ mod win_default_device_callback {
 
     /// Implementation of an [`IMMNotificationClient`] used for detecting
     /// default audio output device changes.
-    #[implement(IMMNotificationClient)]
+    #[windows_core::implement(IMMNotificationClient)]
     struct AudioEndpointCallback;
 
     #[allow(non_snake_case)]

@@ -807,6 +807,7 @@ dependencies = [
  "once_cell",
  "threadpool",
  "windows",
+ "windows-core",
  "xxhash-rust",
 ]
 
