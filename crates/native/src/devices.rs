@@ -754,6 +754,7 @@ pub unsafe fn init() {
                 "Failed to create window so on device \
                 change listener is disabled",
             );
+            return;
         };
 
         let _ = ShowWindow(hwnd, SW_HIDE);
