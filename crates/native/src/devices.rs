@@ -394,7 +394,7 @@ pub mod linux_device_change {
             //         `socket`.
             let socket_fd =
                 unsafe { BorrowedFd::borrow_raw(socket.as_raw_fd()) };
-            let fds = PollFd::new(&socket_fd, PollFlags::POLLIN);
+            let fds = PollFd::new(socket_fd, PollFlags::POLLIN);
             loop {
                 ppoll(&mut [fds], None, None)?;
 
@@ -570,7 +570,7 @@ mod win_default_device_callback {
         Win32::{
             Media::Audio::{
                 EDataFlow, ERole, IMMDeviceEnumerator, IMMNotificationClient,
-                IMMNotificationClient_Impl, MMDeviceEnumerator,
+                IMMNotificationClient_Impl, MMDeviceEnumerator, DEVICE_STATE,
             },
             System::Com::{CoCreateInstance, CLSCTX_ALL},
             UI::Shell::PropertiesSystem::PROPERTYKEY,
@@ -594,7 +594,11 @@ mod win_default_device_callback {
 
     #[allow(non_snake_case)]
     impl IMMNotificationClient_Impl for AudioEndpointCallback {
-        fn OnDeviceStateChanged(&self, _: &PCWSTR, _: u32) -> Result<()> {
+        fn OnDeviceStateChanged(
+            &self,
+            _: &PCWSTR,
+            _: DEVICE_STATE,
+        ) -> Result<()> {
             Ok(())
         }
 
