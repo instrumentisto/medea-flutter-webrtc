@@ -589,7 +589,7 @@ mod win_default_device_callback {
 
     /// Implementation of an [`IMMNotificationClient`] used for detecting
     /// default audio output device changes.
-    #[windows_implement::implement(IMMNotificationClient)]
+    #[windows::core::implement(IMMNotificationClient)]
     struct AudioEndpointCallback;
 
     #[allow(non_snake_case)]
