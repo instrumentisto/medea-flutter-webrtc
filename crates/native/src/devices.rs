@@ -751,13 +751,13 @@ pub unsafe fn init() {
 
         let Ok(hwnd) = hwnd else {
             log::error!(
-                "Failed to create window so on device \
-                change listener is disabled",
+                "Failed to create window so on device change listener is \
+                 disabled",
             );
             return;
         };
 
-        let _ = ShowWindow(hwnd, SW_HIDE);
+        _ = ShowWindow(hwnd, SW_HIDE);
 
         let mut msg: MSG = mem::zeroed();
 
@@ -766,7 +766,7 @@ pub unsafe fn init() {
                 break;
             }
 
-            let _ = TranslateMessage(&msg);
+            _ = TranslateMessage(&msg);
             DispatchMessageW(&msg);
         }
     });
