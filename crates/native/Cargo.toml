@@ -12,7 +12,7 @@ anyhow = "1.0"
 cxx = "1.0"
 dashmap = "6.0"
 derive_more = { version = "1.0", features = ["as_ref", "display", "from", "into"] }
-flutter_rust_bridge = { version = "=2.2.0", default-features = false, features = ["rust-async", "anyhow", "thread-pool", "dart-opaque"]}
+flutter_rust_bridge = { version = "=2.2.0", features = ["rust-async", "anyhow", "thread-pool", "dart-opaque"], default-features = false }
 flutter_rust_bridge_macros = { version = "=2.2.0", default-features = false }
 lazy_static = "1.5"
 libwebrtc-sys = { path = "../libwebrtc-sys" }
@@ -28,8 +28,7 @@ pulse = { version = "2.28", package = "libpulse-binding" }
 
 [target.'cfg(target_os = "windows")'.dependencies]
 windows = { version = "0.58", features = ["implement", "Win32_Foundation", "Win32_Graphics_Gdi", "Win32_Media_Audio", "Win32_System_Com", "Win32_UI_Shell_PropertiesSystem", "Win32_UI_WindowsAndMessaging"] }
-# for `#[windows::core]` macro expansion
-windows-core = "0.58"
+windows-core = "0.58" # for `#[windows::core]` macro expansion
 
 [build-dependencies]
 anyhow = "1.0"

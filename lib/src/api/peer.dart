@@ -21,7 +21,7 @@ import 'transceiver.dart';
 /// Checks whether the running platform is a desktop.
 bool isDesktop = Platform.isWindows || Platform.isLinux || Platform.isMacOS;
 
-/// Opens the dynamic library and instantiates ffi bridge to Rust side.
+/// Opens the dynamic library and instantiates FFI bridge to Rust side.
 Future<void> initFfiBridge() async {
   if (!isDesktop) {
     return;
