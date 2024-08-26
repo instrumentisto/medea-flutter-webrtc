@@ -14,11 +14,8 @@ All user visible changes to this project will be documented in this file. This p
 ### Changed
 
 - Upgraded `flutter_rust_bridge` to 2.2.0 version. ([#167])
-- Upgraded [libwebrtc] to [128.0.6613.84] version. ([#169])
 
 [#167]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/167
-[#169]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/169
-[128.0.6613.84]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/128.0.6613.84
 
 
 
