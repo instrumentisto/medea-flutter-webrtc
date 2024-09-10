@@ -554,7 +554,6 @@ pub unsafe fn init() {
 }
 
 #[cfg(target_os = "windows")]
-#[expect(unused_must_use, reason = "FFI")]
 mod win_default_device_callback {
     //! Implementation of the default audio output device changes detector for
     //! Windows.
@@ -591,7 +590,6 @@ mod win_default_device_callback {
     #[windows::core::implement(IMMNotificationClient)]
     struct AudioEndpointCallback;
 
-    #[expect(non_snake_case, reason = "FFI")]
     impl IMMNotificationClient_Impl for AudioEndpointCallback_Impl {
         fn OnDeviceStateChanged(
             &self,
