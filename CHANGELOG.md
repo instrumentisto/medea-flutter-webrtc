@@ -4,7 +4,7 @@
 All user visible changes to this project will be documented in this file. This project uses [Semantic Versioning 2.0.0].
 
 
-## [0.11.1] · 2024-09-??
+## [0.11.1] · 2024-09-10
 [0.11.1]: https://github.com/instrumentisto/medea-flutter-webrtc/tree/0.11.1
 
 [Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.11.0...0.11.1)
