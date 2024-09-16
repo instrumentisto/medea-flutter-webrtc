@@ -119,7 +119,7 @@ class _LoopbackState extends State<Loopback> {
 
       var audioTrack =
           _tracks!.firstWhere((track) => track.kind() == MediaKind.audio);
-      if (newTrack.isOnAudioLevelAvailable()) {
+      if (audioTrack.isOnAudioLevelAvailable()) {
         audioTrack.onAudioLevelChanged((volume) {
           setState(() {
             currentAudioLevel = volume / 100;
