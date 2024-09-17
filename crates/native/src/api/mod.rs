@@ -2721,6 +2721,20 @@ pub fn get_rtp_sender_capabilities(kind: MediaType) -> RtpCapabilities {
     )
 }
 
+/// Returns the capabilities of an [RTP] receiver of the specified
+/// [`MediaType`].
+///
+/// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
+pub fn get_rtp_receiver_capabilities(kind: MediaType) -> RtpCapabilities {
+    RtpCapabilities::from(
+        WEBRTC
+            .lock()
+            .unwrap()
+            .peer_connection_factory
+            .get_rtp_receiver_capabilities(kind.into()),
+    )
+}
+
 /// Sets [`RtpParameters`] into the provided [`RtpTransceiver`]'s `sender`.
 #[expect(clippy::needless_pass_by_value, reason = "FFI")]
 pub fn sender_set_parameters(

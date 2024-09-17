@@ -1946,6 +1946,15 @@ impl PeerConnectionFactoryInterface {
     ) -> RtpCapabilities {
         RtpCapabilities(webrtc::get_rtp_sender_capabilities(&self.0, kind))
     }
+
+    /// Returns the capabilities of an RTP receiver of type `kind`.
+    #[must_use]
+    pub fn get_rtp_receiver_capabilities(
+        &self,
+        kind: MediaType,
+    ) -> RtpCapabilities {
+        RtpCapabilities(webrtc::get_rtp_receiver_capabilities(&self.0, kind))
+    }
 }
 
 unsafe impl Send for webrtc::PeerConnectionFactoryInterface {}

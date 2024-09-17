@@ -2500,6 +2500,14 @@ pub(crate) mod webrtc {
             kind: MediaType,
         ) -> UniquePtr<RtpCapabilities>;
 
+        /// Returns the [`RtpCapabilities`] of the provided
+        /// [`PeerConnectionFactoryInterface`].
+        #[must_use]
+        pub fn get_rtp_receiver_capabilities(
+            peer_connection_factory: &PeerConnectionFactoryInterface,
+            kind: MediaType,
+        ) -> UniquePtr<RtpCapabilities>;
+
         /// Returns the [`RtpCodecCapabilityContainer`] of the provided
         /// [`RtpCapabilities`].
         #[must_use]
