@@ -15,7 +15,12 @@ All user visible changes to this project will be documented in this file. This p
 
 - Upgraded `flutter_rust_bridge` to 2.4.0 version. ([#172])
 
+### Added
+
+- `RtpReceiver.getCapabilities()`. ([#173])
+
 [#172]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/172
+[#173]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/173
 
 
 
