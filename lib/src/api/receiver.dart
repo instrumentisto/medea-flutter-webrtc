@@ -10,9 +10,9 @@ import 'peer.dart';
 final _peerConnectionFactoryMethodChannel =
     methodChannel('PeerConnectionFactory', 0);
 
-/// [RTCSender][1] implementation.
+/// [RTCRtpReceiver][1] implementation.
 ///
-/// [1]: https://w3.org/TR/webrtc#dom-rtcRtpReceiver
+/// [1]: https://www.w3.org/TR/webrtc/#dom-rtcrtpreceiver
 abstract class RtpReceiver {
   /// [RtpCapabilities] of an RTP sender of the specified [MediaKind].
   static Future<RtpCapabilities> getCapabilities(MediaKind kind) {

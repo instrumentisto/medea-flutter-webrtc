@@ -39,14 +39,14 @@ class _State extends State<VideoCodecInfoSample> {
 
       codecs += '\n';
       for (var c in senderCaps.codecs) {
-        codecs += 'Sender Codec: ${c.kind} ${c.name} ${c.mimeType} '
-            '${json.encode(c.parameters)}\n';
+        codecs += 'Sender Codec: ${c.kind}, ${c.name}, ${c.mimeType}, '
+            '${c.clockRate}Hz, ${json.encode(c.parameters)}\n';
       }
 
       codecs += '\n';
       for (var c in receiverCaps.codecs) {
-        codecs += 'Receiver Codec: ${c.kind} ${c.name} ${c.mimeType} '
-            '${json.encode(c.parameters)}\n';
+        codecs += 'Receiver Codec: ${c.kind}, ${c.name}, ${c.mimeType}, '
+            '${c.clockRate}Hz, ${json.encode(c.parameters)}\n';
       }
 
       text = codecs;
