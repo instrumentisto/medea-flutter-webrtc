@@ -14,7 +14,7 @@ final _peerConnectionFactoryMethodChannel =
 ///
 /// [1]: https://www.w3.org/TR/webrtc/#dom-rtcrtpreceiver
 abstract class RtpReceiver {
-  /// [RtpCapabilities] of an RTP sender of the specified [MediaKind].
+  /// [RtpCapabilities] of an RTP receiver of the specified [MediaKind].
   static Future<RtpCapabilities> getCapabilities(MediaKind kind) {
     if (isDesktop) {
       return _RtpReceiverFFI.getCapabilities(kind);
@@ -26,7 +26,7 @@ abstract class RtpReceiver {
 
 /// [MethodChannel]-based implementation of a [RtpReceiver].
 class _RtpReceiverChannel extends RtpReceiver {
-  /// [RtpCapabilities] of an RTP sender of the specified [MediaKind].
+  /// [RtpCapabilities] of an RTP receiver of the specified [MediaKind].
   static Future<RtpCapabilities> getCapabilities(MediaKind kind) async {
     var map = await _peerConnectionFactoryMethodChannel
         .invokeMethod('getRtpReceiverCapabilities', {'kind': kind.index});
@@ -36,7 +36,7 @@ class _RtpReceiverChannel extends RtpReceiver {
 
 /// FFI-based implementation of a [RtpReceiver].
 class _RtpReceiverFFI extends RtpReceiver {
-  /// [RtpCapabilities] of an RTP sender of the specified [MediaKind].
+  /// [RtpCapabilities] of an RTP receiver of the specified [MediaKind].
   static Future<RtpCapabilities> getCapabilities(MediaKind kind) async {
     return RtpCapabilities.fromFFI(await ffi.getRtpReceiverCapabilities(
         kind: ffi.MediaType.values[kind.index]));
