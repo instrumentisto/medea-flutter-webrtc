@@ -1938,7 +1938,10 @@ impl PeerConnectionFactoryInterface {
         Ok(MediaStreamInterface(ptr))
     }
 
-    /// Returns the capabilities of an RTP sender of type `kind`.
+    /// Returns the capabilities of an [RTP] sender of the provided
+    /// [`MediaType`].
+    ///
+    /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
     #[must_use]
     pub fn get_rtp_sender_capabilities(
         &self,
@@ -1947,7 +1950,10 @@ impl PeerConnectionFactoryInterface {
         RtpCapabilities(webrtc::get_rtp_sender_capabilities(&self.0, kind))
     }
 
-    /// Returns the capabilities of an RTP receiver of type `kind`.
+    /// Returns the capabilities of an [RTP] receiver of the provided
+    /// [`MediaType`].
+    ///
+    /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
     #[must_use]
     pub fn get_rtp_receiver_capabilities(
         &self,
