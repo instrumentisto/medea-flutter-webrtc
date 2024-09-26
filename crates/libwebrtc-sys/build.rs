@@ -39,6 +39,13 @@ fn main() -> anyhow::Result<()> {
         fs::create_dir_all(&lib_dir)?;
     }
     download_libwebrtc()?;
+
+    #[cfg(target_os = "macos")]
+    {
+        println!("cargo:rustc-env=MACOSX_DEPLOYMENT_TARGET=10.13");
+        env::set_var("MACOSX_DEPLOYMENT_TARGET", "10.13");
+    }
+
     compile_openal()?;
 
     let path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
@@ -75,7 +82,6 @@ fn main() -> anyhow::Result<()> {
     }
     #[cfg(target_os = "macos")]
     {
-        println!("cargo:rustc-env=MACOSX_DEPLOYMENT_TARGET=10.11");
         build
             .include(libpath.join("include/sdk/objc/base"))
             .include(libpath.join("include/sdk/objc"));
@@ -481,6 +487,13 @@ fn link_libs() -> anyhow::Result<()> {
         ] {
             println!("cargo:rustc-link-lib=framework={framework}");
         }
+        // AVFoundation framework needs to be weakly linked due to the usage of
+        // new APIs in libwebrtc-sys that are not available on older systems. If
+        // AVFoundation is linked strongly, dyld on application start may crash
+        // the application because it cannot link the new API symbols on the
+        // older MacOS system.
+        println!("cargo:rustc-link-arg=-weak_framework");
+        println!("cargo:rustc-link-arg=AVFoundation");
         if let Some(path) = macos_link_search_path() {
             println!("cargo:rustc-link-lib=clang_rt.osx");
             println!("cargo:rustc-link-search={path}");
