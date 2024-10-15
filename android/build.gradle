@@ -7,13 +7,16 @@ buildscript {
         google()
         mavenCentral()
     }
+    ext {
+        buildToolsVersion = "33.0.0"
+        minSdkVersion = 24
+    }
 
     dependencies {
         classpath 'com.android.tools.build:gradle:7.4.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
-
 rootProject.allprojects {
     repositories {
         google()
