@@ -28,6 +28,13 @@ rootProject.allprojects {
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
+buildTypes {
+    debug {
+        minifyEnabled true
+        signingConfig signingConfigs.debug
+    }
+}
+
 android {
     compileSdk = 34
 
