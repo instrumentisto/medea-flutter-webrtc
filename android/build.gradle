@@ -7,11 +7,6 @@ buildscript {
         google()
         mavenCentral()
     }
-    ext {
-        buildToolsVersion = "33.0.0"
-        minSdkVersion = 24
-    }
-
     dependencies {
         classpath 'com.android.tools.build:gradle:7.4.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
@@ -28,20 +23,23 @@ rootProject.allprojects {
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
-buildTypes {
-    debug {
-        minifyEnabled true
-        signingConfig signingConfigs.debug
-    }
-}
-
 android {
-    compileSdk = 34
+    compileSdkVersion 34
 
     defaultConfig {
         minSdkVersion 24
+        targetSdkVersion 34
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         consumerProguardFiles 'proguard-rules.pro'
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled true
+        }
+        release {
+            minifyEnabled false
+        }
     }
 
     lintOptions {
@@ -64,6 +62,6 @@ android {
 
 dependencies {
     implementation 'com.github.instrumentisto:libwebrtc-bin:129.0.6668.58@aar'
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
 }
