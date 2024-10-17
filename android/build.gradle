@@ -37,15 +37,6 @@ android {
         consumerProguardFiles 'proguard-rules.pro'
     }
 
-    buildTypes {
-        debug {
-            minifyEnabled true
-        }
-        release {
-            minifyEnabled false
-        }
-    }
-
     lintOptions {
         disable 'InvalidPackage'
     }
