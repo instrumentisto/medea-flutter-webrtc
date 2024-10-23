@@ -37,7 +37,7 @@ private func rtpCapabilities(capabilities: RTCRtpCapabilities)
 
 /// Creator of new `PeerConnectionProxy`s.
 class PeerConnectionFactoryProxy {
-  /// Counter for generating new [PeerConnectionProxy] IDs.
+  /// Counter for generating new `PeerConnectionProxy` IDs.
   private var lastPeerConnectionId: Int = 0
 
   /// All the `PeerObserver`s created by this `PeerConnectionFactoryProxy`.
@@ -93,7 +93,7 @@ class PeerConnectionFactoryProxy {
     return peerProxy
   }
 
-  /// Removes the specified [PeerObserver] from the [peerObservers].
+  /// Removes the specified `PeerObserver` from the `peerObservers`.
   private func remotePeerObserver(id: Int) {
     self.peerObservers.removeValue(forKey: id)
   }
