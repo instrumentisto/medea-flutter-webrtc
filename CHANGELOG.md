@@ -18,7 +18,7 @@ All user visible changes to this project will be documented in this file. This p
 ### Changed
 
 - Upgraded `flutter_rust_bridge` to 2.4.0 version. ([#172])
-- Upgraded [libwebrtc] to [130.0.6723.69] version. ([#177], [#176])
+- Upgraded [libwebrtc] to [130.0.6723.69] version. ([#176], [#177])
 
 ### Fixed
 
