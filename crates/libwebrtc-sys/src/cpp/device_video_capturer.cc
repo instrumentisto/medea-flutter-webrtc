@@ -20,13 +20,13 @@ rtc::scoped_refptr<DeviceVideoCapturer> DeviceVideoCapturer::Create(
     size_t height,
     size_t max_fps,
     uint32_t device_index) {
-  std::cout << "DeviceVideoCapturer::Create" << "\n";
+  std::cout << "DeviceVideoCapturer::Create" << std::endl;
 
   rtc::scoped_refptr<DeviceVideoCapturer> capturer(
       new rtc::RefCountedObject<DeviceVideoCapturer>());
 
   if (!capturer->Init(width, height, max_fps, device_index)) {
-    std::cout << "capturer->Init() == false" << "\n";
+    std::cout << "capturer->Init() == false" << std::endl;
 
     RTC_LOG(LS_ERROR) << "Failed to create DeviceVideoCapturer(w = " << width
                       << ", h = " << height << ", fps = " << max_fps << ")";
@@ -44,7 +44,7 @@ bool DeviceVideoCapturer::Init(size_t width,
                                size_t height,
                                size_t max_fps,
                                size_t capture_device_index) {
-  std::cout << "DeviceVideoCapturer::Init" << "\n";
+  std::cout << "DeviceVideoCapturer::Init" << std::endl;
 
   std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> device_info(
       webrtc::VideoCaptureFactory::CreateDeviceInfo());
@@ -54,14 +54,14 @@ bool DeviceVideoCapturer::Init(size_t width,
   if (device_info->GetDeviceName(static_cast<uint32_t>(capture_device_index),
                                  device_name, sizeof(device_name), unique_name,
                                  sizeof(unique_name)) != 0) {
-    std::cout << "DeviceVideoCapturer::Init GetDeviceName() != 0" << "\n";
+    std::cout << "DeviceVideoCapturer::Init GetDeviceName() != 0" << std::endl;
     Destroy();
     return false;
   }
 
   vcm_ = webrtc::VideoCaptureFactory::Create(unique_name);
   if (!vcm_) {
-    std::cout << "DeviceVideoCapturer::Init !vcm_" << "\n";
+    std::cout << "DeviceVideoCapturer::Init !vcm_" << std::endl;
     return false;
   }
   vcm_->RegisterCaptureDataCallback(this);
@@ -73,7 +73,7 @@ bool DeviceVideoCapturer::Init(size_t width,
   capability_.videoType = webrtc::VideoType::kI420;
 
   if (vcm_->StartCapture(capability_) != 0) {
-    std::cout << "DeviceVideoCapturer::Init vcm_->StartCapture() != 0" << "\n";
+    std::cout << "DeviceVideoCapturer::Init vcm_->StartCapture() != 0" << std::endl;
 
     Destroy();
     return false;

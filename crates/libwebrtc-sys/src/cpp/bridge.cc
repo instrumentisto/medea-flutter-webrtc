@@ -85,7 +85,7 @@ std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(
     size_t height,
     size_t fps,
     uint32_t device) {
-  std::cout << "create_device_video_source #" << device << ", " << width << "x" << height << "x" << fps << "\n";
+  std::cout << "create_device_video_source #" << device << ", " << width << "x" << height << "x" << fps << std::endl;
 
 #if __APPLE__
   auto dvc = signaling_thread.BlockingCall([width, height, fps, device] {
@@ -98,14 +98,14 @@ std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(
 #endif
 
   if (dvc == nullptr) {
-    std::cout << "create_device_video_source dvc == nullptr" << "\n";
+    std::cout << "create_device_video_source dvc == nullptr" << std::endl;
     return nullptr;
   }
 
   auto src = webrtc::CreateVideoTrackSourceProxy(&signaling_thread,
                                                  &worker_thread, dvc.get());
   if (src == nullptr) {
-    std::cout << "create_device_video_source src == nullptr" << "\n";
+    std::cout << "create_device_video_source src == nullptr" << std::endl;
     return nullptr;
   }
 
