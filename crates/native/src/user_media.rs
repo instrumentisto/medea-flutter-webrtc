@@ -29,6 +29,8 @@ impl Webrtc {
         &mut self,
         constraints: api::MediaStreamConstraints,
     ) -> Result<Vec<api::MediaStreamTrack>, api::GetMediaError> {
+        println!("get_media video: {:?}", constraints.video);
+
         let mut tracks = Vec::new();
 
         let inner_get_media = || -> Result<(), api::GetMediaError> {
@@ -196,14 +198,19 @@ impl Webrtc {
                 device_id,
             )
         } else {
+            println!("get_or_create_video_source 000");
+
             let (index, device_id) =
                 if let Some(device_id) = caps.device_id.clone() {
+                    println!("get_or_create_video_source 111 {device_id}");
                     let device_id = VideoDeviceId(device_id);
+
                     if let Some(index) =
                         self.get_index_of_video_device(&device_id)?
                     {
                         (index, device_id)
                     } else {
+                        println!("get_index_of_video_device returns None");
                         bail!(
                             "Cannot find video device with the specified ID: \
                              {device_id}",
@@ -623,7 +630,7 @@ pub struct MediaStreamId(u64);
 /// ID of an video input device that provides data to some [`VideoSource`].
 #[derive(AsRef, Clone, Debug, Display, Eq, Hash, PartialEq)]
 #[as_ref(forward)]
-pub struct VideoDeviceId(String);
+pub struct VideoDeviceId(pub String);
 
 /// ID of an `AudioDevice`.
 #[derive(AsRef, Clone, Debug, Default, Display, Eq, From, Hash, PartialEq)]
@@ -853,9 +860,9 @@ impl AudioDeviceModule {
             + (f64::from(max_volume - min_volume) * (f64::from(level) / 100.0));
 
         #[expect( // intentional
-            clippy::cast_possible_truncation,
-            clippy::cast_sign_loss,
-            reason = "size fits and non-negative"
+        clippy::cast_possible_truncation,
+        clippy::cast_sign_loss,
+        reason = "size fits and non-negative"
         )]
         self.inner.set_microphone_volume(volume as u32)
     }
@@ -884,9 +891,9 @@ impl AudioDeviceModule {
         let max_volume = self.inner.max_microphone_volume()?;
 
         #[expect( // intentional
-            clippy::cast_possible_truncation,
-            clippy::cast_sign_loss,
-            reason = "size fits and non-negative"
+        clippy::cast_possible_truncation,
+        clippy::cast_sign_loss,
+        reason = "size fits and non-negative"
         )]
         let level = (f64::from(volume - min_volume)
             / f64::from(max_volume - min_volume)
@@ -1568,9 +1575,9 @@ struct AudioSourceAudioLevelHandler(StreamSink<api::TrackEvent>);
 
 impl AudioSourceAudioLevelHandler {
     #[expect( // intentional
-        clippy::cast_possible_truncation,
-        clippy::cast_sign_loss,
-        reason = "size fits and non-negative"
+    clippy::cast_possible_truncation,
+    clippy::cast_sign_loss,
+    reason = "size fits and non-negative"
     )]
     fn on_audio_level_change(&self, level: f32) {
         _ = self.0.add(api::TrackEvent::AudioLevelUpdated(cmp::min(

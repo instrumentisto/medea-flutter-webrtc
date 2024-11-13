@@ -3,6 +3,7 @@ use std::{
     sync::atomic::{AtomicPtr, Ordering},
 };
 
+use std::hash::{DefaultHasher, Hash, Hasher};
 #[cfg(target_os = "windows")]
 use std::{ffi::OsStr, mem, os::windows::prelude::OsStrExt, thread};
 
@@ -172,11 +173,16 @@ impl Webrtc {
         // Returns a list of all available video input devices.
         let mut video = {
             let count = self.video_device_info.number_of_devices();
+            println!("enumerate_devices start, have {count} devices");
             let mut result = Vec::with_capacity(count as usize);
 
             for i in 0..count {
                 let (label, device_id) =
                     self.video_device_info.device_name(i)?;
+                println!(
+                    "enumerate_devices, {i} = {device_id}({})",
+                    hsh(&device_id)
+                );
 
                 result.push(api::MediaDeviceInfo {
                     device_id,
@@ -185,6 +191,7 @@ impl Webrtc {
                 });
             }
 
+            println!("enumerate_devices end");
             result
         };
 
@@ -206,12 +213,24 @@ impl Webrtc {
         device_id: &VideoDeviceId,
     ) -> anyhow::Result<Option<u32>> {
         let count = self.video_device_info.number_of_devices();
+
+        println!(
+            "get_index_of_video_device for id: {device_id}({}), \
+            have {count} devices",
+            hsh(&device_id.0)
+        );
         for i in 0..count {
             let (_, id) = self.video_device_info.device_name(i)?;
+
+            println!("get_index_of_video_device, {i} = {id}({})", hsh(&id));
+
             if id == device_id.to_string() {
+                println!("get_index_of_video_device, return Ok({i})");
                 return Ok(Some(i));
             }
         }
+
+        println!("get_index_of_video_device, return None");
         Ok(None)
     }
 
@@ -767,4 +786,13 @@ pub unsafe fn init() {
             DispatchMessageW(&msg);
         }
     });
+}
+
+fn hsh<T>(obj: T) -> u64
+where
+    T: Hash,
+{
+    let mut hasher = DefaultHasher::new();
+    obj.hash(&mut hasher);
+    hasher.finish()
 }
