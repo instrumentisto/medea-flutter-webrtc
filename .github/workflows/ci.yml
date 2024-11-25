@@ -187,7 +187,7 @@ jobs:
       - uses: subosito/flutter-action@v2
       - run: flutter config --enable-linux-desktop
 
-      - run: make cargo.build platform=linux debug=no
+      - run: RUST_BACKTRACE=1 make cargo.build platform=linux debug=no
       - run: make flutter.build platform=linux
 
       - uses: actions/upload-artifact@v4
