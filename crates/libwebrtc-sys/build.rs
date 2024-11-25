@@ -269,13 +269,13 @@ fn compile_openal() -> anyhow::Result<()> {
     cmake_cmd.arg("-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64");
     drop(cmake_cmd.output().unwrap());
 
-    drop(
-        Command::new("cmake")
+        let out = Command::new("cmake")
             .current_dir(&openal_src_path)
             .args(["--build", ".", "--config", "Release"])
             .output()
-            .unwrap(),
-    );
+            .unwrap();
+
+    panic!("{:?}", out);
 
     fs::create_dir_all(&openal_path).unwrap();
 
