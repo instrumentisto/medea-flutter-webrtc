@@ -275,7 +275,7 @@ fn compile_openal() -> anyhow::Result<()> {
             .output()
             .unwrap();
 
-    panic!("{:?}", out.stderr);
+    panic!("{:?}", String::from_utf8(out.stderr));
 
     fs::create_dir_all(&openal_path).unwrap();
 
