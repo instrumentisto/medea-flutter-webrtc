@@ -293,6 +293,12 @@ fn compile_openal() -> anyhow::Result<()> {
                 .current_dir(&openal_src_path)
                 .output()
                 .unwrap();
+            let mut bar = Vec::new();
+            for entry in  fs::read_dir(openal_src_path).unwrap() {
+                let foo = entry.unwrap();
+                bar.push(foo);
+            }
+            panic!("{:?}", bar);
             fs::copy(
                 openal_src_path.join("libopenal.so.1"),
                 openal_path.join("libopenal.so.1"),
