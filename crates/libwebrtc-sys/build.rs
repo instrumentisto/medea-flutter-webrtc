@@ -220,32 +220,28 @@ fn compile_openal() -> anyhow::Result<()> {
     }
 
     if temp_dir.exists() {
-        fs::remove_dir_all(&temp_dir).unwrap();
+        fs::remove_dir_all(&temp_dir)?;
     }
-    fs::create_dir_all(&temp_dir).unwrap();
+    fs::create_dir_all(&temp_dir)?;
 
     {
-        let mut resp = BufReader::new(
-            reqwest::blocking::get(format!(
-                "{OPENAL_URL}/{openal_version}.tar.gz",
-            ))
-            .unwrap(),
-        );
-        let mut out_file = BufWriter::new(File::create(&archive).unwrap());
+        let mut resp = BufReader::new(reqwest::blocking::get(format!(
+            "{OPENAL_URL}/{openal_version}.tar.gz",
+        ))?);
+        let mut out_file = BufWriter::new(File::create(&archive)?);
 
         let mut buffer = [0; 512];
         loop {
-            let count = resp.read(&mut buffer).unwrap();
+            let count = resp.read(&mut buffer)?;
             if count == 0 {
                 break;
             };
-            _ = out_file.write(&buffer[0..count]).unwrap();
+            _ = out_file.write(&buffer[0..count])?;
         }
     }
 
-    let mut archive =
-        Archive::new(GzDecoder::new(File::open(archive).unwrap()));
-    archive.unpack(&temp_dir).unwrap();
+    let mut archive = Archive::new(GzDecoder::new(File::open(archive)?));
+    archive.unpack(&temp_dir)?;
 
     let openal_src_path =
         temp_dir.join(format!("openal-soft-{openal_version}"));
@@ -254,7 +250,7 @@ fn compile_openal() -> anyhow::Result<()> {
         openal_src_path.join("include"),
         manifest_path
             .join("lib")
-            .join(get_target().unwrap().as_str())
+            .join(get_target()?.as_str())
             .join("include"),
     )
     .unwrap();
@@ -267,7 +263,7 @@ fn compile_openal() -> anyhow::Result<()> {
     ]);
     #[cfg(target_os = "macos")]
     cmake_cmd.arg("-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64");
-    drop(cmake_cmd.output().unwrap());
+    drop(cmake_cmd.output()?);
 
     drop(
         Command::new("cmake")
@@ -283,8 +279,7 @@ fn compile_openal() -> anyhow::Result<()> {
             fs::copy(
                 openal_src_path.join("libopenal.dylib"),
                 openal_path.join("libopenal.1.dylib"),
-            )
-            .unwrap();
+            )?;
         }
         "x86_64-unknown-linux-gnu" => {
             _ = Command::new("strip")
@@ -294,20 +289,17 @@ fn compile_openal() -> anyhow::Result<()> {
             fs::copy(
                 openal_src_path.join("libopenal.so.1"),
                 openal_path.join("libopenal.so.1"),
-            )
-            .unwrap();
+            )?;
         }
         "x86_64-pc-windows-msvc" => {
             fs::copy(
                 openal_src_path.join("Release").join("OpenAL32.dll"),
                 openal_path.join("OpenAL32.dll"),
-            )
-            .unwrap();
+            )?;
             fs::copy(
                 openal_src_path.join("Release").join("OpenAL32.lib"),
                 openal_path.join("OpenAL32.lib"),
-            )
-            .unwrap();
+            )?;
             let path = manifest_path
                 .join("lib")
                 .join(get_target()?.as_str())
@@ -321,7 +313,7 @@ fn compile_openal() -> anyhow::Result<()> {
         _ => (),
     }
 
-    fs::remove_dir_all(&temp_dir).unwrap();
+    fs::remove_dir_all(&temp_dir)?;
 
     Ok(())
 }
