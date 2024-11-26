@@ -154,6 +154,15 @@ jobs:
           xcode-version: "13.1"
         if: ${{ matrix.platform == 'macos' }}
 
+      - name: Install `${{ matrix.platform }}` platform dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+                       libpulse-dev libudev-dev libxcomposite-dev \
+                       libxdamage-dev libxfixes-dev libxrandr-dev libxtst-dev \
+                       ninja-build
+        if: ${{ matrix.platform == 'linux' }}
+
       - run: make cargo.build platform=${{ matrix.platform }} debug=no
       - run: make flutter.build platform=${{ matrix.platform }}
 
