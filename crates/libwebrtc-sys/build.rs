@@ -215,9 +215,9 @@ fn compile_openal() -> anyhow::Result<()> {
     let is_install_openal =
         env::var("INSTALL_OPENAL").as_deref().unwrap_or("0") == "0";
 
-    // if is_install_openal && is_already_installed {
-    //     return Ok(());
-    // }
+    if is_install_openal && is_already_installed {
+        return Ok(());
+    }
 
     if temp_dir.exists() {
         fs::remove_dir_all(&temp_dir).unwrap();
@@ -269,15 +269,14 @@ fn compile_openal() -> anyhow::Result<()> {
     cmake_cmd.arg("-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64");
     drop(cmake_cmd.output().unwrap());
 
-        let out = Command::new("cmake")
+    drop(
+        Command::new("cmake")
             .current_dir(&openal_src_path)
             .args(["--build", ".", "--config", "Release"])
-            .output()
-            .unwrap();
+            .output()?,
+    );
 
-    panic!("{:?}", String::from_utf8(out.stderr));
-
-    fs::create_dir_all(&openal_path).unwrap();
+    fs::create_dir_all(&openal_path)?;
 
     match get_target()?.as_str() {
         "aarch64-apple-darwin" | "x86_64-apple-darwin" => {
@@ -291,14 +290,7 @@ fn compile_openal() -> anyhow::Result<()> {
             _ = Command::new("strip")
                 .arg("libopenal.so.1")
                 .current_dir(&openal_src_path)
-                .output()
-                .unwrap();
-            let mut bar = Vec::new();
-            for entry in  fs::read_dir(openal_src_path).unwrap() {
-                let foo = entry.unwrap();
-                bar.push(foo);
-            }
-            panic!("{:?}", bar);
+                .output()?;
             fs::copy(
                 openal_src_path.join("libopenal.so.1"),
                 openal_path.join("libopenal.so.1"),

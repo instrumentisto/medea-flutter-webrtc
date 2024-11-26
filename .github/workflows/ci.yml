@@ -165,8 +165,8 @@ jobs:
   build-linux:
     name: build (linux)
     runs-on: ubuntu-latest
-    # Pin glibc to 2.31 version for better compatibility.
-    container: debian:bullseye
+#    # Pin glibc to 2.31 version for better compatibility.
+#    container: debian:bullseye
     steps:
       - uses: actions/checkout@v4
       - name: Install Linux platform dependencies
