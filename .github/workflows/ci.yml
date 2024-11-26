@@ -137,7 +137,8 @@ jobs:
           - macos
           - windows
           - linux
-    runs-on: ${{ (matrix.platform == 'windows' && 'windows-latest')
+    runs-on: ${{ (matrix.platform == 'linux' && 'ubuntu-latest')
+              || (matrix.platform == 'windows' && 'windows-latest')
               || 'macos-12' }}
     steps:
       - uses: actions/checkout@v4
