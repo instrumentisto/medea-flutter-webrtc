@@ -134,11 +134,12 @@ jobs:
       fail-fast: false
       matrix:
         platform:
+          - linux
           - macos
           - windows
-          - linux
-    runs-on: ${{ (matrix.platform == 'windows' && 'windows-latest')
-              || 'macos-12' }}
+    runs-on: ${{ (matrix.platform == 'macos'   && 'macos-12')
+              || (matrix.platform == 'windows' && 'windows-latest')
+              ||                                  'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@v1
@@ -147,6 +148,14 @@ jobs:
       - run: make rustup.targets only=${{ matrix.platform }}
       - uses: subosito/flutter-action@v2
       - run: flutter config --enable-${{ matrix.platform }}-desktop
+
+      - name: Install Linux platform dependencies
+        run: sudo apt-get install -y
+                          libgtk-3-dev libpulse-dev libudev-dev
+                          libxcomposite-dev libxdamage-dev libxfixes-dev
+                          libxrandr-dev libxtst-dev
+                          ninja-build
+        if: ${{ matrix.platform == 'linux' }}
 
       # Pin Xcode version for better compatibility.
       - uses: maxim-lobanov/setup-xcode@v1
