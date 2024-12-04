@@ -13,10 +13,10 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Changed
 
-- Upgraded [OpenAL] library to [1.24.1][openal-1.24.1] version. ([#181], [#???])
+- Upgraded [OpenAL] library to [1.24.1][openal-1.24.1] version. ([#181], [#182])
 
 [#181]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/181
-[#???]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/???
+[#182]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/182
 [openal-1.24.1]: https://github.com/kcat/openal-soft/releases/tag/1.24.1
 
 
