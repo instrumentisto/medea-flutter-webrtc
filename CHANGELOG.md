@@ -15,7 +15,7 @@ All user visible changes to this project will be documented in this file. This p
 
 - Upgraded [OpenAL] library to [1.24.1][openal-1.24.1] version. ([#182], [#181])
 - Upgraded [libwebrtc] to [131.0.6778.85-r1] version. ([#180])
-- Upgraded [flutter-rust-bridge] to [2.6.0][frb-2.6.0] version. ([#183])
+- Upgraded [flutter-rust-bridge] to [2.7.0][frb-2.7.0] version. ([#183])
 
 [#180]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/180
 [#181]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/181
@@ -24,7 +24,7 @@ All user visible changes to this project will be documented in this file. This p
 [openal-1.24.1]: https://github.com/kcat/openal-soft/releases/tag/1.24.1
 [131.0.6778.85-r1]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/131.0.6778.85-r1
 [flutter-rust-bridge]: https://github.com/fzyzcjy/flutter_rust_bridge
-[frb-2.6.0]: https://github.com/fzyzcjy/flutter_rust_bridge/releases/tag/v2.6.0
+[frb-2.7.0]: https://github.com/fzyzcjy/flutter_rust_bridge/releases/tag/v2.7.0
 
 
 
