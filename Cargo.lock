@@ -1084,7 +1084,6 @@ dependencies = [
  "dashmap",
  "derive_more",
  "flutter_rust_bridge",
- "flutter_rust_bridge_macros",
  "lazy_static",
  "libpulse-binding",
  "libudev",
