@@ -307,6 +307,7 @@ void main() {
     ];
 
     for (var mimeType in mimeTypes) {
+      // ignore: avoid_print
       print("mimeType: $mimeType");
       expect(
           senderCapabilities.codecs
