@@ -299,7 +299,6 @@ void main() {
       'audio/opus',
       'audio/red',
       'audio/G722',
-//       'audio/ILBC',
       'audio/PCMU',
       'audio/PCMA',
       'audio/CN',
@@ -307,8 +306,6 @@ void main() {
     ];
 
     for (var mimeType in mimeTypes) {
-      // ignore: avoid_print
-      print("mimeType: $mimeType");
       expect(
           senderCapabilities.codecs
               .where((cap) => cap.mimeType == mimeType)
