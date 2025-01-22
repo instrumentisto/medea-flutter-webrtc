@@ -307,7 +307,7 @@ void main() {
     ];
 
     for (var mimeType in mimeTypes) {
-    print("mimeType: $mimeType");
+      print("mimeType: $mimeType");
       expect(
           senderCapabilities.codecs
               .where((cap) => cap.mimeType == mimeType)
