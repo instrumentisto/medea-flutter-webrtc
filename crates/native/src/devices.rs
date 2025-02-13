@@ -663,7 +663,7 @@ mod win_default_device_callback {
     }
 }
 
-// #[cfg(target_os = "windows")]
+#[cfg(target_os = "windows")]
 /// Creates a detached [`Thread`] creating and registering a system message
 /// window - [`HWND`].
 ///
