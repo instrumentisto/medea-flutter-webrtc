@@ -16,7 +16,7 @@ use pulse::mainloop::standard::IterateResult;
 use windows::{
     core::PCWSTR,
     Win32::{
-        Foundation::{HMODULE, HWND, LPARAM, LRESULT, WPARAM},
+        Foundation::{HWND, LPARAM, LRESULT, WPARAM},
         UI::WindowsAndMessaging::{
             CreateWindowExW, DefWindowProcW, DispatchMessageW, GetMessageW,
             RegisterClassExW, ShowWindow, TranslateMessage, CW_USEDEFAULT,
@@ -663,7 +663,7 @@ mod win_default_device_callback {
     }
 }
 
-#[cfg(target_os = "windows")]
+// #[cfg(target_os = "windows")]
 /// Creates a detached [`Thread`] creating and registering a system message
 /// window - [`HWND`].
 ///
@@ -742,7 +742,7 @@ pub unsafe fn init() {
             0,
             None,
             None,
-            HMODULE(ptr::null_mut()),
+            None,
             None,
         );
 
