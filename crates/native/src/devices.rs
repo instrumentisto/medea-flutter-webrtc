@@ -566,12 +566,12 @@ mod win_default_device_callback {
     use windows::{
         core::{Result, PCWSTR},
         Win32::{
+            Foundation::PROPERTYKEY,
             Media::Audio::{
                 EDataFlow, ERole, IMMDeviceEnumerator, IMMNotificationClient,
                 IMMNotificationClient_Impl, MMDeviceEnumerator, DEVICE_STATE,
             },
             System::Com::{CoCreateInstance, CLSCTX_ALL},
-            UI::Shell::PropertiesSystem::PROPERTYKEY,
         },
     };
 
@@ -758,7 +758,7 @@ pub unsafe fn init() {
 
         let mut msg: MSG = mem::zeroed();
 
-        while GetMessageW(&mut msg, hwnd, 0, 0).into() {
+        while GetMessageW(&mut msg, Some(hwnd), 0, 0).into() {
             if msg.message == WM_QUIT {
                 break;
             }

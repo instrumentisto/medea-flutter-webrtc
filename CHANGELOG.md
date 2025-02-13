@@ -6,6 +6,21 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.12.3] · 2025-??-??
+[0.12.3]: https://github.com/instrumentisto/medea-flutter-webrtc/tree/0.12.3
+
+[Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.12.2...0.12.3)
+
+### Changed
+
+- Upgraded [`flutter_rust_bridge`] crate to [2.8.0][frb-2.8.0] version. ([#185])
+
+[#185]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/185
+[frb-2.8.0]: https://github.com/fzyzcjy/flutter_rust_bridge/releases/tag/v2.8.0
+
+
+
+
 ## [0.12.2] · 2025-02-03
 [0.12.2]: https://github.com/instrumentisto/medea-flutter-webrtc/tree/0.12.2
 
@@ -113,10 +128,10 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Changed
 
-- Upgraded [`flutter_rust_bridge`] crate to [2.2.0][frb-2.2.0] version. ([#167])
+- Upgraded [`flutter_rust_bridge`] crate to [2.2.0][frb-2.8.0] version. ([#167])
 
 [#167]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/167
-[frb-2.2.0]: https://github.com/fzyzcjy/flutter_rust_bridge/releases/tag/v2.2.0
+[frb-2.8.0]: https://github.com/fzyzcjy/flutter_rust_bridge/releases/tag/v2.8.0
 
 
 
