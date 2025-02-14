@@ -128,10 +128,10 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Changed
 
-- Upgraded [`flutter_rust_bridge`] crate to [2.2.0][frb-2.8.0] version. ([#167])
+- Upgraded [`flutter_rust_bridge`] crate to [2.2.0][frb-2.2.0] version. ([#167])
 
 [#167]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/167
-[frb-2.8.0]: https://github.com/fzyzcjy/flutter_rust_bridge/releases/tag/v2.8.0
+[frb-2.2.0]: https://github.com/fzyzcjy/flutter_rust_bridge/releases/tag/v2.2.0
 
 
 
