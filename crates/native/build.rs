@@ -38,6 +38,9 @@ fn main() -> anyhow::Result<()> {
     #[cfg(not(target_os = "macos"))]
     cxx_build::bridge("src/renderer.rs")
         .flag("-std=c++17")
+        .asm_flag("-Wa")
+        .asm_flag("--crel")
+        .asm_flag("--allow-experimental-crel")
         .compile("cpp_api_bindings");
 
     Ok(())
