@@ -71,9 +71,6 @@ fn main() -> anyhow::Result<()> {
             .flag("-DWEBRTC_LINUX")
             .flag("-DWEBRTC_POSIX")
             .flag("-DWEBRTC_USE_X11")
-            .asm_flag("-Wa")
-            .asm_flag("--crel")
-            .asm_flag("--allow-experimental-crel")
             .flag("-std=c++17");
     }
     #[cfg(target_os = "macos")]
