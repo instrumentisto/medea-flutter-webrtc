@@ -1,36 +1,32 @@
+#[cfg(target_os = "windows")]
+use std::{ffi::OsStr, mem, os::windows::prelude::OsStrExt, thread};
 use std::{
     ptr,
     sync::atomic::{AtomicPtr, Ordering},
 };
 
-#[cfg(target_os = "windows")]
-use std::{ffi::OsStr, mem, os::windows::prelude::OsStrExt, thread};
-
 use anyhow::anyhow;
 use libwebrtc_sys as sys;
-
 #[cfg(target_os = "linux")]
 use pulse::mainloop::standard::IterateResult;
-
 #[cfg(target_os = "windows")]
 use windows::{
-    core::PCWSTR,
     Win32::{
         Foundation::{HWND, LPARAM, LRESULT, WPARAM},
         UI::WindowsAndMessaging::{
-            CreateWindowExW, DefWindowProcW, DispatchMessageW, GetMessageW,
-            RegisterClassExW, ShowWindow, TranslateMessage, CW_USEDEFAULT,
-            DBT_DEVNODES_CHANGED, MSG, SW_HIDE, WINDOW_EX_STYLE,
-            WM_DEVICECHANGE, WM_QUIT, WNDCLASSEXW, WS_ICONIC,
+            CW_USEDEFAULT, CreateWindowExW, DBT_DEVNODES_CHANGED,
+            DefWindowProcW, DispatchMessageW, GetMessageW, MSG,
+            RegisterClassExW, SW_HIDE, ShowWindow, TranslateMessage,
+            WINDOW_EX_STYLE, WM_DEVICECHANGE, WM_QUIT, WNDCLASSEXW, WS_ICONIC,
         },
     },
+    core::PCWSTR,
 };
 
 use crate::{
-    api,
+    AudioDeviceModule, Webrtc, api,
     frb_generated::StreamSink,
     user_media::{AudioDeviceId, VideoDeviceId},
-    AudioDeviceModule, Webrtc,
 };
 
 /// Static instance of a [`DeviceState`].
@@ -377,7 +373,7 @@ pub mod linux_device_change {
         };
 
         use libudev::EventType;
-        use nix::poll::{ppoll, PollFd, PollFlags};
+        use nix::poll::{PollFd, PollFlags, ppoll};
 
         use crate::devices::ON_DEVICE_CHANGE;
 
@@ -430,8 +426,8 @@ pub mod linux_device_change {
         use anyhow::anyhow;
         use pulse::{
             context::{
-                subscribe::{Facility, InterestMaskSet, Operation},
                 Context, FlagSet, State,
+                subscribe::{Facility, InterestMaskSet, Operation},
             },
             mainloop::standard::{IterateResult, Mainloop},
         };
@@ -525,10 +521,7 @@ pub mod linux_device_change {
                     | InterestMaskSet::SERVER;
                 context.subscribe(mask, |_| {});
 
-                Ok(Self {
-                    _context: context,
-                    main_loop,
-                })
+                Ok(Self { _context: context, main_loop })
             }
         }
     }
@@ -564,15 +557,16 @@ mod win_default_device_callback {
     };
 
     use windows::{
-        core::{Result, PCWSTR},
         Win32::{
             Foundation::PROPERTYKEY,
             Media::Audio::{
-                EDataFlow, ERole, IMMDeviceEnumerator, IMMNotificationClient,
-                IMMNotificationClient_Impl, MMDeviceEnumerator, DEVICE_STATE,
+                DEVICE_STATE, EDataFlow, ERole, IMMDeviceEnumerator,
+                IMMNotificationClient, IMMNotificationClient_Impl,
+                MMDeviceEnumerator,
             },
-            System::Com::{CoCreateInstance, CLSCTX_ALL},
+            System::Com::{CLSCTX_ALL, CoCreateInstance},
         },
+        core::{PCWSTR, Result},
     };
 
     /// Storage for an [`IMMDeviceEnumerator`] used for detecting default audio

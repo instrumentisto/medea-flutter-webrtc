@@ -80,11 +80,8 @@ fn macos_link_search_path() -> Option<String> {
     }
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    stdout
-        .lines()
-        .filter(|l| l.contains("libraries: ="))
-        .find_map(|l| {
-            let path = l.split('=').nth(1)?;
-            (!path.is_empty()).then(|| format!("{path}/lib/darwin"))
-        })
+    stdout.lines().filter(|l| l.contains("libraries: =")).find_map(|l| {
+        let path = l.split('=').nth(1)?;
+        (!path.is_empty()).then(|| format!("{path}/lib/darwin"))
+    })
 }

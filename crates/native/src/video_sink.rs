@@ -4,7 +4,7 @@ use derive_more::with_trait::{AsMut, AsRef};
 use libwebrtc_sys as sys;
 
 use crate::{
-    renderer::FrameHandler, user_media::TrackOrigin, VideoTrackId, Webrtc,
+    VideoTrackId, Webrtc, renderer::FrameHandler, user_media::TrackOrigin,
 };
 
 impl Webrtc {
@@ -84,12 +84,7 @@ impl VideoSink {
         track_id: VideoTrackId,
         track_origin: TrackOrigin,
     ) -> Self {
-        Self {
-            id: Id(id),
-            inner: sink,
-            track_id,
-            track_origin,
-        }
+        Self { id: Id(id), inner: sink, track_id, track_origin }
     }
 
     /// Returns an [`Id`] of this [`VideoSink`].

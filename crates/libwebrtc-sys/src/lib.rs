@@ -11,20 +11,19 @@ mod bridge;
 use std::{collections::HashMap, mem};
 
 use anyhow::{anyhow, bail};
-use cxx::{let_cxx_string, CxxString, CxxVector, UniquePtr};
+use cxx::{CxxString, CxxVector, UniquePtr, let_cxx_string};
 use derive_more::with_trait::From;
 
 use self::bridge::webrtc;
-
 pub use crate::webrtc::{
-    candidate_to_string, get_candidate_pair,
+    AudioLayer, BundlePolicy, Candidate, CandidatePairChangeEvent,
+    CandidateType, IceConnectionState, IceGatheringState, IceTransportsType,
+    MediaType, PeerConnectionState, RTCStatsIceCandidatePairState,
+    RtcpFeedbackMessageType, RtcpFeedbackType, RtpTransceiverDirection,
+    ScalabilityMode, SdpType, SignalingState, TrackState, VideoFrame,
+    VideoRotation, candidate_to_string, get_candidate_pair,
     get_estimated_disconnected_time_ms, get_last_data_received_ms, get_reason,
-    video_frame_to_abgr, video_frame_to_argb, AudioLayer, BundlePolicy,
-    Candidate, CandidatePairChangeEvent, CandidateType, IceConnectionState,
-    IceGatheringState, IceTransportsType, MediaType, PeerConnectionState,
-    RTCStatsIceCandidatePairState, RtcpFeedbackMessageType, RtcpFeedbackType,
-    RtpTransceiverDirection, ScalabilityMode, SdpType, SignalingState,
-    TrackState, VideoFrame, VideoRotation,
+    video_frame_to_abgr, video_frame_to_argb,
 };
 
 /// Handler of events firing from a [`MediaStreamTrackInterface`].
@@ -228,9 +227,7 @@ impl AudioDeviceModule {
             worker_thread.0.pin_mut(),
             audio_layer,
             task_queue_factory.0.pin_mut(),
-            &audio_processing
-                .unwrap_or(&AudioProcessing(UniquePtr::null()))
-                .0,
+            &audio_processing.unwrap_or(&AudioProcessing(UniquePtr::null())).0,
         );
 
         if ptr.is_null() {
@@ -1873,10 +1870,7 @@ impl PeerConnectionFactoryInterface {
                  CreatePeerConnectionOrError()`",
             );
         }
-        Ok(PeerConnectionInterface {
-            inner,
-            _observer: dependencies.observer,
-        })
+        Ok(PeerConnectionInterface { inner, _observer: dependencies.observer })
     }
 
     /// Creates a new [`VideoTrackInterface`] sourced by the provided
@@ -1894,10 +1888,7 @@ impl PeerConnectionFactoryInterface {
                  `webrtc::PeerConnectionFactoryInterface::CreateVideoTrack()`",
             );
         }
-        Ok(VideoTrackInterface {
-            inner,
-            observers: Vec::new(),
-        })
+        Ok(VideoTrackInterface { inner, observers: Vec::new() })
     }
 
     /// Creates a new [`AudioTrackInterface`] sourced by the provided
@@ -1915,10 +1906,7 @@ impl PeerConnectionFactoryInterface {
                  `webrtc::PeerConnectionFactoryInterface::CreateAudioTrack()`",
             );
         }
-        Ok(AudioTrackInterface {
-            inner,
-            observers: Vec::new(),
-        })
+        Ok(AudioTrackInterface { inner, observers: Vec::new() })
     }
 
     /// Creates a new empty [`MediaStreamInterface`].
@@ -2258,10 +2246,7 @@ impl TryFrom<MediaStreamTrackInterface> for VideoTrackInterface {
                 webrtc::media_stream_track_interface_downcast_video_track(
                     track.0,
                 );
-            Ok(VideoTrackInterface {
-                inner,
-                observers: Vec::new(),
-            })
+            Ok(VideoTrackInterface { inner, observers: Vec::new() })
         } else {
             bail!(
                 "The provided `MediaStreamTrackInterface` is not an instance \
@@ -2335,10 +2320,7 @@ impl TryFrom<MediaStreamTrackInterface> for AudioTrackInterface {
                 webrtc::media_stream_track_interface_downcast_audio_track(
                     track.0,
                 );
-            Ok(AudioTrackInterface {
-                inner,
-                observers: Vec::new(),
-            })
+            Ok(AudioTrackInterface { inner, observers: Vec::new() })
         } else {
             bail!(
                 "The provided `MediaStreamTrackInterface` is not an instance \
@@ -3207,10 +3189,7 @@ impl TryFrom<webrtc::RTCStatsWrap> for RtcStatsType {
                         frames_per_second: frames_per_second.take(),
                     }
                 };
-                Self::RtcMediaSourceStats {
-                    track_identifier,
-                    kind,
-                }
+                Self::RtcMediaSourceStats { track_identifier, kind }
             }
             T::RTCOutboundRTPStreamStats => {
                 let webrtc::RTCOutboundRTPStreamStatsWrap {
@@ -3325,22 +3304,14 @@ pub struct RtcStats {
 impl TryFrom<webrtc::RTCStatsWrap> for RtcStats {
     type Error = anyhow::Error;
     fn try_from(stats: webrtc::RTCStatsWrap) -> Result<Self, Self::Error> {
-        let webrtc::RTCStatsWrap {
-            id,
-            timestamp_us,
-            kind: _,
-            stats: _,
-        } = &stats;
+        let webrtc::RTCStatsWrap { id, timestamp_us, kind: _, stats: _ } =
+            &stats;
 
         let id = id.clone();
         let timestamp_us = *timestamp_us;
         let kind = RtcStatsType::try_from(stats)?;
 
-        Ok(Self {
-            id,
-            timestamp_us,
-            kind,
-        })
+        Ok(Self { id, timestamp_us, kind })
     }
 }
 

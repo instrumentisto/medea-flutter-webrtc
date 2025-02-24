@@ -2,8 +2,9 @@ use std::{
     hash::Hash,
     mem,
     sync::{
+        Arc, Mutex, OnceLock, Weak,
         atomic::{AtomicBool, Ordering},
-        mpsc, Arc, Mutex, OnceLock, Weak,
+        mpsc,
     },
 };
 
@@ -15,11 +16,11 @@ use libwebrtc_sys as sys;
 use threadpool::ThreadPool;
 
 use crate::{
+    AudioTrack, AudioTrackId, VideoTrack, VideoTrackId, Webrtc,
     api::{self, RtpCodecCapability, RtpTransceiverInit},
     frb_generated::{RustOpaque, StreamSink},
     next_id,
     user_media::TrackOrigin,
-    AudioTrack, AudioTrackId, VideoTrack, VideoTrackId, Webrtc,
 };
 
 impl Webrtc {
@@ -365,11 +366,7 @@ impl PeerConnection {
         sdp_mline_index: i32,
         add_candidate_tx: mpsc::Sender<anyhow::Result<()>>,
     ) -> anyhow::Result<()> {
-        let candidate = IceCandidate {
-            candidate,
-            sdp_mid,
-            sdp_mline_index,
-        };
+        let candidate = IceCandidate { candidate, sdp_mid, sdp_mline_index };
 
         if self.has_remote_description.load(Ordering::SeqCst) {
             self.inner.lock().unwrap().add_ice_candidate(
@@ -461,12 +458,7 @@ impl PeerConnection {
             )
         };
 
-        Ok(api::RtcRtpTransceiver {
-            peer: this,
-            transceiver,
-            mid,
-            direction,
-        })
+        Ok(api::RtcRtpTransceiver { peer: this, transceiver, mid, direction })
     }
 
     /// Initiates the creation of an SDP offer for the purpose of starting a new
@@ -594,10 +586,7 @@ impl RtpParameters {
     ///
     /// If the [`Mutex`] guarding the [`sys::RtpParameters`] is poisoned.
     fn update_encoding(&self, encoding: &RtpEncodingParameters) {
-        self.0
-            .lock()
-            .unwrap()
-            .set_encodings(&encoding.0.lock().unwrap());
+        self.0.lock().unwrap().set_encodings(&encoding.0.lock().unwrap());
     }
 }
 
@@ -687,10 +676,7 @@ impl RtpEncodingParameters {
     /// If the [`Mutex`] guarding the [`sys::RtpEncodingParameters`] is
     /// poisoned.
     pub fn set_scalability_mode(&self, scalability_mode: String) {
-        self.0
-            .lock()
-            .unwrap()
-            .set_scalability_mode(scalability_mode);
+        self.0.lock().unwrap().set_scalability_mode(scalability_mode);
     }
 }
 

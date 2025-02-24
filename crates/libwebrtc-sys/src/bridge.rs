@@ -72,8 +72,8 @@ impl OptionRtcpFeedbackMessageType {
 
 /// Creates an empty Rust [`Option`]`<`[`RtcpFeedbackMessageType`]`>` value.
 #[expect(clippy::unnecessary_box_returns, reason = "FFI")]
-pub fn init_option_rtcp_feedback_message_type(
-) -> Box<OptionRtcpFeedbackMessageType> {
+pub fn init_option_rtcp_feedback_message_type()
+-> Box<OptionRtcpFeedbackMessageType> {
     Box::new(OptionRtcpFeedbackMessageType(None))
 }
 
@@ -1603,8 +1603,8 @@ pub(crate) mod webrtc {
         pub fn set_output_will_be_muted(ap: &AudioProcessing, muted: bool);
 
         /// Creates a new [`AudioProcessingConfig`].
-        pub fn create_audio_processing_config(
-        ) -> UniquePtr<AudioProcessingConfig>;
+        pub fn create_audio_processing_config()
+        -> UniquePtr<AudioProcessingConfig>;
 
         /// Returns [`AudioProcessingConfig`] of the provided
         /// [`AudioProcessing`].
@@ -2237,8 +2237,8 @@ pub(crate) mod webrtc {
 
         /// Creates an empty Rust [`Option`]`<`[`RtcpFeedbackMessageType`]`>`
         /// value.
-        pub fn init_option_rtcp_feedback_message_type(
-        ) -> Box<OptionRtcpFeedbackMessageType>;
+        pub fn init_option_rtcp_feedback_message_type()
+        -> Box<OptionRtcpFeedbackMessageType>;
 
         /// Sets the specified [`Option`]`<`[`RtcpFeedbackMessageType`]`>`
         /// to [`Some`]`(value)`.
@@ -3381,10 +3381,7 @@ pub fn on_audio_level_change(
 
 /// Creates a new [`StringPair`].
 fn new_string_pair(f: &CxxString, s: &CxxString) -> webrtc::StringPair {
-    webrtc::StringPair {
-        first: f.to_string(),
-        second: s.to_string(),
-    }
+    webrtc::StringPair { first: f.to_string(), second: s.to_string() }
 }
 
 /// Calls the success [`DynAddIceCandidateCallback`].
@@ -3512,7 +3509,7 @@ impl TryFrom<&str> for webrtc::BundlePolicy {
 }
 
 impl fmt::Display for webrtc::SdpType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Self::kOffer => write!(f, "offer"),
             Self::kAnswer => write!(f, "answer"),
@@ -3524,7 +3521,7 @@ impl fmt::Display for webrtc::SdpType {
 }
 
 impl fmt::Display for webrtc::RtpTransceiverDirection {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Self::kSendRecv => write!(f, "sendrecv"),
             Self::kSendOnly => write!(f, "sendonly"),
@@ -3537,7 +3534,7 @@ impl fmt::Display for webrtc::RtpTransceiverDirection {
 }
 
 impl fmt::Display for webrtc::SignalingState {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Self::kStable => write!(f, "stable"),
             Self::kHaveLocalOffer => write!(f, "have-local-offer"),
@@ -3551,7 +3548,7 @@ impl fmt::Display for webrtc::SignalingState {
 }
 
 impl fmt::Display for webrtc::IceGatheringState {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Self::kIceGatheringNew => write!(f, "new"),
             Self::kIceGatheringGathering => write!(f, "gathering"),
@@ -3562,7 +3559,7 @@ impl fmt::Display for webrtc::IceGatheringState {
 }
 
 impl fmt::Display for webrtc::IceConnectionState {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Self::kIceConnectionNew => write!(f, "new"),
             Self::kIceConnectionChecking => write!(f, "checking"),
@@ -3577,7 +3574,7 @@ impl fmt::Display for webrtc::IceConnectionState {
 }
 
 impl fmt::Display for webrtc::TrackState {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Self::kLive => write!(f, "live"),
             Self::kEnded => write!(f, "ended"),
@@ -3587,7 +3584,7 @@ impl fmt::Display for webrtc::TrackState {
 }
 
 impl fmt::Display for webrtc::MediaType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Self::MEDIA_TYPE_AUDIO => write!(f, "audio"),
             Self::MEDIA_TYPE_VIDEO => write!(f, "video"),
@@ -3599,7 +3596,7 @@ impl fmt::Display for webrtc::MediaType {
 }
 
 impl fmt::Display for webrtc::PeerConnectionState {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Self::kNew => write!(f, "new"),
             Self::kConnecting => write!(f, "connecting"),

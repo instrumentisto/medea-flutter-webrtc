@@ -1,26 +1,26 @@
 use std::{
     sync::{
+        Arc, Mutex,
         atomic::{AtomicBool, Ordering},
-        mpsc, Arc, Mutex,
+        mpsc,
     },
     time::Duration,
 };
 
 use libwebrtc_sys as sys;
 
+// Re-exporting since it is used in the generated code.
+pub use crate::{
+    PeerConnection, RtpEncodingParameters, RtpParameters, RtpTransceiver,
+    renderer::TextureEvent,
+};
 use crate::{
+    Webrtc,
     devices::{self, DeviceState},
     frb_generated::{RustOpaque, StreamSink},
     pc::PeerConnectionId,
     renderer::FrameHandler,
     user_media::TrackOrigin,
-    Webrtc,
-};
-
-// Re-exporting since it is used in the generated code.
-pub use crate::{
-    renderer::TextureEvent, PeerConnection, RtpEncodingParameters,
-    RtpParameters, RtpTransceiver,
 };
 
 lazy_static::lazy_static! {
@@ -1018,15 +1018,9 @@ impl From<sys::RtcOutboundRtpStreamStatsMediaType>
                 total_samples_sent: None,
                 voice_activity_flag: None,
             },
-            T::Video {
-                frame_width,
-                frame_height,
-                frames_per_second,
-            } => Self::Video {
-                frame_width,
-                frame_height,
-                frames_per_second,
-            },
+            T::Video { frame_width, frame_height, frames_per_second } => {
+                Self::Video { frame_width, frame_height, frames_per_second }
+            }
         }
     }
 }
@@ -1377,13 +1371,12 @@ impl From<sys::RtcStatsType> for RtcStatsType {
         use sys::RtcStatsType as T;
 
         match kind {
-            T::RtcMediaSourceStats {
-                track_identifier,
-                kind,
-            } => Self::RtcMediaSourceStats {
-                track_identifier,
-                kind: kind.into(),
-            },
+            T::RtcMediaSourceStats { track_identifier, kind } => {
+                Self::RtcMediaSourceStats {
+                    track_identifier,
+                    kind: kind.into(),
+                }
+            }
             T::RtcIceCandidateStats(stats) => match stats {
                 sys::RtcIceCandidateStats::RtcLocalIceCandidateStats(
                     candidate,
@@ -1515,16 +1508,8 @@ pub struct RtcStats {
 
 impl From<sys::RtcStats> for RtcStats {
     fn from(stats: sys::RtcStats) -> Self {
-        let sys::RtcStats {
-            id,
-            timestamp_us,
-            kind,
-        } = stats;
-        Self {
-            id,
-            timestamp_us,
-            kind: RtcStatsType::from(kind),
-        }
+        let sys::RtcStats { id, timestamp_us, kind } = stats;
+        Self { id, timestamp_us, kind: RtcStatsType::from(kind) }
     }
 }
 
@@ -2227,10 +2212,8 @@ pub struct RtcRtpSendParameters {
     /// Sequence containing parameters for sending [RTP] encodings of media.
     ///
     /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
-    pub encodings: Vec<(
-        RtcRtpEncodingParameters,
-        RustOpaque<Arc<RtpEncodingParameters>>,
-    )>,
+    pub encodings:
+        Vec<(RtcRtpEncodingParameters, RustOpaque<Arc<RtpEncodingParameters>>)>,
 
     /// Reference to the Rust side [`RtpParameters`].
     pub inner: RustOpaque<Arc<RtpParameters>>,
@@ -2249,10 +2232,7 @@ impl From<RtpParameters> for RtcRtpSendParameters {
             })
             .collect();
 
-        Self {
-            encodings,
-            inner: RustOpaque::new(Arc::new(v)),
-        }
+        Self { encodings, inner: RustOpaque::new(Arc::new(v)) }
     }
 }
 
@@ -2519,10 +2499,7 @@ pub fn create_peer_connection(
     cb: StreamSink<PeerConnectionEvent>,
     configuration: RtcConfiguration,
 ) -> anyhow::Result<()> {
-    WEBRTC
-        .lock()
-        .unwrap()
-        .create_peer_connection(&cb, configuration)
+    WEBRTC.lock().unwrap().create_peer_connection(&cb, configuration)
 }
 
 /// Initiates the creation of an SDP offer for the purpose of starting a new
@@ -2657,11 +2634,7 @@ pub fn get_peer_stats(
     peer.get_stats(tx);
     let report = rx.recv_timeout(RX_TIMEOUT)?;
 
-    Ok(report
-        .get_stats()?
-        .into_iter()
-        .map(RtcStats::from)
-        .collect())
+    Ok(report.get_stats()?.into_iter().map(RtcStats::from).collect())
 }
 
 /// Irreversibly marks the specified [`RtcRtpTransceiver`] as stopping, unless
@@ -2694,10 +2667,7 @@ pub fn sender_replace_track(
     transceiver: RustOpaque<Arc<RtpTransceiver>>,
     track_id: Option<String>,
 ) -> anyhow::Result<()> {
-    WEBRTC
-        .lock()
-        .unwrap()
-        .sender_replace_track(&peer, &transceiver, track_id)
+    WEBRTC.lock().unwrap().sender_replace_track(&peer, &transceiver, track_id)
 }
 
 /// Returns [`RtpParameters`] from the provided [`RtpTransceiver`]'s `sender`.
@@ -2806,10 +2776,7 @@ pub fn microphone_volume() -> anyhow::Result<u32> {
 pub fn dispose_track(track_id: String, peer_id: Option<u32>, kind: MediaType) {
     let track_origin = TrackOrigin::from(peer_id.map(PeerConnectionId::from));
 
-    WEBRTC
-        .lock()
-        .unwrap()
-        .dispose_track(track_origin, track_id, kind);
+    WEBRTC.lock().unwrap().dispose_track(track_origin, track_id, kind);
 }
 
 /// Returns the [readyState][0] property of the [`MediaStreamTrack`] by its ID
@@ -2823,10 +2790,7 @@ pub fn track_state(
 ) -> anyhow::Result<TrackState> {
     let track_origin = TrackOrigin::from(peer_id.map(PeerConnectionId::from));
 
-    WEBRTC
-        .lock()
-        .unwrap()
-        .track_state(track_id, track_origin, kind)
+    WEBRTC.lock().unwrap().track_state(track_id, track_origin, kind)
 }
 
 /// Returns the [height] property of the media track by its ID and
@@ -2846,11 +2810,7 @@ pub fn track_height(
 
     let track_origin = TrackOrigin::from(peer_id.map(PeerConnectionId::from));
 
-    WEBRTC
-        .lock()
-        .unwrap()
-        .track_height(track_id, track_origin)
-        .map(Some)
+    WEBRTC.lock().unwrap().track_height(track_id, track_origin).map(Some)
 }
 
 /// Returns the [width] property of the media track by its ID and [`MediaType`].
@@ -2869,11 +2829,7 @@ pub fn track_width(
 
     let track_origin = TrackOrigin::from(peer_id.map(PeerConnectionId::from));
 
-    WEBRTC
-        .lock()
-        .unwrap()
-        .track_width(track_id, track_origin)
-        .map(Some)
+    WEBRTC.lock().unwrap().track_width(track_id, track_origin).map(Some)
 }
 
 /// Changes the [enabled][1] property of the [`MediaStreamTrack`] by its ID and
@@ -2904,10 +2860,7 @@ pub fn clone_track(
 ) -> anyhow::Result<MediaStreamTrack> {
     let track_origin = TrackOrigin::from(peer_id.map(PeerConnectionId::from));
 
-    WEBRTC
-        .lock()
-        .unwrap()
-        .clone_track(track_id, track_origin, kind)
+    WEBRTC.lock().unwrap().clone_track(track_id, track_origin, kind)
 }
 
 /// Registers an observer to the [`MediaStreamTrack`] events.

@@ -25,6 +25,7 @@ use walkdir::{DirEntry, WalkDir};
 /// Base URL for the [`libwebrtc-bin`] GitHub release.
 ///
 /// [`libwebrtc-bin`]: https://github.com/instrumentisto/libwebrtc-bin
+#[rustfmt::skip]
 static LIBWEBRTC_URL: &str =
     "https://github.com/instrumentisto/libwebrtc-bin/releases/download\
                                                     /132.0.6834.159";
@@ -248,10 +249,7 @@ fn compile_openal() -> anyhow::Result<()> {
 
     copy_dir_all(
         openal_src_path.join("include"),
-        manifest_path
-            .join("lib")
-            .join(get_target()?.as_str())
-            .join("include"),
+        manifest_path.join("lib").join(get_target()?.as_str()).join("include"),
     )
     .unwrap();
 
@@ -401,9 +399,8 @@ fn download_libwebrtc() -> anyhow::Result<()> {
 
 /// Returns a list of all C++ sources that should be compiled.
 fn get_cpp_files() -> anyhow::Result<Vec<PathBuf>> {
-    let dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?)
-        .join("src")
-        .join("cpp");
+    let dir =
+        PathBuf::from(env::var("CARGO_MANIFEST_DIR")?).join("src").join("cpp");
 
     #[cfg_attr(target_os = "macos", expect(unused_mut, reason = "cfg"))]
     let mut files = get_files_from_dir(dir);
@@ -436,15 +433,9 @@ fn link_libs() -> anyhow::Result<()> {
     let target = get_target()?;
     #[cfg(target_os = "linux")]
     {
-        for dep in [
-            "x11",
-            "xfixes",
-            "xdamage",
-            "xext",
-            "xtst",
-            "xrandr",
-            "xcomposite",
-        ] {
+        for dep in
+            ["x11", "xfixes", "xdamage", "xext", "xtst", "xrandr", "xcomposite"]
+        {
             pkg_config::Config::new().probe(dep).unwrap();
         }
         match env::var("PROFILE").unwrap().as_str() {
@@ -539,11 +530,8 @@ fn macos_link_search_path() -> Option<String> {
     }
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    stdout
-        .lines()
-        .filter(|l| l.contains("libraries: ="))
-        .find_map(|l| {
-            let path = l.split('=').nth(1)?;
-            (!path.is_empty()).then(|| format!("{path}/lib/darwin"))
-        })
+    stdout.lines().filter(|l| l.contains("libraries: =")).find_map(|l| {
+        let path = l.split('=').nth(1)?;
+        (!path.is_empty()).then(|| format!("{path}/lib/darwin"))
+    })
 }

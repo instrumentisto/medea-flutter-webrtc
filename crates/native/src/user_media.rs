@@ -6,7 +6,7 @@ use std::{
     sync::{Arc, Mutex, RwLock, Weak},
 };
 
-use anyhow::{anyhow, bail, Context};
+use anyhow::{Context, anyhow, bail};
 use derive_more::with_trait::{AsRef, Display, From, Into};
 use libwebrtc_sys as sys;
 // TODO: Use `std::sync::OnceLock` instead, once it support `.wait()` API.
@@ -15,11 +15,10 @@ use sys::AudioProcessing;
 use xxhash::xxh3::xxh3_64;
 
 use crate::{
-    api, devices,
+    PeerConnection, VideoSink, VideoSinkId, Webrtc, api, devices,
     frb_generated::StreamSink,
     next_id,
     pc::{PeerConnectionId, RtpTransceiver},
-    PeerConnection, VideoSink, VideoSinkId, Webrtc,
 };
 
 impl Webrtc {
@@ -149,8 +148,7 @@ impl Webrtc {
 
         let api_track = api::MediaStreamTrack::from(&track);
 
-        self.video_tracks
-            .insert((track.id.clone(), TrackOrigin::Local), track);
+        self.video_tracks.insert((track.id.clone(), TrackOrigin::Local), track);
 
         Ok(api_track)
     }
@@ -258,8 +256,7 @@ impl Webrtc {
 
         let api_track = api::MediaStreamTrack::from(&track);
 
-        self.audio_tracks
-            .insert((track.id.clone(), TrackOrigin::Local), track);
+        self.audio_tracks.insert((track.id.clone(), TrackOrigin::Local), track);
 
         Ok(api_track)
     }
@@ -666,11 +663,7 @@ impl VideoDeviceInfo {
 
     /// Returns count of a video recording devices.
     pub fn number_of_devices(&mut self) -> u32 {
-        if api::is_fake_media() {
-            1
-        } else {
-            self.0.number_of_devices()
-        }
+        if api::is_fake_media() { 1 } else { self.0.number_of_devices() }
     }
 
     /// Returns the `(label, id)` tuple for the given video device `index`.
@@ -799,11 +792,7 @@ impl AudioDeviceModule {
     /// If [`sys::AudioDeviceModule::recording_devices()`] call fails.
     #[must_use]
     pub fn recording_devices(&self) -> u32 {
-        if api::is_fake_media() {
-            1
-        } else {
-            self.inner.recording_devices()
-        }
+        if api::is_fake_media() { 1 } else { self.inner.recording_devices() }
     }
 
     /// Creates a new [`sys::AudioSourceInterface`] based on the provided
@@ -966,10 +955,7 @@ impl From<Option<PeerConnectionId>> for TrackOrigin {
 /// Possible kinds of media track's source.
 enum MediaTrackSource<T> {
     Local(Arc<T>),
-    Remote {
-        mid: String,
-        peer: Weak<PeerConnection>,
-    },
+    Remote { mid: String, peer: Weak<PeerConnection> },
 }
 
 /// Representation of a [`sys::VideoTrackInterface`].
@@ -1424,10 +1410,9 @@ impl AudioSource {
         let mut observers = self.observers.write().unwrap();
 
         if observers.is_empty() {
-            self.src
-                .subscribe(Box::new(BroadcasterObserver::new(Arc::clone(
-                    &self.observers,
-                ))));
+            self.src.subscribe(Box::new(BroadcasterObserver::new(Arc::clone(
+                &self.observers,
+            ))));
         }
 
         let observer_id = {

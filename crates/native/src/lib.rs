@@ -29,16 +29,14 @@ mod video_sink;
 use std::{
     collections::HashMap,
     sync::{
-        atomic::{AtomicU32, Ordering},
         Arc,
+        atomic::{AtomicU32, Ordering},
     },
 };
 
 use dashmap::DashMap;
 use libwebrtc_sys as sys;
 use threadpool::ThreadPool;
-
-use crate::{user_media::TrackOrigin, video_sink::Id as VideoSinkId};
 
 #[doc(inline)]
 pub use crate::{
@@ -52,6 +50,7 @@ pub use crate::{
     },
     video_sink::VideoSink,
 };
+use crate::{user_media::TrackOrigin, video_sink::Id as VideoSinkId};
 
 /// Counter used to generate unique IDs.
 static ID_COUNTER: AtomicU32 = AtomicU32::new(1);

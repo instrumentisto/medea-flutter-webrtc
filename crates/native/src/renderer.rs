@@ -1,10 +1,9 @@
 //! Implementations and definitions of the renderers API for C and C++ APIs.
 
+pub use frame_handler::FrameHandler;
 use libwebrtc_sys as sys;
 
 use crate::frb_generated::StreamSink;
-
-pub use frame_handler::FrameHandler;
 
 /// Frame change events.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -100,6 +99,7 @@ impl TextureEventNotifier {
 /// Definitions and implementation of a handler for C++ API [`sys::VideoFrame`]s
 /// renderer.
 mod frame_handler {
+    pub use cpp_api_bindings::{OnFrameCallbackInterface, VideoFrame};
     use cxx::UniquePtr;
     use derive_more::with_trait::From;
     use libwebrtc_sys as sys;
@@ -108,8 +108,6 @@ mod frame_handler {
         frb_generated::StreamSink,
         renderer::{TextureEvent, TextureEventNotifier},
     };
-
-    pub use cpp_api_bindings::{OnFrameCallbackInterface, VideoFrame};
 
     /// Handler for a [`sys::VideoFrame`]s renderer.
     pub struct FrameHandler {
@@ -230,7 +228,12 @@ mod frame_handler {
         ///
         /// The provided `buffer` must be a valid pointer.
         pub unsafe fn get_abgr_bytes(&self, buffer: *mut u8) {
-            libwebrtc_sys::video_frame_to_abgr(self.frame.0.as_ref(), buffer);
+            unsafe {
+                libwebrtc_sys::video_frame_to_abgr(
+                    self.frame.0.as_ref(),
+                    buffer,
+                );
+            }
         }
     }
 }
@@ -337,7 +340,7 @@ mod frame_handler {
     /// # Safety
     ///
     /// The provided `buffer` must be a valid pointer.
-    #[no_mangle]
+    #[unsafe(no_mangle)]
     unsafe extern "C" fn get_argb_bytes(
         frame: *mut sys::VideoFrame,
         argb_stride: i32,
@@ -351,7 +354,7 @@ mod frame_handler {
     }
 
     /// Drops the provided [`sys::VideoFrame`].
-    #[no_mangle]
+    #[unsafe(no_mangle)]
     unsafe extern "C" fn drop_frame(frame: *mut sys::VideoFrame) {
         UniquePtr::from_raw(frame);
     }
