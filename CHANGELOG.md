@@ -17,9 +17,10 @@ All user visible changes to this project will be documented in this file. This p
 
 ### BC Breaks
 
-- Set [MSRV] to [1.85.0](https://blog.rust-lang.org/2025/02/20/Rust-1.85.0.html).
+- Set [MSRV] to [1.85.0](https://blog.rust-lang.org/2025/02/20/Rust-1.85.0.html). ([#188])
 
 [#185]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/185
+[#188]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/188
 [frb-2.8.0]: https://github.com/fzyzcjy/flutter_rust_bridge/releases/tag/v2.8.0
 
 
