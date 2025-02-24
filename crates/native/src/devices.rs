@@ -530,7 +530,7 @@ pub mod linux_device_change {
 #[cfg(target_os = "macos")]
 /// Sets native side callback for devices monitoring.
 pub unsafe fn init() {
-    extern "C" {
+    unsafe extern "C" {
         /// Passes the callback to the native side.
         pub fn set_on_device_change_mac(cb: unsafe extern "C" fn());
     }
@@ -543,7 +543,9 @@ pub unsafe fn init() {
         }
     }
 
-    set_on_device_change_mac(on_device_change);
+    unsafe {
+        set_on_device_change_mac(on_device_change);
+    }
 }
 
 #[cfg(target_os = "windows")]

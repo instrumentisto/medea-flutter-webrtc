@@ -326,7 +326,7 @@ mod frame_handler {
         }
     }
 
-    extern "C" {
+    unsafe extern "C" {
         /// C side function into which [`Frame`]s will be passed.
         pub fn on_frame_caller(handler: *const (), frame: Frame);
 
@@ -346,16 +346,18 @@ mod frame_handler {
         argb_stride: i32,
         buffer: *mut u8,
     ) {
-        libwebrtc_sys::video_frame_to_argb(
-            frame.as_ref().unwrap(),
-            argb_stride,
-            buffer,
-        );
+        unsafe {
+            libwebrtc_sys::video_frame_to_argb(
+                frame.as_ref().unwrap(),
+                argb_stride,
+                buffer,
+            );
+        }
     }
 
     /// Drops the provided [`sys::VideoFrame`].
     #[unsafe(no_mangle)]
     unsafe extern "C" fn drop_frame(frame: *mut sys::VideoFrame) {
-        UniquePtr::from_raw(frame);
+        unsafe { UniquePtr::from_raw(frame) };
     }
 }
