@@ -165,7 +165,8 @@ jobs:
 
       - run: make cargo.build platform=${{ matrix.platform }} debug=no
       - run: flutter doctor -v
-      - run: make flutter.build platform=${{ matrix.platform }}
+      - run: flutter build ${{ matrix.platform }} -v
+      # - run: make flutter.build platform=${{ matrix.platform }}
 
       - uses: actions/upload-artifact@v4
         with:
