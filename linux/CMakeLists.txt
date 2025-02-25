@@ -15,6 +15,11 @@ set(CMAKE_CXX_STANDARD 17)
 # Set the linker to lld
 set(CMAKE_LINKER "lld")
 
+# Set the linker to lld
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld")
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=lld")
+set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -fuse-ld=lld")
+
 # Define the plugin library target. Its name must not be changed (see comment
 # on PLUGIN_NAME above).
 #
