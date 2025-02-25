@@ -12,9 +12,6 @@ project(${PROJECT_NAME} LANGUAGES CXX)
 set(PLUGIN_NAME "medea_flutter_webrtc_plugin")
 set(CMAKE_CXX_STANDARD 17)
 
-# Set the linker to lld
-set(CMAKE_LINKER "lld")
-
 # Define the plugin library target. Its name must not be changed (see comment
 # on PLUGIN_NAME above).
 #
