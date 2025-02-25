@@ -610,13 +610,11 @@ mod win_default_device_callback {
             _: &PCWSTR,
         ) -> Result<()> {
             if role == ERole(0) {
-                unsafe {
-                    let state = super::ON_DEVICE_CHANGE.load(Ordering::SeqCst);
+                let state = super::ON_DEVICE_CHANGE.load(Ordering::SeqCst);
 
-                    if !state.is_null() {
-                        let device_state = unsafe { &mut *state };
-                        device_state.on_device_change();
-                    }
+                if !state.is_null() {
+                    let device_state = unsafe { &mut *state };
+                    device_state.on_device_change();
                 }
             }
 
@@ -683,7 +681,7 @@ pub unsafe fn init() {
                 let state = ON_DEVICE_CHANGE.load(Ordering::SeqCst);
 
                 if !state.is_null() {
-                    let device_state = &mut *state;
+                    let device_state = unsafe { &mut *state };
                     let new_video_count = device_state.count_video_devices();
                     let new_audio_count = device_state.count_audio_devices();
 
