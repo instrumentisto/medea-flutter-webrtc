@@ -614,7 +614,7 @@ mod win_default_device_callback {
                     let state = super::ON_DEVICE_CHANGE.load(Ordering::SeqCst);
 
                     if !state.is_null() {
-                        let device_state = &mut *state;
+                        let device_state = unsafe { &mut *state };
                         device_state.on_device_change();
                     }
                 }
@@ -697,7 +697,7 @@ pub unsafe fn init() {
                 }
             }
         } else {
-            result = DefWindowProcW(hwnd, msg, wp, lp);
+            result = unsafe { DefWindowProcW(hwnd, msg, wp, lp) };
         }
 
         result
@@ -719,7 +719,7 @@ pub unsafe fn init() {
             lpszClassName: PCWSTR(lpsz_class_name_ptr),
             ..WNDCLASSEXW::default()
         };
-        RegisterClassExW(&class);
+        unsafe { RegisterClassExW(&class) };
 
         let lp_window_name = OsStr::new("Notifier")
             .encode_wide()
@@ -727,20 +727,22 @@ pub unsafe fn init() {
             .collect::<Vec<u16>>();
         let lp_window_name_ptr = lp_window_name.as_ptr();
 
-        let hwnd = CreateWindowExW(
-            WINDOW_EX_STYLE(0),
-            class.lpszClassName,
-            PCWSTR::from_raw(lp_window_name_ptr),
-            WS_ICONIC,
-            0,
-            0,
-            CW_USEDEFAULT,
-            0,
-            None,
-            None,
-            None,
-            None,
-        );
+        let hwnd = unsafe {
+            CreateWindowExW(
+                WINDOW_EX_STYLE(0),
+                class.lpszClassName,
+                PCWSTR::from_raw(lp_window_name_ptr),
+                WS_ICONIC,
+                0,
+                0,
+                CW_USEDEFAULT,
+                0,
+                None,
+                None,
+                None,
+                None,
+            )
+        };
 
         let Ok(hwnd) = hwnd else {
             log::error!(
@@ -750,17 +752,17 @@ pub unsafe fn init() {
             return;
         };
 
-        _ = ShowWindow(hwnd, SW_HIDE);
+        _ = unsafe { ShowWindow(hwnd, SW_HIDE) };
 
-        let mut msg: MSG = mem::zeroed();
+        let mut msg: MSG = unsafe { mem::zeroed() };
 
-        while GetMessageW(&mut msg, Some(hwnd), 0, 0).into() {
+        while unsafe { GetMessageW(&mut msg, Some(hwnd), 0, 0).into() } {
             if msg.message == WM_QUIT {
                 break;
             }
 
-            _ = TranslateMessage(&msg);
-            DispatchMessageW(&msg);
+            _ = unsafe { TranslateMessage(&msg) };
+            unsafe { DispatchMessageW(&msg) };
         }
     });
 }
