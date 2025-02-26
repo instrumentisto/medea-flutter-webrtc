@@ -156,7 +156,7 @@ jobs:
                        cmake \
                        libgtk-3-dev liblzma-dev libpulse-dev libudev-dev \
                        ninja-build \
-                       xvfb binutils build-essential lld libstdc++6
+                       xvfb binutils build-essential libstdc++6
         if: ${{ matrix.platform == 'linux' }}
 
       # Pin Xcode version for better compatibility.
@@ -165,11 +165,15 @@ jobs:
           xcode-version: "14.1"
         if: ${{ matrix.platform == 'macos' }}
 
+      - run: |
+        wget https://apt.llvm.org/llvm.sh
+        chmod +x llvm.sh
+        sudo ./llvm.sh latest
+      - run: ld.lld --version
       - run: make cargo.build platform=${{ matrix.platform }} debug=no
       - run: flutter doctor -v
       - run: ld --version
       - run: clang --version
-      - run: ld.lld --version
       - run: cd example/ && flutter build ${{ matrix.platform }} -v
       # - run: make flutter.build platform=${{ matrix.platform }}
 
