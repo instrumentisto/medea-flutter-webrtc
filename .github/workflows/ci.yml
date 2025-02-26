@@ -143,7 +143,7 @@ jobs:
           - windows
     runs-on: ${{ (matrix.platform == 'macos'   && 'macos-13')
               || (matrix.platform == 'windows' && 'windows-latest')
-              ||                                  'ubuntu-latest' }}
+              ||                                  'ubuntu-22.04' }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@v1
@@ -155,6 +155,8 @@ jobs:
 
       - name: Install Linux platform dependencies
         run: |
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo tee /etc/apt/trusted.gpg.d/llvm.asc
+          echo "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-19 main" | sudo tee /etc/apt/sources.list.d/llvm.list
           sudo apt-get update
           sudo apt-get install -y \
                        cmake \
