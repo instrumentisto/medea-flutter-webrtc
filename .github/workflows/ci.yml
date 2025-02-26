@@ -165,6 +165,8 @@ jobs:
 
       - run: make cargo.build platform=${{ matrix.platform }} debug=no
       - run: flutter doctor -v
+      - run: ld --version
+      - run: clang --version
       - run: cd example/ && flutter build ${{ matrix.platform }} -v
       # - run: make flutter.build platform=${{ matrix.platform }}
 
