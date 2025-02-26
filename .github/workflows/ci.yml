@@ -170,13 +170,14 @@ jobs:
           sudo update-alternatives --config lld
           sudo update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-19 100
           sudo update-alternatives --config ld.lld
-      - run: ld.lld --version || return 0
+        if: ${{ matrix.platform == 'linux' }}
+      # - run: ld.lld --version || return 0
       - run: make cargo.build platform=${{ matrix.platform }} debug=no
-      - run: flutter doctor -v
-      - run: ld --version
-      - run: clang --version
+      # - run: flutter doctor -v
+      # - run: ld --version
+      # - run: clang --version
       - run: cd example/ && flutter build ${{ matrix.platform }} -v
-      # - run: make flutter.build platform=${{ matrix.platform }}
+      - run: make flutter.build platform=${{ matrix.platform }}
 
       - uses: actions/upload-artifact@v4
         with:
