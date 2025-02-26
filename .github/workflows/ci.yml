@@ -70,6 +70,8 @@ jobs:
                        ninja-build lld-19 binutils build-essential
           sudo update-alternatives --install /usr/bin/lld lld /usr/bin/lld-19 100
           sudo update-alternatives --config lld
+          sudo update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-19 100
+          sudo update-alternatives --config ld.lld
         if: ${{ matrix.platform == 'linux' }}
 
       - run: make cargo.lint
@@ -160,6 +162,8 @@ jobs:
                        ninja-build lld-19 binutils build-essential
           sudo update-alternatives --install /usr/bin/lld lld /usr/bin/lld-19 100
           sudo update-alternatives --config lld
+          sudo update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-19 100
+          sudo update-alternatives --config ld.lld
         if: ${{ matrix.platform == 'linux' }}
 
       # Pin Xcode version for better compatibility.
@@ -226,6 +230,8 @@ jobs:
                        xvfb lld-19 binutils build-essential
           sudo update-alternatives --install /usr/bin/lld lld /usr/bin/lld-19 100
           sudo update-alternatives --config lld
+          sudo update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-19 100
+          sudo update-alternatives --config ld.lld
         if: ${{ matrix.platform == 'linux' }}
 
       - run: make cargo.build debug=yes platform=${{ matrix.platform }}
@@ -331,6 +337,8 @@ jobs:
                        ninja-build lld-19 binutils build-essential
           sudo update-alternatives --install /usr/bin/lld lld /usr/bin/lld-19 100
           sudo update-alternatives --config lld
+          sudo update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-19 100
+          sudo update-alternatives --config ld.lld
         if: ${{ matrix.platform == 'linux' }}
 
       - run: make cargo.doc
