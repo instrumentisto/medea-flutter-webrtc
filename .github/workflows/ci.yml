@@ -150,11 +150,13 @@ jobs:
       - run: flutter config --enable-${{ matrix.platform }}-desktop
 
       - name: Install Linux platform dependencies
-        run: sudo apt-get install -y
-                          libgtk-3-dev libpulse-dev libudev-dev
-                          libxcomposite-dev libxdamage-dev libxfixes-dev
-                          libxrandr-dev libxtst-dev
-                          ninja-build binutils build-essential lld libstdc++6
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+                       cmake \
+                       libgtk-3-dev liblzma-dev libpulse-dev libudev-dev \
+                       ninja-build \
+                       xvfb binutils build-essential lld libstdc++6
         if: ${{ matrix.platform == 'linux' }}
 
       # Pin Xcode version for better compatibility.
@@ -167,6 +169,7 @@ jobs:
       - run: flutter doctor -v
       - run: ld --version
       - run: clang --version
+      - run: ld.lld --version
       - run: cd example/ && flutter build ${{ matrix.platform }} -v
       # - run: make flutter.build platform=${{ matrix.platform }}
 
