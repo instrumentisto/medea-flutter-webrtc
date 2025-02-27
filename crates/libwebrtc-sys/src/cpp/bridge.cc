@@ -251,8 +251,7 @@ int32_t set_audio_playout_device(const AudioDeviceModule& audio_device_module,
 
 // Calls `AudioProcessingBuilder().Create()`.
 std::unique_ptr<AudioProcessing> create_audio_processing() {
-  auto apm = webrtc::AudioProcessingBuilder().Create();
-  return std::make_unique<AudioProcessing>(apm);
+  return std::make_unique<AudioProcessing>(webrtc::AudioProcessingBuilder().Create());
 }
 
 // Calls `AudioProcessing->set_output_will_be_muted()`.
@@ -1171,7 +1170,6 @@ std::unique_ptr<std::string> display_source_title(const DisplaySource& source) {
 // Creates a new default `AudioProcessingConfig`.
 std::unique_ptr<AudioProcessingConfig> create_audio_processing_config() {
   webrtc::AudioProcessing::Config apm_config;
-
   return std::make_unique<AudioProcessingConfig>(apm_config);
 }
 
