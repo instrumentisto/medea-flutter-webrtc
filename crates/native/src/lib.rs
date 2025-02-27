@@ -67,13 +67,13 @@ pub(crate) fn next_id() -> u32 {
 /// Global context for an application.
 struct Webrtc {
     video_device_info: VideoDeviceInfo,
-    video_tracks: Arc<DashMap<(VideoTrackId, TrackOrigin), VideoTrack>>,
-    audio_tracks: Arc<DashMap<(AudioTrackId, TrackOrigin), AudioTrack>>,
     video_sources: HashMap<VideoDeviceId, Arc<VideoSource>>,
+    video_tracks: Arc<DashMap<(VideoTrackId, TrackOrigin), VideoTrack>>,
     audio_sources: HashMap<AudioDeviceId, Arc<AudioSource>>,
+    audio_tracks: Arc<DashMap<(AudioTrackId, TrackOrigin), AudioTrack>>,
     video_sinks: HashMap<VideoSinkId, VideoSink>,
     ap: sys::AudioProcessing,
-    device_state: DevicesState,
+    devices_state: DevicesState,
 
     /// `peer_connection_factory` must be dropped before [`Thread`]s.
     peer_connection_factory: sys::PeerConnectionFactoryInterface,
@@ -125,7 +125,7 @@ impl Webrtc {
             worker_thread,
             signaling_thread,
             ap,
-            device_state: DevicesState::default(),
+            devices_state: DevicesState::default(),
             audio_device_module,
             video_device_info: VideoDeviceInfo::new()?,
             peer_connection_factory,
@@ -137,11 +137,11 @@ impl Webrtc {
             callback_pool: ThreadPool::new(4),
         };
 
-        this.device_state.audio_inputs =
+        this.devices_state.audio_inputs =
             this.enumerate_audio_input_devices()?;
-        this.device_state.audio_outputs =
+        this.devices_state.audio_outputs =
             this.enumerate_audio_output_devices()?;
-        this.device_state.video_inputs =
+        this.devices_state.video_inputs =
             this.enumerate_video_input_devices()?;
 
         devices::init_on_device_change();

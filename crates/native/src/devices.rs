@@ -25,7 +25,7 @@ pub fn enumerate_displays() -> Vec<api::MediaDisplayInfo> {
         .collect()
 }
 
-/// Static instance of a [`DeviceState`].
+/// Initializes media devices change watcher.
 pub fn init_on_device_change() {
     // platform::init() must only be called once.
     static INITIALIZED: AtomicBool = AtomicBool::new(false);
@@ -47,23 +47,17 @@ pub fn init_on_device_change() {
     }
 }
 
-/// Struct containing the current number of media devices and some tools to
-/// enumerate them (such as [`AudioDeviceModule`] and [`VideoDeviceInfo`]), and
-/// generate event with [`OnDeviceChangeCallback`], if the last is needed.
+/// Available media devices snapshot.
 #[derive(Default)]
 pub struct DevicesState {
-    pub cb: Option<StreamSink<()>>,
+    pub on_device_change: Option<StreamSink<()>>,
     pub audio_inputs: Vec<(String, AudioDeviceId)>,
     pub audio_outputs: Vec<(String, AudioDeviceId)>,
     pub video_inputs: Vec<(String, VideoDeviceId)>,
 }
 
 impl Webrtc {
-    /// Returns a list of all available audio input and output devices.
-    ///
-    /// # Panics
-    ///
-    /// On any error returned from `libWebRTC`.
+    /// Returns a list of all available media devices.
     pub fn enumerate_devices(
         &mut self,
     ) -> anyhow::Result<Vec<api::MediaDeviceInfo>> {
@@ -100,6 +94,7 @@ impl Webrtc {
             .collect())
     }
 
+    /// Returns a list of all available audio input devices.
     pub fn enumerate_audio_input_devices(
         &self,
     ) -> anyhow::Result<Vec<(String, AudioDeviceId)>> {
@@ -116,6 +111,7 @@ impl Webrtc {
         Ok(result)
     }
 
+    /// Returns a list of all available audio output devices.
     pub fn enumerate_audio_output_devices(
         &self,
     ) -> anyhow::Result<Vec<(String, AudioDeviceId)>> {
@@ -132,6 +128,7 @@ impl Webrtc {
         Ok(result)
     }
 
+    /// Returns a list of all available video input devices.
     pub fn enumerate_video_input_devices(
         &mut self,
     ) -> anyhow::Result<Vec<(String, VideoDeviceId)>> {
@@ -263,11 +260,11 @@ impl Webrtc {
     /// Only one callback can be set at a time, so the previous one will be
     /// dropped, if any.
     pub fn set_on_device_changed(&mut self, cb: StreamSink<()>) {
-        self.device_state.cb = Some(cb);
+        self.devices_state.on_device_change = Some(cb);
     }
 
-    /// Triggers the [`OnDeviceChangeCallback`].
-    fn maybe_on_device_change(&mut self) {
+    /// Triggers the device change event.
+    fn on_device_changed(&mut self) {
         let new_audio_ins = match self.enumerate_audio_input_devices() {
             Ok(ais) => ais,
             Err(e) => {
@@ -290,18 +287,20 @@ impl Webrtc {
             }
         };
 
-        let audio_ins_changed = self.device_state.audio_inputs != new_audio_ins;
+        let audio_ins_changed =
+            self.devices_state.audio_inputs != new_audio_ins;
         let audio_outs_changed =
-            self.device_state.audio_outputs != new_audio_outs;
-        let video_ins_changed = self.device_state.video_inputs != new_video_ins;
+            self.devices_state.audio_outputs != new_audio_outs;
+        let video_ins_changed =
+            self.devices_state.video_inputs != new_video_ins;
 
         if !audio_ins_changed && !audio_outs_changed && !video_ins_changed {
             // No media devices changed
             return;
         }
 
-        let mut old_audio_ins = mem::take(&mut self.device_state.audio_inputs);
-        let mut old_video_ins = mem::take(&mut self.device_state.video_inputs);
+        let mut old_audio_ins = mem::take(&mut self.devices_state.audio_inputs);
+        let mut old_video_ins = mem::take(&mut self.devices_state.video_inputs);
 
         // If some audio or video inputs wre disconnected we drop corresponing
         // Audio|Video Sources and tracks sourced from these sources.
@@ -343,11 +342,11 @@ impl Webrtc {
             self.dispose_track(TrackOrigin::Local, id, kind, true);
         }
 
-        self.device_state.audio_inputs = new_audio_ins;
-        self.device_state.audio_outputs = new_audio_outs;
-        self.device_state.video_inputs = new_video_ins;
+        self.devices_state.audio_inputs = new_audio_ins;
+        self.devices_state.audio_outputs = new_audio_outs;
+        self.devices_state.video_inputs = new_video_ins;
 
-        if let Some(cb) = &self.device_state.cb {
+        if let Some(cb) = &self.devices_state.on_device_change {
             _ = cb.add(());
         }
     }
@@ -430,7 +429,7 @@ mod linux {
                     event.event_type(),
                     EventType::Add | EventType::Remove,
                 ) {
-                    WEBRTC.lock().unwrap().maybe_on_device_change();
+                    WEBRTC.lock().unwrap().on_device_changed();
                 }
             }
         }
@@ -489,7 +488,7 @@ mod linux {
                     if matches!(f, Sink | Source) && matches!(op, New | Removed)
                         || f == Server && op == Changed
                     {
-                        WEBRTC.lock().unwrap().maybe_on_device_change();
+                        WEBRTC.lock().unwrap().on_device_changed();
                     };
                 })));
 
@@ -544,7 +543,7 @@ mod macos {
         }
 
         extern "C" fn on_device_change() {
-            WEBRTC.lock().unwrap().maybe_on_device_change();
+            WEBRTC.lock().unwrap().on_device_changed();
         }
 
         set_on_device_change_mac(on_device_change);
@@ -624,7 +623,7 @@ mod windows {
         ) -> Result<()> {
             if role == ERole(0) {
                 unsafe {
-                    WEBRTC.lock().unwrap().maybe_on_device_change();
+                    WEBRTC.lock().unwrap().on_device_changed();
                 }
             }
 
@@ -686,7 +685,7 @@ mod windows {
                 // The device event when a device has been added to or removed
                 // from the system.
                 if DBT_DEVNODES_CHANGED as usize == wp.0 {
-                    WEBRTC.lock().unwrap().maybe_on_device_change();
+                    WEBRTC.lock().unwrap().on_device_changed();
                 }
             } else {
                 result = DefWindowProcW(hwnd, msg, wp, lp);

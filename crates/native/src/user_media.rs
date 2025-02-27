@@ -145,11 +145,6 @@ impl Webrtc {
                 }
             }
         }
-
-        if notify_on_ended {
-            // asdasdasdasdasd
-            // track.
-        }
     }
 
     /// Creates a new [`VideoTrack`] from the given [`VideoSource`].
@@ -547,10 +542,10 @@ impl Webrtc {
         id: String,
         track_origin: TrackOrigin,
         kind: api::MediaType,
-        cb: StreamSink<api::TrackEvent>,
+        track_events_tx: StreamSink<api::TrackEvent>,
     ) {
         let mut obs = sys::TrackEventObserver::new(Box::new(
-            TrackEventHandler::new(cb.clone()),
+            TrackEventHandler::new(track_events_tx.clone()),
         ));
         match kind {
             api::MediaType::Audio => {
@@ -560,7 +555,7 @@ impl Webrtc {
 
                 if let Some(mut track) = track {
                     obs.set_audio_track(&track.inner);
-                    track.set_stream_sink(cb);
+                    track.set_track_events_tx(track_events_tx);
                     track.inner.register_observer(obs);
                 }
             }
@@ -571,7 +566,7 @@ impl Webrtc {
 
                 if let Some(mut track) = track {
                     obs.set_video_track(&track.inner);
-                    track.set_stream_sink(cb);
+                    track.set_track_events_tx(track_events_tx);
                     track.inner.register_observer(obs);
                 }
             }
@@ -960,7 +955,7 @@ pub struct VideoTrack {
 
     /// [`StreamSink`] which can be used by this [`VideoTrack`] to emit
     /// [`api::TrackEvent`]s to Flutter side.
-    pub stream_sink: Option<StreamSink<api::TrackEvent>>,
+    pub track_events_tx: Option<StreamSink<api::TrackEvent>>,
 
     /// Peers and transceivers sending this [`VideoTrack`].
     pub senders: HashMap<Arc<PeerConnection>, HashSet<Arc<RtpTransceiver>>>,
@@ -1026,7 +1021,7 @@ impl VideoTrack {
             kind: api::MediaType::Video,
             sinks: Vec::new(),
             senders: HashMap::new(),
-            stream_sink: None,
+            track_events_tx: None,
             width,
             height,
             sink: None,
@@ -1041,8 +1036,8 @@ impl VideoTrack {
 
     /// Sets the provided [`StreamSink`] for this [`VideoTrack`] to use for
     /// [`api::TrackEvent`]s emitting.
-    pub fn set_stream_sink(&mut self, sink: StreamSink<api::TrackEvent>) {
-        drop(self.stream_sink.replace(sink));
+    pub fn set_track_events_tx(&mut self, sink: StreamSink<api::TrackEvent>) {
+        drop(self.track_events_tx.replace(sink));
     }
 
     /// Wraps the track of the `transceiver.receiver.track()` into a
@@ -1083,7 +1078,7 @@ impl VideoTrack {
             kind: api::MediaType::Video,
             sinks: Vec::new(),
             senders: HashMap::new(),
-            stream_sink: None,
+            track_events_tx: None,
             width,
             height,
             sink: None,
@@ -1126,7 +1121,7 @@ impl VideoTrack {
     }
 
     pub fn notify_on_ended(&mut self) {
-        if let Some(sink) = self.stream_sink.take() {
+        if let Some(sink) = self.track_events_tx.take() {
             _ = sink.add(api::TrackEvent::Ended);
         }
     }
@@ -1179,7 +1174,7 @@ pub struct AudioTrack {
 
     /// [`StreamSink`] which can be used by this [`AudioTrack`] to emit
     /// [`api::TrackEvent`]s to Flutter side.
-    pub stream_sink: Option<StreamSink<api::TrackEvent>>,
+    pub track_events_tx: Option<StreamSink<api::TrackEvent>>,
 
     /// Peers and transceivers sending this [`VideoTrack`].
     pub senders: HashMap<Arc<PeerConnection>, HashSet<Arc<RtpTransceiver>>>,
@@ -1211,7 +1206,7 @@ impl AudioTrack {
             kind: api::MediaType::Audio,
             senders: HashMap::new(),
             track_origin,
-            stream_sink: None,
+            track_events_tx: None,
             volume_observer_id: None,
         })
     }
@@ -1221,7 +1216,7 @@ impl AudioTrack {
     /// Volume updates will be passed to the [`StreamSink`] of this
     /// [`AudioTrack`].
     pub fn subscribe_to_audio_level(&mut self) {
-        if let Some(sink) = self.stream_sink.clone() {
+        if let Some(sink) = self.track_events_tx.clone() {
             match &self.source {
                 MediaTrackSource::Local(src) => {
                     let observer = src.subscribe_on_audio_level(
@@ -1248,8 +1243,8 @@ impl AudioTrack {
 
     /// Sets the provided [`StreamSink`] for this [`AudioTrack`] to use for
     /// [`api::TrackEvent`]s emitting.
-    pub fn set_stream_sink(&mut self, sink: StreamSink<api::TrackEvent>) {
-        drop(self.stream_sink.replace(sink));
+    pub fn set_track_events_tx(&mut self, sink: StreamSink<api::TrackEvent>) {
+        drop(self.track_events_tx.replace(sink));
     }
 
     /// Wraps the track of the `transceiver.receiver.track()` into an
@@ -1272,7 +1267,7 @@ impl AudioTrack {
             kind: api::MediaType::Audio,
             senders: HashMap::new(),
             track_origin: TrackOrigin::Remote(peer.id()),
-            stream_sink: None,
+            track_events_tx: None,
             volume_observer_id: None,
         }
     }
@@ -1294,8 +1289,9 @@ impl AudioTrack {
         self.inner.set_enabled(enabled);
     }
 
+    /// Emits [`api::TrackEvent::Ended`] to the Flutter side.
     pub fn notify_on_ended(&mut self) {
-        if let Some(sink) = self.stream_sink.take() {
+        if let Some(sink) = self.track_events_tx.take() {
             _ = sink.add(api::TrackEvent::Ended);
         }
     }
