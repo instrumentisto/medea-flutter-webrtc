@@ -1168,18 +1168,9 @@ std::unique_ptr<std::string> display_source_title(const DisplaySource& source) {
   return std::make_unique<std::string>(source.title);
 }
 
-// Creates a new `AudioProcessingConfig`.
+// Creates a new default `AudioProcessingConfig`.
 std::unique_ptr<AudioProcessingConfig> create_audio_processing_config() {
   webrtc::AudioProcessing::Config apm_config;
-  apm_config.echo_canceller.enabled = false;
-  apm_config.echo_canceller.mobile_mode = false;
-//  apm_config.gain_controller1.enabled = false;
-//  apm_config.gain_controller1.mode ==
-//      webrtc::AudioProcessing::Config::GainController1::kAdaptiveDigital;
-//  apm_config.gain_controller1.enable_limiter = true;
-
-
-//  apm_config.noise_suppression.enabled = false;
 
   return std::make_unique<AudioProcessingConfig>(apm_config);
 }
