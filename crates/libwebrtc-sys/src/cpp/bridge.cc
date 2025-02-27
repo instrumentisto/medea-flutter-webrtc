@@ -251,13 +251,7 @@ int32_t set_audio_playout_device(const AudioDeviceModule& audio_device_module,
 
 // Calls `AudioProcessingBuilder().Create()`.
 std::unique_ptr<AudioProcessing> create_audio_processing() {
-  webrtc::AudioProcessing::Config apm_config;
-  apm_config.echo_canceller.enabled = true;
-  apm_config.echo_canceller.mobile_mode = false;
-  apm_config.gain_controller1.enabled = true;
-  apm_config.gain_controller1.enable_limiter = true;
-
-  auto apm = webrtc::AudioProcessingBuilder().SetConfig(apm_config).Create();
+  auto apm = webrtc::AudioProcessingBuilder().Create();
   return std::make_unique<AudioProcessing>(apm);
 }
 
@@ -1177,12 +1171,16 @@ std::unique_ptr<std::string> display_source_title(const DisplaySource& source) {
 // Creates a new `AudioProcessingConfig`.
 std::unique_ptr<AudioProcessingConfig> create_audio_processing_config() {
   webrtc::AudioProcessing::Config apm_config;
-  apm_config.echo_canceller.enabled = true;
+  apm_config.echo_canceller.enabled = false;
   apm_config.echo_canceller.mobile_mode = false;
-  apm_config.gain_controller1.enabled = true;
-  apm_config.gain_controller1.mode ==
-      webrtc::AudioProcessing::Config::GainController1::kAdaptiveDigital;
-  apm_config.gain_controller1.enable_limiter = true;
+//  apm_config.gain_controller1.enabled = false;
+//  apm_config.gain_controller1.mode ==
+//      webrtc::AudioProcessing::Config::GainController1::kAdaptiveDigital;
+//  apm_config.gain_controller1.enable_limiter = true;
+
+
+//  apm_config.noise_suppression.enabled = false;
+
   return std::make_unique<AudioProcessingConfig>(apm_config);
 }
 
