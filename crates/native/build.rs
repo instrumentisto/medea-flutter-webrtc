@@ -40,6 +40,9 @@ fn main() -> anyhow::Result<()> {
         .flag("-std=c++17")
         .compile("cpp_api_bindings");
 
+    #[cfg(target_os = "linux")]
+    println!("cargo:rustc-link-arg=-fuse-ld=lld");
+
     Ok(())
 }
 

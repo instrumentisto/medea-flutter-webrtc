@@ -67,6 +67,7 @@ fn main() -> anyhow::Result<()> {
 
     #[cfg(target_os = "linux")]
     {
+        println!("cargo:rustc-link-arg=-fuse-ld=lld");
         build
             .flag("-DWEBRTC_LINUX")
             .flag("-DWEBRTC_POSIX")
