@@ -14,8 +14,11 @@ All user visible changes to this project will be documented in this file. This p
 ### Changed
 
 - Upgraded [`flutter_rust_bridge`] crate to [2.8.0][frb-2.8.0] version. ([#185])
+- Upgraded [libwebrtc] to [133.0.6943.98] version. ([#186])
 
 [#185]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/185
+[#186]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/186
+[133.0.6943.98]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/133.0.6943.98
 [frb-2.8.0]: https://github.com/fzyzcjy/flutter_rust_bridge/releases/tag/v2.8.0
 
 
