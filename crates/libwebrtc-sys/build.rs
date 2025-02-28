@@ -130,6 +130,7 @@ fn get_lld_version() -> anyhow::Result<(u8, u8, u8)> {
     let lld_result = Command::new("ld.lld").arg("--version").output()?;
     let output = String::from_utf8(lld_result.stdout)?;
 
+    panic!("{}", output);
     let (major, minor, patch) = output
         .lines()
         .find_map(|line| {
