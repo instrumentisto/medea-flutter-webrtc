@@ -18,6 +18,7 @@ use std::{
 
 use anyhow::bail;
 use flate2::read::GzDecoder;
+#[cfg(target_os = "linux")]
 use regex_lite::Regex;
 use sha2::{Digest, Sha256};
 use tar::Archive;
