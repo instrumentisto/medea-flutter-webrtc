@@ -67,6 +67,14 @@ fn main() -> anyhow::Result<()> {
 
     #[cfg(target_os = "linux")]
     {
+        let (major_lld_ver, _, _) = get_lld_version().unwrap();
+        if major_lld_ver < 19 {
+            panic!(
+                "Compilation of the `libwebrtc-sys` crate requires `ldd` \
+                 version 19 or higher, as the `libwebrtc` library it depends \
+                 on is linked using CREL, which was introduced in version 19."
+            );
+        }
         println!("cargo:rustc-link-arg=-fuse-ld=lld");
         build
             .flag("-DWEBRTC_LINUX")
@@ -114,6 +122,28 @@ fn main() -> anyhow::Result<()> {
     println!("cargo:rerun-if-env-changed=INSTALL_OPENAL");
 
     Ok(())
+}
+
+#[cfg(target_os = "linux")]
+/// Returns version of `ld.lld` binary.
+fn get_lld_version() -> anyhow::Result<(u8, u8, u8)> {
+    let lld_result = Command::new("ld.lld").arg("--version").output()?;
+    let output = String::from_utf8(lld_result.stdout)?;
+
+    let (major, minor, patch) = output
+        .lines()
+        .find_map(|line| {
+            line.strip_prefix("LLD ").and_then(|line| {
+                line.strip_suffix(" (compatible with GNU linkers)")
+            })
+        })
+        .and_then(|version| {
+            let mut ver_split = version.split('.');
+            Some((ver_split.next()?, ver_split.next()?, ver_split.next()?))
+        })
+        .ok_or_else(|| anyhow::anyhow!("Failed to parse ldd version"))?;
+
+    Ok((major.parse()?, minor.parse()?, patch.parse()?))
 }
 
 /// Returns target architecture to build the library for.
