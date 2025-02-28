@@ -18,6 +18,7 @@ use std::{
 
 use anyhow::bail;
 use flate2::read::GzDecoder;
+use regex_lite::Regex;
 use sha2::{Digest, Sha256};
 use tar::Archive;
 use walkdir::{DirEntry, WalkDir};
@@ -130,21 +131,15 @@ fn get_lld_version() -> anyhow::Result<(u8, u8, u8)> {
     let lld_result = Command::new("ld.lld").arg("--version").output()?;
     let output = String::from_utf8(lld_result.stdout)?;
 
-    panic!("{}", output);
-    let (major, minor, patch) = output
-        .lines()
-        .find_map(|line| {
-            line.strip_prefix("LLD ").and_then(|line| {
-                line.strip_suffix(" (compatible with GNU linkers)")
-            })
+    let re = Regex::new(r"LLD (\d+)\.(\d+)\.(\d+)").unwrap();
+    re.captures(&output)
+        .and_then(|caps| {
+            let major = caps.get(1)?.as_str().parse::<u8>().ok()?;
+            let minor = caps.get(2)?.as_str().parse::<u8>().ok()?;
+            let patch = caps.get(3)?.as_str().parse::<u8>().ok()?;
+            Some((major, minor, patch))
         })
-        .and_then(|version| {
-            let mut ver_split = version.split('.');
-            Some((ver_split.next()?, ver_split.next()?, ver_split.next()?))
-        })
-        .ok_or_else(|| anyhow::anyhow!("Failed to parse ldd version"))?;
-
-    Ok((major.parse()?, minor.parse()?, patch.parse()?))
+        .ok_or_else(|| anyhow::anyhow!("Failed to parse lld version"))
 }
 
 /// Returns target architecture to build the library for.
