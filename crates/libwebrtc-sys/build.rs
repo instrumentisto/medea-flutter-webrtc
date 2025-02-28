@@ -69,13 +69,12 @@ fn main() -> anyhow::Result<()> {
     #[cfg(target_os = "linux")]
     {
         let (major_lld_ver, _, _) = get_lld_version().unwrap();
-        if major_lld_ver < 19 {
-            panic!(
-                "Compilation of the `libwebrtc-sys` crate requires `ldd` \
-                 version 19 or higher, as the `libwebrtc` library it depends \
-                 on is linked using CREL, which was introduced in version 19."
-            );
-        }
+        assert!(
+            major_lld_ver >= 19,
+            "Compilation of the `libwebrtc-sys` crate requires `ldd` \
+             version 19 or higher, as the `libwebrtc` library it depends \
+             on is linked using CREL, which was introduced in version 19."
+        );
         println!("cargo:rustc-link-arg=-fuse-ld=lld");
         build
             .flag("-DWEBRTC_LINUX")
