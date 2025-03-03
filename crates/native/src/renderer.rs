@@ -54,7 +54,7 @@ struct TextureEventNotifier {
 
 impl TextureEventNotifier {
     /// Creates a new [`TextureEventNotifier`].
-    fn new(sink: StreamSink<TextureEvent>, texture_id: i64) -> Self {
+    const fn new(sink: StreamSink<TextureEvent>, texture_id: i64) -> Self {
         Self {
             sink,
             first_frame_rendered: false,
@@ -260,7 +260,9 @@ mod frame_handler {
 
     impl Drop for FrameHandler {
         fn drop(&mut self) {
-            unsafe { drop_handler(self.inner) };
+            unsafe {
+                drop_handler(self.inner);
+            }
         }
     }
 
@@ -288,7 +290,7 @@ mod frame_handler {
     impl FrameHandler {
         /// Returns new [`FrameHandler`] with the provided [`sys::VideoFrame`]s
         /// receiver.
-        pub fn new(
+        pub const fn new(
             handler: *const (),
             sink: StreamSink<TextureEvent>,
             texture_id: i64,
@@ -346,18 +348,17 @@ mod frame_handler {
         argb_stride: i32,
         buffer: *mut u8,
     ) {
+        let framer_ref = unsafe { frame.as_ref().unwrap() };
         unsafe {
-            libwebrtc_sys::video_frame_to_argb(
-                frame.as_ref().unwrap(),
-                argb_stride,
-                buffer,
-            );
+            libwebrtc_sys::video_frame_to_argb(framer_ref, argb_stride, buffer);
         }
     }
 
     /// Drops the provided [`sys::VideoFrame`].
     #[unsafe(no_mangle)]
     unsafe extern "C" fn drop_frame(frame: *mut sys::VideoFrame) {
-        unsafe { UniquePtr::from_raw(frame) };
+        unsafe {
+            UniquePtr::from_raw(frame);
+        }
     }
 }

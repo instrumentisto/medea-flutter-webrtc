@@ -2743,6 +2743,7 @@ pub fn dispose_peer_connection(peer: RustOpaque<Arc<PeerConnection>>) {
 /// Creates a [`MediaStream`] with tracks according to provided
 /// [`MediaStreamConstraints`].
 pub fn get_media(constraints: MediaStreamConstraints) -> GetMediaResult {
+    #[expect(clippy::significant_drop_in_scrutinee, reason = "no problems")]
     match WEBRTC.lock().unwrap().get_media(constraints) {
         Ok(tracks) => GetMediaResult::Ok(tracks),
         Err(err) => GetMediaResult::Err(err),

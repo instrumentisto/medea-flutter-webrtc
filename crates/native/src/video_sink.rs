@@ -28,12 +28,10 @@ impl Webrtc {
             track_origin,
         };
 
-        let mut track = self
-            .video_tracks
+        self.video_tracks
             .get_mut(&(track_id.clone(), track_origin))
-            .ok_or_else(|| anyhow!("Cannot find track with ID `{track_id}`"))?;
-        track.add_video_sink(&mut sink);
-
+            .ok_or_else(|| anyhow!("Cannot find track with ID `{track_id}`"))?
+            .add_video_sink(&mut sink);
         self.video_sinks.insert(Id(sink_id), sink);
 
         Ok(())
@@ -78,7 +76,7 @@ pub struct VideoSink {
 impl VideoSink {
     /// Creates a new [`VideoSink`].
     #[must_use]
-    pub fn new(
+    pub const fn new(
         id: i64,
         sink: sys::VideoSinkInterface,
         track_id: VideoTrackId,
@@ -89,7 +87,7 @@ impl VideoSink {
 
     /// Returns an [`Id`] of this [`VideoSink`].
     #[must_use]
-    pub fn id(&self) -> Id {
+    pub const fn id(&self) -> Id {
         self.id
     }
 }

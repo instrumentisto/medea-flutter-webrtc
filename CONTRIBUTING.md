@@ -21,7 +21,6 @@ We love contributions from everyone, whether it's raising an issue, reporting a 
 
 Additional rules, not handled by [rustfmt] and [Clippy] are described below.
 
-
 #### Attributes
 
 **Attributes** on declarations must be **sorted in alphabetic order**. **Items inside attribute** must be **sorted in alphabetic order** too (in the same manner they're sorted by [rustfmt] inside `use` statement).

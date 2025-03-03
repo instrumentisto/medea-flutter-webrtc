@@ -1,5 +1,5 @@
 use std::{
-    hash::Hash,
+    hash::{Hash, Hasher},
     mem,
     sync::{
         Arc, Mutex, OnceLock, Weak,
@@ -79,7 +79,7 @@ impl Webrtc {
     ///
     /// If the [`Mutex`] guarding the [`sys::PeerConnectionInterface`] is
     /// poisoned.
-    pub fn dispose_peer_connection(&mut self, this: &Arc<PeerConnection>) {
+    pub fn dispose_peer_connection(&self, this: &Arc<PeerConnection>) {
         // Remove all tracks from this `Peer`'s senders.
         for mut track in self.video_tracks.iter_mut() {
             track.senders.remove(this);
@@ -129,7 +129,7 @@ impl Webrtc {
     /// If the [`Mutex`] guarding the [`sys::PeerConnectionInterface`] is
     /// poisoned.
     pub fn sender_replace_track(
-        &mut self,
+        &self,
         peer: &Arc<PeerConnection>,
         transceiver: &Arc<RtpTransceiver>,
         track_id: Option<String>,
@@ -252,7 +252,7 @@ pub struct PeerConnection {
 }
 
 impl Hash for PeerConnection {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+    fn hash<H: Hasher>(&self, state: &mut H) {
         self.id.hash(state);
     }
 }
@@ -334,7 +334,7 @@ impl PeerConnection {
     }
 
     /// Returns ID of this [`PeerConnection`].
-    pub fn id(&self) -> PeerConnectionId {
+    pub const fn id(&self) -> PeerConnectionId {
         self.id
     }
 
@@ -395,6 +395,7 @@ impl PeerConnection {
     ///
     /// If the [`Mutex`] guarding the [`sys::PeerConnectionInterface`] is
     /// poisoned.
+    #[expect(clippy::significant_drop_tightening, reason = "intended")]
     pub fn set_remote_description(
         &self,
         kind: sys::SdpType,
@@ -405,6 +406,7 @@ impl PeerConnection {
         let obs = sys::SetRemoteDescriptionObserver::new(Box::new(
             SetSdpCallback(set_sdp_tx),
         ));
+
         let mut inner = self.inner.lock().unwrap();
         inner.set_remote_description(desc, obs);
 
@@ -446,6 +448,8 @@ impl PeerConnection {
 
             let transceiver = peer.add_transceiver(media_type, &(init.into()));
             let index = peer.get_transceivers().len() - 1;
+
+            drop(peer);
 
             (
                 transceiver.mid(),
@@ -590,9 +594,10 @@ impl RtpParameters {
     }
 }
 
+#[expect(clippy::fallible_impl_from, reason = "locking")]
 impl From<api::RtpTransceiverInit> for sys::RtpTransceiverInit {
     fn from(v: RtpTransceiverInit) -> Self {
-        let mut init = sys::RtpTransceiverInit::new();
+        let mut init = Self::new();
 
         init.set_direction(v.direction.into());
 
@@ -697,7 +702,7 @@ impl From<api::RtcRtpEncodingParameters> for RtpEncodingParameters {
             scalability_mode,
         } = v;
 
-        let e = RtpEncodingParameters::new();
+        let e = Self::new();
 
         e.set_rid(rid);
         e.set_active(active);
@@ -964,7 +969,7 @@ impl PartialEq for RtpTransceiver {
 }
 
 impl Hash for RtpTransceiver {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+    fn hash<H: Hasher>(&self, state: &mut H) {
         self.peer_id.hash(state);
         self.index.hash(state);
     }
@@ -1201,8 +1206,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
                     }
                     sys::MediaType::MEDIA_TYPE_VIDEO => {
                         let track_id = VideoTrackId::from(track_id);
-                        if video_tracks
-                            .contains_key(&(track_id.clone(), track_origin))
+                        if video_tracks.contains_key(&(track_id, track_origin))
                         {
                             return;
                         }

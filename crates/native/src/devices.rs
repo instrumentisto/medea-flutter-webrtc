@@ -93,7 +93,7 @@ impl DeviceState {
     }
 
     /// Counts current number of audio media devices.
-    fn count_audio_devices(&mut self) -> u32 {
+    fn count_audio_devices(&self) -> u32 {
         self.adm.playout_devices() + self.adm.recording_devices()
     }
 
@@ -113,7 +113,7 @@ impl DeviceState {
     }
 
     /// Triggers the [`OnDeviceChangeCallback`].
-    fn on_device_change(&mut self) {
+    fn on_device_change(&self) {
         _ = self.cb.add(());
     }
 }
@@ -138,17 +138,16 @@ impl Webrtc {
                 api::MediaDeviceKind::AudioOutput,
                 api::MediaDeviceKind::AudioInput,
             ] {
-                let count: i16 =
-                    if let api::MediaDeviceKind::AudioOutput = kind {
-                        count_playout
-                    } else {
-                        count_recording
-                    }
-                    .try_into()?;
+                let count: i16 = if kind == api::MediaDeviceKind::AudioOutput {
+                    count_playout
+                } else {
+                    count_recording
+                }
+                .try_into()?;
 
                 for i in 0..count {
                     let (label, device_id) =
-                        if let api::MediaDeviceKind::AudioOutput = kind {
+                        if kind == api::MediaDeviceKind::AudioOutput {
                             self.audio_device_module.playout_device_name(i)?
                         } else {
                             self.audio_device_module.recording_device_name(i)?
@@ -222,7 +221,7 @@ impl Webrtc {
     /// [1]: libwebrtc_sys::AudioDeviceModule::recording_devices
     /// [2]: libwebrtc_sys::AudioDeviceModule::recording_device_name
     pub fn get_index_of_audio_recording_device(
-        &mut self,
+        &self,
         device_id: &AudioDeviceId,
     ) -> anyhow::Result<Option<u16>> {
         let count: i16 =
@@ -248,7 +247,7 @@ impl Webrtc {
     /// [1]: libwebrtc_sys::AudioDeviceModule::playout_devices
     /// [2]: libwebrtc_sys::AudioDeviceModule::playout_device_name
     pub fn get_index_of_audio_playout_device(
-        &mut self,
+        &self,
         device_id: &AudioDeviceId,
     ) -> anyhow::Result<Option<u16>> {
         let count: i16 =
@@ -265,7 +264,7 @@ impl Webrtc {
 
     /// Sets the specified `audio playout` device.
     pub fn set_audio_playout_device(
-        &mut self,
+        &self,
         device_id: String,
     ) -> anyhow::Result<()> {
         let device_id = AudioDeviceId::from(device_id);
@@ -285,17 +284,17 @@ impl Webrtc {
 
     /// Sets the microphone system volume according to the specified `level` in
     /// percents.
-    pub fn set_microphone_volume(&mut self, level: u8) -> anyhow::Result<()> {
+    pub fn set_microphone_volume(&self, level: u8) -> anyhow::Result<()> {
         self.audio_device_module.set_microphone_volume(level)
     }
 
     /// Indicates if the microphone is available to set volume.
-    pub fn microphone_volume_is_available(&mut self) -> anyhow::Result<bool> {
+    pub fn microphone_volume_is_available(&self) -> anyhow::Result<bool> {
         self.audio_device_module.microphone_volume_is_available()
     }
 
     /// Returns the current level of the microphone volume in percents.
-    pub fn microphone_volume(&mut self) -> anyhow::Result<u32> {
+    pub fn microphone_volume(&self) -> anyhow::Result<u32> {
         self.audio_device_module.microphone_volume()
     }
 

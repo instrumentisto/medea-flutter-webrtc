@@ -15,12 +15,7 @@ All user visible changes to this project will be documented in this file. This p
 
 - Upgraded [`flutter_rust_bridge`] crate to [2.8.0][frb-2.8.0] version. ([#185])
 
-### BC Breaks
-
-- Set [MSRV] to [1.85.0](https://blog.rust-lang.org/2025/02/20/Rust-1.85.0.html). ([#188])
-
 [#185]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/185
-[#188]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/188
 [frb-2.8.0]: https://github.com/fzyzcjy/flutter_rust_bridge/releases/tag/v2.8.0
 
 
@@ -356,17 +351,16 @@ See [changelog in upstream repository](https://github.com/flutter-webrtc/flutter
 
 
 
+[`flutter_rust_bridge`]: https://docs.rs/flutter_rust_bridge
 [Android]: https://www.android.com
 [Dart]: https://dart.dev
 [Flutter]: https://www.flutter.dev
 [H264]: https://bloggeek.me/webrtcglossary/h-264/
 [Linux]: https://www.linux.org
-[MSRV]: https://doc.rust-lang.org/cargo/reference/manifest.html#the-rust-version-field
 [OpenAL]: https://github.com/kcat/openal-soft
 [Semantic Versioning 2.0.0]: https://semver.org
 [Swift]: https://developer.apple.com/swift
 [Windows]: https://www.microsoft.com/windows
-[`flutter_rust_bridge`]: https://docs.rs/flutter_rust_bridge
 [iOS]: https://www.apple.com/ios
 [libwebrtc]: https://github.com/instrumentisto/libwebrtc-bin
 [macOS]: https://www.apple.com/macos
