@@ -551,7 +551,7 @@ fn get_cpp_files() -> anyhow::Result<Vec<PathBuf>> {
     let mut files = get_files_from_dir(dir);
 
     #[cfg(not(target_os = "macos"))]
-    files.retain(|e| !e.to_str().unwrap().contains(".mm"));
+    files.retain(|e| !e.to_str().is_some_and(|n| n.contains(".mm")));
 
     Ok(files)
 }
@@ -581,9 +581,9 @@ fn link_libs() -> anyhow::Result<()> {
         for dep in
             ["x11", "xfixes", "xdamage", "xext", "xtst", "xrandr", "xcomposite"]
         {
-            pkg_config::Config::new().probe(dep).unwrap();
+            _ = pkg_config::Config::new().probe(dep)?;
         }
-        match env::var("PROFILE").unwrap().as_str() {
+        match env::var("PROFILE").unwrap_or_default().as_str() {
             "debug" => {
                 println!(
                     "cargo:rustc-link-search=\
@@ -596,7 +596,7 @@ fn link_libs() -> anyhow::Result<()> {
                      native=crates/libwebrtc-sys/lib/{target}/release/",
                 );
             }
-            _ => unreachable!(),
+            _ => unreachable!("`PROFILE` env var is corrupted or wrong"),
         }
     }
     #[cfg(target_os = "macos")]
