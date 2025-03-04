@@ -157,12 +157,13 @@ use std::{
     process::Command,
 };
 
+#[cfg(target_os = "linux")]
+use anyhow::anyhow;
 use anyhow::bail;
 use flate2::read::GzDecoder;
-use sha2::{Digest as _, Sha256};
 #[cfg(target_os = "linux")]
 use regex_lite::Regex;
-use sha2::{Digest, Sha256};
+use sha2::{Digest as _, Sha256};
 use tar::Archive;
 use walkdir::{DirEntry, WalkDir};
 
@@ -171,7 +172,7 @@ use walkdir::{DirEntry, WalkDir};
 /// [`libwebrtc-bin`]: https://github.com/instrumentisto/libwebrtc-bin
 static LIBWEBRTC_URL: &str = "\
     https://github.com/instrumentisto/libwebrtc-bin/releases/download\
-                                                            /133.0.6943.98";
+                                                            /133.0.6943.141";
 
 /// URL for downloading `openal-soft` source code.
 static OPENAL_URL: &str =
@@ -214,9 +215,9 @@ fn main() -> anyhow::Result<()> {
         let (major_lld_ver, _, _) = get_lld_version().unwrap();
         assert!(
             major_lld_ver >= 19,
-            "Compilation of the `libwebrtc-sys` crate requires `ldd` \
-             version 19 or higher, as the `libwebrtc` library it depends \
-             on is linked using CREL, which was introduced in version 19."
+            "compilation of the `libwebrtc-sys` crate requires `ldd` version \
+             19 or higher, as the `libwebrtc` library it depends on is linked \
+             using CREL (introduced in version 19)"
         );
         println!("cargo:rustc-link-arg=-fuse-ld=lld");
         build
@@ -273,8 +274,8 @@ fn get_lld_version() -> anyhow::Result<(u8, u8, u8)> {
     let lld_result = Command::new("ld.lld").arg("--version").output()?;
     let output = String::from_utf8(lld_result.stdout)?;
 
-    let re = Regex::new(r"LLD (\d+)\.(\d+)\.(\d+)").unwrap();
-    re.captures(&output)
+    Regex::new(r"LLD (\d+)\.(\d+)\.(\d+)")?
+        .captures(&output)
         .and_then(|caps| {
             let major = caps.get(1)?.as_str().parse::<u8>().ok()?;
             let minor = caps.get(2)?.as_str().parse::<u8>().ok()?;
@@ -293,19 +294,19 @@ fn get_target() -> anyhow::Result<String> {
 fn get_expected_libwebrtc_hash() -> anyhow::Result<&'static str> {
     Ok(match get_target()?.as_str() {
         "aarch64-unknown-linux-gnu" => {
-            "3b39135cac7adcedff64689109bd8fdcb4b5b1912fb516e707d7e38ad56600cb"
+            "cb803b0bafb24c8e1bcfb44b173c7d15da950463db11c121e815417668a196bc"
         }
         "x86_64-unknown-linux-gnu" => {
-            "d65ad1ca135e947a7f869350874b73c9159b5d1d2c5ed1fee2628e5ba34d8701"
+            "cf0161278f281a16f6080e9bcfc8d6186e3128a74ef92c34c10cde02d4408a84"
         }
         "aarch64-apple-darwin" => {
-            "a1cc269b40c58e6379af202d5140ba55dc145359bd1acf683e9a8ddd2093fce2"
+            "96e226e42ff3fa9033693ef91e467d41d6ad0e02a36540020bda18a958e9f3ee"
         }
         "x86_64-apple-darwin" => {
-            "e978f3b938352370d475e42b1574d534ea9bfcecbf7259174de5ff5af4682796"
+            "31c4df5f734cd2f1572343bdd736b934a8cf0bb5ff25488a6d84f6ac868470b2"
         }
         "x86_64-pc-windows-msvc" => {
-            "bdf836a28fba56c441d324a57235b7fe9dbce8667b522fe69a5e8ec6725e6039"
+            "277ef4b36f885f983c097c6a181c886e584b34520894885d0f8ec70e9c4defae"
         }
         arch => return Err(anyhow::anyhow!("Unsupported target: {arch}")),
     })
