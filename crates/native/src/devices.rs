@@ -1,5 +1,5 @@
 #[cfg(target_os = "windows")]
-use std::{ffi::OsStr, mem, os::windows::prelude::OsStrExt, thread};
+use std::{ffi::OsStr, mem, os::windows::prelude::OsStrExt as _, thread};
 use std::{
     ptr,
     sync::atomic::{AtomicPtr, Ordering},
@@ -636,25 +636,26 @@ mod win_default_device_callback {
     /// Will call [`DeviceState::on_device_change`] callback whenever a default
     /// audio output is changed.
     pub fn register() {
-        unsafe {
-            let audio_endpoint_enumerator: IMMDeviceEnumerator =
-                CoCreateInstance(&MMDeviceEnumerator, None, CLSCTX_ALL)
-                    .unwrap();
-            let audio_endpoint_callback: IMMNotificationClient =
-                AudioEndpointCallback.into();
-            audio_endpoint_enumerator
-                .RegisterEndpointNotificationCallback(&audio_endpoint_callback)
+        let audio_endpoint_enumerator: IMMDeviceEnumerator =
+            unsafe { CoCreateInstance(&MMDeviceEnumerator, None, CLSCTX_ALL) }
                 .unwrap();
 
-            AUDIO_ENDPOINT_ENUMERATOR.swap(
-                Box::into_raw(Box::new(audio_endpoint_enumerator)),
-                Ordering::SeqCst,
-            );
-            AUDIO_ENDPOINT_CALLBACK.swap(
-                Box::into_raw(Box::new(audio_endpoint_callback)),
-                Ordering::SeqCst,
-            );
+        let audio_endpoint_callback: IMMNotificationClient =
+            AudioEndpointCallback.into();
+        unsafe {
+            audio_endpoint_enumerator
+                .RegisterEndpointNotificationCallback(&audio_endpoint_callback)
         }
+        .unwrap();
+
+        AUDIO_ENDPOINT_ENUMERATOR.swap(
+            Box::into_raw(Box::new(audio_endpoint_enumerator)),
+            Ordering::SeqCst,
+        );
+        AUDIO_ENDPOINT_CALLBACK.swap(
+            Box::into_raw(Box::new(audio_endpoint_callback)),
+            Ordering::SeqCst,
+        );
     }
 }
 
@@ -671,7 +672,7 @@ pub unsafe fn init() {
         wp: WPARAM,
         lp: LPARAM,
     ) -> LRESULT {
-        let mut result: LRESULT = LRESULT(0);
+        let mut result = LRESULT(0);
 
         // The message that notifies an application of a change to the hardware
         // configuration of a device or the computer.
@@ -718,7 +719,9 @@ pub unsafe fn init() {
             lpszClassName: PCWSTR(lpsz_class_name_ptr),
             ..WNDCLASSEXW::default()
         };
-        unsafe { RegisterClassExW(&class) };
+        unsafe {
+            RegisterClassExW(&class);
+        }
 
         let lp_window_name = OsStr::new("Notifier")
             .encode_wide()
@@ -761,7 +764,9 @@ pub unsafe fn init() {
             }
 
             _ = unsafe { TranslateMessage(&msg) };
-            unsafe { DispatchMessageW(&msg) };
+            unsafe {
+                DispatchMessageW(&msg);
+            }
         }
     });
 }

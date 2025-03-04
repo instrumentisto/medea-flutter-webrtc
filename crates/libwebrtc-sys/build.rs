@@ -581,7 +581,7 @@ fn link_libs() -> anyhow::Result<()> {
         for dep in
             ["x11", "xfixes", "xdamage", "xext", "xtst", "xrandr", "xcomposite"]
         {
-            _ = pkg_config::Config::new().probe(dep)?;
+            drop(pkg_config::Config::new().probe(dep)?);
         }
         match env::var("PROFILE").unwrap_or_default().as_str() {
             "debug" => {
