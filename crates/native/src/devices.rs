@@ -369,7 +369,7 @@ pub mod linux_device_change {
 
         use std::{
             io,
-            os::{fd::BorrowedFd, unix::prelude::AsRawFd},
+            os::{fd::BorrowedFd, unix::prelude::AsRawFd as _},
             sync::atomic::Ordering,
         };
 

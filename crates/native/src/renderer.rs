@@ -99,6 +99,8 @@ impl TextureEventNotifier {
 /// Definitions and implementation of a handler for C++ API [`sys::VideoFrame`]s
 /// renderer.
 mod frame_handler {
+    #![expect(clippy::allow_attributes, reason = "`cxx` fails on `#[expect]`")]
+
     pub use cpp_api_bindings::{OnFrameCallbackInterface, VideoFrame};
     use cxx::UniquePtr;
     use derive_more::with_trait::From;
@@ -163,6 +165,11 @@ mod frame_handler {
     #[derive(From)]
     pub struct Frame(Box<UniquePtr<sys::VideoFrame>>);
 
+    #[allow( // `cxx::bridge` macro expansion
+        clippy::absolute_paths,
+        let_underscore_drop,
+        reason = "`cxx::bridge` macro expansion"
+    )]
     #[cxx::bridge]
     mod cpp_api_bindings {
         /// Single video `frame`.
