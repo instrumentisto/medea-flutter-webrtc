@@ -617,7 +617,9 @@ impl Webrtc {
     }
 }
 
-/// ID of a [`MediaStream`].
+/// ID of a [MediaStream].
+///
+/// [MediaStream]: https://w3.org/TR/mediacapture-streams#dom-mediastream
 #[derive(Clone, Copy, Debug, Display, Eq, From, Hash, PartialEq)]
 pub struct MediaStreamId(u64);
 
@@ -1227,7 +1229,7 @@ impl AudioTrack {
 
     /// Subscribes this [`AudioTrack`] to audio level updates.
     ///
-    /// Volume updates will be passed to the [`StreamSink`] of this
+    /// Volume updates will be passed to the `stream_sink` of this
     /// [`AudioTrack`].
     pub fn subscribe_to_audio_level(&mut self) {
         if let Some(sink) = self.stream_sink.clone() {
@@ -1255,10 +1257,13 @@ impl AudioTrack {
         }
     }
 
-    /// Sets the provided [`StreamSink`] for this [`AudioTrack`] to use for
+    /// Sets the provided `stream_sink` for this [`AudioTrack`] to use for
     /// [`api::TrackEvent`]s emitting.
-    pub fn set_stream_sink(&mut self, sink: StreamSink<api::TrackEvent>) {
-        drop(self.stream_sink.replace(sink));
+    pub fn set_stream_sink(
+        &mut self,
+        stream_sink: StreamSink<api::TrackEvent>,
+    ) {
+        drop(self.stream_sink.replace(stream_sink));
     }
 
     /// Wraps the track of the `transceiver.receiver.track()` into an

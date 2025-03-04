@@ -1,3 +1,5 @@
+//! API surface and implementation for Flutter.
+
 use std::{
     sync::{
         Arc, Mutex,
@@ -1306,6 +1308,7 @@ pub enum RtcStatsType {
         /// Calculated as defined in [Section 6.4.1 of RFC 3550][1] and
         /// [Appendix A.3][2].
         ///
+        /// [SSRC]: https://w3.org/TR/webrtc-stats#dfn-ssrc
         /// [1]: https://tools.ietf.org/html/rfc3550#section-6.4.1
         /// [2]: https://tools.ietf.org/html/rfc3550#appendix-A.3
         fraction_lost: Option<f64>,
@@ -1855,47 +1858,52 @@ impl From<sys::TrackState> for TrackState {
 /// [1]: https://w3.org/TR/webrtc#dom-rtcrtptransceiverdirection
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum RtpTransceiverDirection {
-    /// The [`RTCRtpTransceiver`]'s [RTCRtpSender] will offer to send RTP, and
-    /// will send RTP if the remote peer accepts. The [`RTCRtpTransceiver`]'s
+    /// The [RTCRtpTransceiver]'s [RTCRtpSender] will offer to send RTP, and
+    /// will send RTP if the remote peer accepts. The [RTCRtpTransceiver]'s
     /// [RTCRtpReceiver] will offer to receive RTP, and will receive RTP if the
     /// remote peer accepts.
     ///
-    /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
     /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
+    /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
+    /// [RTCRtpTransceiver]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver
     SendRecv,
 
-    /// The [`RTCRtpTransceiver`]'s [RTCRtpSender] will offer to send RTP, and
-    /// will send RTP if the remote peer accepts. The [`RTCRtpTransceiver`]'s
+    /// The [RTCRtpTransceiver]'s [RTCRtpSender] will offer to send RTP, and
+    /// will send RTP if the remote peer accepts. The [RTCRtpTransceiver]'s
     /// [RTCRtpReceiver] will not offer to receive RTP, and will not receive
     /// RTP.
     ///
-    /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
     /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
+    /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
+    /// [RTCRtpTransceiver]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver
     SendOnly,
 
-    /// The [`RTCRtpTransceiver`]'s [RTCRtpSender] will not offer to send RTP,
-    /// and will not send RTP. The [`RTCRtpTransceiver`]'s [RTCRtpReceiver] will
+    /// The [RTCRtpTransceiver]'s [RTCRtpSender] will not offer to send RTP,
+    /// and will not send RTP. The [RTCRtpTransceiver]'s [RTCRtpReceiver] will
     /// offer to receive RTP, and will receive RTP if the remote peer accepts.
     ///
-    /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
     /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
+    /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
+    /// [RTCRtpTransceiver]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver
     RecvOnly,
 
-    /// The [`RTCRtpTransceiver`]'s [RTCRtpSender] will not offer to send RTP,
-    /// and will not send RTP. The [`RTCRtpTransceiver`]'s [RTCRtpReceiver] will
+    /// The [RTCRtpTransceiver]'s [RTCRtpSender] will not offer to send RTP,
+    /// and will not send RTP. The [RTCRtpTransceiver]'s [RTCRtpReceiver] will
     /// not offer to receive RTP, and will not receive RTP.
     ///
-    /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
     /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
+    /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
+    /// [RTCRtpTransceiver]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver
     Inactive,
 
-    /// The [`RTCRtpTransceiver`] will neither send nor receive RTP. It will
+    /// The [RTCRtpTransceiver] will neither send nor receive RTP. It will
     /// generate a zero port in the offer. In answers, its [RTCRtpSender] will
     /// not offer to send RTP, and its [RTCRtpReceiver] will not offer to
     /// receive RTP. This is a terminal state.
     ///
-    /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
     /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
+    /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
+    /// [RTCRtpTransceiver]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver
     Stopped,
 }
 
@@ -2038,8 +2046,7 @@ pub struct MediaDisplayInfo {
 }
 
 /// [MediaStreamConstraints], used to instruct what sort of
-/// [`MediaStreamTrack`]s to include in the [`MediaStream`] returned by
-/// [`Webrtc::get_media()`].
+/// [`MediaStreamTrack`]s to return by the [`Webrtc::get_media()`].
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamconstraints
 #[derive(Debug)]
@@ -2094,10 +2101,12 @@ pub struct AudioConstraints {
     pub auto_gain_control: Option<bool>,
 }
 
-/// Representation of a single media track within a [`MediaStream`].
+/// Representation of a single media track within a [MediaStream].
 ///
 /// Typically, these are audio or video tracks, but other track types may exist
 /// as well.
+///
+/// [MediaStream]: https://w3.org/TR/mediacapture-streams#dom-mediastream
 #[derive(Clone, Debug)]
 pub struct MediaStreamTrack {
     /// Unique identifier (GUID) of this [`MediaStreamTrack`].
@@ -2168,9 +2177,9 @@ impl From<&sys::RtpEncodingParameters> for RtcRtpEncodingParameters {
 ///
 /// [0]: https://w3.org/TR/webrtc#dom-rtcrtptransceiverinit
 pub struct RtpTransceiverInit {
-    /// Direction of the [RTCRtpTransceiver][1].
+    /// Direction of the [RTCRtpTransceiver].
     ///
-    /// [1]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver
+    /// [RTCRtpTransceiver]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver
     pub direction: RtpTransceiverDirection,
 
     /// Sequence containing parameters for sending [RTP] encodings of media.
@@ -2193,9 +2202,10 @@ pub struct RtcRtpTransceiver {
     pub transceiver: RustOpaque<Arc<RtpTransceiver>>,
 
     /// [Negotiated media ID (mid)][1] which the local and remote peers have
-    /// agreed upon to uniquely identify the [`MediaStream`]'s pairing of
-    /// sender and receiver.
+    /// agreed upon to uniquely identify the [MediaStream]'s pairing of sender
+    /// and receiver.
     ///
+    /// [MediaStream]: https://w3.org/TR/mediacapture-streams#dom-mediastream
     /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
     pub mid: Option<String>,
 
@@ -2660,7 +2670,10 @@ pub fn set_codec_preferences(
 }
 
 /// Replaces the specified [`AudioTrack`] (or [`VideoTrack`]) on the
-/// [`sys::Transceiver`]'s `sender`.
+/// [`sys::RtpTransceiverInterface`]'s `sender`.
+///
+/// [`AudioTrack`]: crate::AudioTrack
+/// [`VideoTrack`]: crate::VideoTrack
 #[expect(clippy::needless_pass_by_value, reason = "FFI")]
 pub fn sender_replace_track(
     peer: RustOpaque<Arc<PeerConnection>>,
@@ -2740,8 +2753,10 @@ pub fn dispose_peer_connection(peer: RustOpaque<Arc<PeerConnection>>) {
     WEBRTC.lock().unwrap().dispose_peer_connection(&peer);
 }
 
-/// Creates a [`MediaStream`] with tracks according to provided
+/// Creates a [MediaStream] with tracks according to provided
 /// [`MediaStreamConstraints`].
+///
+/// [MediaStream]: https://w3.org/TR/mediacapture-streams#dom-mediastream
 pub fn get_media(constraints: MediaStreamConstraints) -> GetMediaResult {
     #[expect(clippy::significant_drop_in_scrutinee, reason = "no problems")]
     match WEBRTC.lock().unwrap().get_media(constraints) {
@@ -2896,7 +2911,7 @@ pub fn set_audio_level_observer_enabled(
     )
 }
 
-/// Sets the provided [`OnDeviceChangeCallback`] as the callback to be called
+/// Sets the provided `OnDeviceChangeCallback` as the callback to be called
 /// whenever a set of available media devices changes.
 ///
 /// Only one callback can be set at a time, so the previous one will be dropped,
@@ -2911,7 +2926,10 @@ pub fn set_on_device_changed(cb: StreamSink<()>) -> anyhow::Result<()> {
 /// Creates a new [`VideoSink`] attached to the specified video track.
 ///
 /// `callback_ptr` argument should be a pointer to an [`UniquePtr`] pointing to
-/// an [`OnFrameCallbackInterface`].
+/// an [`sys::OnFrameCallback`].
+///
+/// [`UniquePtr`]: cxx::UniquePtr
+/// [`VideoSink`]: crate::VideoSink
 pub fn create_video_sink(
     cb: StreamSink<TextureEvent>,
     sink_id: i64,
@@ -2931,7 +2949,9 @@ pub fn create_video_sink(
     )
 }
 
-/// Destroys the [`VideoSink`] by the provided ID.
+/// Destroys a [`VideoSink`] by the provided ID.
+///
+/// [`VideoSink`]: crate::VideoSink
 pub fn dispose_video_sink(sink_id: i64) {
     WEBRTC.lock().unwrap().dispose_video_sink(sink_id);
 }

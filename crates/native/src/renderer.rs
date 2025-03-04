@@ -1,8 +1,8 @@
 //! Implementations and definitions of the renderers API for C and C++ APIs.
 
-pub use frame_handler::FrameHandler;
 use libwebrtc_sys as sys;
 
+pub use self::frame_handler::FrameHandler;
 use crate::frb_generated::StreamSink;
 
 /// Frame change events.

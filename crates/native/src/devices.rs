@@ -46,8 +46,8 @@ pub fn enumerate_displays() -> Vec<api::MediaDisplayInfo> {
 }
 
 /// Struct containing the current number of media devices and some tools to
-/// enumerate them (such as [`AudioDeviceModule`] and [`VideoDeviceInfo`]), and
-/// generate event with [`OnDeviceChangeCallback`], if the last is needed.
+/// enumerate them (such as [`AudioDeviceModule`] and [`sys::VideoDeviceInfo`]),
+/// and generate an event with `OnDeviceChangeCallback`, if the last is needed.
 pub struct DeviceState {
     cb: StreamSink<()>,
     adm: AudioDeviceModule,
@@ -112,7 +112,7 @@ impl DeviceState {
         self.video_count = count;
     }
 
-    /// Triggers the [`OnDeviceChangeCallback`].
+    /// Triggers the `OnDeviceChangeCallback`.
     fn on_device_change(&self) {
         _ = self.cb.add(());
     }
@@ -298,8 +298,8 @@ impl Webrtc {
         self.audio_device_module.microphone_volume()
     }
 
-    /// Sets the provided [`OnDeviceChangeCallback`] as the callback to be
-    /// called whenever the set of available media devices changes.
+    /// Sets the provided [`DeviceState`] as the callback to be called whenever
+    /// the set of available media devices changes.
     ///
     /// Only one callback can be set at a time, so the previous one will be
     /// dropped, if any.

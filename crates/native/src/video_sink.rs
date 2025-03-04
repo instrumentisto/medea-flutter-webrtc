@@ -1,3 +1,5 @@
+//! [`VideoSink`] related definitions.
+
 use anyhow::anyhow;
 use cxx::UniquePtr;
 use derive_more::with_trait::{AsMut, AsRef};
@@ -54,7 +56,7 @@ impl Webrtc {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct Id(i64);
 
-/// Wrapper around a [`sys::VideoSink`] attaching a unique ID to it.
+/// Wrapper around a [`sys::VideoSinkInterface`] attaching a unique ID to it.
 #[derive(AsRef, AsMut)]
 pub struct VideoSink {
     /// ID of this [`VideoSink`].

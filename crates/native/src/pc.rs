@@ -122,7 +122,7 @@ impl Webrtc {
     }
 
     /// Replaces the specified [`AudioTrack`] (or [`VideoTrack`]) on the
-    /// [`sys::Transceiver`]'s `sender`.
+    /// [`sys::RtpTransceiverInterface`]'s `sender`.
     ///
     /// # Panics
     ///
@@ -338,12 +338,15 @@ impl PeerConnection {
         self.id
     }
 
-    /// Returns a sequence of [`RtpTransceiverInterface`] objects representing
-    /// the RTP transceivers currently attached to this [`PeerConnection`].
+    /// Returns a sequence of [`sys::RtpTransceiverInterface`] objects
+    /// representing the [RTP] transceivers currently attached to this
+    /// [`PeerConnection`].
     ///
     /// # Panics
     ///
     /// If the underlying [`Mutex`] is poisoned.
+    ///
+    /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
     #[must_use]
     pub fn get_transceivers(&self) -> Vec<sys::RtpTransceiverInterface> {
         self.inner.lock().unwrap().get_transceivers()
@@ -544,7 +547,8 @@ impl PeerConnection {
         self.inner.lock().unwrap().set_local_description(desc, obs);
     }
 
-    /// Returns [`RtcStats`] of this [`PeerConnection`].
+    /// Emits a [`sys::RtcStatsReport`] of this [`PeerConnection`] into the
+    /// provided [`mpsc::Sender`].
     ///
     /// # Panics
     ///
@@ -869,7 +873,7 @@ impl RtpTransceiver {
         self.inner.lock().unwrap().direction()
     }
 
-    /// Returns the [`MediaType`] of this [`RtpTransceiver`].
+    /// Returns the [`sys::MediaType`] of this [`RtpTransceiver`].
     ///
     /// # Panics
     ///

@@ -157,7 +157,7 @@
     reason = "needs refactoring"
 )]
 
-mod api;
+pub mod api;
 #[expect( // codegen
     clippy::absolute_paths,
     clippy::allow_attributes_without_reason,
@@ -185,7 +185,7 @@ mod devices;
 mod pc;
 mod renderer;
 mod user_media;
-mod video_sink;
+pub mod video_sink;
 
 use std::{
     collections::HashMap,
@@ -201,6 +201,7 @@ use threadpool::ThreadPool;
 
 #[doc(inline)]
 pub use crate::{
+    devices::DeviceState,
     pc::{
         PeerConnection, RtpEncodingParameters, RtpParameters, RtpTransceiver,
     },
@@ -222,7 +223,7 @@ pub(crate) fn next_id() -> u32 {
 }
 
 /// Global context for an application.
-struct Webrtc {
+pub struct Webrtc {
     video_device_info: VideoDeviceInfo,
     video_sources: HashMap<VideoDeviceId, Arc<VideoSource>>,
     video_tracks: Arc<DashMap<(VideoTrackId, TrackOrigin), VideoTrack>>,
