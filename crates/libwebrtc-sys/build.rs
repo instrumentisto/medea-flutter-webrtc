@@ -212,13 +212,13 @@ fn main() -> anyhow::Result<()> {
 
     #[cfg(target_os = "linux")]
     {
-        let (major_lld_ver, _, _) = get_lld_version().unwrap();
-        assert!(
-            major_lld_ver >= 19,
-            "compilation of the `libwebrtc-sys` crate requires `ldd` version \
-             19 or higher, as the `libwebrtc` library it depends on is linked \
-             using CREL (introduced in version 19)"
-        );
+        if get_lld_version()?.0 < 19 {
+            bail!(
+                "Compilation of the `libwebrtc-sys` crate requires `ldd` \
+                 version 19 or higher, as the `libwebrtc` library it depends \
+                 on is linked using CREL (introduced in version 19)",
+            );
+        }
         println!("cargo:rustc-link-arg=-fuse-ld=lld");
         build
             .flag("-DWEBRTC_LINUX")
@@ -282,7 +282,7 @@ fn get_lld_version() -> anyhow::Result<(u8, u8, u8)> {
             let patch = caps.get(3)?.as_str().parse::<u8>().ok()?;
             Some((major, minor, patch))
         })
-        .ok_or_else(|| anyhow::anyhow!("Failed to parse lld version"))
+        .ok_or_else(|| anyhow!("Failed to parse `lld` version"))
 }
 
 /// Returns target architecture to build the library for.
