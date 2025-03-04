@@ -144,7 +144,9 @@
 // TODO: Revisit and apply granular.
 #![expect( // needs refactoring
     clippy::as_conversions,
+    clippy::missing_errors_doc,
     clippy::missing_docs_in_private_items,
+    clippy::missing_panics_doc,
     clippy::multiple_inherent_impl,
     clippy::partial_pub_fields,
     clippy::undocumented_unsafe_blocks,

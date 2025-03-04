@@ -45,9 +45,11 @@ pub fn enumerate_displays() -> Vec<api::MediaDisplayInfo> {
         .collect()
 }
 
-/// Struct containing the current number of media devices and some tools to
-/// enumerate them (such as [`AudioDeviceModule`] and [`sys::VideoDeviceInfo`]),
-/// and generate an event with `OnDeviceChangeCallback`, if the last is needed.
+/// Current number of media devices and some tools to enumerate them (such as
+/// [`AudioDeviceModule`] and [`sys::VideoDeviceInfo`]).
+///
+/// It's used to generate an event with `OnDeviceChangeCallback`, if the last is
+/// needed.
 pub struct DeviceState {
     cb: StreamSink<()>,
     adm: AudioDeviceModule,

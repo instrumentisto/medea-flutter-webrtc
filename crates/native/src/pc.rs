@@ -50,6 +50,7 @@ impl Webrtc {
 
     /// Returns a sequence of [`api::RtcRtpTransceiver`] objects representing
     /// the RTP transceivers currently attached to specified [`PeerConnection`].
+    #[must_use]
     pub fn get_transceivers(
         peer: &RustOpaque<Arc<PeerConnection>>,
     ) -> Vec<api::RtcRtpTransceiver> {

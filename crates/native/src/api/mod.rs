@@ -344,6 +344,7 @@ impl From<sys::RtcInboundRtpStreamMediaType> for RtcInboundRtpStreamMediaType {
 }
 
 /// Each candidate pair in the check list has a foundation and a state.
+///
 /// The foundation is the combination of the foundations of the local and remote
 /// candidates in the pair. The state is assigned once the check list for each
 /// media stream has been computed. There are five potential values that the
@@ -2443,6 +2444,7 @@ pub struct VideoCodecInfo {
 }
 
 /// Returns all [`VideoCodecInfo`]s of the supported video encoders.
+#[must_use]
 pub fn video_encoders() -> Vec<VideoCodecInfo> {
     // TODO(rogurotus): Implement HW acceleration probing for desktop.
     vec![
@@ -2462,6 +2464,7 @@ pub fn video_encoders() -> Vec<VideoCodecInfo> {
 }
 
 /// Returns all [`VideoCodecInfo`]s of the supported video decoders.
+#[must_use]
 pub fn video_decoders() -> Vec<VideoCodecInfo> {
     // TODO(rogurotus): Implement HW acceleration probing for desktop.
     vec![
@@ -2493,17 +2496,20 @@ pub fn is_fake_media() -> bool {
 
 /// Returns a list of all available media input and output devices, such as
 /// microphones, cameras, headsets, and so forth.
+#[expect(clippy::missing_panics_doc, reason = "locking")]
 pub fn enumerate_devices() -> anyhow::Result<Vec<MediaDeviceInfo>> {
     WEBRTC.lock().unwrap().enumerate_devices()
 }
 
 /// Returns a list of all available displays that can be used for screen
 /// capturing.
+#[must_use]
 pub fn enumerate_displays() -> Vec<MediaDisplayInfo> {
     devices::enumerate_displays()
 }
 
 /// Creates a new [`PeerConnection`] and returns its ID.
+#[expect(clippy::missing_panics_doc, reason = "locking")]
 #[expect(clippy::needless_pass_by_value, reason = "FFI")]
 pub fn create_peer_connection(
     cb: StreamSink<PeerConnectionEvent>,
@@ -2582,6 +2588,7 @@ pub fn add_transceiver(
 /// Returns a sequence of [`RtcRtpTransceiver`] objects representing the RTP
 /// transceivers currently attached to the specified [`PeerConnection`].
 #[expect(clippy::needless_pass_by_value, reason = "FFI")]
+#[must_use]
 pub fn get_transceivers(
     peer: RustOpaque<Arc<PeerConnection>>,
 ) -> Vec<RtcRtpTransceiver> {
@@ -2620,6 +2627,7 @@ pub fn set_transceiver_send(
 ///
 /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
 #[expect(clippy::needless_pass_by_value, reason = "FFI")]
+#[must_use]
 pub fn get_transceiver_mid(
     transceiver: RustOpaque<Arc<RtpTransceiver>>,
 ) -> Option<String> {
@@ -2628,6 +2636,7 @@ pub fn get_transceiver_mid(
 
 /// Returns the preferred direction of the specified [`RtcRtpTransceiver`].
 #[expect(clippy::needless_pass_by_value, reason = "FFI")]
+#[must_use]
 pub fn get_transceiver_direction(
     transceiver: RustOpaque<Arc<RtpTransceiver>>,
 ) -> RtpTransceiverDirection {
@@ -2685,6 +2694,7 @@ pub fn sender_replace_track(
 
 /// Returns [`RtpParameters`] from the provided [`RtpTransceiver`]'s `sender`.
 #[expect(clippy::needless_pass_by_value, reason = "FFI")]
+#[must_use]
 pub fn sender_get_parameters(
     transceiver: RustOpaque<Arc<RtpTransceiver>>,
 ) -> RtcRtpSendParameters {
@@ -2694,6 +2704,7 @@ pub fn sender_get_parameters(
 /// Returns the capabilities of an [RTP] sender of the provided [`MediaType`].
 ///
 /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
+#[must_use]
 pub fn get_rtp_sender_capabilities(kind: MediaType) -> RtpCapabilities {
     RtpCapabilities::from(
         WEBRTC
@@ -2707,6 +2718,7 @@ pub fn get_rtp_sender_capabilities(kind: MediaType) -> RtpCapabilities {
 /// Returns the capabilities of an [RTP] receiver of the provided [`MediaType`].
 ///
 /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
+#[must_use]
 pub fn get_rtp_receiver_capabilities(kind: MediaType) -> RtpCapabilities {
     RtpCapabilities::from(
         WEBRTC
@@ -2757,6 +2769,7 @@ pub fn dispose_peer_connection(peer: RustOpaque<Arc<PeerConnection>>) {
 /// [`MediaStreamConstraints`].
 ///
 /// [MediaStream]: https://w3.org/TR/mediacapture-streams#dom-mediastream
+#[must_use]
 pub fn get_media(constraints: MediaStreamConstraints) -> GetMediaResult {
     #[expect(clippy::significant_drop_in_scrutinee, reason = "no problems")]
     match WEBRTC.lock().unwrap().get_media(constraints) {
