@@ -17,8 +17,7 @@ pub use crate::{
     renderer::TextureEvent,
 };
 use crate::{
-    Webrtc,
-    devices::{self, DeviceState},
+    Webrtc, devices,
     frb_generated::{RustOpaque, StreamSink},
     pc::PeerConnectionId,
     renderer::FrameHandler,

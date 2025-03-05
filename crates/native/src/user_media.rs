@@ -327,6 +327,7 @@ impl Webrtc {
     /// media type.
     ///
     /// [0]: https://w3.org/TR/mediacapture-streams#dfn-readystate
+    #[must_use]
     pub fn track_state(
         &self,
         id: String,
@@ -337,13 +338,13 @@ impl Webrtc {
             api::MediaType::Audio => {
                 let id = AudioTrackId::from(id);
                 self.audio_tracks
-                    .get(&(id.clone(), track_origin))
+                    .get(&(id, track_origin))
                     .map_or_else(|| api::TrackState::Ended, |t| t.state())
             }
             api::MediaType::Video => {
                 let id = VideoTrackId::from(id);
                 self.video_tracks
-                    .get(&(id.clone(), track_origin))
+                    .get(&(id, track_origin))
                     .map_or_else(|| api::TrackState::Ended, |t| t.state())
             }
         }
@@ -354,6 +355,7 @@ impl Webrtc {
     /// Blocks until the [width] is initialized.
     ///
     /// [width]: https://w3.org/TR/mediacapture-streams#dfn-width
+    #[must_use]
     pub fn track_width(
         &self,
         id: String,
@@ -362,7 +364,7 @@ impl Webrtc {
         let id = VideoTrackId::from(id);
 
         self.video_tracks
-            .get(&(id.clone(), track_origin))
+            .get(&(id, track_origin))
             .map(|t| *t.width.wait().read().unwrap())
     }
 
@@ -371,6 +373,7 @@ impl Webrtc {
     /// Blocks until the [height] is initialized.
     ///
     /// [height]: https://w3.org/TR/mediacapture-streams#dfn-height
+    #[must_use]
     pub fn track_height(
         &self,
         id: String,
@@ -379,7 +382,7 @@ impl Webrtc {
         let id = VideoTrackId::from(id);
 
         self.video_tracks
-            .get(&(id.clone(), track_origin))
+            .get(&(id, track_origin))
             .map(|t| *t.height.wait().read().unwrap())
     }
 
@@ -396,14 +399,14 @@ impl Webrtc {
         match kind {
             api::MediaType::Audio => {
                 let id = AudioTrackId::from(id);
-                let track = self.audio_tracks.get(&(id.clone(), track_origin));
+                let track = self.audio_tracks.get(&(id, track_origin));
                 if let Some(track) = track {
                     track.set_enabled(enabled);
                 }
             }
             api::MediaType::Video => {
                 let id = VideoTrackId::from(id);
-                let track = self.video_tracks.get(&(id.clone(), track_origin));
+                let track = self.video_tracks.get(&(id, track_origin));
                 if let Some(track) = track {
                     track.set_enabled(enabled);
                 }
@@ -412,6 +415,7 @@ impl Webrtc {
     }
 
     /// Clones the specified [`api::MediaStreamTrack`].
+    #[must_use]
     pub fn clone_track(
         &self,
         id: String,
@@ -421,10 +425,8 @@ impl Webrtc {
         match kind {
             api::MediaType::Audio => {
                 let id = AudioTrackId::from(id);
-                let source = self
-                    .audio_tracks
-                    .get(&(id.clone(), track_origin))
-                    .map(|track| match &track.source {
+                let source = self.audio_tracks.get(&(id, track_origin)).map(
+                    |track| match &track.source {
                         MediaTrackSource::Local(source) => {
                             MediaTrackSource::Local(Arc::clone(source))
                         }
@@ -434,7 +436,8 @@ impl Webrtc {
                                 peer: Weak::clone(peer),
                             }
                         }
-                    })?;
+                    },
+                )?;
 
                 match source {
                     MediaTrackSource::Local(source) => Some(
@@ -463,10 +466,8 @@ impl Webrtc {
             }
             api::MediaType::Video => {
                 let id = VideoTrackId::from(id);
-                let source = self
-                    .video_tracks
-                    .get(&(id.clone(), track_origin))
-                    .map(|track| match &track.source {
+                let source = self.video_tracks.get(&(id, track_origin)).map(
+                    |track| match &track.source {
                         MediaTrackSource::Local(source) => {
                             MediaTrackSource::Local(Arc::clone(source))
                         }
@@ -476,7 +477,8 @@ impl Webrtc {
                                 peer: Weak::clone(peer),
                             }
                         }
-                    })?;
+                    },
+                )?;
 
                 match source {
                     MediaTrackSource::Local(source) => {
@@ -519,7 +521,7 @@ impl Webrtc {
         enabled: bool,
     ) {
         let id = AudioTrackId::from(id);
-        let track = self.audio_tracks.get_mut(&(id.clone(), track_origin));
+        let track = self.audio_tracks.get_mut(&(id, track_origin));
         if let Some(mut track) = track {
             if enabled {
                 track.subscribe_to_audio_level();
@@ -548,8 +550,7 @@ impl Webrtc {
         match kind {
             api::MediaType::Audio => {
                 let id = AudioTrackId::from(id);
-                let track =
-                    self.audio_tracks.get_mut(&(id.clone(), track_origin));
+                let track = self.audio_tracks.get_mut(&(id, track_origin));
 
                 if let Some(mut track) = track {
                     obs.set_audio_track(&track.inner);
@@ -559,8 +560,7 @@ impl Webrtc {
             }
             api::MediaType::Video => {
                 let id = VideoTrackId::from(id);
-                let track =
-                    self.video_tracks.get_mut(&(id.clone(), track_origin));
+                let track = self.video_tracks.get_mut(&(id, track_origin));
 
                 if let Some(mut track) = track {
                     obs.set_video_track(&track.inner);
@@ -1111,6 +1111,7 @@ impl VideoTrack {
         self.inner.state().into()
     }
 
+    /// Emits [`api::TrackEvent::Ended`] to the Flutter side.
     pub fn notify_on_ended(&mut self) {
         if let Some(sink) = self.track_events_tx.take() {
             _ = sink.add(api::TrackEvent::Ended);

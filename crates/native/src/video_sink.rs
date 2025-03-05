@@ -29,8 +29,7 @@ impl Webrtc {
             track_origin,
         };
 
-        let track =
-            self.video_tracks.get_mut(&(track_id.clone(), track_origin));
+        let track = self.video_tracks.get_mut(&(track_id, track_origin));
 
         if let Some(mut track) = track {
             track.add_video_sink(&mut sink);

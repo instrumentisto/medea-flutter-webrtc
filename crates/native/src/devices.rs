@@ -1,16 +1,20 @@
 use std::{
-    mem,
-    sync::atomic::{AtomicBool, Ordering},
+    mem, ptr,
+    sync::{
+        atomic::{AtomicPtr, Ordering},
+        mpsc,
+    },
+    thread,
 };
 
 use anyhow::anyhow;
 use libwebrtc_sys as sys;
 
 use crate::{
-    api,
+    Webrtc, api,
+    api::WEBRTC,
     frb_generated::StreamSink,
     user_media::{AudioDeviceId, MediaTrackSource, TrackOrigin, VideoDeviceId},
-    Webrtc,
 };
 
 /// Returns a list of all available displays that can be used for screen
@@ -25,17 +29,17 @@ pub fn enumerate_displays() -> Vec<api::MediaDisplayInfo> {
         .collect()
 }
 
+/// Sender to notify of media devices change.
+static DEVICE_CHANGE_TX: AtomicPtr<mpsc::Sender<()>> =
+    AtomicPtr::new(ptr::null_mut());
+
 /// Initializes media devices change watcher.
 pub fn init_on_device_change() {
-    // platform::init() must only be called once.
-    static INITIALIZED: AtomicBool = AtomicBool::new(false);
+    let (tx, rx) = mpsc::channel();
 
-    if let Ok(false) = INITIALIZED.compare_exchange(
-        false,
-        true,
-        Ordering::Relaxed,
-        Ordering::Relaxed,
-    ) {
+    let old =
+        DEVICE_CHANGE_TX.swap(Box::into_raw(Box::new(tx)), Ordering::SeqCst);
+    if old.is_null() {
         unsafe {
             #[cfg(target_os = "macos")]
             macos::init();
@@ -44,16 +48,20 @@ pub fn init_on_device_change() {
             #[cfg(target_os = "linux")]
             linux::init();
         }
+    } else {
+        unsafe {
+            drop(Box::from_raw(old));
+        }
     }
-}
 
-/// Available media devices snapshot.
-#[derive(Default)]
-pub struct DevicesState {
-    pub on_device_change: Option<StreamSink<()>>,
-    pub audio_inputs: Vec<(String, AudioDeviceId)>,
-    pub audio_outputs: Vec<(String, AudioDeviceId)>,
-    pub video_inputs: Vec<(String, VideoDeviceId)>,
+    thread::spawn(move || {
+        while rx.recv().is_ok() {
+            // Drain channel since this on_device_changed call will handle
+            // all changes that happened to this moment
+            while rx.try_recv().is_ok() {}
+            WEBRTC.lock().unwrap().on_device_changed();
+        }
+    });
 }
 
 impl Webrtc {
@@ -88,10 +96,7 @@ impl Webrtc {
                 label,
             });
 
-        Ok(audio_inputs
-            .chain(audio_outputs)
-            .chain(video_inputs)
-            .collect())
+        Ok(audio_inputs.chain(audio_outputs).chain(video_inputs).collect())
     }
 
     /// Returns a list of all available audio input devices.
@@ -352,6 +357,22 @@ impl Webrtc {
     }
 }
 
+/// Available media devices snapshot.
+#[derive(Default)]
+pub struct DevicesState {
+    /// [`StreamSink`] to notify Dart side of an device change event.
+    pub on_device_change: Option<StreamSink<()>>,
+
+    /// List of all available audio input devices.
+    pub audio_inputs: Vec<(String, AudioDeviceId)>,
+
+    /// List of all available audio output devices.
+    pub audio_outputs: Vec<(String, AudioDeviceId)>,
+
+    /// List of all available video input devices.
+    pub video_inputs: Vec<(String, VideoDeviceId)>,
+}
+
 #[cfg(target_os = "linux")]
 mod linux {
     //! Tools for monitoring devices on [Linux].
@@ -397,13 +418,14 @@ mod linux {
 
         use std::{
             io,
-            os::{fd::BorrowedFd, unix::prelude::AsRawFd},
+            os::{fd::BorrowedFd, unix::prelude::AsRawFd as _},
+            sync::atomic::Ordering,
         };
 
         use libudev::EventType;
-        use nix::poll::{ppoll, PollFd, PollFlags};
+        use nix::poll::{PollFd, PollFlags, ppoll};
 
-        use crate::api::WEBRTC;
+        use crate::devices::DEVICE_CHANGE_TX;
 
         /// Monitors video devices via [libudev].
         ///
@@ -429,7 +451,10 @@ mod linux {
                     event.event_type(),
                     EventType::Add | EventType::Remove,
                 ) {
-                    WEBRTC.lock().unwrap().on_device_changed();
+                    let tx = DEVICE_CHANGE_TX.load(Ordering::SeqCst);
+                    if !tx.is_null() {
+                        _ = unsafe { &*tx }.send(());
+                    }
                 }
             }
         }
@@ -440,16 +465,18 @@ mod linux {
         //!
         //! [PulseAudio]: https://freedesktop.org/wiki/Software/PulseAudio
 
+        use std::sync::atomic::Ordering;
+
         use anyhow::anyhow;
         use pulse::{
             context::{
-                subscribe::{Facility, InterestMaskSet, Operation},
                 Context, FlagSet, State,
+                subscribe::{Facility, InterestMaskSet, Operation},
             },
             mainloop::standard::{IterateResult, Mainloop},
         };
 
-        use crate::api::WEBRTC;
+        use crate::devices::DEVICE_CHANGE_TX;
 
         /// Monitor of audio devices via [PulseAudio].
         ///
@@ -488,7 +515,10 @@ mod linux {
                     if matches!(f, Sink | Source) && matches!(op, New | Removed)
                         || f == Server && op == Changed
                     {
-                        WEBRTC.lock().unwrap().on_device_changed();
+                        let tx = DEVICE_CHANGE_TX.load(Ordering::SeqCst);
+                        if !tx.is_null() {
+                            _ = unsafe { &*tx }.send(());
+                        }
                     };
                 })));
 
@@ -522,10 +552,7 @@ mod linux {
                     | InterestMaskSet::SERVER;
                 context.subscribe(mask, |_| {});
 
-                Ok(Self {
-                    _context: context,
-                    main_loop,
-                })
+                Ok(Self { _context: context, main_loop })
             }
         }
     }
@@ -533,20 +560,23 @@ mod linux {
 
 #[cfg(target_os = "macos")]
 mod macos {
-    use crate::api::WEBRTC;
+    use crate::devices::DEVICE_CHANGE_TX;
 
     /// Sets native side callback for devices monitoring.
     pub unsafe fn init() {
-        extern "C" {
+        unsafe extern "C" {
             /// Passes the callback to the native side.
             pub fn set_on_device_change_mac(cb: unsafe extern "C" fn());
         }
 
         extern "C" fn on_device_change() {
-            WEBRTC.lock().unwrap().on_device_changed();
+            let tx = DEVICE_CHANGE_TX.load(Ordering::SeqCst);
+            if !tx.is_null() {
+                _ = unsafe { &*tx }.send(());
+            }
         }
 
-        set_on_device_change_mac(on_device_change);
+        unsafe { set_on_device_change_mac(on_device_change) };
     }
 }
 
@@ -564,24 +594,27 @@ mod windows {
         thread,
     };
 
-    use crate::api::WEBRTC;
     use windows::{
-        core::{Result, PCWSTR},
         Win32::{
             Foundation::{HWND, LPARAM, LRESULT, PROPERTYKEY, WPARAM},
             Media::Audio::{
-                EDataFlow, ERole, IMMDeviceEnumerator, IMMNotificationClient,
-                IMMNotificationClient_Impl, MMDeviceEnumerator, DEVICE_STATE,
+                DEVICE_STATE, EDataFlow, ERole, IMMDeviceEnumerator,
+                IMMNotificationClient, IMMNotificationClient_Impl,
+                MMDeviceEnumerator,
             },
-            System::Com::{CoCreateInstance, CLSCTX_ALL},
+            System::Com::{CLSCTX_ALL, CoCreateInstance},
             UI::WindowsAndMessaging::{
-                CreateWindowExW, DefWindowProcW, DispatchMessageW, GetMessageW,
-                RegisterClassExW, ShowWindow, TranslateMessage, CW_USEDEFAULT,
-                DBT_DEVNODES_CHANGED, MSG, SW_HIDE, WINDOW_EX_STYLE,
-                WM_DEVICECHANGE, WM_QUIT, WNDCLASSEXW, WS_ICONIC,
+                CW_USEDEFAULT, CreateWindowExW, DBT_DEVNODES_CHANGED,
+                DefWindowProcW, DispatchMessageW, GetMessageW, MSG,
+                RegisterClassExW, SW_HIDE, ShowWindow, TranslateMessage,
+                WINDOW_EX_STYLE, WM_DEVICECHANGE, WM_QUIT, WNDCLASSEXW,
+                WS_ICONIC,
             },
         },
+        core::{PCWSTR, Result},
     };
+
+    use crate::devices::DEVICE_CHANGE_TX;
 
     /// Storage for an [`IMMDeviceEnumerator`] used for detecting default audio
     /// device changes.
@@ -623,7 +656,10 @@ mod windows {
         ) -> Result<()> {
             if role == ERole(0) {
                 unsafe {
-                    WEBRTC.lock().unwrap().on_device_changed();
+                    let tx = DEVICE_CHANGE_TX.load(Ordering::SeqCst);
+                    if !tx.is_null() {
+                        _ = unsafe { &*tx }.send(());
+                    }
                 }
             }
 
@@ -644,25 +680,26 @@ mod windows {
     /// Will call [`DeviceState::on_device_change`] callback whenever a default
     /// audio output is changed.
     pub fn register() {
-        unsafe {
-            let audio_endpoint_enumerator: IMMDeviceEnumerator =
-                CoCreateInstance(&MMDeviceEnumerator, None, CLSCTX_ALL)
-                    .unwrap();
-            let audio_endpoint_callback: IMMNotificationClient =
-                AudioEndpointCallback.into();
-            audio_endpoint_enumerator
-                .RegisterEndpointNotificationCallback(&audio_endpoint_callback)
+        let audio_endpoint_enumerator: IMMDeviceEnumerator =
+            unsafe { CoCreateInstance(&MMDeviceEnumerator, None, CLSCTX_ALL) }
                 .unwrap();
 
-            AUDIO_ENDPOINT_ENUMERATOR.swap(
-                Box::into_raw(Box::new(audio_endpoint_enumerator)),
-                Ordering::SeqCst,
-            );
-            AUDIO_ENDPOINT_CALLBACK.swap(
-                Box::into_raw(Box::new(audio_endpoint_callback)),
-                Ordering::SeqCst,
-            );
+        let audio_endpoint_callback: IMMNotificationClient =
+            AudioEndpointCallback.into();
+        unsafe {
+            audio_endpoint_enumerator
+                .RegisterEndpointNotificationCallback(&audio_endpoint_callback)
         }
+        .unwrap();
+
+        AUDIO_ENDPOINT_ENUMERATOR.swap(
+            Box::into_raw(Box::new(audio_endpoint_enumerator)),
+            Ordering::SeqCst,
+        );
+        AUDIO_ENDPOINT_CALLBACK.swap(
+            Box::into_raw(Box::new(audio_endpoint_callback)),
+            Ordering::SeqCst,
+        );
     }
 
     /// Creates a detached [`Thread`] creating and registering a system message
@@ -677,7 +714,7 @@ mod windows {
             wp: WPARAM,
             lp: LPARAM,
         ) -> LRESULT {
-            let mut result: LRESULT = LRESULT(0);
+            let mut result = LRESULT(0);
 
             // The message that notifies an application of a change to the
             // hardware configuration of a device or the computer.
@@ -685,10 +722,13 @@ mod windows {
                 // The device event when a device has been added to or removed
                 // from the system.
                 if DBT_DEVNODES_CHANGED as usize == wp.0 {
-                    WEBRTC.lock().unwrap().on_device_changed();
+                    let tx = DEVICE_CHANGE_TX.load(Ordering::SeqCst);
+                    if !tx.is_null() {
+                        _ = unsafe { &*tx }.send(());
+                    }
                 }
             } else {
-                result = DefWindowProcW(hwnd, msg, wp, lp);
+                result = unsafe { DefWindowProcW(hwnd, msg, wp, lp) };
             }
 
             result
@@ -710,7 +750,7 @@ mod windows {
                 lpszClassName: PCWSTR(lpsz_class_name_ptr),
                 ..WNDCLASSEXW::default()
             };
-            RegisterClassExW(&class);
+            unsafe { RegisterClassExW(&class) };
 
             let lp_window_name = OsStr::new("Notifier")
                 .encode_wide()
@@ -718,20 +758,22 @@ mod windows {
                 .collect::<Vec<u16>>();
             let lp_window_name_ptr = lp_window_name.as_ptr();
 
-            let hwnd = CreateWindowExW(
-                WINDOW_EX_STYLE(0),
-                class.lpszClassName,
-                PCWSTR::from_raw(lp_window_name_ptr),
-                WS_ICONIC,
-                0,
-                0,
-                CW_USEDEFAULT,
-                0,
-                None,
-                None,
-                None,
-                None,
-            );
+            let hwnd = unsafe {
+                CreateWindowExW(
+                    WINDOW_EX_STYLE(0),
+                    class.lpszClassName,
+                    PCWSTR::from_raw(lp_window_name_ptr),
+                    WS_ICONIC,
+                    0,
+                    0,
+                    CW_USEDEFAULT,
+                    0,
+                    None,
+                    None,
+                    None,
+                    None,
+                )
+            };
 
             let Ok(hwnd) = hwnd else {
                 log::error!(
@@ -741,17 +783,17 @@ mod windows {
                 return;
             };
 
-            _ = ShowWindow(hwnd, SW_HIDE);
+            _ = unsafe { ShowWindow(hwnd, SW_HIDE) };
 
-            let mut msg: MSG = mem::zeroed();
+            let mut msg: MSG = unsafe { mem::zeroed() };
 
-            while GetMessageW(&mut msg, Some(hwnd), 0, 0).into() {
+            while unsafe { GetMessageW(&mut msg, Some(hwnd), 0, 0).into() } {
                 if msg.message == WM_QUIT {
                     break;
                 }
 
-                _ = TranslateMessage(&msg);
-                DispatchMessageW(&msg);
+                _ = unsafe { TranslateMessage(&msg) };
+                unsafe { DispatchMessageW(&msg) };
             }
         });
     }

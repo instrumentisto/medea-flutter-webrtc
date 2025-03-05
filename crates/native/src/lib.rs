@@ -201,14 +201,9 @@ use dashmap::DashMap;
 use libwebrtc_sys as sys;
 use threadpool::ThreadPool;
 
-use crate::{
-    devices::DevicesState, user_media::TrackOrigin,
-    video_sink::Id as VideoSinkId,
-};
-
 #[doc(inline)]
 pub use crate::{
-    devices::DeviceState,
+    devices::DevicesState,
     pc::{
         PeerConnection, RtpEncodingParameters, RtpParameters, RtpTransceiver,
     },
