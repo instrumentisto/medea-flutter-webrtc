@@ -560,6 +560,8 @@ mod linux {
 
 #[cfg(target_os = "macos")]
 mod macos {
+    use std::sync::atomic::Ordering;
+
     use crate::devices::DEVICE_CHANGE_TX;
 
     /// Sets native side callback for devices monitoring.
@@ -588,7 +590,7 @@ mod windows {
     use std::{
         ffi::OsStr,
         mem,
-        os::windows::prelude::OsStrExt,
+        os::windows::prelude::OsStrExt as _,
         ptr,
         sync::atomic::{AtomicPtr, Ordering},
         thread,
@@ -750,7 +752,9 @@ mod windows {
                 lpszClassName: PCWSTR(lpsz_class_name_ptr),
                 ..WNDCLASSEXW::default()
             };
-            unsafe { RegisterClassExW(&class) };
+            unsafe {
+                RegisterClassExW(&class);
+            }
 
             let lp_window_name = OsStr::new("Notifier")
                 .encode_wide()
@@ -793,7 +797,9 @@ mod windows {
                 }
 
                 _ = unsafe { TranslateMessage(&msg) };
-                unsafe { DispatchMessageW(&msg) };
+                unsafe {
+                    DispatchMessageW(&msg);
+                }
             }
         });
     }
