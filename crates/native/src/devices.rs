@@ -578,7 +578,9 @@ mod macos {
             }
         }
 
-        unsafe { set_on_device_change_mac(on_device_change) };
+        unsafe {
+            set_on_device_change_mac(on_device_change);
+        }
     }
 }
 
@@ -657,11 +659,9 @@ mod windows {
             _: &PCWSTR,
         ) -> Result<()> {
             if role == ERole(0) {
-                unsafe {
-                    let tx = DEVICE_CHANGE_TX.load(Ordering::SeqCst);
-                    if !tx.is_null() {
-                        _ = unsafe { &*tx }.send(());
-                    }
+                let tx = DEVICE_CHANGE_TX.load(Ordering::SeqCst);
+                if !tx.is_null() {
+                    _ = unsafe { &*tx }.send(());
                 }
             }
 
