@@ -259,8 +259,8 @@ impl Webrtc {
         self.audio_device_module.microphone_volume()
     }
 
-    /// Sets the provided `StreamSink` as the callback to be called whenever the set
-    /// of available media devices changes.
+    /// Sets the provided `StreamSink` as the callback to be called whenever the
+    /// set of available media devices changes.
     ///
     /// Only one callback can be set at a time, so the previous one will be
     /// dropped, if any.
