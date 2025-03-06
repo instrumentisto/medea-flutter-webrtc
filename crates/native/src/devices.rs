@@ -259,8 +259,8 @@ impl Webrtc {
         self.audio_device_module.microphone_volume()
     }
 
-    /// Sets the provided [`OnDeviceChangeCallback`] as the callback to be
-    /// called whenever the set of available media devices changes.
+    /// Sets the provided `StreamSink` as the callback to be called whenever the set
+    /// of available media devices changes.
     ///
     /// Only one callback can be set at a time, so the previous one will be
     /// dropped, if any.
@@ -360,7 +360,7 @@ impl Webrtc {
 /// Available media devices snapshot.
 #[derive(Default)]
 pub struct DevicesState {
-    /// [`StreamSink`] to notify Dart side of an device change event.
+    /// `StreamSink` to notify Dart side of an device change event.
     pub on_device_change: Option<StreamSink<()>>,
 
     /// List of all available audio input devices.

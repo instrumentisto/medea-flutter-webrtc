@@ -944,7 +944,7 @@ pub struct VideoTrack {
     /// List of the [`VideoSink`]s attached to this [`VideoTrack`].
     sinks: Vec<VideoSinkId>,
 
-    /// [`StreamSink`] which can be used by this [`VideoTrack`] to emit
+    /// `StreamSink` which can be used by this [`VideoTrack`] to emit
     /// [`api::TrackEvent`]s to Flutter side.
     pub track_events_tx: Option<StreamSink<api::TrackEvent>>,
 
@@ -1025,7 +1025,7 @@ impl VideoTrack {
         Ok(res)
     }
 
-    /// Sets the provided [`StreamSink`] for this [`VideoTrack`] to use for
+    /// Sets the provided `StreamSink` for this [`VideoTrack`] to use for
     /// [`api::TrackEvent`]s emitting.
     pub fn set_track_events_tx(&mut self, sink: StreamSink<api::TrackEvent>) {
         drop(self.track_events_tx.replace(sink));
@@ -1164,7 +1164,7 @@ pub struct AudioTrack {
     /// [`api::TrackKind::kAudio`].
     kind: api::MediaType,
 
-    /// [`StreamSink`] which can be used by this [`AudioTrack`] to emit
+    /// `StreamSink` which can be used by this [`AudioTrack`] to emit
     /// [`api::TrackEvent`]s to Flutter side.
     pub track_events_tx: Option<StreamSink<api::TrackEvent>>,
 
