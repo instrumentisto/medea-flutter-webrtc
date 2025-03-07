@@ -307,8 +307,8 @@ impl Webrtc {
         let mut old_audio_ins = mem::take(&mut self.devices_state.audio_inputs);
         let mut old_video_ins = mem::take(&mut self.devices_state.video_inputs);
 
-        // If some audio or video inputs wre disconnected we drop corresponing
-        // Audio|Video Sources and tracks sourced from these sources.
+        // If some audio or video inputs wre disconnected we drop corresponding
+        // audio/video sources and tracks sourced from these sources.
         let mut tracks_to_remove: Vec<(String, api::MediaType)> = Vec::new();
         if audio_ins_changed && old_audio_ins.len() > new_audio_ins.len() {
             old_audio_ins.retain(|e| !new_audio_ins.contains(e));
@@ -360,7 +360,7 @@ impl Webrtc {
 /// Available media devices snapshot.
 #[derive(Default)]
 pub struct DevicesState {
-    /// `StreamSink` to notify Dart side of an device change event.
+    /// `StreamSink` to notify Dart side about a device change event.
     pub on_device_change: Option<StreamSink<()>>,
 
     /// List of all available audio input devices.
