@@ -195,6 +195,7 @@ use std::{
         Arc,
         atomic::{AtomicU32, Ordering},
     },
+    ffi::c_void
 };
 
 use dashmap::DashMap;
@@ -309,3 +310,20 @@ impl Webrtc {
         Ok(this)
     }
 }
+
+unsafe extern "C" fn post_cobj_devnull(_: i64, _: *mut c_void) -> bool {
+    println!("post cobj after shutdown");
+    true
+}
+
+unsafe extern "C" {
+    pub fn store_dart_post_cobject(post: unsafe extern "C" fn(port_id: i64, message: *mut c_void) -> bool);
+}
+
+/// Called by Dart's NativeFinalizer.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn shutdown_callback(_: *mut c_void) {
+    // Prevent DartPostCObject calls from allo-isolate.
+    unsafe { store_dart_post_cobject(post_cobj_devnull) };
+}
+

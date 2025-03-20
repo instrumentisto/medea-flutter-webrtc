@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
@@ -18,6 +19,17 @@ import 'bridge/lib.dart';
 import 'channel.dart';
 import 'transceiver.dart';
 
+final class ShutdownWatcher implements Finalizable {
+  static var _finalizer;
+
+  ShutdownWatcher(Pointer<NativeFinalizerFunction> callback) {
+    _finalizer = NativeFinalizer(callback);
+    _finalizer.attach(this, Pointer.fromAddress(0));
+  }
+}
+
+ShutdownWatcher? shutdownWatcher;
+
 /// Checks whether the running platform is a desktop.
 bool isDesktop = Platform.isWindows || Platform.isLinux || Platform.isMacOS;
 
@@ -36,6 +48,10 @@ Future<void> initFfiBridge() async {
       Platform.isMacOS
           ? ExternalLibrary.process(iKnowHowToUseIt: true)
           : ExternalLibrary.open(path);
+
+  shutdownWatcher = ShutdownWatcher(
+    lib.ffiDynamicLibrary.lookup<NativeFinalizerFunction>('shutdown_callback'),
+  );
 
   await RustLib.init(externalLibrary: lib);
 }
