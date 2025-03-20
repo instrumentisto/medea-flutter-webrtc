@@ -172,21 +172,21 @@ jobs:
     steps:
       - name: Install Linux platform dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y wget
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo tee /etc/apt/trusted.gpg.d/llvm.asc
-          echo "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-19 main" | sudo tee /etc/apt/sources.list.d/llvm.list
-          sudo apt-get update
-          sudo apt-get install -y \
+          apt update
+          apt install -y wget
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | tee /etc/apt/trusted.gpg.d/llvm.asc
+          echo "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-19 main" | tee /etc/apt/sources.list.d/llvm.list
+          apt update
+          apt install -y \
                        curl \
                        libpulse-dev libudev-dev libxcomposite-dev libxdamage-dev \
                        libxfixes-dev libxrandr-dev libxtst-dev \
                        ninja-build lld-19 binutils build-essential
           # TODO: Remove once lld-19 becomes the default in Ubuntu repositories
-          sudo update-alternatives --install /usr/bin/lld lld /usr/bin/lld-19 100
-          sudo update-alternatives --config lld
-          sudo update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-19 100
-          sudo update-alternatives --config ld.lld
+          update-alternatives --install /usr/bin/lld lld /usr/bin/lld-19 100
+          update-alternatives --config lld
+          update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-19 100
+          update-alternatives --config ld.lld
 
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@v1
