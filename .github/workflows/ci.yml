@@ -182,7 +182,7 @@ jobs:
           name: build-${{ matrix.platform }}
           path: ${{ matrix.platform }}/rust/
 
-  build-fultter:
+  build-flutter:
     needs: ["build-rust"]
     strategy:
       fail-fast: false
