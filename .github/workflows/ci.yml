@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "linux-lower-reqs"]
     tags: ["*"]
   pull_request:
     branches: ["main"]
@@ -23,7 +23,8 @@ jobs:
   pr:
     if: ${{ github.event_name == 'pull_request' }}
     needs:
-      - build
+      - build-rust
+      - build-flutter
       - clippy
       - dartanalyze
       - dartfmt
@@ -134,7 +135,7 @@ jobs:
   # Building #
   ############
 
-  build:
+  build-rust:
     strategy:
       fail-fast: false
       matrix:
@@ -151,8 +152,6 @@ jobs:
         with:
           toolchain: stable
       - run: make rustup.targets only=${{ matrix.platform }}
-      - uses: subosito/flutter-action@v2
-      - run: flutter config --enable-${{ matrix.platform }}-desktop
 
       - name: Install Linux platform dependencies
         run: |
@@ -177,6 +176,42 @@ jobs:
         if: ${{ matrix.platform == 'macos' }}
 
       - run: make cargo.build platform=${{ matrix.platform }} debug=no
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ matrix.platform }}
+          path: ${{ matrix.platform }}/rust/
+
+  build-fultter:
+    needs: ["build-rust"]
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - linux
+          - macos
+          - windows
+    runs-on: ${{ (matrix.platform == 'macos'   && 'macos-latest')
+      || (matrix.platform == 'windows' && 'windows-latest')
+      ||                                  'ubuntu-latest' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+      - run: flutter config --enable-${{ matrix.platform }}-desktop
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-linux
+          path: linux/rust/
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-macos
+          path: macos/rust/
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-windows
+          path: windows/rust/
+
       - run: make flutter.build platform=${{ matrix.platform }}
 
       - uses: actions/upload-artifact@v4
@@ -193,7 +228,6 @@ jobs:
 
   test-flutter:
     name: test (example, ${{ matrix.platform }})
-    needs: ["build"]
     strategy:
       fail-fast: false
       matrix:
@@ -363,7 +397,8 @@ jobs:
          || (github.event_name == 'pull_request'
              && github.event.pull_request.head.repo.owner.login == 'instrumentisto') }}
     needs:
-      - build
+      - build-rust
+      - build-flutter
       - clippy
       - dartanalyze
       - dartfmt
