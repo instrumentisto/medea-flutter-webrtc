@@ -170,18 +170,13 @@ jobs:
     # Pin glibc to 2.28 for better compatibility.
     container: debian:buster
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@v1
-        with:
-          toolchain: stable
-      - run: make rustup.targets only=linux
-
       - name: Install Linux platform dependencies
         run: |
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo tee /etc/apt/trusted.gpg.d/llvm.asc
           echo "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-19 main" | sudo tee /etc/apt/sources.list.d/llvm.list
           sudo apt-get update
           sudo apt-get install -y \
+                       curl \
                        libpulse-dev libudev-dev libxcomposite-dev libxdamage-dev \
                        libxfixes-dev libxrandr-dev libxtst-dev \
                        ninja-build lld-19 binutils build-essential
@@ -190,6 +185,13 @@ jobs:
           sudo update-alternatives --config lld
           sudo update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-19 100
           sudo update-alternatives --config ld.lld
+
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: stable
+
+      - run: make rustup.targets only=linux
 
       - run: make cargo.build platform=linux debug=no
 
