@@ -160,7 +160,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
                        cmake \
-                       liblzma-dev libpulse-dev libudev-dev \
+                       libxfixes3 liblzma-dev libpulse-dev libudev-dev \
                        ninja-build lld-19 binutils build-essential
           # TODO: Remove once lld-19 becomes the default in Ubuntu repositories
           sudo update-alternatives --install /usr/bin/lld lld /usr/bin/lld-19 100
