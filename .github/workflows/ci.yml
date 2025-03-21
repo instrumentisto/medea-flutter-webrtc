@@ -246,6 +246,7 @@ jobs:
 
   test-flutter:
     name: test (example, ${{ matrix.platform }})
+    needs: ["build-rust", "build-rust-linux"]
     strategy:
       fail-fast: false
       matrix:
@@ -276,20 +277,21 @@ jobs:
         if: ${{ matrix.platform != 'android'
              && matrix.platform != 'ios' }}
 
-      - name: Install `${{ matrix.platform }}` platform dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-                       cmake \
-                       libgtk-3-dev liblzma-dev libpulse-dev libudev-dev \
-                       ninja-build \
-                       xvfb lld-19 binutils build-essential
-          # TODO: Remove once lld-19 becomes the default in Ubuntu repositories
-          sudo update-alternatives --install /usr/bin/lld lld /usr/bin/lld-19 100
-          sudo update-alternatives --config lld
-          sudo update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-19 100
-          sudo update-alternatives --config ld.lld
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-linux
+          path: linux/rust/
         if: ${{ matrix.platform == 'linux' }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-macos
+          path: macos/rust/
+        if: ${{ matrix.platform == 'macos' }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-windows
+          path: windows/rust/
+        if: ${{ matrix.platform == 'windows' }}
 
       - run: make cargo.build debug=yes platform=${{ matrix.platform }}
         if: ${{ matrix.platform != 'android'
