@@ -184,7 +184,7 @@ fn main() -> anyhow::Result<()> {
         fs::create_dir_all(&lib_dir)?;
     }
     download_libwebrtc()?;
-    compile_openal();
+    compile_openal()?;
 
     let path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
     let libpath = libpath()?;
@@ -212,7 +212,7 @@ fn main() -> anyhow::Result<()> {
 
     #[cfg(target_os = "linux")]
     {
-        if get_lld_version().0 < 19 {
+        if get_lld_version()?.0 < 19 {
             bail!(
                 "Compilation of the `libwebrtc-sys` crate requires `ldd` \
                  version 19 or higher, as the `libwebrtc` library it depends \
@@ -270,18 +270,19 @@ fn main() -> anyhow::Result<()> {
 
 #[cfg(target_os = "linux")]
 /// Returns version of `ld.lld` binary.
-fn get_lld_version() -> (u8, u8, u8) {
-    let lld_result = Command::new("ld.lld").arg("--version").output().unwrap();
-    let output = String::from_utf8(lld_result.stdout).unwrap();
+fn get_lld_version() -> anyhow::Result<(u8, u8, u8)> {
+    let lld_result = Command::new("ld.lld").arg("--version").output()?;
+    let output = String::from_utf8(lld_result.stdout)?;
 
-    Regex::new(r"LLD (\d+)\.(\d+)\.(\d+)").unwrap()
+    Regex::new(r"LLD (\d+)\.(\d+)\.(\d+)")?
         .captures(&output)
         .and_then(|caps| {
-            let major = caps.get(1).unwrap().as_str().parse::<u8>().ok().unwrap();
-            let minor = caps.get(2).unwrap().as_str().parse::<u8>().ok().unwrap();
-            let patch = caps.get(3).unwrap().as_str().parse::<u8>().ok().unwrap();
+            let major = caps.get(1)?.as_str().parse::<u8>().ok()?;
+            let minor = caps.get(2)?.as_str().parse::<u8>().ok()?;
+            let patch = caps.get(3)?.as_str().parse::<u8>().ok()?;
             Some((major, minor, patch))
-        }).unwrap()
+        })
+        .ok_or_else(|| anyhow!("Failed to parse `lld` version"))
 }
 
 /// Returns target architecture to build the library for.
@@ -369,18 +370,18 @@ fn get_path_to_openal() -> anyhow::Result<PathBuf> {
 ///
 /// [OpenAL]: https://github.com/kcat/openal-soft
 #[expect(clippy::too_many_lines, reason = "not matters here")]
-fn compile_openal() {
+fn compile_openal() -> anyhow::Result<()> {
     let openal_version = OPENAL_URL.split('/').last().unwrap_or_default();
-    let manifest_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
+    let manifest_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
     let temp_dir = manifest_path.join("temp");
-    let openal_path = get_path_to_openal().unwrap();
+    let openal_path = get_path_to_openal()?;
 
     let archive = temp_dir.join(format!("{openal_version}.tar.gz"));
 
     let is_already_installed = fs::metadata(
         manifest_path
             .join("lib")
-            .join(get_target().unwrap().as_str())
+            .join(get_target()?.as_str())
             .join("include")
             .join("AL"),
     )
@@ -389,40 +390,40 @@ fn compile_openal() {
         env::var("INSTALL_OPENAL").as_deref().unwrap_or("0") == "0";
 
     if is_install_openal && is_already_installed {
-        return;
+        return Ok(());
     }
 
     if temp_dir.exists() {
-        fs::remove_dir_all(&temp_dir).unwrap();
+        fs::remove_dir_all(&temp_dir)?;
     }
-    fs::create_dir_all(&temp_dir).unwrap();
+    fs::create_dir_all(&temp_dir)?;
 
     {
         let mut resp = BufReader::new(reqwest::blocking::get(format!(
             "{OPENAL_URL}/{openal_version}.tar.gz",
-        )).unwrap());
-        let mut out_file = BufWriter::new(File::create(&archive).unwrap());
+        ))?);
+        let mut out_file = BufWriter::new(File::create(&archive)?);
 
         let mut buffer = [0; 512];
         loop {
-            let count = resp.read(&mut buffer).unwrap();
+            let count = resp.read(&mut buffer)?;
             if count == 0 {
                 break;
             };
-            _ = out_file.write(&buffer[0..count]).unwrap();
+            _ = out_file.write(&buffer[0..count])?;
         }
     }
 
-    let mut archive = Archive::new(GzDecoder::new(File::open(archive).unwrap()));
-    archive.unpack(&temp_dir).unwrap();
+    let mut archive = Archive::new(GzDecoder::new(File::open(archive)?));
+    archive.unpack(&temp_dir)?;
 
     let openal_src_path =
         temp_dir.join(format!("openal-soft-{openal_version}"));
 
     copy_dir_all(
         openal_src_path.join("include"),
-        manifest_path.join("lib").join(get_target().unwrap().as_str()).join("include"),
-    ).unwrap();
+        manifest_path.join("lib").join(get_target()?.as_str()).join("include"),
+    )?;
 
     let mut cmake_cmd = Command::new("cmake");
     cmake_cmd.current_dir(&openal_src_path).args([
@@ -432,59 +433,61 @@ fn compile_openal() {
     ]);
     #[cfg(target_os = "macos")]
     cmake_cmd.arg("-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64");
-    drop(cmake_cmd.output().unwrap());
+    drop(cmake_cmd.output()?);
 
     drop(
         Command::new("cmake")
             .current_dir(&openal_src_path)
             .args(["--build", ".", "--config", "Release"])
-            .output().unwrap(),
+            .output()?,
     );
 
-    fs::create_dir_all(&openal_path).unwrap();
+    fs::create_dir_all(&openal_path)?;
 
-    match get_target().unwrap().as_str() {
+    match get_target()?.as_str() {
         "aarch64-apple-darwin" | "x86_64-apple-darwin" => {
             fs::copy(
                 openal_src_path.join("libopenal.dylib"),
                 openal_path.join("libopenal.1.dylib"),
-            ).unwrap();
+            )?;
         }
         "x86_64-unknown-linux-gnu" => {
             drop(
                 Command::new("strip")
                     .arg("libopenal.so.1")
                     .current_dir(&openal_src_path)
-                    .output().unwrap(),
+                    .output()?,
             );
             fs::copy(
                 openal_src_path.join("libopenal.so.1"),
                 openal_path.join("libopenal.so.1"),
-            ).unwrap();
+            )?;
         }
         "x86_64-pc-windows-msvc" => {
             fs::copy(
                 openal_src_path.join("Release").join("OpenAL32.dll"),
                 openal_path.join("OpenAL32.dll"),
-            ).unwrap();
+            )?;
             fs::copy(
                 openal_src_path.join("Release").join("OpenAL32.lib"),
                 openal_path.join("OpenAL32.lib"),
-            ).unwrap();
+            )?;
             let path = manifest_path
                 .join("lib")
-                .join(get_target().unwrap().as_str())
+                .join(get_target()?.as_str())
                 .join("release")
                 .join("OpenAL32.lib");
             fs::copy(
                 openal_src_path.join("Release").join("OpenAL32.lib"),
                 path,
-            ).unwrap();
+            )?;
         }
         _ => (),
     }
 
-    fs::remove_dir_all(&temp_dir).unwrap();
+    fs::remove_dir_all(&temp_dir)?;
+
+    Ok(())
 }
 
 /// Downloads and unpacks compiled `libwebrtc` library.
