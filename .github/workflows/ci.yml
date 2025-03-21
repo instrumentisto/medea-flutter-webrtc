@@ -23,7 +23,9 @@ jobs:
   pr:
     if: ${{ github.event_name == 'pull_request' }}
     needs:
-      - build
+      - build-rust
+      - build-rust-linux
+      - build-flutter
       - clippy
       - dartanalyze
       - dartfmt
@@ -134,41 +136,20 @@ jobs:
   # Building #
   ############
 
-  build:
+  build-rust:
     strategy:
       fail-fast: false
       matrix:
-        platform:
-          - linux
-          - macos
-          - windows
+        platform: ["macos", "windows"]
     runs-on: ${{ (matrix.platform == 'macos'   && 'macos-13')
               || (matrix.platform == 'windows' && 'windows-latest')
-              ||                                  'ubuntu-22.04' }}
+              ||                                  'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@v1
         with:
           toolchain: stable
       - run: make rustup.targets only=${{ matrix.platform }}
-      - uses: subosito/flutter-action@v2
-      - run: flutter config --enable-${{ matrix.platform }}-desktop
-
-      - name: Install Linux platform dependencies
-        run: |
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo tee /etc/apt/trusted.gpg.d/llvm.asc
-          echo "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-19 main" | sudo tee /etc/apt/sources.list.d/llvm.list
-          sudo apt-get update
-          sudo apt-get install -y \
-                       cmake \
-                       libgtk-3-dev liblzma-dev libpulse-dev libudev-dev \
-                       ninja-build lld-19 binutils build-essential
-          # TODO: Remove once lld-19 becomes the default in Ubuntu repositories
-          sudo update-alternatives --install /usr/bin/lld lld /usr/bin/lld-19 100
-          sudo update-alternatives --config lld
-          sudo update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-19 100
-          sudo update-alternatives --config ld.lld
-        if: ${{ matrix.platform == 'linux' }}
 
       # Pin Xcode version for better compatibility.
       - uses: maxim-lobanov/setup-xcode@v1
@@ -177,12 +158,79 @@ jobs:
         if: ${{ matrix.platform == 'macos' }}
 
       - run: make cargo.build platform=${{ matrix.platform }} debug=no
-      - run: make flutter.build platform=${{ matrix.platform }}
 
       - uses: actions/upload-artifact@v4
         with:
           name: build-${{ matrix.platform }}
           path: ${{ matrix.platform }}/rust/
+
+  build-rust-linux:
+    name: build-rust (linux)
+    runs-on: ubuntu-latest
+    # Pin glibc to 2.36 for better compatibility.
+    container: debian:bookworm
+    steps:
+      - name: Install Linux platform dependencies
+        run: |
+          apt-get update
+          apt-get install -y wget
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | tee /etc/apt/trusted.gpg.d/llvm.asc
+          echo "deb http://apt.llvm.org/bookworm/ llvm-toolchain-bookworm-19 main" | tee /etc/apt/sources.list.d/llvm.list
+          apt-get update
+          apt-get install -y \
+                       cmake curl \
+                       libgtk-3-dev liblzma-dev libpulse-dev libudev-dev \
+                       libssl-dev ninja-build lld-19 binutils build-essential
+          update-alternatives --install /usr/bin/lld lld /usr/bin/lld-19 100
+          update-alternatives --config lld
+          update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-19 100
+          update-alternatives --config ld.lld
+
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: stable
+
+      - run: make rustup.targets only=linux
+
+      - run: make cargo.build platform=linux debug=no
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-linux
+          path: linux/rust/
+
+
+  build-flutter:
+    needs: ["build-rust", "build-rust-linux"]
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - linux
+          - macos
+          - windows
+    runs-on: ${{ (matrix.platform == 'macos'   && 'macos-latest')
+      || (matrix.platform == 'windows' && 'windows-latest')
+      ||                                  'ubuntu-latest' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+
+      - name: Install Linux platform dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libpulse-dev
+        if: ${{ matrix.platform == 'linux' }}
+
+      - run: flutter config --enable-${{ matrix.platform }}-desktop
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-${{ matrix.platform }}
+          path: ${{ matrix.platform }}/rust/
+
+      - run: make flutter.build platform=${{ matrix.platform }}
 
 
 
@@ -193,7 +241,7 @@ jobs:
 
   test-flutter:
     name: test (example, ${{ matrix.platform }})
-    needs: ["build"]
+    needs: ["build-rust", "build-rust-linux"]
     strategy:
       fail-fast: false
       matrix:
@@ -227,21 +275,13 @@ jobs:
       - name: Install `${{ matrix.platform }}` platform dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-                       cmake \
-                       libgtk-3-dev liblzma-dev libpulse-dev libudev-dev \
-                       ninja-build \
-                       xvfb lld-19 binutils build-essential
-          # TODO: Remove once lld-19 becomes the default in Ubuntu repositories
-          sudo update-alternatives --install /usr/bin/lld lld /usr/bin/lld-19 100
-          sudo update-alternatives --config lld
-          sudo update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-19 100
-          sudo update-alternatives --config ld.lld
+          sudo apt-get install -y libgtk-3-dev libpulse-dev
         if: ${{ matrix.platform == 'linux' }}
 
-      - run: make cargo.build debug=yes platform=${{ matrix.platform }}
-        if: ${{ matrix.platform != 'android'
-             && matrix.platform != 'ios' }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-${{ matrix.platform }}
+          path: ${{ matrix.platform }}/rust/
 
       - name: Test on `${{ matrix.platform }}` platform with emulator
         uses: reactivecircus/android-emulator-runner@v2
@@ -363,7 +403,9 @@ jobs:
          || (github.event_name == 'pull_request'
              && github.event.pull_request.head.repo.owner.login == 'instrumentisto') }}
     needs:
-      - build
+      - build-rust
+      - build-rust-linux
+      - build-flutter
       - clippy
       - dartanalyze
       - dartfmt
