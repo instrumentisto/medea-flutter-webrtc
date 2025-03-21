@@ -178,9 +178,9 @@ jobs:
           echo "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-19 main" | tee /etc/apt/sources.list.d/llvm.list
           apt-get update
           apt-get install -y \
-                       curl libssl-dev \
+                       cmake curl \
                        libpulse-dev libudev-dev libxcomposite-dev libxdamage-dev \
-                       libxfixes-dev libxrandr-dev libxtst-dev \
+                       libxfixes-dev libxrandr-dev libxtst-dev libssl-dev \
                        ninja-build binutils build-essential
 
       - uses: actions/checkout@v4
