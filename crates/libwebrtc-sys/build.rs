@@ -212,7 +212,7 @@ fn main() -> anyhow::Result<()> {
 
     #[cfg(target_os = "linux")]
     {
-        if get_lld_version()?.0 < 19 {
+        if get_lld_version().0 < 19 {
             bail!(
                 "Compilation of the `libwebrtc-sys` crate requires `ldd` \
                  version 19 or higher, as the `libwebrtc` library it depends \
@@ -270,19 +270,18 @@ fn main() -> anyhow::Result<()> {
 
 #[cfg(target_os = "linux")]
 /// Returns version of `ld.lld` binary.
-fn get_lld_version() -> anyhow::Result<(u8, u8, u8)> {
-    let lld_result = Command::new("ld.lld").arg("--version").output()?;
-    let output = String::from_utf8(lld_result.stdout)?;
+fn get_lld_version() -> (u8, u8, u8) {
+    let lld_result = Command::new("ld.lld").arg("--version").output().unwrap();
+    let output = String::from_utf8(lld_result.stdout).unwrap();
 
-    Regex::new(r"LLD (\d+)\.(\d+)\.(\d+)")?
+    Regex::new(r"LLD (\d+)\.(\d+)\.(\d+)").unwrap()
         .captures(&output)
         .and_then(|caps| {
-            let major = caps.get(1)?.as_str().parse::<u8>().ok()?;
-            let minor = caps.get(2)?.as_str().parse::<u8>().ok()?;
-            let patch = caps.get(3)?.as_str().parse::<u8>().ok()?;
+            let major = caps.get(1).unwrap().as_str().parse::<u8>().ok().unwrap();
+            let minor = caps.get(2).unwrap().as_str().parse::<u8>().ok().unwrap();
+            let patch = caps.get(3).unwrap().as_str().parse::<u8>().ok().unwrap();
             Some((major, minor, patch))
-        })
-        .ok_or_else(|| anyhow!("Failed to parse `lld` version"))
+        }).unwrap()
 }
 
 /// Returns target architecture to build the library for.
