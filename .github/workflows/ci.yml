@@ -167,8 +167,8 @@ jobs:
   build-rust-linux:
     name: build-rust (linux)
     runs-on: ubuntu-latest
-    # Pin glibc to 2.28 for better compatibility.
-    container: debian:bullseye
+    # Pin glibc to 2.36 for better compatibility.
+    container: debian:bookworm
     steps:
       - name: Install Linux platform dependencies
         run: |
