@@ -172,7 +172,7 @@ use walkdir::{DirEntry, WalkDir};
 /// [`libwebrtc-bin`]: https://github.com/instrumentisto/libwebrtc-bin
 static LIBWEBRTC_URL: &str = "\
     https://github.com/instrumentisto/libwebrtc-bin/releases/download\
-                                                            /134.0.6998.88";
+                                                            /132.0.6834.159";
 
 /// URL for downloading `openal-soft` source code.
 static OPENAL_URL: &str =
@@ -212,13 +212,13 @@ fn main() -> anyhow::Result<()> {
 
     #[cfg(target_os = "linux")]
     {
-        if get_lld_version()?.0 < 19 {
-            bail!(
-                "Compilation of the `libwebrtc-sys` crate requires `ldd` \
-                 version 19 or higher, as the `libwebrtc` library it depends \
-                 on is linked using CREL (introduced in version 19)",
-            );
-        }
+        // if get_lld_version()?.0 < 19 {
+        //     bail!(
+        //         "Compilation of the `libwebrtc-sys` crate requires `ldd` \
+        //          version 19 or higher, as the `libwebrtc` library it depends \
+        //          on is linked using CREL (introduced in version 19)",
+        //     );
+        // }
         println!("cargo:rustc-link-arg=-fuse-ld=lld");
         build
             .flag("-DWEBRTC_LINUX")

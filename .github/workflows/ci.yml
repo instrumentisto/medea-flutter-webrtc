@@ -181,12 +181,7 @@ jobs:
                        curl \
                        libpulse-dev libudev-dev libxcomposite-dev libxdamage-dev \
                        libxfixes-dev libxrandr-dev libxtst-dev \
-                       ninja-build lld-19 binutils build-essential
-          # TODO: Remove once lld-19 becomes the default in Ubuntu repositories
-          update-alternatives --install /usr/bin/lld lld /usr/bin/lld-19 100
-          update-alternatives --config lld
-          update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-19 100
-          update-alternatives --config ld.lld
+                       ninja-build binutils build-essential
 
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@v1
