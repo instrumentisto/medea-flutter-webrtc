@@ -1,7 +1,148 @@
+//! Downloads, compiles and links [`libwebrtc-bin`] and [OpenAL] libraries.
+//!
+//! [`libwebrtc-bin`]: https://github.com/instrumentisto/libwebrtc-bin
+//! [OpenAL]: https://github.com/kcat/openal-soft
+
+#![deny(nonstandard_style, rustdoc::all, trivial_casts, trivial_numeric_casts)]
+#![forbid(non_ascii_idents)]
 #![warn(
+    clippy::absolute_paths,
     clippy::allow_attributes,
     clippy::allow_attributes_without_reason,
-    clippy::pedantic
+    clippy::as_conversions,
+    clippy::as_pointer_underscore,
+    clippy::as_ptr_cast_mut,
+    clippy::assertions_on_result_states,
+    clippy::branches_sharing_code,
+    clippy::cfg_not_test,
+    clippy::clear_with_drain,
+    clippy::clone_on_ref_ptr,
+    clippy::collection_is_never_read,
+    clippy::create_dir,
+    clippy::dbg_macro,
+    clippy::debug_assert_with_mut_call,
+    clippy::decimal_literal_representation,
+    clippy::default_union_representation,
+    clippy::derive_partial_eq_without_eq,
+    clippy::doc_include_without_cfg,
+    clippy::empty_drop,
+    clippy::empty_structs_with_brackets,
+    clippy::equatable_if_let,
+    clippy::empty_enum_variants_with_brackets,
+    clippy::exit,
+    clippy::expect_used,
+    clippy::fallible_impl_from,
+    clippy::filetype_is_file,
+    clippy::float_cmp_const,
+    clippy::fn_to_numeric_cast_any,
+    clippy::format_push_string,
+    clippy::get_unwrap,
+    clippy::if_then_some_else_none,
+    clippy::imprecise_flops,
+    clippy::infinite_loop,
+    clippy::iter_on_empty_collections,
+    clippy::iter_on_single_items,
+    clippy::iter_over_hash_type,
+    clippy::iter_with_drain,
+    clippy::large_include_file,
+    clippy::large_stack_frames,
+    clippy::let_underscore_untyped,
+    clippy::literal_string_with_formatting_args,
+    clippy::lossy_float_literal,
+    clippy::map_err_ignore,
+    clippy::map_with_unused_argument_over_ranges,
+    clippy::mem_forget,
+    clippy::missing_assert_message,
+    clippy::missing_asserts_for_indexing,
+    clippy::missing_const_for_fn,
+    clippy::missing_docs_in_private_items,
+    clippy::module_name_repetitions,
+    clippy::multiple_inherent_impl,
+    clippy::multiple_unsafe_ops_per_block,
+    clippy::mutex_atomic,
+    clippy::mutex_integer,
+    clippy::needless_collect,
+    clippy::needless_pass_by_ref_mut,
+    clippy::needless_raw_strings,
+    clippy::non_zero_suggestions,
+    clippy::nonstandard_macro_braces,
+    clippy::option_if_let_else,
+    clippy::or_fun_call,
+    clippy::panic_in_result_fn,
+    clippy::partial_pub_fields,
+    clippy::pathbuf_init_then_push,
+    clippy::pedantic,
+    clippy::print_stderr,
+    clippy::print_stdout,
+    clippy::pub_without_shorthand,
+    clippy::rc_buffer,
+    clippy::rc_mutex,
+    clippy::read_zero_byte_vec,
+    clippy::redundant_clone,
+    clippy::redundant_type_annotations,
+    clippy::renamed_function_params,
+    clippy::ref_patterns,
+    clippy::rest_pat_in_fully_bound_structs,
+    clippy::same_name_method,
+    clippy::semicolon_inside_block,
+    clippy::set_contains_or_insert,
+    clippy::shadow_unrelated,
+    clippy::significant_drop_in_scrutinee,
+    clippy::significant_drop_tightening,
+    clippy::str_to_string,
+    clippy::string_add,
+    clippy::string_lit_as_bytes,
+    clippy::string_lit_chars_any,
+    clippy::string_slice,
+    clippy::string_to_string,
+    clippy::suboptimal_flops,
+    clippy::suspicious_operation_groupings,
+    clippy::suspicious_xor_used_as_pow,
+    clippy::tests_outside_test_module,
+    clippy::todo,
+    clippy::too_long_first_doc_paragraph,
+    clippy::trailing_empty_array,
+    clippy::transmute_undefined_repr,
+    clippy::trivial_regex,
+    clippy::try_err,
+    clippy::undocumented_unsafe_blocks,
+    clippy::unimplemented,
+    clippy::uninhabited_references,
+    clippy::unnecessary_safety_comment,
+    clippy::unnecessary_safety_doc,
+    clippy::unnecessary_self_imports,
+    clippy::unnecessary_struct_initialization,
+    clippy::unused_peekable,
+    clippy::unused_result_ok,
+    clippy::unused_trait_names,
+    clippy::unwrap_in_result,
+    clippy::unwrap_used,
+    clippy::use_debug,
+    clippy::use_self,
+    clippy::useless_let_if_seq,
+    clippy::verbose_file_reads,
+    clippy::while_float,
+    clippy::wildcard_enum_match_arm,
+    ambiguous_negative_literals,
+    closure_returning_async_block,
+    future_incompatible,
+    impl_trait_redundant_captures,
+    let_underscore_drop,
+    macro_use_extern_crate,
+    meta_variable_misuse,
+    missing_abi,
+    missing_copy_implementations,
+    missing_debug_implementations,
+    missing_docs,
+    redundant_lifetimes,
+    rust_2018_idioms,
+    single_use_lifetimes,
+    unit_bindings,
+    unnameable_types,
+    unreachable_pub,
+    unstable_features,
+    unused,
+    variant_size_differences
 )]
 
 #[cfg(not(target_os = "windows"))]
@@ -11,23 +152,27 @@ use std::process;
 use std::{
     env, fs,
     fs::File,
-    io::{BufReader, BufWriter, Read, Write},
+    io::{BufReader, BufWriter, Read as _, Write as _},
     path::{Path, PathBuf},
     process::Command,
 };
 
+#[cfg(target_os = "linux")]
+use anyhow::anyhow;
 use anyhow::bail;
 use flate2::read::GzDecoder;
-use sha2::{Digest, Sha256};
+#[cfg(target_os = "linux")]
+use regex_lite::Regex;
+use sha2::{Digest as _, Sha256};
 use tar::Archive;
 use walkdir::{DirEntry, WalkDir};
 
 /// Base URL for the [`libwebrtc-bin`] GitHub release.
 ///
 /// [`libwebrtc-bin`]: https://github.com/instrumentisto/libwebrtc-bin
-static LIBWEBRTC_URL: &str =
-    "https://github.com/instrumentisto/libwebrtc-bin/releases/download\
-                                                    /132.0.6834.159";
+static LIBWEBRTC_URL: &str = "\
+    https://github.com/instrumentisto/libwebrtc-bin/releases/download\
+                                                            /134.0.6998.88";
 
 /// URL for downloading `openal-soft` source code.
 static OPENAL_URL: &str =
@@ -67,6 +212,14 @@ fn main() -> anyhow::Result<()> {
 
     #[cfg(target_os = "linux")]
     {
+        if get_lld_version()?.0 < 19 {
+            bail!(
+                "Compilation of the `libwebrtc-sys` crate requires `ldd` \
+                 version 19 or higher, as the `libwebrtc` library it depends \
+                 on is linked using CREL (introduced in version 19)",
+            );
+        }
+        println!("cargo:rustc-link-arg=-fuse-ld=lld");
         build
             .flag("-DWEBRTC_LINUX")
             .flag("-DWEBRTC_POSIX")
@@ -115,6 +268,23 @@ fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
+#[cfg(target_os = "linux")]
+/// Returns version of `ld.lld` binary.
+fn get_lld_version() -> anyhow::Result<(u8, u8, u8)> {
+    let lld_result = Command::new("ld.lld").arg("--version").output()?;
+    let output = String::from_utf8(lld_result.stdout)?;
+
+    Regex::new(r"LLD (\d+)\.(\d+)\.(\d+)")?
+        .captures(&output)
+        .and_then(|caps| {
+            let major = caps.get(1)?.as_str().parse::<u8>().ok()?;
+            let minor = caps.get(2)?.as_str().parse::<u8>().ok()?;
+            let patch = caps.get(3)?.as_str().parse::<u8>().ok()?;
+            Some((major, minor, patch))
+        })
+        .ok_or_else(|| anyhow!("Failed to parse `lld` version"))
+}
+
 /// Returns target architecture to build the library for.
 fn get_target() -> anyhow::Result<String> {
     env::var("TARGET").map_err(Into::into)
@@ -124,19 +294,19 @@ fn get_target() -> anyhow::Result<String> {
 fn get_expected_libwebrtc_hash() -> anyhow::Result<&'static str> {
     Ok(match get_target()?.as_str() {
         "aarch64-unknown-linux-gnu" => {
-            "f1157f833b1cf65ff6d5105e07ceeb2fc030ff5579bd05651eb779249ae20d7f"
+            "ace03f050a44b46f6a5040e3b762259b5825b9dbb2ccdd09b6755069a2b56a36"
         }
         "x86_64-unknown-linux-gnu" => {
-            "daf132b62d511fcdfbafcc735c3aec2c6c173c2b1b704c1cb627b2d879f2dfee"
+            "5dfe171ee20a179f7c5ad59cce2602fccc6f2a37264336003ed56dfa7a539e53"
         }
         "aarch64-apple-darwin" => {
-            "f17865052d2c4e6987cb8ef6843242ecc2ad50c03a39d9dd03df0a91322d3f22"
+            "8f69728cd602dcdd83d9693c29a9d89e54fd2b26aa3f32f9b8879d508743bb5b"
         }
         "x86_64-apple-darwin" => {
-            "dd54e994b0a750a221d1a8dea60fc3a57c34551141e688990c72ca49cf8339d0"
+            "0f89249fa82c5d50aa0afa95b90e74479e86de9ca2b060e1be4bc585ac12d67c"
         }
         "x86_64-pc-windows-msvc" => {
-            "b426ddfeddd56b2a405aba08434c68d0a8b2c1bead31b5862407d741d4ea4b15"
+            "029886138771585b710b5da71812a87e49b126007abf4fc1980bbc248873d117"
         }
         arch => return Err(anyhow::anyhow!("Unsupported target: {arch}")),
     })
@@ -167,8 +337,10 @@ fn copy_dir_all(
     Ok(())
 }
 
-/// Returns a [`PathBuf`] to the OpenAL dynamic library destination within
+/// Returns a [`PathBuf`] to the [OpenAL] dynamic library destination within
 /// Flutter files.
+///
+/// [OpenAL]: https://github.com/kcat/openal-soft
 fn get_path_to_openal() -> anyhow::Result<PathBuf> {
     let mut workspace_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
     workspace_path.pop();
@@ -192,12 +364,14 @@ fn get_path_to_openal() -> anyhow::Result<PathBuf> {
     })
 }
 
-/// Downloads and compiles OpenAL dynamic library.
+/// Downloads and compiles [OpenAL] dynamic library.
 ///
-/// Copies OpenAL headers and compiled library to the required locations.
+/// Copies [OpenAL] headers and compiled library to the required locations.
+///
+/// [OpenAL]: https://github.com/kcat/openal-soft
 #[expect(clippy::too_many_lines, reason = "not matters here")]
 fn compile_openal() -> anyhow::Result<()> {
-    let openal_version = OPENAL_URL.split('/').last().unwrap();
+    let openal_version = OPENAL_URL.split('/').last().unwrap_or_default();
     let manifest_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
     let temp_dir = manifest_path.join("temp");
     let openal_path = get_path_to_openal()?;
@@ -248,12 +422,8 @@ fn compile_openal() -> anyhow::Result<()> {
 
     copy_dir_all(
         openal_src_path.join("include"),
-        manifest_path
-            .join("lib")
-            .join(get_target()?.as_str())
-            .join("include"),
-    )
-    .unwrap();
+        manifest_path.join("lib").join(get_target()?.as_str()).join("include"),
+    )?;
 
     let mut cmake_cmd = Command::new("cmake");
     cmake_cmd.current_dir(&openal_src_path).args([
@@ -282,10 +452,12 @@ fn compile_openal() -> anyhow::Result<()> {
             )?;
         }
         "x86_64-unknown-linux-gnu" => {
-            _ = Command::new("strip")
-                .arg("libopenal.so.1")
-                .current_dir(&openal_src_path)
-                .output()?;
+            drop(
+                Command::new("strip")
+                    .arg("libopenal.so.1")
+                    .current_dir(&openal_src_path)
+                    .output()?,
+            );
             fs::copy(
                 openal_src_path.join("libopenal.so.1"),
                 openal_path.join("libopenal.so.1"),
@@ -401,15 +573,14 @@ fn download_libwebrtc() -> anyhow::Result<()> {
 
 /// Returns a list of all C++ sources that should be compiled.
 fn get_cpp_files() -> anyhow::Result<Vec<PathBuf>> {
-    let dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?)
-        .join("src")
-        .join("cpp");
+    let dir =
+        PathBuf::from(env::var("CARGO_MANIFEST_DIR")?).join("src").join("cpp");
 
     #[cfg_attr(target_os = "macos", expect(unused_mut, reason = "cfg"))]
     let mut files = get_files_from_dir(dir);
 
     #[cfg(not(target_os = "macos"))]
-    files.retain(|e| !e.to_str().unwrap().contains(".mm"));
+    files.retain(|e| !e.to_str().is_some_and(|n| n.contains(".mm")));
 
     Ok(files)
 }
@@ -426,7 +597,7 @@ fn get_files_from_dir<P: AsRef<Path>>(dir: P) -> Vec<PathBuf> {
     WalkDir::new(dir)
         .into_iter()
         .filter_map(Result::ok)
-        .filter(|e| e.file_type().is_file())
+        .filter(|e| !e.file_type().is_dir())
         .map(DirEntry::into_path)
         .collect()
 }
@@ -436,18 +607,12 @@ fn link_libs() -> anyhow::Result<()> {
     let target = get_target()?;
     #[cfg(target_os = "linux")]
     {
-        for dep in [
-            "x11",
-            "xfixes",
-            "xdamage",
-            "xext",
-            "xtst",
-            "xrandr",
-            "xcomposite",
-        ] {
-            pkg_config::Config::new().probe(dep).unwrap();
+        for dep in
+            ["x11", "xfixes", "xdamage", "xext", "xtst", "xrandr", "xcomposite"]
+        {
+            drop(pkg_config::Config::new().probe(dep)?);
         }
-        match env::var("PROFILE").unwrap().as_str() {
+        match env::var("PROFILE").unwrap_or_default().as_str() {
             "debug" => {
                 println!(
                     "cargo:rustc-link-search=\
@@ -460,7 +625,7 @@ fn link_libs() -> anyhow::Result<()> {
                      native=crates/libwebrtc-sys/lib/{target}/release/",
                 );
             }
-            _ => unreachable!(),
+            _ => unreachable!("`PROFILE` env var is corrupted or wrong"),
         }
     }
     #[cfg(target_os = "macos")]
@@ -485,7 +650,7 @@ fn link_libs() -> anyhow::Result<()> {
             println!("cargo:rustc-link-lib=clang_rt.osx");
             println!("cargo:rustc-link-search={path}");
         }
-        match env::var("PROFILE").unwrap().as_str() {
+        match env::var("PROFILE").unwrap_or_default().as_str() {
             "debug" => {
                 println!(
                     "cargo:rustc-link-search=\
@@ -498,7 +663,7 @@ fn link_libs() -> anyhow::Result<()> {
                      native=crates/libwebrtc-sys/lib/{target}/release/",
                 );
             }
-            _ => unreachable!(),
+            _ => unreachable!("`PROFILE` env var is corrupted or wrong"),
         }
     }
     #[cfg(target_os = "windows")]
@@ -539,11 +704,8 @@ fn macos_link_search_path() -> Option<String> {
     }
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    stdout
-        .lines()
-        .filter(|l| l.contains("libraries: ="))
-        .find_map(|l| {
-            let path = l.split('=').nth(1)?;
-            (!path.is_empty()).then(|| format!("{path}/lib/darwin"))
-        })
+    stdout.lines().filter(|l| l.contains("libraries: =")).find_map(|l| {
+        let path = l.split('=').nth(1)?;
+        (!path.is_empty()).then(|| format!("{path}/lib/darwin"))
+    })
 }

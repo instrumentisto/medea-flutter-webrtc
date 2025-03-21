@@ -6,16 +6,40 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.13.0] · unreleased
+## [0.13.1] · 2025-03-18
+[0.13.1]: https://github.com/instrumentisto/medea-flutter-webrtc/tree/0.13.1
+
+[Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.13.0...0.13.1)
+
+### Changed
+
+- Upgraded [libwebrtc] to [134.0.6998.88] version. ([#190], [bb9df198])
+
+[#190]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/190
+[bb9df198]: https://github.com/instrumentisto/medea-flutter-webrtc/commit/bb9df198a7d77a24e477684368bef58bb40c0d0f
+[134.0.6998.88]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/134.0.6998.88
+
+
+
+
+## [0.13.0] · 2025-03-07
 [0.13.0]: https://github.com/instrumentisto/medea-flutter-webrtc/tree/0.13.0
 
 [Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.12.2...0.13.0)
 
+### Fixed
+
+- `MediaStreamTrack.onEnded` callback not firing for local tracks when corresponding media input device is disconnected on desktop platforms. ([#189])
+
 ### Changed
 
 - Upgraded [`flutter_rust_bridge`] crate to [2.8.0][frb-2.8.0] version. ([#185])
+- Upgraded [libwebrtc] to [133.0.6943.141] version. ([#186])
 
 [#185]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/185
+[#186]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/186
+[#189]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/189
+[133.0.6943.141]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/133.0.6943.141
 [frb-2.8.0]: https://github.com/fzyzcjy/flutter_rust_bridge/releases/tag/v2.8.0
 
 

@@ -1,30 +1,32 @@
+//! API surface and implementation for Flutter.
+
 use std::{
     sync::{
+        Arc, Mutex,
         atomic::{AtomicBool, Ordering},
-        mpsc, Arc, Mutex,
+        mpsc,
     },
     time::Duration,
 };
 
 use libwebrtc_sys as sys;
 
+// Re-exporting since it is used in the generated code.
+pub use crate::{
+    PeerConnection, RtpEncodingParameters, RtpParameters, RtpTransceiver,
+    renderer::TextureEvent,
+};
 use crate::{
-    devices::{self, DeviceState},
+    Webrtc, devices,
     frb_generated::{RustOpaque, StreamSink},
     pc::PeerConnectionId,
     renderer::FrameHandler,
     user_media::TrackOrigin,
-    Webrtc,
-};
-
-// Re-exporting since it is used in the generated code.
-pub use crate::{
-    renderer::TextureEvent, PeerConnection, RtpEncodingParameters,
-    RtpParameters, RtpTransceiver,
 };
 
 lazy_static::lazy_static! {
-    static ref WEBRTC: Mutex<Webrtc> = Mutex::new(Webrtc::new().unwrap());
+    pub(crate) static ref WEBRTC: Mutex<Webrtc> =
+        Mutex::new(Webrtc::new().unwrap());
 }
 
 /// Timeout for [`mpsc::Receiver::recv_timeout()`] operations.
@@ -342,6 +344,7 @@ impl From<sys::RtcInboundRtpStreamMediaType> for RtcInboundRtpStreamMediaType {
 }
 
 /// Each candidate pair in the check list has a foundation and a state.
+///
 /// The foundation is the combination of the foundations of the local and remote
 /// candidates in the pair. The state is assigned once the check list for each
 /// media stream has been computed. There are five potential values that the
@@ -1018,15 +1021,9 @@ impl From<sys::RtcOutboundRtpStreamStatsMediaType>
                 total_samples_sent: None,
                 voice_activity_flag: None,
             },
-            T::Video {
-                frame_width,
-                frame_height,
-                frames_per_second,
-            } => Self::Video {
-                frame_width,
-                frame_height,
-                frames_per_second,
-            },
+            T::Video { frame_width, frame_height, frames_per_second } => {
+                Self::Video { frame_width, frame_height, frames_per_second }
+            }
         }
     }
 }
@@ -1312,6 +1309,7 @@ pub enum RtcStatsType {
         /// Calculated as defined in [Section 6.4.1 of RFC 3550][1] and
         /// [Appendix A.3][2].
         ///
+        /// [SSRC]: https://w3.org/TR/webrtc-stats#dfn-ssrc
         /// [1]: https://tools.ietf.org/html/rfc3550#section-6.4.1
         /// [2]: https://tools.ietf.org/html/rfc3550#appendix-A.3
         fraction_lost: Option<f64>,
@@ -1377,13 +1375,12 @@ impl From<sys::RtcStatsType> for RtcStatsType {
         use sys::RtcStatsType as T;
 
         match kind {
-            T::RtcMediaSourceStats {
-                track_identifier,
-                kind,
-            } => Self::RtcMediaSourceStats {
-                track_identifier,
-                kind: kind.into(),
-            },
+            T::RtcMediaSourceStats { track_identifier, kind } => {
+                Self::RtcMediaSourceStats {
+                    track_identifier,
+                    kind: kind.into(),
+                }
+            }
             T::RtcIceCandidateStats(stats) => match stats {
                 sys::RtcIceCandidateStats::RtcLocalIceCandidateStats(
                     candidate,
@@ -1515,16 +1512,8 @@ pub struct RtcStats {
 
 impl From<sys::RtcStats> for RtcStats {
     fn from(stats: sys::RtcStats) -> Self {
-        let sys::RtcStats {
-            id,
-            timestamp_us,
-            kind,
-        } = stats;
-        Self {
-            id,
-            timestamp_us,
-            kind: RtcStatsType::from(kind),
-        }
+        let sys::RtcStats { id, timestamp_us, kind } = stats;
+        Self { id, timestamp_us, kind: RtcStatsType::from(kind) }
     }
 }
 
@@ -1870,47 +1859,52 @@ impl From<sys::TrackState> for TrackState {
 /// [1]: https://w3.org/TR/webrtc#dom-rtcrtptransceiverdirection
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum RtpTransceiverDirection {
-    /// The [`RTCRtpTransceiver`]'s [RTCRtpSender] will offer to send RTP, and
-    /// will send RTP if the remote peer accepts. The [`RTCRtpTransceiver`]'s
+    /// The [RTCRtpTransceiver]'s [RTCRtpSender] will offer to send RTP, and
+    /// will send RTP if the remote peer accepts. The [RTCRtpTransceiver]'s
     /// [RTCRtpReceiver] will offer to receive RTP, and will receive RTP if the
     /// remote peer accepts.
     ///
-    /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
     /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
+    /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
+    /// [RTCRtpTransceiver]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver
     SendRecv,
 
-    /// The [`RTCRtpTransceiver`]'s [RTCRtpSender] will offer to send RTP, and
-    /// will send RTP if the remote peer accepts. The [`RTCRtpTransceiver`]'s
+    /// The [RTCRtpTransceiver]'s [RTCRtpSender] will offer to send RTP, and
+    /// will send RTP if the remote peer accepts. The [RTCRtpTransceiver]'s
     /// [RTCRtpReceiver] will not offer to receive RTP, and will not receive
     /// RTP.
     ///
-    /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
     /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
+    /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
+    /// [RTCRtpTransceiver]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver
     SendOnly,
 
-    /// The [`RTCRtpTransceiver`]'s [RTCRtpSender] will not offer to send RTP,
-    /// and will not send RTP. The [`RTCRtpTransceiver`]'s [RTCRtpReceiver] will
+    /// The [RTCRtpTransceiver]'s [RTCRtpSender] will not offer to send RTP,
+    /// and will not send RTP. The [RTCRtpTransceiver]'s [RTCRtpReceiver] will
     /// offer to receive RTP, and will receive RTP if the remote peer accepts.
     ///
-    /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
     /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
+    /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
+    /// [RTCRtpTransceiver]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver
     RecvOnly,
 
-    /// The [`RTCRtpTransceiver`]'s [RTCRtpSender] will not offer to send RTP,
-    /// and will not send RTP. The [`RTCRtpTransceiver`]'s [RTCRtpReceiver] will
+    /// The [RTCRtpTransceiver]'s [RTCRtpSender] will not offer to send RTP,
+    /// and will not send RTP. The [RTCRtpTransceiver]'s [RTCRtpReceiver] will
     /// not offer to receive RTP, and will not receive RTP.
     ///
-    /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
     /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
+    /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
+    /// [RTCRtpTransceiver]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver
     Inactive,
 
-    /// The [`RTCRtpTransceiver`] will neither send nor receive RTP. It will
+    /// The [RTCRtpTransceiver] will neither send nor receive RTP. It will
     /// generate a zero port in the offer. In answers, its [RTCRtpSender] will
     /// not offer to send RTP, and its [RTCRtpReceiver] will not offer to
     /// receive RTP. This is a terminal state.
     ///
-    /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
     /// [RTCRtpReceiver]: https://w3.org/TR/webrtc#dom-rtcrtpreceiver
+    /// [RTCRtpSender]: https://w3.org/TR/webrtc#dom-rtcrtpsender
+    /// [RTCRtpTransceiver]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver
     Stopped,
 }
 
@@ -2053,8 +2047,7 @@ pub struct MediaDisplayInfo {
 }
 
 /// [MediaStreamConstraints], used to instruct what sort of
-/// [`MediaStreamTrack`]s to include in the [`MediaStream`] returned by
-/// [`Webrtc::get_media()`].
+/// [`MediaStreamTrack`]s to return by the [`Webrtc::get_media()`].
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamconstraints
 #[derive(Debug)]
@@ -2109,10 +2102,12 @@ pub struct AudioConstraints {
     pub auto_gain_control: Option<bool>,
 }
 
-/// Representation of a single media track within a [`MediaStream`].
+/// Representation of a single media track within a [MediaStream].
 ///
 /// Typically, these are audio or video tracks, but other track types may exist
 /// as well.
+///
+/// [MediaStream]: https://w3.org/TR/mediacapture-streams#dom-mediastream
 #[derive(Clone, Debug)]
 pub struct MediaStreamTrack {
     /// Unique identifier (GUID) of this [`MediaStreamTrack`].
@@ -2183,9 +2178,9 @@ impl From<&sys::RtpEncodingParameters> for RtcRtpEncodingParameters {
 ///
 /// [0]: https://w3.org/TR/webrtc#dom-rtcrtptransceiverinit
 pub struct RtpTransceiverInit {
-    /// Direction of the [RTCRtpTransceiver][1].
+    /// Direction of the [RTCRtpTransceiver].
     ///
-    /// [1]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver
+    /// [RTCRtpTransceiver]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver
     pub direction: RtpTransceiverDirection,
 
     /// Sequence containing parameters for sending [RTP] encodings of media.
@@ -2208,9 +2203,10 @@ pub struct RtcRtpTransceiver {
     pub transceiver: RustOpaque<Arc<RtpTransceiver>>,
 
     /// [Negotiated media ID (mid)][1] which the local and remote peers have
-    /// agreed upon to uniquely identify the [`MediaStream`]'s pairing of
-    /// sender and receiver.
+    /// agreed upon to uniquely identify the [MediaStream]'s pairing of sender
+    /// and receiver.
     ///
+    /// [MediaStream]: https://w3.org/TR/mediacapture-streams#dom-mediastream
     /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
     pub mid: Option<String>,
 
@@ -2227,10 +2223,8 @@ pub struct RtcRtpSendParameters {
     /// Sequence containing parameters for sending [RTP] encodings of media.
     ///
     /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
-    pub encodings: Vec<(
-        RtcRtpEncodingParameters,
-        RustOpaque<Arc<RtpEncodingParameters>>,
-    )>,
+    pub encodings:
+        Vec<(RtcRtpEncodingParameters, RustOpaque<Arc<RtpEncodingParameters>>)>,
 
     /// Reference to the Rust side [`RtpParameters`].
     pub inner: RustOpaque<Arc<RtpParameters>>,
@@ -2249,10 +2243,7 @@ impl From<RtpParameters> for RtcRtpSendParameters {
             })
             .collect();
 
-        Self {
-            encodings,
-            inner: RustOpaque::new(Arc::new(v)),
-        }
+        Self { encodings, inner: RustOpaque::new(Arc::new(v)) }
     }
 }
 
@@ -2453,6 +2444,7 @@ pub struct VideoCodecInfo {
 }
 
 /// Returns all [`VideoCodecInfo`]s of the supported video encoders.
+#[must_use]
 pub fn video_encoders() -> Vec<VideoCodecInfo> {
     // TODO(rogurotus): Implement HW acceleration probing for desktop.
     vec![
@@ -2472,6 +2464,7 @@ pub fn video_encoders() -> Vec<VideoCodecInfo> {
 }
 
 /// Returns all [`VideoCodecInfo`]s of the supported video decoders.
+#[must_use]
 pub fn video_decoders() -> Vec<VideoCodecInfo> {
     // TODO(rogurotus): Implement HW acceleration probing for desktop.
     vec![
@@ -2503,26 +2496,26 @@ pub fn is_fake_media() -> bool {
 
 /// Returns a list of all available media input and output devices, such as
 /// microphones, cameras, headsets, and so forth.
+#[expect(clippy::missing_panics_doc, reason = "locking")]
 pub fn enumerate_devices() -> anyhow::Result<Vec<MediaDeviceInfo>> {
     WEBRTC.lock().unwrap().enumerate_devices()
 }
 
 /// Returns a list of all available displays that can be used for screen
 /// capturing.
+#[must_use]
 pub fn enumerate_displays() -> Vec<MediaDisplayInfo> {
     devices::enumerate_displays()
 }
 
 /// Creates a new [`PeerConnection`] and returns its ID.
+#[expect(clippy::missing_panics_doc, reason = "locking")]
 #[expect(clippy::needless_pass_by_value, reason = "FFI")]
 pub fn create_peer_connection(
     cb: StreamSink<PeerConnectionEvent>,
     configuration: RtcConfiguration,
 ) -> anyhow::Result<()> {
-    WEBRTC
-        .lock()
-        .unwrap()
-        .create_peer_connection(&cb, configuration)
+    WEBRTC.lock().unwrap().create_peer_connection(&cb, configuration)
 }
 
 /// Initiates the creation of an SDP offer for the purpose of starting a new
@@ -2595,6 +2588,7 @@ pub fn add_transceiver(
 /// Returns a sequence of [`RtcRtpTransceiver`] objects representing the RTP
 /// transceivers currently attached to the specified [`PeerConnection`].
 #[expect(clippy::needless_pass_by_value, reason = "FFI")]
+#[must_use]
 pub fn get_transceivers(
     peer: RustOpaque<Arc<PeerConnection>>,
 ) -> Vec<RtcRtpTransceiver> {
@@ -2633,6 +2627,7 @@ pub fn set_transceiver_send(
 ///
 /// [1]: https://w3.org/TR/webrtc#dfn-media-stream-identification-tag
 #[expect(clippy::needless_pass_by_value, reason = "FFI")]
+#[must_use]
 pub fn get_transceiver_mid(
     transceiver: RustOpaque<Arc<RtpTransceiver>>,
 ) -> Option<String> {
@@ -2641,6 +2636,7 @@ pub fn get_transceiver_mid(
 
 /// Returns the preferred direction of the specified [`RtcRtpTransceiver`].
 #[expect(clippy::needless_pass_by_value, reason = "FFI")]
+#[must_use]
 pub fn get_transceiver_direction(
     transceiver: RustOpaque<Arc<RtpTransceiver>>,
 ) -> RtpTransceiverDirection {
@@ -2657,11 +2653,7 @@ pub fn get_peer_stats(
     peer.get_stats(tx);
     let report = rx.recv_timeout(RX_TIMEOUT)?;
 
-    Ok(report
-        .get_stats()?
-        .into_iter()
-        .map(RtcStats::from)
-        .collect())
+    Ok(report.get_stats()?.into_iter().map(RtcStats::from).collect())
 }
 
 /// Irreversibly marks the specified [`RtcRtpTransceiver`] as stopping, unless
@@ -2687,21 +2679,22 @@ pub fn set_codec_preferences(
 }
 
 /// Replaces the specified [`AudioTrack`] (or [`VideoTrack`]) on the
-/// [`sys::Transceiver`]'s `sender`.
+/// [`sys::RtpTransceiverInterface`]'s `sender`.
+///
+/// [`AudioTrack`]: crate::AudioTrack
+/// [`VideoTrack`]: crate::VideoTrack
 #[expect(clippy::needless_pass_by_value, reason = "FFI")]
 pub fn sender_replace_track(
     peer: RustOpaque<Arc<PeerConnection>>,
     transceiver: RustOpaque<Arc<RtpTransceiver>>,
     track_id: Option<String>,
 ) -> anyhow::Result<()> {
-    WEBRTC
-        .lock()
-        .unwrap()
-        .sender_replace_track(&peer, &transceiver, track_id)
+    WEBRTC.lock().unwrap().sender_replace_track(&peer, &transceiver, track_id)
 }
 
 /// Returns [`RtpParameters`] from the provided [`RtpTransceiver`]'s `sender`.
 #[expect(clippy::needless_pass_by_value, reason = "FFI")]
+#[must_use]
 pub fn sender_get_parameters(
     transceiver: RustOpaque<Arc<RtpTransceiver>>,
 ) -> RtcRtpSendParameters {
@@ -2711,6 +2704,7 @@ pub fn sender_get_parameters(
 /// Returns the capabilities of an [RTP] sender of the provided [`MediaType`].
 ///
 /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
+#[must_use]
 pub fn get_rtp_sender_capabilities(kind: MediaType) -> RtpCapabilities {
     RtpCapabilities::from(
         WEBRTC
@@ -2724,6 +2718,7 @@ pub fn get_rtp_sender_capabilities(kind: MediaType) -> RtpCapabilities {
 /// Returns the capabilities of an [RTP] receiver of the provided [`MediaType`].
 ///
 /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
+#[must_use]
 pub fn get_rtp_receiver_capabilities(kind: MediaType) -> RtpCapabilities {
     RtpCapabilities::from(
         WEBRTC
@@ -2770,9 +2765,13 @@ pub fn dispose_peer_connection(peer: RustOpaque<Arc<PeerConnection>>) {
     WEBRTC.lock().unwrap().dispose_peer_connection(&peer);
 }
 
-/// Creates a [`MediaStream`] with tracks according to provided
+/// Creates a [MediaStream] with tracks according to provided
 /// [`MediaStreamConstraints`].
+///
+/// [MediaStream]: https://w3.org/TR/mediacapture-streams#dom-mediastream
+#[must_use]
 pub fn get_media(constraints: MediaStreamConstraints) -> GetMediaResult {
+    #[expect(clippy::significant_drop_in_scrutinee, reason = "no problems")]
     match WEBRTC.lock().unwrap().get_media(constraints) {
         Ok(tracks) => GetMediaResult::Ok(tracks),
         Err(err) => GetMediaResult::Err(err),
@@ -2806,10 +2805,7 @@ pub fn microphone_volume() -> anyhow::Result<u32> {
 pub fn dispose_track(track_id: String, peer_id: Option<u32>, kind: MediaType) {
     let track_origin = TrackOrigin::from(peer_id.map(PeerConnectionId::from));
 
-    WEBRTC
-        .lock()
-        .unwrap()
-        .dispose_track(track_origin, track_id, kind);
+    WEBRTC.lock().unwrap().dispose_track(track_origin, track_id, kind, false);
 }
 
 /// Returns the [readyState][0] property of the [`MediaStreamTrack`] by its ID
@@ -2820,13 +2816,10 @@ pub fn track_state(
     track_id: String,
     peer_id: Option<u32>,
     kind: MediaType,
-) -> anyhow::Result<TrackState> {
+) -> TrackState {
     let track_origin = TrackOrigin::from(peer_id.map(PeerConnectionId::from));
 
-    WEBRTC
-        .lock()
-        .unwrap()
-        .track_state(track_id, track_origin, kind)
+    WEBRTC.lock().unwrap().track_state(track_id, track_origin, kind)
 }
 
 /// Returns the [height] property of the media track by its ID and
@@ -2839,18 +2832,14 @@ pub fn track_height(
     track_id: String,
     peer_id: Option<u32>,
     kind: MediaType,
-) -> anyhow::Result<Option<i32>> {
+) -> Option<i32> {
     if kind == MediaType::Audio {
-        return Ok(None);
+        return None;
     }
 
     let track_origin = TrackOrigin::from(peer_id.map(PeerConnectionId::from));
 
-    WEBRTC
-        .lock()
-        .unwrap()
-        .track_height(track_id, track_origin)
-        .map(Some)
+    WEBRTC.lock().unwrap().track_height(track_id, track_origin)
 }
 
 /// Returns the [width] property of the media track by its ID and [`MediaType`].
@@ -2862,18 +2851,14 @@ pub fn track_width(
     track_id: String,
     peer_id: Option<u32>,
     kind: MediaType,
-) -> anyhow::Result<Option<i32>> {
+) -> Option<i32> {
     if kind == MediaType::Audio {
-        return Ok(None);
+        return None;
     }
 
     let track_origin = TrackOrigin::from(peer_id.map(PeerConnectionId::from));
 
-    WEBRTC
-        .lock()
-        .unwrap()
-        .track_width(track_id, track_origin)
-        .map(Some)
+    WEBRTC.lock().unwrap().track_width(track_id, track_origin)
 }
 
 /// Changes the [enabled][1] property of the [`MediaStreamTrack`] by its ID and
@@ -2885,7 +2870,7 @@ pub fn set_track_enabled(
     peer_id: Option<u32>,
     kind: MediaType,
     enabled: bool,
-) -> anyhow::Result<()> {
+) {
     let track_origin = TrackOrigin::from(peer_id.map(PeerConnectionId::from));
 
     WEBRTC.lock().unwrap().set_track_enabled(
@@ -2893,7 +2878,7 @@ pub fn set_track_enabled(
         track_origin,
         kind,
         enabled,
-    )
+    );
 }
 
 /// Clones the specified [`MediaStreamTrack`].
@@ -2901,13 +2886,10 @@ pub fn clone_track(
     track_id: String,
     peer_id: Option<u32>,
     kind: MediaType,
-) -> anyhow::Result<MediaStreamTrack> {
+) -> Option<MediaStreamTrack> {
     let track_origin = TrackOrigin::from(peer_id.map(PeerConnectionId::from));
 
-    WEBRTC
-        .lock()
-        .unwrap()
-        .clone_track(track_id, track_origin, kind)
+    WEBRTC.lock().unwrap().clone_track(track_id, track_origin, kind)
 }
 
 /// Registers an observer to the [`MediaStreamTrack`] events.
@@ -2916,7 +2898,7 @@ pub fn register_track_observer(
     peer_id: Option<u32>,
     track_id: String,
     kind: MediaType,
-) -> anyhow::Result<()> {
+) {
     let track_origin = TrackOrigin::from(peer_id.map(PeerConnectionId::from));
 
     WEBRTC.lock().unwrap().register_track_observer(
@@ -2924,7 +2906,7 @@ pub fn register_track_observer(
         track_origin,
         kind,
         cb,
-    )
+    );
 }
 
 /// Enables or disables audio level observing of the audio [`MediaStreamTrack`]
@@ -2933,31 +2915,31 @@ pub fn set_audio_level_observer_enabled(
     track_id: String,
     peer_id: Option<u32>,
     enabled: bool,
-) -> anyhow::Result<()> {
+) {
     let track_origin = TrackOrigin::from(peer_id.map(PeerConnectionId::from));
     WEBRTC.lock().unwrap().set_audio_level_observer_enabled(
         track_id,
         track_origin,
         enabled,
-    )
+    );
 }
 
-/// Sets the provided [`OnDeviceChangeCallback`] as the callback to be called
+/// Sets the provided `OnDeviceChangeCallback` as the callback to be called
 /// whenever a set of available media devices changes.
 ///
 /// Only one callback can be set at a time, so the previous one will be dropped,
 /// if any.
-pub fn set_on_device_changed(cb: StreamSink<()>) -> anyhow::Result<()> {
-    let device_state =
-        DeviceState::new(cb, &mut WEBRTC.lock().unwrap().task_queue_factory)?;
-    Webrtc::set_on_device_changed(device_state);
-    Ok(())
+pub fn set_on_device_changed(cb: StreamSink<()>) {
+    WEBRTC.lock().unwrap().set_on_device_changed(cb);
 }
 
 /// Creates a new [`VideoSink`] attached to the specified video track.
 ///
 /// `callback_ptr` argument should be a pointer to an [`UniquePtr`] pointing to
-/// an [`OnFrameCallbackInterface`].
+/// an [`sys::OnFrameCallback`].
+///
+/// [`UniquePtr`]: cxx::UniquePtr
+/// [`VideoSink`]: crate::VideoSink
 pub fn create_video_sink(
     cb: StreamSink<TextureEvent>,
     sink_id: i64,
@@ -2965,7 +2947,7 @@ pub fn create_video_sink(
     track_id: String,
     callback_ptr: i64,
     texture_id: i64,
-) -> anyhow::Result<()> {
+) {
     let handler = FrameHandler::new(callback_ptr as _, cb, texture_id);
     let track_origin = TrackOrigin::from(peer_id.map(PeerConnectionId::from));
 
@@ -2974,10 +2956,12 @@ pub fn create_video_sink(
         track_id,
         track_origin,
         handler,
-    )
+    );
 }
 
-/// Destroys the [`VideoSink`] by the provided ID.
+/// Destroys a [`VideoSink`] by the provided ID.
+///
+/// [`VideoSink`]: crate::VideoSink
 pub fn dispose_video_sink(sink_id: i64) {
     WEBRTC.lock().unwrap().dispose_video_sink(sink_id);
 }

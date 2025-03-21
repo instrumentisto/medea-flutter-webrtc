@@ -7,6 +7,8 @@
 #include <thread>
 
 #include "api/video/i420_buffer.h"
+#include "api/audio/builtin_audio_processing_builder.h"
+#include "api/environment/environment_factory.h"
 #include "api/video_codecs/video_decoder_factory_template.h"
 #include "api/video_codecs/video_decoder_factory_template_dav1d_adapter.h"
 #include "api/video_codecs/video_decoder_factory_template_libvpx_vp8_adapter.h"
@@ -249,9 +251,17 @@ int32_t set_audio_playout_device(const AudioDeviceModule& audio_device_module,
   return audio_device_module->SetPlayoutDevice(index);
 }
 
-// Calls `AudioProcessingBuilder().Create()`.
+// Calls `BuiltinAudioProcessingBuilder().Create()`.
 std::unique_ptr<AudioProcessing> create_audio_processing() {
-  return std::make_unique<AudioProcessing>(webrtc::AudioProcessingBuilder().Create());
+  // TODO: create empty
+  webrtc::AudioProcessing::Config apm_config;
+  apm_config.echo_canceller.enabled = true;
+  apm_config.echo_canceller.mobile_mode = false;
+  apm_config.gain_controller1.enabled = true;
+  apm_config.gain_controller1.enable_limiter = true;
+
+  auto apm = webrtc::BuiltinAudioProcessingBuilder().SetConfig(apm_config).Build(webrtc::CreateEnvironment());
+  return std::make_unique<AudioProcessing>(apm);
 }
 
 // Calls `AudioProcessing->set_output_will_be_muted()`.
@@ -1167,9 +1177,16 @@ std::unique_ptr<std::string> display_source_title(const DisplaySource& source) {
   return std::make_unique<std::string>(source.title);
 }
 
-// Creates a new default `AudioProcessingConfig`.
+// Creates a new `AudioProcessingConfig`.
 std::unique_ptr<AudioProcessingConfig> create_audio_processing_config() {
+  // TODO: empty
   webrtc::AudioProcessing::Config apm_config;
+  apm_config.echo_canceller.enabled = true;
+  apm_config.echo_canceller.mobile_mode = false;
+  apm_config.gain_controller1.enabled = true;
+  apm_config.gain_controller1.mode ==
+      webrtc::AudioProcessing::Config::GainController1::kAdaptiveDigital;
+  apm_config.gain_controller1.enable_limiter = true;
   return std::make_unique<AudioProcessingConfig>(apm_config);
 }
 
