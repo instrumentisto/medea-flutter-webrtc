@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: ["main", "linux-lower-reqs"]
+    branches: ["main"]
     tags: ["*"]
   pull_request:
     branches: ["main"]
@@ -227,16 +227,8 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: build-linux
-          path: linux/rust/
-      - uses: actions/download-artifact@v4
-        with:
-          name: build-macos
-          path: macos/rust/
-      - uses: actions/download-artifact@v4
-        with:
-          name: build-windows
-          path: windows/rust/
+          name: build-${{ matrix.platform }}
+          path: ${{ matrix.platform }}/rust/
 
       - run: make flutter.build platform=${{ matrix.platform }}
 
@@ -282,23 +274,8 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: build-linux
-          path: linux/rust/
-        if: ${{ matrix.platform == 'linux' }}
-      - uses: actions/download-artifact@v4
-        with:
-          name: build-macos
-          path: macos/rust/
-        if: ${{ matrix.platform == 'macos' }}
-      - uses: actions/download-artifact@v4
-        with:
-          name: build-windows
-          path: windows/rust/
-        if: ${{ matrix.platform == 'windows' }}
-
-      - run: make cargo.build debug=yes platform=${{ matrix.platform }}
-        if: ${{ matrix.platform != 'android'
-             && matrix.platform != 'ios' }}
+          name: build-${{ matrix.platform }}
+          path: ${{ matrix.platform }}/rust/
 
       - name: Test on `${{ matrix.platform }}` platform with emulator
         uses: reactivecircus/android-emulator-runner@v2
