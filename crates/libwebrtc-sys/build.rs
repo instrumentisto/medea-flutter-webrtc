@@ -294,19 +294,20 @@ fn get_target() -> anyhow::Result<String> {
 fn get_expected_libwebrtc_hash() -> anyhow::Result<&'static str> {
     Ok(match get_target()?.as_str() {
         "aarch64-unknown-linux-gnu" => {
-            "ace03f050a44b46f6a5040e3b762259b5825b9dbb2ccdd09b6755069a2b56a36"
+            "f1157f833b1cf65ff6d5105e07ceeb2fc030ff5579bd05651eb779249ae20d7f"
         }
         "x86_64-unknown-linux-gnu" => {
-            "5dfe171ee20a179f7c5ad59cce2602fccc6f2a37264336003ed56dfa7a539e53"
+            "daf132b62d511fcdfbafcc735c3aec2c6c173c2b1b704c1cb627b2d879f2dfee"
         }
         "aarch64-apple-darwin" => {
-            "8f69728cd602dcdd83d9693c29a9d89e54fd2b26aa3f32f9b8879d508743bb5b"
+            "f17865052d2c4e6987cb8ef6843242ecc2ad50c03a39d9dd03df0a91322d3f22"
         }
         "x86_64-apple-darwin" => {
-            "0f89249fa82c5d50aa0afa95b90e74479e86de9ca2b060e1be4bc585ac12d67c"
+            "dd54e994b0a750a221d1a8dea60fc3a57c34551141e688990c72ca49cf8339d0"
         }
         "x86_64-pc-windows-msvc" => {
-            "029886138771585b710b5da71812a87e49b126007abf4fc1980bbc248873d117"
+            "b426ddfeddd56b2a405aba08434c68d0a8b2c1bead31b5862407d741d4ea4b15"
+            "277ef4b36f885f983c097c6a181c886e584b34520894885d0f8ec70e9c4defae"
         }
         arch => return Err(anyhow::anyhow!("Unsupported target: {arch}")),
     })
