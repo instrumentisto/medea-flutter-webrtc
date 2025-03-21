@@ -179,9 +179,8 @@ jobs:
           apt-get update
           apt-get install -y \
                        cmake curl \
-                       libpulse-dev libudev-dev libxcomposite-dev libxdamage-dev \
-                       libxfixes-dev libxrandr-dev libxtst-dev libssl-dev \
-                       ninja-build binutils build-essential
+                       libgtk-3-dev liblzma-dev libpulse-dev libudev-dev \
+                       ninja-build lld-19 binutils build-essential
 
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@v1
