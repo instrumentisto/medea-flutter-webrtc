@@ -282,6 +282,8 @@ jobs:
         with:
           name: build-${{ matrix.platform }}
           path: ${{ matrix.platform }}/rust/
+        if: ${{ matrix.platform != 'android'
+          && matrix.platform != 'ios' }}
 
       - name: Test on `${{ matrix.platform }}` platform with emulator
         uses: reactivecircus/android-emulator-runner@v2
