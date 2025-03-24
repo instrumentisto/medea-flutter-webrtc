@@ -137,13 +137,15 @@ jobs:
   ############
 
   build-rust:
+    name: cargo build (${{ matrix.platform }})
     strategy:
       fail-fast: false
       matrix:
-        platform: ["macos", "windows"]
-    runs-on: ${{ (matrix.platform == 'macos'   && 'macos-13')
-              || (matrix.platform == 'windows' && 'windows-latest')
-              ||                                  'ubuntu-latest' }}
+        platform:
+          - macos
+          - windows
+    runs-on: ${{ (matrix.platform == 'macos' && 'macos-13')
+              ||                                'windows-latest' }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@v1
@@ -161,26 +163,30 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: build-${{ matrix.platform }}
+          name: build-rust-${{ matrix.platform }}
           path: ${{ matrix.platform }}/rust/
 
   build-rust-linux:
-    name: build-rust (linux)
+    name: cargo build (linux)
     runs-on: ubuntu-latest
-    # Pin glibc to 2.36 for better compatibility.
-    container: debian:bookworm
+    container: debian:bookworm  # pin `glibc` to 2.36 for better compatibility
     steps:
-      - name: Install Linux platform dependencies
+      - name: Install `linux` platform dependencies
         run: |
+          set -ex
+
           apt-get update
           apt-get install -y wget
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | tee /etc/apt/trusted.gpg.d/llvm.asc
-          echo "deb http://apt.llvm.org/bookworm/ llvm-toolchain-bookworm-19 main" | tee /etc/apt/sources.list.d/llvm.list
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key \
+          | tee /etc/apt/trusted.gpg.d/llvm.asc
+          echo "deb http://apt.llvm.org/bookworm/ llvm-toolchain-bookworm-19 main" \
+          | tee /etc/apt/sources.list.d/llvm.list
+
           apt-get update
           apt-get install -y \
-                       cmake curl \
-                       libgtk-3-dev liblzma-dev libpulse-dev libudev-dev \
-                       libssl-dev ninja-build lld-19 binutils build-essential
+                  cmake curl \
+                  libgtk-3-dev liblzma-dev libpulse-dev libudev-dev \
+                  libssl-dev ninja-build lld-19 binutils build-essential
           update-alternatives --install /usr/bin/lld lld /usr/bin/lld-19 100
           update-alternatives --config lld
           update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-19 100
@@ -190,18 +196,17 @@ jobs:
       - uses: dtolnay/rust-toolchain@v1
         with:
           toolchain: stable
-
       - run: make rustup.targets only=linux
 
       - run: make cargo.build platform=linux debug=no
 
       - uses: actions/upload-artifact@v4
         with:
-          name: build-linux
+          name: build-rust-linux
           path: linux/rust/
 
-
   build-flutter:
+    name: flutter build (${{ matrix.platform }})
     needs: ["build-rust", "build-rust-linux"]
     strategy:
       fail-fast: false
@@ -211,23 +216,22 @@ jobs:
           - macos
           - windows
     runs-on: ${{ (matrix.platform == 'macos'   && 'macos-latest')
-      || (matrix.platform == 'windows' && 'windows-latest')
-      ||                                  'ubuntu-latest' }}
+              || (matrix.platform == 'windows' && 'windows-latest')
+              ||                                  'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
+      - run: flutter config --enable-${{ matrix.platform }}-desktop
 
-      - name: Install Linux platform dependencies
+      - name: Install `linux` platform dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libpulse-dev
         if: ${{ matrix.platform == 'linux' }}
 
-      - run: flutter config --enable-${{ matrix.platform }}-desktop
-
       - uses: actions/download-artifact@v4
         with:
-          name: build-${{ matrix.platform }}
+          name: build-rust-${{ matrix.platform }}
           path: ${{ matrix.platform }}/rust/
 
       - run: make flutter.build platform=${{ matrix.platform }}
@@ -280,10 +284,10 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: build-${{ matrix.platform }}
+          name: build-rust-${{ matrix.platform }}
           path: ${{ matrix.platform }}/rust/
         if: ${{ matrix.platform != 'android'
-          && matrix.platform != 'ios' }}
+             && matrix.platform != 'ios' }}
 
       - name: Test on `${{ matrix.platform }}` platform with emulator
         uses: reactivecircus/android-emulator-runner@v2
@@ -366,9 +370,9 @@ jobs:
           - linux
           - macos
           - windows
-    runs-on: ${{ (matrix.platform == 'linux' &&   'ubuntu-latest')
+    runs-on: ${{ (matrix.platform == 'macos'   && 'macos-latest')
               || (matrix.platform == 'windows' && 'windows-latest')
-              ||                                  'macos-latest' }}
+              ||                                  'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@v1
@@ -461,17 +465,17 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: build-linux
+          name: build-rust-linux
           path: linux/rust/
         if: ${{ steps.skip.outputs.no == 'true' }}
       - uses: actions/download-artifact@v4
         with:
-          name: build-macos
+          name: build-rust-macos
           path: macos/rust/
         if: ${{ steps.skip.outputs.no == 'true' }}
       - uses: actions/download-artifact@v4
         with:
-          name: build-windows
+          name: build-rust-windows
           path: windows/rust/
         if: ${{ steps.skip.outputs.no == 'true' }}
 
