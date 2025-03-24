@@ -23,6 +23,7 @@
 #include "libyuv.h"
 #include "modules/audio_device/include/audio_device_factory.h"
 #include "pc/proxy.h"
+#include "rtc_base/logging.h"
 
 namespace bridge {
 
@@ -253,14 +254,16 @@ int32_t set_audio_playout_device(const AudioDeviceModule& audio_device_module,
 
 // Calls `BuiltinAudioProcessingBuilder().Create()`.
 std::unique_ptr<AudioProcessing> create_audio_processing() {
-  // TODO: create empty
-  webrtc::AudioProcessing::Config apm_config;
-  apm_config.echo_canceller.enabled = true;
-  apm_config.echo_canceller.mobile_mode = false;
-  apm_config.gain_controller1.enabled = true;
-  apm_config.gain_controller1.enable_limiter = true;
+  // TODO: create empty asdasdasdasd
+//  webrtc::AudioProcessing::Config apm_config = create_audio_processing_config();
+//  webrtc::AudioProcessing::Config apm_config;
+//  apm_config.echo_canceller.enabled = false;
+//  apm_config.echo_canceller.mobile_mode = false;
+//  apm_config.gain_controller1.enabled = false;
+//  apm_config.gain_controller1.enable_limiter = false;
+//  apm_config.noise_suppression.enabled = false;
 
-  auto apm = webrtc::BuiltinAudioProcessingBuilder().SetConfig(apm_config).Build(webrtc::CreateEnvironment());
+  auto apm = webrtc::BuiltinAudioProcessingBuilder().SetConfig(*create_audio_processing_config()).Build(webrtc::CreateEnvironment());
   return std::make_unique<AudioProcessing>(apm);
 }
 
@@ -499,6 +502,9 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     const std::unique_ptr<Thread>& signaling_thread,
     const std::unique_ptr<AudioDeviceModule>& default_adm,
     const std::unique_ptr<AudioProcessing>& ap) {
+
+  rtc::LogMessage::LogToDebug(rtc::LS_WARNING);
+
   std::unique_ptr<webrtc::VideoEncoderFactory> video_encoder_factory =
       std::make_unique<webrtc::VideoEncoderFactoryTemplate<
           webrtc::LibvpxVp8EncoderTemplateAdapter,
@@ -1179,14 +1185,21 @@ std::unique_ptr<std::string> display_source_title(const DisplaySource& source) {
 
 // Creates a new `AudioProcessingConfig`.
 std::unique_ptr<AudioProcessingConfig> create_audio_processing_config() {
-  // TODO: empty
+  // TODO: empty asdasdasdasd
+//  webrtc::AudioProcessing::Config apm_config;
+//  apm_config.echo_canceller.enabled = true;
+//  apm_config.echo_canceller.mobile_mode = false;
+//  apm_config.gain_controller1.enabled = true;
+//  apm_config.gain_controller1.mode ==
+//      webrtc::AudioProcessing::Config::GainController1::kAdaptiveDigital;
+//  apm_config.gain_controller1.enable_limiter = true;
   webrtc::AudioProcessing::Config apm_config;
-  apm_config.echo_canceller.enabled = true;
+  apm_config.echo_canceller.enabled = false;
   apm_config.echo_canceller.mobile_mode = false;
-  apm_config.gain_controller1.enabled = true;
-  apm_config.gain_controller1.mode ==
-      webrtc::AudioProcessing::Config::GainController1::kAdaptiveDigital;
-  apm_config.gain_controller1.enable_limiter = true;
+  apm_config.gain_controller1.enabled = false;
+  apm_config.gain_controller1.enable_limiter = false;
+  apm_config.noise_suppression.enabled = false;
+
   return std::make_unique<AudioProcessingConfig>(apm_config);
 }
 
