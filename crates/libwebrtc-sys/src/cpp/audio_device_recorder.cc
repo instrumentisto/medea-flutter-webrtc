@@ -40,6 +40,7 @@ AudioDeviceRecorder::AudioDeviceRecorder(
   _device = alcCaptureOpenDevice(deviceId.empty() ? nullptr : deviceId.c_str(),
                                  kRecordingFrequency, AL_FORMAT_MONO16,
                                  kRecordingFrequency);
+  // azazazazazazazazazazazazazaz HERE!
   _source = bridge::LocalAudioSource::Create(cricket::AudioOptions(),
                                              audio_processing);
   _deviceId = deviceId;
