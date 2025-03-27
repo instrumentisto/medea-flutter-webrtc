@@ -12,6 +12,7 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Changed
 
+- Made number of utilized threads not depending on CPUs count. ([#192])
 - Upgraded [`flutter_rust_bridge`] crate to [2.9.0][frb-2.9.0] version. ([#192])
 
 [#192]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/192
