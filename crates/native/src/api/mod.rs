@@ -2,7 +2,7 @@
 
 use std::{
     sync::{
-        Arc, Mutex,
+        Arc, LazyLock, Mutex,
         atomic::{AtomicBool, Ordering},
         mpsc,
     },
@@ -28,22 +28,24 @@ use crate::{
     user_media::TrackOrigin,
 };
 
-// Must be named FLUTTER_RUST_BRIDGE_HANDLER so frb will be able to use it.
-lazy_static::lazy_static! {
-    /// Custom [`Handler`] to be used to execute `Rust` code called from `Dart`.
-    ///
-    /// [`Handler`]: flutter_rust_bridge::Handler
-    pub static ref FLUTTER_RUST_BRIDGE_HANDLER:
-        FrbHandler = {
-            assert_eq!(
+/// Custom [`Handler`] for executing Rust code called from Dart.
+///
+/// [`Handler`]: flutter_rust_bridge::Handler
+// Must be named `FLUTTER_RUST_BRIDGE_HANDLER` for `flutter_rust_bridge` to
+// discover it.
+pub static FLUTTER_RUST_BRIDGE_HANDLER: LazyLock<FrbHandler> =
+    LazyLock::new(|| {
+        const {
+            if !crate::str_eq(
                 FLUTTER_RUST_BRIDGE_CODEGEN_VERSION,
                 FLUTTER_RUST_BRIDGE_RUNTIME_VERSION,
-                "different frb versions are detected"
-            );
+            ) {
+                panic!("`flutter_rust_bridge` versions mismatch");
+            }
+        }
 
-            new_frb_handler()
-        };
-}
+        new_frb_handler()
+    });
 
 lazy_static::lazy_static! {
     pub(crate) static ref WEBRTC: Mutex<Webrtc> =

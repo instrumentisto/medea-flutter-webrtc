@@ -193,7 +193,7 @@ pub mod video_sink;
 use std::{
     collections::HashMap,
     sync::{
-        Arc,
+        Arc, LazyLock,
         atomic::{AtomicU32, Ordering},
     },
 };
@@ -217,14 +217,12 @@ pub use crate::{
 };
 use crate::{user_media::TrackOrigin, video_sink::Id as VideoSinkId};
 
-lazy_static::lazy_static! {
-    /// Main threadpool used by `flutter_rust_bridge` when calling synchronous
-    /// `Rust` code and to avoid locking `libwebrtc` threads.
-    pub(crate) static ref THREADPOOL: ThreadPool = ThreadPool::with_name(
-        "fltr-wbrtc-pool".to_owned(),
-        4,
-    );
-}
+/// Main [`ThreadPool`] used by [`flutter_rust_bridge`] when calling
+/// synchronous Rust code to avoid locking [`libwebrtc`] threads.
+///
+/// [`libwebrtc`]: libwebrtc_sys
+pub(crate) static THREADPOOL: LazyLock<ThreadPool> =
+    LazyLock::new(|| ThreadPool::with_name("fltr-wbrtc-pool".into(), 4));
 
 /// Counter used to generate unique IDs.
 static ID_COUNTER: AtomicU32 = AtomicU32::new(1);
@@ -313,4 +311,28 @@ impl Webrtc {
 
         Ok(this)
     }
+}
+
+/// Compares strings in `const` context.
+///
+/// As there is no `const impl Trait` and `l == r` calls [`Eq`], we have to
+/// write custom comparison function.
+///
+/// [`Eq`]: trait@Eq
+// TODO: Remove once `Eq` trait is allowed in `const` context.
+const fn str_eq(l: &str, r: &str) -> bool {
+    if l.len() != r.len() {
+        return false;
+    }
+
+    let (l, r) = (l.as_bytes(), r.as_bytes());
+    let mut i = 0;
+    while i < l.len() {
+        if l[i] != r[i] {
+            return false;
+        }
+        i += 1;
+    }
+
+    true
 }

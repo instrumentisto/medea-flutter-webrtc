@@ -11,8 +11,8 @@ use flutter_rust_bridge::{
 use crate::THREADPOOL;
 
 /// [`SimpleHandler`] that uses [`NoOpErrorListener`],
-/// [`UnreachableAsyncRuntime`] and [`SimpleThreadPool`]..
-#[expect(clippy::module_name_repetitions, reason = "to avoid confusion")]
+/// [`UnreachableAsyncRuntime`] and [`SimpleThreadPool`].
+#[expect(clippy::module_name_repetitions, reason = "avoiding confusion")]
 pub type FrbHandler = SimpleHandler<
     SimpleExecutor<
         NoOpErrorListener,
@@ -45,8 +45,8 @@ impl BaseAsyncRuntime for UnreachableAsyncRuntime {
         F::Output: Send + 'static,
     {
         // TODO: We don't need async runtime but there is no way to turn it off
-        //       in frb (tokio runtime is created even when "rust-async" is
-        //       disabled).
+        //       in `flutter_rust_bridge` (`tokio` runtime is created even when
+        //       "rust-async" Cargo feature is disabled).
         unreachable!("no async runtime available")
     }
 }
