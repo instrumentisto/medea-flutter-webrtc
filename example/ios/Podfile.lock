@@ -3,7 +3,7 @@ PODS:
   - instrumentisto-libwebrtc-bin (134.0.6998.165)
   - integration_test (0.0.1):
     - Flutter
-  - medea_flutter_webrtc (0.13.2):
+  - medea_flutter_webrtc (0.13.2-dev):
     - Flutter
     - instrumentisto-libwebrtc-bin (= 134.0.6998.165)
 

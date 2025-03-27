@@ -11,8 +11,7 @@ use flutter_rust_bridge::{
 use crate::THREADPOOL;
 
 /// [`SimpleHandler`] that uses [`NoOpErrorListener`],
-/// [`UnreachableAsyncRuntime`] and [`SimpleThreadPool`] backed by
-/// [`THREADPOOL`].
+/// [`UnreachableAsyncRuntime`] and [`SimpleThreadPool`]..
 #[expect(clippy::module_name_repetitions, reason = "to avoid confusion")]
 pub type FrbHandler = SimpleHandler<
     SimpleExecutor<
