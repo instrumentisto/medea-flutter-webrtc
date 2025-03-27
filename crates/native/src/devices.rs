@@ -54,14 +54,18 @@ pub fn init_on_device_change() {
         }
     }
 
-    thread::spawn(move || {
-        while rx.recv().is_ok() {
-            // Drain channel since this on_device_changed call will handle
-            // all changes that happened to this moment
-            while rx.try_recv().is_ok() {}
-            WEBRTC.lock().unwrap().on_device_changed();
-        }
-    });
+    #[expect(clippy::expect_used, reason = "intended")]
+    thread::Builder::new()
+        .name("dvc-chng-hndlr".to_owned())
+        .spawn(move || {
+            while rx.recv().is_ok() {
+                // Drain channel since this on_device_changed call will handle
+                // all changes that happened to this moment
+                while rx.try_recv().is_ok() {}
+                WEBRTC.lock().unwrap().on_device_changed();
+            }
+        })
+        .expect("failed to spawn thread");
 }
 
 impl Webrtc {
@@ -389,26 +393,36 @@ mod linux {
         use std::thread;
 
         // Video devices monitoring via `libudev`.
-        thread::spawn(move || {
-            let context = libudev::Context::new().unwrap();
-            udev::monitoring(&context).unwrap();
-        });
+        #[expect(clippy::expect_used, reason = "intended")]
+        thread::Builder::new()
+            .name("udev-dvc-lstnr".to_owned())
+            .spawn(move || {
+                let context = libudev::Context::new().unwrap();
+                udev::monitoring(&context).unwrap();
+            })
+            .expect("failed to spawn thread");
 
         // Audio devices monitoring via PulseAudio.
-        thread::spawn(move || {
-            let mut m = pulse_audio::AudioMonitor::new().unwrap();
-            loop {
-                match m.main_loop.iterate(true) {
-                    IterateResult::Success(_) => {}
-                    IterateResult::Quit(_) => {
-                        break;
-                    }
-                    IterateResult::Err(e) => {
-                        log::error!("pulse audio mainloop iterate error: {e}");
+        #[expect(clippy::expect_used, reason = "intended")]
+        thread::Builder::new()
+            .name("pulse-dvc-lstnr".to_owned())
+            .spawn(move || {
+                let mut m = pulse_audio::AudioMonitor::new().unwrap();
+                loop {
+                    match m.main_loop.iterate(true) {
+                        IterateResult::Success(_) => {}
+                        IterateResult::Quit(_) => {
+                            break;
+                        }
+                        IterateResult::Err(e) => {
+                            log::error!(
+                                "pulse audio mainloop iterate error: {e}"
+                            );
+                        }
                     }
                 }
-            }
-        });
+            })
+            .expect("failed to spawn thread");
     }
 
     pub mod udev {
@@ -738,7 +752,8 @@ mod windows {
 
         register();
 
-        thread::spawn(|| {
+        #[expect(clippy::expect_used, reason = "intended")]
+        thread::Builder::new().name("dvc-chng-lstnr".to_owned()).spawn(move || {
             let lpsz_class_name = OsStr::new("EventWatcher")
                 .encode_wide()
                 .chain(Some(0))
@@ -801,6 +816,6 @@ mod windows {
                     DispatchMessageW(&msg);
                 }
             }
-        });
+        }).expect("failed to spawn thread");
     }
 }

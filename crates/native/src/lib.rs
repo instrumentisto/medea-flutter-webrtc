@@ -184,6 +184,7 @@ pub mod api;
 #[rustfmt::skip]
 mod frb_generated;
 mod devices;
+pub mod frb;
 mod pc;
 mod renderer;
 mod user_media;
@@ -216,6 +217,15 @@ pub use crate::{
 };
 use crate::{user_media::TrackOrigin, video_sink::Id as VideoSinkId};
 
+lazy_static::lazy_static! {
+    /// Main threadpool used by `flutter_rust_bridge` when calling synchronous
+    /// `Rust` code and to avoid locking `libwebrtc` threads.
+    pub(crate) static ref THREADPOOL: ThreadPool = ThreadPool::with_name(
+        "fltr-wbrtc-pool".to_owned(),
+        4,
+    );
+}
+
 /// Counter used to generate unique IDs.
 static ID_COUNTER: AtomicU32 = AtomicU32::new(1);
 
@@ -241,10 +251,6 @@ pub struct Webrtc {
     audio_device_module: AudioDeviceModule,
     worker_thread: sys::Thread,
     signaling_thread: sys::Thread,
-
-    /// [`ThreadPool`] used to offload blocking or CPU-intensive tasks, so they
-    /// won't block Flutter WebRTC threads.
-    callback_pool: ThreadPool,
 }
 
 impl Webrtc {
@@ -294,7 +300,6 @@ impl Webrtc {
             audio_sources: HashMap::new(),
             audio_tracks: Arc::new(DashMap::new()),
             video_sinks: HashMap::new(),
-            callback_pool: ThreadPool::new(4),
         };
 
         this.devices_state.audio_inputs =

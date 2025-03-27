@@ -9,6 +9,7 @@ use std::{
     time::Duration,
 };
 
+use flutter_rust_bridge::for_generated::FLUTTER_RUST_BRIDGE_RUNTIME_VERSION;
 use libwebrtc_sys as sys;
 
 // Re-exporting since it is used in the generated code.
@@ -18,11 +19,31 @@ pub use crate::{
 };
 use crate::{
     Webrtc, devices,
-    frb_generated::{RustOpaque, StreamSink},
+    frb::{FrbHandler, new_frb_handler},
+    frb_generated::{
+        FLUTTER_RUST_BRIDGE_CODEGEN_VERSION, RustOpaque, StreamSink,
+    },
     pc::PeerConnectionId,
     renderer::FrameHandler,
     user_media::TrackOrigin,
 };
+
+// Must be named FLUTTER_RUST_BRIDGE_HANDLER so frb will be able to use it.
+lazy_static::lazy_static! {
+    /// Custom [`Handler`] to be used to execute `Rust` code called from `Dart`.
+    ///
+    /// [`Handler`]: flutter_rust_bridge::Handler
+    pub static ref FLUTTER_RUST_BRIDGE_HANDLER:
+        FrbHandler = {
+            assert_eq!(
+                FLUTTER_RUST_BRIDGE_CODEGEN_VERSION,
+                FLUTTER_RUST_BRIDGE_RUNTIME_VERSION,
+                "different frb versions are detected"
+            );
+
+            new_frb_handler()
+        };
+}
 
 lazy_static::lazy_static! {
     pub(crate) static ref WEBRTC: Mutex<Webrtc> =
