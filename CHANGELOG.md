@@ -6,6 +6,51 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## main
+
+[Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.13.3...main)
+
+### Changed
+
+- Upgraded [OpenAL] library to [1.24.3][openal-1.24.3] version. ([#193])
+
+[#193]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/193
+[openal-1.24.3]: https://github.com/kcat/openal-soft/releases/tag/1.24.3
+
+
+
+
+## [0.13.3] · 2025-03-27
+[0.13.3]: https://github.com/instrumentisto/medea-flutter-webrtc/tree/0.13.3
+
+[Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.13.2...0.13.3)
+
+### Changed
+
+- Made number of utilized threads not depending on CPUs count. ([#192])
+- Upgraded [`flutter_rust_bridge`] crate to [2.9.0][frb-2.9.0] version. ([#192])
+
+[#192]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/192
+[frb-2.9.0]: https://github.com/fzyzcjy/flutter_rust_bridge/releases/tag/v2.9.0
+
+
+
+
+## [0.13.2] · 2025-03-18
+[0.13.2]: https://github.com/instrumentisto/medea-flutter-webrtc/tree/0.13.2
+
+[Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.13.1...0.13.2)
+
+### Changed
+
+- Upgraded [libwebrtc] to [134.0.6998.165] version. ([24750229])
+
+[24750229]: https://github.com/instrumentisto/medea-flutter-webrtc/commit/24750229034753705cfc6f5e240f4cabd8bfbd04
+[134.0.6998.165]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/134.0.6998.165
+
+
+
+
 ## [0.13.1] · 2025-03-18
 [0.13.1]: https://github.com/instrumentisto/medea-flutter-webrtc/tree/0.13.1
 
