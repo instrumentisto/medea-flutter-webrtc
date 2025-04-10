@@ -15,13 +15,15 @@
 #include "api/audio/audio_processing.h"
 #include "modules/audio_processing/include/aec_dump.h"
 
-/// `AudioProcessing` that delegates playout (reverse) media to multiple inner `AudioProcessing`s.
+/// `AudioProcessing` that delegates playout (reverse) media to multiple inner
+/// `AudioProcessing`s.
 class PlayoutDelegatingAPM : public webrtc::AudioProcessing {
  public:
   PlayoutDelegatingAPM();
   ~PlayoutDelegatingAPM() override;
 
-  void AddDelegate(std::string device_id, rtc::scoped_refptr<webrtc::AudioProcessing> delegate);
+  void AddDelegate(std::string device_id,
+                   rtc::scoped_refptr<webrtc::AudioProcessing> delegate);
   void RemoveDelegate(std::string device_id);
 
   int Initialize() override;

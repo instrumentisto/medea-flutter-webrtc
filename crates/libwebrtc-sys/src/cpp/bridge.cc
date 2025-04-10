@@ -6,9 +6,9 @@
 #include <chrono>
 #include <thread>
 
-#include "api/video/i420_buffer.h"
 #include "api/audio/builtin_audio_processing_builder.h"
 #include "api/environment/environment_factory.h"
+#include "api/video/i420_buffer.h"
 #include "api/video_codecs/video_decoder_factory_template.h"
 #include "api/video_codecs/video_decoder_factory_template_dav1d_adapter.h"
 #include "api/video_codecs/video_decoder_factory_template_libvpx_vp8_adapter.h"
@@ -250,7 +250,9 @@ int32_t set_audio_playout_device(const AudioDeviceModule& audio_device_module,
 
 // Calls `BuiltinAudioProcessingBuilder().Create()`.
 std::unique_ptr<AudioProcessing> create_audio_processing() {
-  auto apm = webrtc::BuiltinAudioProcessingBuilder().SetConfig(*create_audio_processing_config()).Build(webrtc::CreateEnvironment());
+  auto apm = webrtc::BuiltinAudioProcessingBuilder()
+                 .SetConfig(*create_audio_processing_config())
+                 .Build(webrtc::CreateEnvironment());
   return std::make_unique<AudioProcessing>(apm);
 }
 
@@ -489,8 +491,6 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     const std::unique_ptr<Thread>& worker_thread,
     const std::unique_ptr<Thread>& signaling_thread,
     const std::unique_ptr<AudioDeviceModule>& default_adm) {
-
-  rtc::LogMessage::LogToDebug(rtc::LS_WARNING);
 
   std::unique_ptr<webrtc::VideoEncoderFactory> video_encoder_factory =
       std::make_unique<webrtc::VideoEncoderFactoryTemplate<
@@ -1172,7 +1172,8 @@ std::unique_ptr<std::string> display_source_title(const DisplaySource& source) {
 
 // Creates a new `AudioProcessingConfig`.
 std::unique_ptr<AudioProcessingConfig> create_audio_processing_config() {
-  // TODO: Probably should be configured from the Rust side, but it's ok for now.
+  // TODO: Probably should be configured from the Rust side, but it's ok for
+  // now.
   webrtc::AudioProcessing::Config apm_config;
 
   apm_config.echo_canceller.enabled = true;
@@ -1184,8 +1185,8 @@ std::unique_ptr<AudioProcessingConfig> create_audio_processing_config() {
   apm_config.gain_controller1.enable_limiter = true;
 
   apm_config.noise_suppression.enabled = true;
-  apm_config.noise_suppression.level = webrtc::AudioProcessing::Config::NoiseSuppression::Level::kVeryHigh;
-
+  apm_config.noise_suppression.level =
+      webrtc::AudioProcessing::Config::NoiseSuppression::Level::kVeryHigh;
 
   return std::make_unique<AudioProcessingConfig>(apm_config);
 }

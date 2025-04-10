@@ -204,9 +204,7 @@ impl Webrtc {
                     sender.replace_video_track(None)
                 }
                 sys::MediaType::MEDIA_TYPE_AUDIO => {
-                    let result = sender.replace_audio_track(None);
-
-                    result
+                    sender.replace_audio_track(None)
                 }
                 _ => unreachable!(),
             }

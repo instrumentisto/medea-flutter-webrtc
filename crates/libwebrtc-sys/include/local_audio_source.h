@@ -29,9 +29,7 @@ class LocalAudioSource : public webrtc::Notifier<webrtc::AudioSourceInterface> {
   SourceState state() const override { return kLive; }
   bool remote() const override { return false; }
 
-  const cricket::AudioOptions options() const override {
-    return _options;
-  }
+  const cricket::AudioOptions options() const override { return _options; }
 
   void AddSink(webrtc::AudioTrackSinkInterface* sink) override;
   void RemoveSink(webrtc::AudioTrackSinkInterface* sink) override;

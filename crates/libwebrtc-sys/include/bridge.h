@@ -2,10 +2,10 @@
 #define BRIDGE_H_
 
 #include <functional>
-#include "api/make_ref_counted.h"
 #include "api/audio_codecs/builtin_audio_decoder_factory.h"
 #include "api/audio_codecs/builtin_audio_encoder_factory.h"
 #include "api/create_peerconnection_factory.h"
+#include "api/make_ref_counted.h"
 #include "api/peer_connection_interface.h"
 #include "api/task_queue/default_task_queue_factory.h"
 #include "api/video_codecs/builtin_video_decoder_factory.h"
@@ -18,6 +18,7 @@
 #else
 #include "device_video_capturer.h"
 #endif
+#include "delegating_apm.h"
 #include "modules/audio_device/include/audio_device.h"
 #include "modules/video_capture/video_capture_factory.h"
 #include "pc/audio_track.h"
@@ -27,7 +28,6 @@
 #include "rust/cxx.h"
 #include "screen_video_capturer.h"
 #include "video_sink.h"
-#include "delegating_apm.h"
 
 #include "adm.h"
 #include "adm_proxy.h"
