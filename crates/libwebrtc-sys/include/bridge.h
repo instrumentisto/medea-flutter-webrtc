@@ -2,6 +2,7 @@
 #define BRIDGE_H_
 
 #include <functional>
+#include "api/make_ref_counted.h"
 #include "api/audio_codecs/builtin_audio_decoder_factory.h"
 #include "api/audio_codecs/builtin_audio_encoder_factory.h"
 #include "api/create_peerconnection_factory.h"
@@ -26,6 +27,7 @@
 #include "rust/cxx.h"
 #include "screen_video_capturer.h"
 #include "video_sink.h"
+#include "delegating_apm.h"
 
 #include "adm.h"
 #include "adm_proxy.h"
@@ -127,8 +129,7 @@ using AudioProcessingConfig = webrtc::AudioProcessing::Config;
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
     Thread& worker_thread,
     AudioLayer audio_layer,
-    TaskQueueFactory& task_queue_factory,
-    const std::unique_ptr<AudioProcessing>& ap);
+    TaskQueueFactory& task_queue_factory);
 
 // Initializes the native audio parts required for each platform.
 int32_t init_audio_device_module(const AudioDeviceModule& audio_device_module);
@@ -259,7 +260,8 @@ std::unique_ptr<VideoTrackSourceInterface> create_display_video_source(
 // Creates a new `AudioSourceInterface`.
 std::unique_ptr<AudioSourceInterface> create_audio_source(
     const AudioDeviceModule& audio_device_module,
-    uint16_t device_index);
+    uint16_t device_index,
+    std::unique_ptr<AudioProcessing> ap);
 
 // Disposes the `AudioSourceInterface` with the provided device ID.
 void dispose_audio_source(const AudioDeviceModule& audio_device_module,
@@ -346,8 +348,7 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     const std::unique_ptr<Thread>& network_thread,
     const std::unique_ptr<Thread>& worker_thread,
     const std::unique_ptr<Thread>& signaling_thread,
-    const std::unique_ptr<AudioDeviceModule>& default_adm,
-    const std::unique_ptr<AudioProcessing>& ap);
+    const std::unique_ptr<AudioDeviceModule>& default_adm);
 
 // Creates a new `PeerConnectionInterface`.
 std::unique_ptr<PeerConnectionInterface> create_peer_connection_or_error(

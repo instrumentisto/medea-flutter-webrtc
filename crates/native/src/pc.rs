@@ -105,12 +105,6 @@ impl Webrtc {
                         log::error!(
                             "Failed to remove audio track from sender: {e}",
                         );
-                    } else {
-                        let is_sending = self
-                            .audio_tracks
-                            .iter()
-                            .any(|t| !t.senders.is_empty());
-                        self.ap.set_output_will_be_muted(!is_sending);
                     }
                 }
                 _ => unreachable!(),
@@ -211,14 +205,6 @@ impl Webrtc {
                 }
                 sys::MediaType::MEDIA_TYPE_AUDIO => {
                     let result = sender.replace_audio_track(None);
-
-                    if result.is_ok() {
-                        let is_sending = self
-                            .audio_tracks
-                            .iter()
-                            .any(|t| !t.senders.is_empty());
-                        self.ap.set_output_will_be_muted(!is_sending);
-                    }
 
                     result
                 }

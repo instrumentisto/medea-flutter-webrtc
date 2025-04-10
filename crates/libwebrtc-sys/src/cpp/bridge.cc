@@ -115,14 +115,10 @@ std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
     Thread& worker_thread,
     AudioLayer audio_layer,
-    TaskQueueFactory& task_queue_factory,
-    const std::unique_ptr<AudioProcessing>& ap) {
+    TaskQueueFactory& task_queue_factory) {
   AudioDeviceModule adm = worker_thread.BlockingCall([audio_layer,
-                                                      &task_queue_factory,
-                                                      &ap] {
-    return ::OpenALAudioDeviceModule::Create(audio_layer,
-                                             &task_queue_factory,
-                                             ap);
+                                                      &task_queue_factory] {
+    return ::OpenALAudioDeviceModule::Create(audio_layer, &task_queue_factory);
   });
 
   if (adm == nullptr) {
@@ -254,15 +250,6 @@ int32_t set_audio_playout_device(const AudioDeviceModule& audio_device_module,
 
 // Calls `BuiltinAudioProcessingBuilder().Create()`.
 std::unique_ptr<AudioProcessing> create_audio_processing() {
-  // TODO: create empty asdasdasdasd
-//  webrtc::AudioProcessing::Config apm_config = create_audio_processing_config();
-//  webrtc::AudioProcessing::Config apm_config;
-//  apm_config.echo_canceller.enabled = false;
-//  apm_config.echo_canceller.mobile_mode = false;
-//  apm_config.gain_controller1.enabled = false;
-//  apm_config.gain_controller1.enable_limiter = false;
-//  apm_config.noise_suppression.enabled = false;
-
   auto apm = webrtc::BuiltinAudioProcessingBuilder().SetConfig(*create_audio_processing_config()).Build(webrtc::CreateEnvironment());
   return std::make_unique<AudioProcessing>(apm);
 }
@@ -341,8 +328,9 @@ std::unique_ptr<VideoTrackSourceInterface> create_display_video_source(
 // Creates a new `AudioSource` with the provided `AudioDeviceModule`.
 std::unique_ptr<AudioSourceInterface> create_audio_source(
     const AudioDeviceModule& audio_device_module,
-    uint16_t device_index) {
-  auto src = audio_device_module->CreateAudioSource(device_index);
+    uint16_t device_index,
+    std::unique_ptr<AudioProcessing> ap) {
+  auto src = audio_device_module->CreateAudioSource(device_index, *ap);
   if (src == nullptr) {
     return nullptr;
   }
@@ -500,8 +488,7 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     const std::unique_ptr<Thread>& network_thread,
     const std::unique_ptr<Thread>& worker_thread,
     const std::unique_ptr<Thread>& signaling_thread,
-    const std::unique_ptr<AudioDeviceModule>& default_adm,
-    const std::unique_ptr<AudioProcessing>& ap) {
+    const std::unique_ptr<AudioDeviceModule>& default_adm) {
 
   rtc::LogMessage::LogToDebug(rtc::LS_WARNING);
 
@@ -522,7 +509,7 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
       webrtc::CreateBuiltinAudioEncoderFactory(),
       webrtc::CreateBuiltinAudioDecoderFactory(),
       std::move(video_encoder_factory), std::move(video_decoder_factory),
-      nullptr, ap ? *ap : nullptr);
+      nullptr, default_adm ? (*default_adm)->AudioProcessing() : nullptr);
 
   if (factory == nullptr) {
     return nullptr;
@@ -1185,20 +1172,20 @@ std::unique_ptr<std::string> display_source_title(const DisplaySource& source) {
 
 // Creates a new `AudioProcessingConfig`.
 std::unique_ptr<AudioProcessingConfig> create_audio_processing_config() {
-  // TODO: empty asdasdasdasd
-//  webrtc::AudioProcessing::Config apm_config;
-//  apm_config.echo_canceller.enabled = true;
-//  apm_config.echo_canceller.mobile_mode = false;
-//  apm_config.gain_controller1.enabled = true;
-//  apm_config.gain_controller1.mode ==
-//      webrtc::AudioProcessing::Config::GainController1::kAdaptiveDigital;
-//  apm_config.gain_controller1.enable_limiter = true;
+  // TODO: Probably should be configured from the Rust side, but it's ok for now.
   webrtc::AudioProcessing::Config apm_config;
-  apm_config.echo_canceller.enabled = false;
+
+  apm_config.echo_canceller.enabled = true;
   apm_config.echo_canceller.mobile_mode = false;
-  apm_config.gain_controller1.enabled = false;
-  apm_config.gain_controller1.enable_limiter = false;
-  apm_config.noise_suppression.enabled = false;
+
+  apm_config.gain_controller1.enabled = true;
+  apm_config.gain_controller1.mode ==
+      webrtc::AudioProcessing::Config::GainController1::kAdaptiveDigital;
+  apm_config.gain_controller1.enable_limiter = true;
+
+  apm_config.noise_suppression.enabled = true;
+  apm_config.noise_suppression.level = webrtc::AudioProcessing::Config::NoiseSuppression::Level::kVeryHigh;
+
 
   return std::make_unique<AudioProcessingConfig>(apm_config);
 }
