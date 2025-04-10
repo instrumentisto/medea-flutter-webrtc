@@ -70,21 +70,6 @@ class _LoopbackState extends State<Loopback> {
     caps.video.mandatory!.height = 480;
     caps.video.mandatory!.fps = 30;
 
-    // {
-    //   {
-    //     var caps = DeviceConstraints();
-    //     caps.audio.mandatory = AudioConstraints();
-    //     caps.audio.mandatory!.deviceId = "WH-1000XM5";
-    //     await getUserMedia(caps);
-    //   }
-    //   {
-    //     var caps = DeviceConstraints();
-    //     caps.audio.mandatory = AudioConstraints();
-    //     caps.audio.mandatory!.deviceId = "HD Pro Webcam C920 Analog Stereo";
-    //     await getUserMedia(caps);
-    //   }
-    // }
-
     try {
       _mediaDevicesList = await enumerateDevices();
       _tracks = await getUserMedia(caps);

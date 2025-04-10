@@ -96,6 +96,7 @@ class OpenALAudioDeviceModule : public ExtendedADM {
   // Stops the `bridge::LocalAudioSource` for the provided device ID.
   void DisposeAudioSource(std::string device_id) override;
 
+  // Returns `PlayoutDelegatingAPM` used by this `OpenALAudioDeviceModule`.
   rtc::scoped_refptr<PlayoutDelegatingAPM> AudioProcessing() override;
 
   // Playout control.

@@ -203,15 +203,16 @@ int PlayoutDelegatingAPM::recommended_stream_analog_level() const {
 }
 
 int PlayoutDelegatingAPM::set_stream_delay_ms(int delay) {
-  // TODO: Implement.
+  // TODO: aec3 can figure out stream delay on its own, but it needs some time to
+  //       do this. Providing delay might improve aec during the first few seconds
+  //       of the call, so might be worth to implement this.
   // Not used.
   RTC_LOG(LS_ERROR) << "PlayoutDelegatingAPM::set_stream_delay_ms() " << delay;
   return 0;
 }
 
 int PlayoutDelegatingAPM::stream_delay_ms() const {
-  // TODO: Implement.
-  // Not used.
+  // Not used. Internal only.
   RTC_LOG(LS_ERROR)
       << "PlayoutDelegatingAPM::stream_delay_ms() is unsupported.";
   return 0;
