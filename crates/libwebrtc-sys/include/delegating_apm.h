@@ -15,8 +15,8 @@
 #include "api/audio/audio_processing.h"
 #include "modules/audio_processing/include/aec_dump.h"
 
-/// `AudioProcessing` that delegates playout (reverse) media to multiple inner
-/// `AudioProcessing`s.
+// `AudioProcessing` that delegates playout (reverse) media to multiple inner
+// `AudioProcessing`s.
 class PlayoutDelegatingAPM : public webrtc::AudioProcessing {
  public:
   PlayoutDelegatingAPM();
@@ -45,8 +45,8 @@ class PlayoutDelegatingAPM : public webrtc::AudioProcessing {
   bool PostRuntimeSetting(
       webrtc::AudioProcessing::RuntimeSetting setting) override;
 
-  // Capture-side exclusive methods possibly running APM in a
-  // multi-threaded manner.
+  // Capture-side exclusive methods possibly running APM in a multi-threaded
+  // manner.
   int ProcessStream(const int16_t* const src,
                     const webrtc::StreamConfig& input_config,
                     const webrtc::StreamConfig& output_config,
@@ -56,8 +56,8 @@ class PlayoutDelegatingAPM : public webrtc::AudioProcessing {
                     const webrtc::StreamConfig& output_config,
                     float* const* dest) override;
 
-  // Render-side exclusive methods possibly running APM in a
-  // multi-threaded manner.
+  // Render-side exclusive methods possibly running APM in a multi-threaded
+  // manner.
   int ProcessReverseStream(const int16_t* const src,
                            const webrtc::StreamConfig& input_config,
                            const webrtc::StreamConfig& output_config,

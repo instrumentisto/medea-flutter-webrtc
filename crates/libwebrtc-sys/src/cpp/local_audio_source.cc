@@ -66,7 +66,7 @@ void LocalAudioSource::OnData(const void* audio_data,
   int ap_result = ProcessAudioFrame(audio_processing_.get(), &audio_frame_);
 
   if (ap_result != webrtc::AudioProcessing::kNoError) {
-    RTC_LOG(LS_ERROR) << "LocalAudioSource: AudioProcessing error: "
+    RTC_LOG(LS_ERROR) << "`LocalAudioSource`: `AudioProcessing` error: "
                       << ap_result;
   }
 

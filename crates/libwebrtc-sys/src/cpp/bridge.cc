@@ -1172,8 +1172,8 @@ std::unique_ptr<std::string> display_source_title(const DisplaySource& source) {
 
 // Creates a new `AudioProcessingConfig`.
 std::unique_ptr<AudioProcessingConfig> create_audio_processing_config() {
-  // TODO: Probably should be configured from the Rust side, but for now
-  //       it's ok to set default values here.
+  // TODO: Probably should be configured from the Rust side, but for now it's OK
+  //       to set default values here.
   webrtc::AudioProcessing::Config apm_config;
 
   apm_config.echo_canceller.enabled = true;

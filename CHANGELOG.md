@@ -16,7 +16,7 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Fixed
 
-- Audio processing not working properly when there are multiple local audio sources. ([#195])
+- Audio processing not working properly on multiple local audio sources. ([#195])
 
 [#193]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/193
 [#195]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/195
