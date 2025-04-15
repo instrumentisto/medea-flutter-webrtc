@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "make-example-build-for-macos-intel"]
     tags: ["*"]
   pull_request:
     branches: ["main"]
@@ -236,6 +236,11 @@ jobs:
 
       - run: make flutter.build platform=${{ matrix.platform }}
 
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-flutter-example-macos
+          path: example/build/macos/Build/Products/Release/medea_flutter_webrtc_example.app
+        if: ${{ matrix.platform == 'macos' }}
 
 
 
