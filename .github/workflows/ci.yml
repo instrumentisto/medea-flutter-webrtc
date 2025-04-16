@@ -159,7 +159,7 @@ jobs:
           xcode-version: "14.1"
         if: ${{ matrix.platform == 'macos' }}
 
-      - run: make cargo.build platform=${{ matrix.platform }} debug=no
+      - run: make cargo.build platform=${{ matrix.platform }} debug=yes
 
       - uses: actions/upload-artifact@v4
         with:

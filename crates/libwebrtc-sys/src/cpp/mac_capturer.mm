@@ -97,6 +97,20 @@ rtc::scoped_refptr<MacCapturer> MacCapturer::Create(size_t width,
 
 // Propagates a `VideoFrame` to the `AdaptedVideoTrackSource::OnFrame()`.
 void MacCapturer::OnFrame(const webrtc::VideoFrame& frame) {
+
+    ++n_frames;
+
+    auto now = std::chrono::steady_clock::now();
+    auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+                  now - loged_at)
+                  .count();
+
+    if (elapsed_ms > 1000) {
+    loged_at = now;
+    RTC_LOG(LS_ERROR) << "MacCapturer fps: " << n_frames;
+      n_frames = 0;
+    }
+
   AdaptedVideoTrackSource::OnFrame(frame);
 }
 

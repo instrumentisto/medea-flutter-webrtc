@@ -73,6 +73,9 @@ class MacCapturer : public rtc::AdaptedVideoTrackSource,
 
   // `RTCVideoSourceAdapter` injected into the `capturer_`.
   RTCVideoSourceAdapter* adapter_;
+
+  int n_frames = 0;
+  std::chrono::steady_clock::time_point loged_at = std::chrono::steady_clock::now();
 };
 
 #endif // BRIDGE_MAC_CAPTURER_H_
