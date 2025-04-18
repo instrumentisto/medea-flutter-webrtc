@@ -170,13 +170,13 @@ use walkdir::{DirEntry, WalkDir};
 /// Base URL for the [`libwebrtc-bin`] GitHub release.
 ///
 /// [`libwebrtc-bin`]: https://github.com/instrumentisto/libwebrtc-bin
-static LIBWEBRTC_URL: &str = "\
-    https://github.com/instrumentisto/libwebrtc-bin/releases/download\
-                                                            /134.0.6998.165";
+static LIBWEBRTC_URL: &str =
+    "https://github.com/instrumentisto/libwebrtc-bin/releases/download\
+                                                    /132.0.6834.159";
 
 /// URL for downloading `openal-soft` source code.
 static OPENAL_URL: &str =
-    "https://github.com/kcat/openal-soft/archive/refs/tags/1.24.3";
+    "https://github.com/kcat/openal-soft/archive/refs/tags/1.24.2";
 
 fn main() -> anyhow::Result<()> {
     let lib_dir = libpath()?;
@@ -294,19 +294,19 @@ fn get_target() -> anyhow::Result<String> {
 fn get_expected_libwebrtc_hash() -> anyhow::Result<&'static str> {
     Ok(match get_target()?.as_str() {
         "aarch64-unknown-linux-gnu" => {
-            "5d6fa125b34b5c4f4cc7cefd72df7b70a6c0804c8d79e75f407119b91839565d"
+            "f1157f833b1cf65ff6d5105e07ceeb2fc030ff5579bd05651eb779249ae20d7f"
         }
         "x86_64-unknown-linux-gnu" => {
-            "8f57350e8ab8f9e354141150c438b3972eb958c1e5278f71a1c68c079d897bb1"
+            "daf132b62d511fcdfbafcc735c3aec2c6c173c2b1b704c1cb627b2d879f2dfee"
         }
         "aarch64-apple-darwin" => {
-            "94f7dee339ea728e5222ca0e66b4890ece289c2fd6642acd304c3ec172bbd4c1"
+            "f17865052d2c4e6987cb8ef6843242ecc2ad50c03a39d9dd03df0a91322d3f22"
         }
         "x86_64-apple-darwin" => {
-            "0ffae82d23a39bf236e5754479bd4d59f7eda89b81444208a6bc142dae38c10f"
+            "dd54e994b0a750a221d1a8dea60fc3a57c34551141e688990c72ca49cf8339d0"
         }
         "x86_64-pc-windows-msvc" => {
-            "9866d6eb946f43109e6787e658b718a901a48ea1cf4413eeec54106e76b7241a"
+            "b426ddfeddd56b2a405aba08434c68d0a8b2c1bead31b5862407d741d4ea4b15"
         }
         arch => return Err(anyhow::anyhow!("Unsupported target: {arch}")),
     })
