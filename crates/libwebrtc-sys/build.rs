@@ -207,7 +207,9 @@ fn main() -> anyhow::Result<()> {
     build.flag("-DNDEBUG");
     #[cfg(not(target_os = "windows"))]
     if env::var_os("PROFILE") == Some(OsString::from("release")) {
-        build.flag("-DNDEBUG");
+        build
+            .include(libpath.join("include/third_party/perfetto/include"))
+            .flag("-DNDEBUG");
     }
 
     #[cfg(target_os = "linux")]
