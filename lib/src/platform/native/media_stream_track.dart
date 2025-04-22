@@ -180,18 +180,6 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
   Future<int?> width() async {
     return await _chan.invokeMethod('width');
   }
-
-  @override
-  Future<void> setAutoGainControlEnabled(bool enabled) async {}
-
-  @override
-  Future<void> setEchoCancellationEnabled(bool enabled) async {}
-
-  @override
-  Future<void> setHighPassFilterEnabled(bool enabled) async {}
-
-  @override
-  Future<void> setNoiseSuppressionEnabled(bool enabled) async {}
 }
 
 /// FFI-based implementation of a [NativeMediaStreamTrack].
@@ -364,7 +352,8 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   @override
   Future<void> setAutoGainControlEnabled(bool enabled) async {
     if (!isAudioProcessingAvailable()) {
-      return;
+      throw 'setAutoGainControlEnabled is unsupported, check with '
+          'isAudioProcessingAvailable beforehand';
     }
 
     await ffi.updateAudioProcessing(
@@ -376,7 +365,8 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   @override
   Future<void> setEchoCancellationEnabled(bool enabled) async {
     if (!isAudioProcessingAvailable()) {
-      return;
+      throw 'setEchoCancellationEnabled is unsupported, check with '
+          'isAudioProcessingAvailable beforehand';
     }
 
     await ffi.updateAudioProcessing(
@@ -388,7 +378,8 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   @override
   Future<void> setHighPassFilterEnabled(bool enabled) async {
     if (!isAudioProcessingAvailable()) {
-      return;
+      throw 'setHighPassFilterEnabled is unsupported, check with '
+          'isAudioProcessingAvailable beforehand';
     }
 
     await ffi.updateAudioProcessing(
@@ -400,7 +391,8 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   @override
   Future<void> setNoiseSuppressionEnabled(bool enabled) async {
     if (!isAudioProcessingAvailable()) {
-      return;
+      throw 'setNoiseSuppressionEnabled is unsupported, check with '
+          'isAudioProcessingAvailable beforehand';
     }
 
     await ffi.updateAudioProcessing(

@@ -18,8 +18,19 @@ All user visible changes to this project will be documented in this file. This p
 
 - Audio processing not working properly on multiple local audio sources. ([#195])
 
+### Added
+
+- Support changing audio processing settings for local audio tracks on desktop ([#197]):
+  - `MediaStreamTrack.isAudioProcessingAvailable` function to check whether audio processing controls are available for the given local audio `MediaStreamTrack`;
+  - `MediaStreamTrack.setNoiseSuppressionEnabled` function to enable/disable noise suppresion for the given local audio `MediaStreamTrack`;
+  - `MediaStreamTrack.setHighPassFilterEnabled` function to enable/disable high pass filter for the given local audio `MediaStreamTrack`;
+  - `MediaStreamTrack.setEchoCancellationEnabled` function to enable/disable accoustic echo cancellation for the given local audio `MediaStreamTrack`;
+  - `MediaStreamTrack.setAutoGainControlEnabled` function to enable/disable auto gain control for the given local audio `MediaStreamTrack`;
+  - `AudioConstraints.noiseSuppression`, `AudioConstraints.echoCancellation`, `AudioConstraints.highPassFilter` fields to control audio processing when creating local audio `MediaStreamTrack`.
+
 [#193]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/193
 [#195]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/195
+[#197]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/197
 [openal-1.24.3]: https://github.com/kcat/openal-soft/releases/tag/1.24.3
 
 

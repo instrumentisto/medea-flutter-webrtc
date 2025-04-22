@@ -92,16 +92,4 @@ class WebMediaStreamTrack extends MediaStreamTrack {
     var settings = jsTrack.getSettings();
     return settings.width;
   }
-
-  @override
-  Future<void> setAutoGainControlEnabled(bool enabled) async {}
-
-  @override
-  Future<void> setEchoCancellationEnabled(bool enabled) async {}
-
-  @override
-  Future<void> setHighPassFilterEnabled(bool enabled) async {}
-
-  @override
-  Future<void> setNoiseSuppressionEnabled(bool enabled) async {}
 }
