@@ -296,7 +296,8 @@ impl Webrtc {
         let src = if let Some(src) = self.audio_sources.get(&device_id) {
             Arc::clone(src)
         } else {
-            let processing = sys::AudioProcessing::new((&caps.processing).into())?;
+            let processing =
+                sys::AudioProcessing::new((&caps.processing).into())?;
 
             let src = Arc::new(AudioSource::new(
                 device_id.clone(),
