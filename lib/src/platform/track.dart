@@ -80,6 +80,18 @@ abstract class MediaStreamTrack {
         'before trying to set onAudioLevelChanged callback';
   }
 
+  bool isAudioProcessingAvailable() {
+    return false;
+  }
+
+  Future<void> setNoiseSuppressionEnabled(bool enabled);
+
+  Future<void> setHighPassFilterEnabled(bool enabled);
+
+  Future<void> setEchoCancellationEnabled(bool enabled);
+
+  Future<void> setAutoGainControlEnabled(bool enabled);
+
   /// Creates a new instance of [MediaStreamTrack], which will depend on the same
   /// media source as this [MediaStreamTrack].
   ///

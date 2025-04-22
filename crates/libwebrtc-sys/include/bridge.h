@@ -120,6 +120,8 @@ using RtcpFeedback = webrtc::RtcpFeedback;
 using RtcpFeedbackType = webrtc::RtcpFeedbackType;
 using RtcpFeedbackMessageType = webrtc::RtcpFeedbackMessageType;
 using ScalabilityMode = webrtc::ScalabilityMode;
+using NoiseSuppressionLevel =
+    webrtc::AudioProcessing::Config::NoiseSuppression::Level;
 using RtpCapabilities = webrtc::RtpCapabilities;
 using RtpHeaderExtensionCapability = webrtc::RtpHeaderExtensionCapability;
 using RuntimeSetting = webrtc::AudioProcessing::RuntimeSetting;
@@ -200,7 +202,8 @@ int32_t set_audio_playout_device(const AudioDeviceModule& audio_device_module,
                                  uint16_t index);
 
 // Creates a new `AudioProcessing`.
-std::unique_ptr<AudioProcessing> create_audio_processing();
+std::unique_ptr<AudioProcessing> create_audio_processing(
+    std::unique_ptr<AudioProcessingConfig>);
 
 // Indicates intent to mute the output of the provided `AudioProcessing`.
 //
@@ -261,7 +264,7 @@ std::unique_ptr<VideoTrackSourceInterface> create_display_video_source(
 std::unique_ptr<AudioSourceInterface> create_audio_source(
     const AudioDeviceModule& audio_device_module,
     uint16_t device_index,
-    std::unique_ptr<AudioProcessing> ap);
+    const std::unique_ptr<AudioProcessing>& ap);
 
 // Disposes the `AudioSourceInterface` with the provided device ID.
 void dispose_audio_source(const AudioDeviceModule& audio_device_module,
@@ -712,6 +715,26 @@ std::unique_ptr<AudioProcessingConfig> audio_processing_get_config(
 // `AudioProcessingConfig`.
 void config_gain_controller1_set_enabled(AudioProcessingConfig& config,
                                          bool enabled);
+
+// Enables/disables noise suppression in the provided
+// `AudioProcessingConfig`.
+void config_noise_suppression_set_enabled(AudioProcessingConfig& config,
+                                          bool enabled);
+
+// Configures noise suppression level in the provided
+// `AudioProcessingConfig`.
+void config_noise_suppression_set_level(AudioProcessingConfig& config,
+                                        NoiseSuppressionLevel level);
+
+// Enables/disables high pass filter in the provided
+// `AudioProcessingConfig`.
+void config_high_pass_filter_set_enabled(AudioProcessingConfig& config,
+                                         bool enabled);
+
+// Enables/disables acoustic echo cancellation in the provided
+// `AudioProcessingConfig`.
+void config_echo_cancellation_set_enabled(AudioProcessingConfig& config,
+                                          bool enabled);
 
 }  // namespace bridge
 

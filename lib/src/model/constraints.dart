@@ -77,6 +77,17 @@ class AudioConstraints implements DeviceMediaConstraints {
   /// source media to maintain a steady overall volume level.
   bool? autoGainControl;
 
+  /// Indicator whether to enables noise suppression to reduce background sounds.
+  bool? noiseSuppression;
+
+  /// Indicator whether to automatically enables echo cancellation to prevent
+  /// feedback.
+  bool? echoCancellation;
+
+  /// Indicator whether to enables a high-pass filter to eliminate low-frequency
+  /// noise.
+  bool? highPassFilter;
+
   /// Converts this model to the [Map] expected by Flutter.
   @override
   Map<String, dynamic> toMap() {

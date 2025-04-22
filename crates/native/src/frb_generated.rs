@@ -42,7 +42,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.9.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1353945569;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -569573370;
 
 // Section: executor
 
@@ -741,6 +741,22 @@ let api_kind = <crate::api::MediaType>::sse_decode(&mut deserializer);deserializ
                     })())
                 } })
 }
+fn wire__crate__api__update_audio_processing_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec,_,_>(flutter_rust_bridge::for_generated::TaskInfo{ debug_name: "update_audio_processing", port: Some(port_), mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal }, move || { 
+            let message = unsafe { flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(ptr_, rust_vec_len_, data_len_) };
+            let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_track_id = <String>::sse_decode(&mut deserializer);
+let api_conf = <crate::api::AudioProcessingConfig>::sse_decode(&mut deserializer);deserializer.end(); move |context|  {
+                    transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>((move ||  {
+                         let output_ok = crate::api::update_audio_processing(api_track_id, api_conf)?;   Ok(output_ok)
+                    })())
+                } })
+}
 fn wire__crate__api__video_decoders_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -908,10 +924,33 @@ impl SseDecode for crate::api::AudioConstraints {
         deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer,
     ) -> Self {
         let mut var_deviceId = <Option<String>>::sse_decode(deserializer);
-        let mut var_autoGainControl = <Option<bool>>::sse_decode(deserializer);
+        let mut var_processing =
+            <crate::api::AudioProcessingConfig>::sse_decode(deserializer);
         return crate::api::AudioConstraints {
             device_id: var_deviceId,
+            processing: var_processing,
+        };
+    }
+}
+
+impl SseDecode for crate::api::AudioProcessingConfig {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(
+        deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer,
+    ) -> Self {
+        let mut var_autoGainControl = <Option<bool>>::sse_decode(deserializer);
+        let mut var_highPassFilter = <Option<bool>>::sse_decode(deserializer);
+        let mut var_noiseSuppression = <Option<bool>>::sse_decode(deserializer);
+        let mut var_noiseSuppressionLevel = <Option<
+            crate::api::NoiseSuppressionLevel,
+        >>::sse_decode(deserializer);
+        let mut var_echoCancellation = <Option<bool>>::sse_decode(deserializer);
+        return crate::api::AudioProcessingConfig {
             auto_gain_control: var_autoGainControl,
+            high_pass_filter: var_highPassFilter,
+            noise_suppression: var_noiseSuppression,
+            noise_suppression_level: var_noiseSuppressionLevel,
+            echo_cancellation: var_echoCancellation,
         };
     }
 }
@@ -1467,6 +1506,25 @@ impl SseDecode for crate::api::MediaType {
     }
 }
 
+impl SseDecode for crate::api::NoiseSuppressionLevel {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(
+        deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer,
+    ) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::api::NoiseSuppressionLevel::Low,
+            1 => crate::api::NoiseSuppressionLevel::Moderate,
+            2 => crate::api::NoiseSuppressionLevel::High,
+            3 => crate::api::NoiseSuppressionLevel::VeryHigh,
+            _ => unreachable!(
+                "Invalid variant for NoiseSuppressionLevel: {}",
+                inner
+            ),
+        };
+    }
+}
+
 impl SseDecode for Option<String> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(
@@ -1554,6 +1612,21 @@ impl SseDecode for Option<crate::api::MediaStreamTrack> {
     ) -> Self {
         if (<bool>::sse_decode(deserializer)) {
             return Some(<crate::api::MediaStreamTrack>::sse_decode(
+                deserializer,
+            ));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<crate::api::NoiseSuppressionLevel> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(
+        deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer,
+    ) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::api::NoiseSuppressionLevel>::sse_decode(
                 deserializer,
             ));
         } else {
@@ -2948,13 +3021,19 @@ fn pde_ffi_dispatcher_primary_impl(
             rust_vec_len,
             data_len,
         ),
-        44 => wire__crate__api__video_decoders_impl(
+        44 => wire__crate__api__update_audio_processing_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        45 => wire__crate__api__video_encoders_impl(
+        45 => wire__crate__api__video_decoders_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        46 => wire__crate__api__video_encoders_impl(
             port,
             ptr,
             rust_vec_len,
@@ -2983,7 +3062,7 @@ impl flutter_rust_bridge::IntoDart for crate::api::AudioConstraints {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
             self.device_id.into_into_dart().into_dart(),
-            self.auto_gain_control.into_into_dart().into_dart(),
+            self.processing.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -2996,6 +3075,30 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::AudioConstraints>
     for crate::api::AudioConstraints
 {
     fn into_into_dart(self) -> crate::api::AudioConstraints {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::AudioProcessingConfig {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.auto_gain_control.into_into_dart().into_dart(),
+            self.high_pass_filter.into_into_dart().into_dart(),
+            self.noise_suppression.into_into_dart().into_dart(),
+            self.noise_suppression_level.into_into_dart().into_dart(),
+            self.echo_cancellation.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::AudioProcessingConfig
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::AudioProcessingConfig>
+    for crate::api::AudioProcessingConfig
+{
+    fn into_into_dart(self) -> crate::api::AudioProcessingConfig {
         self
     }
 }
@@ -3346,6 +3449,29 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::MediaType>
     for crate::api::MediaType
 {
     fn into_into_dart(self) -> crate::api::MediaType {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::NoiseSuppressionLevel {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Low => 0.into_dart(),
+            Self::Moderate => 1.into_dart(),
+            Self::High => 2.into_dart(),
+            Self::VeryHigh => 3.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::NoiseSuppressionLevel
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::NoiseSuppressionLevel>
+    for crate::api::NoiseSuppressionLevel
+{
+    fn into_into_dart(self) -> crate::api::NoiseSuppressionLevel {
         self
     }
 }
@@ -4571,7 +4697,27 @@ impl SseEncode for crate::api::AudioConstraints {
         serializer: &mut flutter_rust_bridge::for_generated::SseSerializer,
     ) {
         <Option<String>>::sse_encode(self.device_id, serializer);
+        <crate::api::AudioProcessingConfig>::sse_encode(
+            self.processing,
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for crate::api::AudioProcessingConfig {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(
+        self,
+        serializer: &mut flutter_rust_bridge::for_generated::SseSerializer,
+    ) {
         <Option<bool>>::sse_encode(self.auto_gain_control, serializer);
+        <Option<bool>>::sse_encode(self.high_pass_filter, serializer);
+        <Option<bool>>::sse_encode(self.noise_suppression, serializer);
+        <Option<crate::api::NoiseSuppressionLevel>>::sse_encode(
+            self.noise_suppression_level,
+            serializer,
+        );
+        <Option<bool>>::sse_encode(self.echo_cancellation, serializer);
     }
 }
 
@@ -5121,6 +5267,27 @@ impl SseEncode for crate::api::MediaType {
     }
 }
 
+impl SseEncode for crate::api::NoiseSuppressionLevel {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(
+        self,
+        serializer: &mut flutter_rust_bridge::for_generated::SseSerializer,
+    ) {
+        <i32>::sse_encode(
+            match self {
+                crate::api::NoiseSuppressionLevel::Low => 0,
+                crate::api::NoiseSuppressionLevel::Moderate => 1,
+                crate::api::NoiseSuppressionLevel::High => 2,
+                crate::api::NoiseSuppressionLevel::VeryHigh => 3,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
 impl SseEncode for Option<String> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(
@@ -5208,6 +5375,19 @@ impl SseEncode for Option<crate::api::MediaStreamTrack> {
         <bool>::sse_encode(self.is_some(), serializer);
         if let Some(value) = self {
             <crate::api::MediaStreamTrack>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<crate::api::NoiseSuppressionLevel> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(
+        self,
+        serializer: &mut flutter_rust_bridge::for_generated::SseSerializer,
+    ) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::api::NoiseSuppressionLevel>::sse_encode(value, serializer);
         }
     }
 }

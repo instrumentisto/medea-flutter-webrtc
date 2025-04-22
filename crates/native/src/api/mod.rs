@@ -2112,15 +2112,57 @@ pub struct AudioConstraints {
     /// [`MediaStreamTrack`].
     ///
     /// First device will be chosen if an empty [`String`] is provided.
-    ///
-    /// **NOTE**: There can be only one active recording device at a time, so
-    ///           changing device will affect all previously obtained audio
-    ///           tracks.
     pub device_id: Option<String>,
 
+    /// Audio processing configuration.
+    pub processing: AudioProcessingConfig,
+}
+
+/// Audio processing configuration.
+#[derive(Debug)]
+pub struct AudioProcessingConfig {
     /// Indicator whether the audio volume level should be automatically tuned
     /// to maintain a steady overall volume level.
     pub auto_gain_control: Option<bool>,
+
+    /// Enables a high-pass filter to eliminate low-frequency noise.
+    pub high_pass_filter: Option<bool>,
+
+    /// Enables noise suppression to reduce background sounds.
+    pub noise_suppression: Option<bool>,
+
+    /// Sets the level of aggressiveness for noise suppression.
+    pub noise_suppression_level: Option<NoiseSuppressionLevel>,
+
+    /// Enables echo cancellation to prevent feedback.
+    pub echo_cancellation: Option<bool>,
+}
+
+/// [`AudioProcessingConfig`] noise suppression aggressiveness.
+#[derive(Debug, Copy, Clone)]
+pub enum NoiseSuppressionLevel {
+    /// Minimal noise suppression.
+    Low,
+
+    /// A moderate level of suppression.
+    Moderate,
+
+    /// Aggressive noise suppression.
+    High,
+
+    /// Maximum suppression.
+    VeryHigh,
+}
+
+impl From<NoiseSuppressionLevel> for sys::NoiseSuppressionLevel {
+    fn from(level: NoiseSuppressionLevel) -> Self {
+        match level {
+            NoiseSuppressionLevel::Low => Self::kLow,
+            NoiseSuppressionLevel::Moderate => Self::kModerate,
+            NoiseSuppressionLevel::High => Self::kHigh,
+            NoiseSuppressionLevel::VeryHigh => Self::kVeryHigh,
+        }
+    }
 }
 
 /// Representation of a single media track within a [MediaStream].
@@ -2517,7 +2559,6 @@ pub fn is_fake_media() -> bool {
 
 /// Returns a list of all available media input and output devices, such as
 /// microphones, cameras, headsets, and so forth.
-#[expect(clippy::missing_panics_doc, reason = "locking")]
 pub fn enumerate_devices() -> anyhow::Result<Vec<MediaDeviceInfo>> {
     WEBRTC.lock().unwrap().enumerate_devices()
 }
@@ -2530,7 +2571,6 @@ pub fn enumerate_displays() -> Vec<MediaDisplayInfo> {
 }
 
 /// Creates a new [`PeerConnection`] and returns its ID.
-#[expect(clippy::missing_panics_doc, reason = "locking")]
 #[expect(clippy::needless_pass_by_value, reason = "FFI")]
 pub fn create_peer_connection(
     cb: StreamSink<PeerConnectionEvent>,
@@ -2943,6 +2983,15 @@ pub fn set_audio_level_observer_enabled(
         track_origin,
         enabled,
     );
+}
+
+/// Applies the given [`AudioProcessingConfig`] to specified local audio track.
+#[expect(clippy::needless_pass_by_value, reason = "FFI")]
+pub fn update_audio_processing(
+    track_id: String,
+    conf: AudioProcessingConfig,
+) -> anyhow::Result<()> {
+    WEBRTC.lock().unwrap().apply_audio_processing_config(track_id, &conf)
 }
 
 /// Sets the provided `OnDeviceChangeCallback` as the callback to be called

@@ -224,7 +224,12 @@ Future<List<NativeMediaStreamTrack>> _getUserMediaFFI(
       constraints.audio.mandatory != null || constraints.audio.optional != null
           ? ffi.AudioConstraints(
             deviceId: constraints.audio.mandatory?.deviceId,
-            autoGainControl: constraints.audio.mandatory?.autoGainControl,
+            processing: ffi.AudioProcessingConfig(
+              autoGainControl: constraints.audio.mandatory?.autoGainControl,
+              highPassFilter: constraints.audio.mandatory?.highPassFilter,
+              echoCancellation: constraints.audio.mandatory?.echoCancellation,
+              noiseSuppression: constraints.audio.mandatory?.noiseSuppression,
+            ),
           )
           : null;
 
@@ -297,6 +302,7 @@ Future<List<NativeMediaStreamTrack>> _getDisplayMediaFFI(
       constraints.audio.mandatory != null || constraints.audio.optional != null
           ? ffi.AudioConstraints(
             deviceId: constraints.audio.mandatory?.deviceId,
+            processing: ffi.AudioProcessingConfig(),
           )
           : null;
 

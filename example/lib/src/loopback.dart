@@ -31,6 +31,11 @@ class _LoopbackState extends State<Loopback> {
   bool _microIsAvailable = false;
   double currentAudioLevel = 0.0;
 
+  bool _noiseSupressionEnabled = true;
+  bool _highPassFilterEnabled = true;
+  bool _echoCancellationEnabled = true;
+  bool _autoGainControlEnabled = true;
+
   @override
   void initState() {
     super.initState();
@@ -210,6 +215,103 @@ class _LoopbackState extends State<Loopback> {
         actions:
             _inCalling
                 ? <Widget>[
+                  PopupMenuButton<String>(
+                    itemBuilder: (context) {
+                      return [
+                        PopupMenuItem(
+                          enabled: false,
+                          child: StatefulBuilder(
+                            builder: (context, setStatePopup) {
+                              return Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  CheckboxListTile(
+                                    dense: true,
+                                    title: Text("Noise Suppression"),
+                                    value: _noiseSupressionEnabled,
+                                    onChanged: (bool? value) async {
+                                      for (var track in _tracks!) {
+                                        if (track.kind() == MediaKind.audio) {
+                                          await track
+                                              .setNoiseSuppressionEnabled(
+                                                value!,
+                                              );
+                                        }
+                                      }
+
+                                      setState(() {
+                                        _noiseSupressionEnabled = value!;
+                                      });
+                                      setStatePopup(() {});
+                                    },
+                                  ),
+                                  CheckboxListTile(
+                                    dense: true,
+                                    title: Text("High Pass Filter"),
+                                    value: _highPassFilterEnabled,
+                                    onChanged: (bool? value) async {
+                                      for (var track in _tracks!) {
+                                        if (track.kind() == MediaKind.audio) {
+                                          await track.setHighPassFilterEnabled(
+                                            value!,
+                                          );
+                                        }
+                                      }
+
+                                      setState(() {
+                                        _highPassFilterEnabled = value!;
+                                      });
+                                      setStatePopup(() {});
+                                    },
+                                  ),
+                                  CheckboxListTile(
+                                    dense: true,
+                                    title: Text("Echo cancellation"),
+                                    value: _echoCancellationEnabled,
+                                    onChanged: (bool? value) async {
+                                      for (var track in _tracks!) {
+                                        if (track.kind() == MediaKind.audio) {
+                                          await track
+                                              .setEchoCancellationEnabled(
+                                                value!,
+                                              );
+                                        }
+                                      }
+
+                                      setState(() {
+                                        _echoCancellationEnabled = value!;
+                                      });
+                                      setStatePopup(() {});
+                                    },
+                                  ),
+                                  CheckboxListTile(
+                                    dense: true,
+                                    title: Text("Auto gain control"),
+                                    value: _autoGainControlEnabled,
+                                    onChanged: (bool? value) async {
+                                      for (var track in _tracks!) {
+                                        if (track.kind() == MediaKind.audio) {
+                                          await track.setAutoGainControlEnabled(
+                                            value!,
+                                          );
+                                        }
+                                      }
+
+                                      setState(() {
+                                        _autoGainControlEnabled = value!;
+                                      });
+                                      setStatePopup(() {});
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                        ),
+                      ];
+                    },
+                    icon: const Icon(Icons.multitrack_audio),
+                  ),
                   IconButton(
                     icon: const Icon(Icons.remove),
                     tooltip: 'Micro lower',
