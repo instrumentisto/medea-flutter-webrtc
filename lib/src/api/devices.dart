@@ -220,15 +220,30 @@ Future<List<NativeMediaStreamTrack>> _getUserMediaChannel(
 Future<List<NativeMediaStreamTrack>> _getUserMediaFFI(
   DeviceConstraints constraints,
 ) async {
+  int? nsLevel =
+      constraints.audio.mandatory?.noiseSuppressionLevel?.index ??
+      constraints.audio.optional?.noiseSuppressionLevel?.index;
   var audioConstraints =
       constraints.audio.mandatory != null || constraints.audio.optional != null
           ? ffi.AudioConstraints(
             deviceId: constraints.audio.mandatory?.deviceId,
             processing: ffi.AudioProcessingConfig(
-              autoGainControl: constraints.audio.mandatory?.autoGainControl,
-              highPassFilter: constraints.audio.mandatory?.highPassFilter,
-              echoCancellation: constraints.audio.mandatory?.echoCancellation,
-              noiseSuppression: constraints.audio.mandatory?.noiseSuppression,
+              autoGainControl:
+                  constraints.audio.mandatory?.autoGainControl ??
+                  constraints.audio.optional?.autoGainControl,
+              highPassFilter:
+                  constraints.audio.mandatory?.highPassFilter ??
+                  constraints.audio.optional?.highPassFilter,
+              echoCancellation:
+                  constraints.audio.mandatory?.echoCancellation ??
+                  constraints.audio.optional?.echoCancellation,
+              noiseSuppression:
+                  constraints.audio.mandatory?.noiseSuppression ??
+                  constraints.audio.optional?.noiseSuppression,
+              noiseSuppressionLevel:
+                  nsLevel != null
+                      ? ffi.NoiseSuppressionLevel.values[nsLevel]
+                      : null,
             ),
           )
           : null;

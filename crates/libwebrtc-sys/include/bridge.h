@@ -707,10 +707,6 @@ std::unique_ptr<AudioProcessingConfig> create_audio_processing_config();
 void audio_processing_apply_config(const AudioProcessing& ap,
                                    const AudioProcessingConfig& config);
 
-// Returns `AudioProcessingConfig` of the provided `AudioProcessing`.
-std::unique_ptr<AudioProcessingConfig> audio_processing_get_config(
-    const AudioProcessing& ap);
-
 // Enables/disables AGC (auto gain control) in the provided
 // `AudioProcessingConfig`.
 void config_gain_controller1_set_enabled(AudioProcessingConfig& config,
@@ -735,6 +731,29 @@ void config_high_pass_filter_set_enabled(AudioProcessingConfig& config,
 // `AudioProcessingConfig`.
 void config_echo_cancellation_set_enabled(AudioProcessingConfig& config,
                                           bool enabled);
+
+// Returns `AudioProcessingConfig` of the provided `AudioProcessing`.
+std::unique_ptr<AudioProcessingConfig> audio_processing_get_config(
+    const AudioProcessing& ap);
+
+// Returns whether AGC (auto gain control) is enabled in the provided
+// `AudioProcessingConfig`.
+bool config_gain_controller1_get_enabled(AudioProcessingConfig& config);
+
+// Returns whether high pass filter is enabled in the provided
+// `AudioProcessingConfig`.
+bool config_high_pass_filter_get_enabled(AudioProcessingConfig& config);
+
+// Returns whether echo cancellation is enabled in the provided
+// `AudioProcessingConfig`.
+bool config_echo_cancellation_get_enabled(AudioProcessingConfig& config);
+
+// Returns whether noise supression is enabled in the provided
+// `AudioProcessingConfig`.
+bool config_noise_suppression_get_enabled(AudioProcessingConfig& config);
+
+// Returns noise suppression level in the provided `AudioProcessingConfig`.
+NoiseSuppressionLevel config_noise_suppression_get_level(AudioProcessingConfig& config);
 
 }  // namespace bridge
 

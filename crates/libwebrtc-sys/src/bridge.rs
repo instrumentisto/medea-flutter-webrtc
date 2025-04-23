@@ -1628,12 +1628,6 @@ pub(crate) mod webrtc {
         pub fn create_audio_processing_config()
         -> UniquePtr<AudioProcessingConfig>;
 
-        /// Returns [`AudioProcessingConfig`] of the provided
-        /// [`AudioProcessing`].
-        pub fn audio_processing_get_config(
-            ap: &AudioProcessing,
-        ) -> UniquePtr<AudioProcessingConfig>;
-
         /// Enables/disables AGC (auto gain control) in the provided
         /// [`AudioProcessingConfig`].
         pub fn config_gain_controller1_set_enabled(
@@ -1668,6 +1662,42 @@ pub(crate) mod webrtc {
             config: Pin<&mut AudioProcessingConfig>,
             enabled: bool,
         );
+
+        /// Returns [`AudioProcessingConfig`] of the provided
+        /// [`AudioProcessing`].
+        pub fn audio_processing_get_config(
+            ap: &AudioProcessing,
+        ) -> UniquePtr<AudioProcessingConfig>;
+
+        /// Returns whether AGC (auto gain control) is enabled in the provided
+        /// [`AudioProcessingConfig`].
+        pub fn config_gain_controller1_get_enabled(
+            config: Pin<&mut AudioProcessingConfig>,
+        ) -> bool;
+
+        /// Returns whether noise supression is enabled in the provided
+        /// [`AudioProcessingConfig`].
+        pub fn config_noise_suppression_get_enabled(
+            config: Pin<&mut AudioProcessingConfig>,
+        ) -> bool;
+
+        /// Returns noise suppression level in the provided
+        /// [`AudioProcessingConfig`].
+        pub fn config_noise_suppression_get_level(
+            config: Pin<&mut AudioProcessingConfig>,
+        ) -> NoiseSuppressionLevel;
+
+        /// Returns whether high pass filter is enabled in the provided
+        /// [`AudioProcessingConfig`].
+        pub fn config_high_pass_filter_get_enabled(
+            config: Pin<&mut AudioProcessingConfig>,
+        ) -> bool;
+
+        /// Returns whether echo cancellation is enabled in the provided
+        /// [`AudioProcessingConfig`].
+        pub fn config_echo_cancellation_get_enabled(
+            config: Pin<&mut AudioProcessingConfig>,
+        ) -> bool;
 
         /// Applies the provided [`AudioProcessingConfig`] to the provided
         /// [`AudioProcessing`].

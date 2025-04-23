@@ -400,4 +400,19 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
       conf: ffi.AudioProcessingConfig(noiseSuppression: enabled),
     );
   }
+
+  @override
+  Future<void> setNoiseSuppressionLevel(NoiseSuppressionLevel level) async {
+    if (!isAudioProcessingAvailable()) {
+      throw 'setNoiseSuppressionLevel is unsupported, check with '
+          'isAudioProcessingAvailable beforehand';
+    }
+
+    await ffi.updateAudioProcessing(
+      trackId: _id,
+      conf: ffi.AudioProcessingConfig(
+        noiseSuppressionLevel: ffi.NoiseSuppressionLevel.values[level.index],
+      ),
+    );
+  }
 }

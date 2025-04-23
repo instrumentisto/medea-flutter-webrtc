@@ -23,10 +23,15 @@ All user visible changes to this project will be documented in this file. This p
 - Support changing audio processing settings for local audio tracks on desktop ([#197]):
   - `MediaStreamTrack.isAudioProcessingAvailable` function to check whether audio processing controls are available for the given local audio `MediaStreamTrack`;
   - `MediaStreamTrack.setNoiseSuppressionEnabled` function to enable/disable noise suppresion for the given local audio `MediaStreamTrack`;
+  - `MediaStreamTrack.setNoiseSuppressionLevel` function to configure noise suppresion aggressiveness for the given local audio `MediaStreamTrack`;
   - `MediaStreamTrack.setHighPassFilterEnabled` function to enable/disable high pass filter for the given local audio `MediaStreamTrack`;
   - `MediaStreamTrack.setEchoCancellationEnabled` function to enable/disable accoustic echo cancellation for the given local audio `MediaStreamTrack`;
   - `MediaStreamTrack.setAutoGainControlEnabled` function to enable/disable auto gain control for the given local audio `MediaStreamTrack`;
-  - `AudioConstraints.noiseSuppression`, `AudioConstraints.echoCancellation`, `AudioConstraints.highPassFilter` fields to control audio processing when creating local audio `MediaStreamTrack`.
+  - `AudioConstraints.noiseSuppression`, `AudioConstraints.noiseSuppressionLevel`, `AudioConstraints.highPassFilter`, `AudioConstraints.echoCancellation` fields to control audio processing when creating local audio `MediaStreamTrack`.
+
+### Changed
+
+- Changed default noise suppression level for local audio tracks on desktop from `moderate` to `veryHigh`. ([#197])
 
 [#193]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/193
 [#195]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/195

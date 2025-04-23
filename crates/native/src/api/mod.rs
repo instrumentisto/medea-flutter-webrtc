@@ -2119,7 +2119,7 @@ pub struct AudioConstraints {
 }
 
 /// Audio processing configuration.
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct AudioProcessingConfig {
     /// Indicator whether the audio volume level should be automatically tuned
     /// to maintain a steady overall volume level.
@@ -2161,6 +2161,18 @@ impl From<NoiseSuppressionLevel> for sys::NoiseSuppressionLevel {
             NoiseSuppressionLevel::Moderate => Self::kModerate,
             NoiseSuppressionLevel::High => Self::kHigh,
             NoiseSuppressionLevel::VeryHigh => Self::kVeryHigh,
+        }
+    }
+}
+
+impl From<sys::NoiseSuppressionLevel> for NoiseSuppressionLevel {
+    fn from(level: sys::NoiseSuppressionLevel) -> Self {
+        match level {
+            sys::NoiseSuppressionLevel::kLow => Self::Low,
+            sys::NoiseSuppressionLevel::kModerate => Self::Moderate,
+            sys::NoiseSuppressionLevel::kHigh => Self::High,
+            sys::NoiseSuppressionLevel::kVeryHigh => Self::VeryHigh,
+            _ => unreachable!(),
         }
     }
 }
@@ -2992,6 +3004,14 @@ pub fn update_audio_processing(
     conf: AudioProcessingConfig,
 ) -> anyhow::Result<()> {
     WEBRTC.lock().unwrap().apply_audio_processing_config(track_id, &conf)
+}
+
+/// Returns the current [`AudioProcessingConfig`] for the specified local audio
+/// track.
+pub fn get_audio_processing_config(
+    track_id: String,
+) -> anyhow::Result<AudioProcessingConfig> {
+    WEBRTC.lock().unwrap().get_audio_processing_config(track_id)
 }
 
 /// Sets the provided `OnDeviceChangeCallback` as the callback to be called

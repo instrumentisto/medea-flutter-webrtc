@@ -294,6 +294,7 @@ impl Webrtc {
         };
 
         let src = if let Some(src) = self.audio_sources.get(&device_id) {
+            src.update_audio_processing(&caps.processing);
             Arc::clone(src)
         } else {
             let processing =
@@ -570,7 +571,7 @@ impl Webrtc {
     pub fn apply_audio_processing_config(
         &self,
         id: String,
-        new_conf: &api::AudioProcessingConfig,
+        conf: &api::AudioProcessingConfig,
     ) -> anyhow::Result<()> {
         let id = AudioTrackId::from(id);
         let Some(track) = self.audio_tracks.get_mut(&(id, TrackOrigin::Local))
@@ -582,25 +583,45 @@ impl Webrtc {
             bail!("Cannot change audio processing of remote media tracks");
         };
 
-        let mut conf = src.ap.config();
-        if let Some(aec) = new_conf.echo_cancellation {
-            conf.set_echo_cancellation_enabled(aec);
-        }
-        if let Some(hpf) = new_conf.high_pass_filter {
-            conf.set_high_pass_filter_enabled(hpf);
-        }
-        if let Some(agc) = new_conf.auto_gain_control {
-            conf.set_gain_controller_enabled(agc);
-        }
-        if let Some(ns) = new_conf.noise_suppression {
-            conf.set_noise_suppression_enabled(ns);
-        }
-        if let Some(nsl) = new_conf.noise_suppression_level {
-            conf.set_noise_suppression_level(nsl.into());
-        }
-        src.ap.apply_config(&conf);
+        src.update_audio_processing(conf);
 
         Ok(())
+    }
+
+    /// Applies the provided [`api::AudioProcessingConfig`] to the
+    /// [`sys::AudioSourceInterface`] of the reffered local audio track.
+    ///
+    /// # Errors
+    ///
+    /// If the provided [`AudioTrackId`] referes a remote track.
+    pub fn get_audio_processing_config(
+        &self,
+        id: String,
+    ) -> anyhow::Result<api::AudioProcessingConfig> {
+        let id = AudioTrackId::from(id);
+        let Some(track) = self.audio_tracks.get_mut(&(id, TrackOrigin::Local))
+        else {
+            return Ok(api::AudioProcessingConfig::default());
+        };
+
+        let MediaTrackSource::Local(src) = &track.source else {
+            bail!("Cannot change audio processing of remote media tracks");
+        };
+
+        let mut conf = src.ap.config();
+        let auto_gain_control = conf.get_gain_controller_enabled();
+        let high_pass_filter = conf.get_high_pass_filter_enabled();
+        let noise_suppression = conf.get_noise_suppression_enabled();
+        let noise_suppression_level = conf.get_noise_suppression_level();
+        let echo_cancellation = conf.get_echo_cancellation_enabled();
+
+        Ok(api::AudioProcessingConfig {
+            auto_gain_control: Some(auto_gain_control),
+            high_pass_filter: Some(high_pass_filter),
+            noise_suppression: Some(noise_suppression),
+            noise_suppression_level: Some(noise_suppression_level.into()),
+            echo_cancellation: Some(echo_cancellation),
+        })
     }
 }
 
@@ -1471,6 +1492,28 @@ impl AudioSource {
         if observers.is_empty() {
             self.src.unsubscribe();
         }
+    }
+
+    /// Applies the provided [`api::AudioProcessingConfig`] to the
+    /// [`sys::AudioProcessing`] of this [`AudioSource`].
+    fn update_audio_processing(&self, new_conf: &api::AudioProcessingConfig) {
+        let mut conf = self.ap.config();
+        if let Some(aec) = new_conf.echo_cancellation {
+            conf.set_echo_cancellation_enabled(aec);
+        }
+        if let Some(hpf) = new_conf.high_pass_filter {
+            conf.set_high_pass_filter_enabled(hpf);
+        }
+        if let Some(agc) = new_conf.auto_gain_control {
+            conf.set_gain_controller_enabled(agc);
+        }
+        if let Some(ns) = new_conf.noise_suppression {
+            conf.set_noise_suppression_enabled(ns);
+        }
+        if let Some(nsl) = new_conf.noise_suppression_level {
+            conf.set_noise_suppression_level(nsl.into());
+        }
+        self.ap.apply_config(&conf);
     }
 }
 

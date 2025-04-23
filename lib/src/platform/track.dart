@@ -83,6 +83,7 @@ abstract class MediaStreamTrack {
   /// Indicates whether the following function are supported for this
   /// [MediaStreamTrack]:
   /// - [MediaStreamTrack.setNoiseSuppressionEnabled]
+  /// - [MediaStreamTrack.setNoiseSuppressionLevel]
   /// - [MediaStreamTrack.setHighPassFilterEnabled]
   /// - [MediaStreamTrack.setEchoCancellationEnabled]
   /// - [MediaStreamTrack.setAutoGainControlEnabled]
@@ -93,6 +94,12 @@ abstract class MediaStreamTrack {
   }
 
   Future<void> setNoiseSuppressionEnabled(bool enabled) {
+    throw 'setNoiseSuppressionEnabled is only support for local audio tracks '
+        'on desktop platforms. isAudioProcessingAvailable() should be called '
+        'before trying to call setNoiseSuppressionEnabled';
+  }
+
+  Future<void> setNoiseSuppressionLevel(NoiseSuppressionLevel level) {
     throw 'setNoiseSuppressionEnabled is only support for local audio tracks '
         'on desktop platforms. isAudioProcessingAvailable() should be called '
         'before trying to call setNoiseSuppressionEnabled';

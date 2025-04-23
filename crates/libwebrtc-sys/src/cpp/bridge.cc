@@ -1221,6 +1221,35 @@ std::unique_ptr<AudioProcessingConfig> audio_processing_get_config(
   return std::make_unique<AudioProcessingConfig>(ap->GetConfig());
 }
 
+// Returns whether AGC (auto gain control) is enabled in the provided
+// `AudioProcessingConfig`.
+bool config_gain_controller1_get_enabled(AudioProcessingConfig& config) {
+  return config.gain_controller1.enabled;
+}
+
+// Returns whether high pass filter is enabled in the provided
+// `AudioProcessingConfig`.
+bool config_high_pass_filter_get_enabled(AudioProcessingConfig& config) {
+  return config.high_pass_filter.enabled;
+}
+
+// Returns whether echo cancellation is enabled in the provided
+// `AudioProcessingConfig`.
+bool config_echo_cancellation_get_enabled(AudioProcessingConfig& config) {
+  return config.echo_canceller.enabled;
+}
+
+// Returns whether noise supression is enabled in the provided
+// `AudioProcessingConfig`.
+bool config_noise_suppression_get_enabled(AudioProcessingConfig& config) {
+  return config.noise_suppression.enabled;
+}
+
+// Returns noise suppression level in the provided `AudioProcessingConfig`.
+NoiseSuppressionLevel config_noise_suppression_get_level(AudioProcessingConfig& config) {
+  return config.noise_suppression.level;
+}
+
 // Applies the provided  `AudioProcessingConfig` to the provided
 // `AudioProcessing`.
 void audio_processing_apply_config(const AudioProcessing& ap,

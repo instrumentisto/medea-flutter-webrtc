@@ -13,6 +13,21 @@ class DisplayConstraints {
   }
 }
 
+/// Audio processing noise suppression aggressiveness.
+enum NoiseSuppressionLevel {
+  /// Minimal noise suppression.
+  low,
+
+  /// A moderate level of suppression.
+  moderate,
+
+  /// Aggressive noise suppression.
+  high,
+
+  /// Maximum suppression.
+  veryHigh,
+}
+
 /// Possible directions in which a camera may produce video.
 enum FacingMode {
   /// Indicates that video source is facing toward the user (this includes, for
@@ -80,6 +95,9 @@ class AudioConstraints implements DeviceMediaConstraints {
   /// Indicator whether to enables noise suppression to reduce background sounds.
   bool? noiseSuppression;
 
+  /// Sets the level of aggressiveness for noise suppression if enabled.
+  NoiseSuppressionLevel? noiseSuppressionLevel;
+
   /// Indicator whether to automatically enables echo cancellation to prevent
   /// feedback.
   bool? echoCancellation;
@@ -96,6 +114,10 @@ class AudioConstraints implements DeviceMediaConstraints {
       map['deviceId'] = deviceId;
     }
     map['googAutoGainControl'] = (autoGainControl ?? true).toString();
+    map['googNoiseSuppression'] = (noiseSuppression ?? true).toString();
+    map['googEchoCancellation'] = (echoCancellation ?? true).toString();
+    map['googHighpassFilter'] = (highPassFilter ?? true).toString();
+
     return map;
   }
 }
