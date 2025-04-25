@@ -1186,8 +1186,7 @@ void config_gain_controller1_set_enabled(AudioProcessingConfig& config,
   config.gain_controller1.enable_limiter = true;
 }
 
-// Enables/disables high pass filter in the provided
-// `AudioProcessingConfig`.
+// Enables/disables high pass filter in the provided `AudioProcessingConfig`.
 void config_high_pass_filter_set_enabled(AudioProcessingConfig& config,
                                          bool enabled) {
   config.high_pass_filter.enabled = enabled;
@@ -1201,15 +1200,13 @@ void config_echo_cancellation_set_enabled(AudioProcessingConfig& config,
   config.echo_canceller.mobile_mode = false;
 }
 
-// Enables/disables noise suppression in the provided
-// `AudioProcessingConfig`.
+// Enables/disables noise suppression in the provided `AudioProcessingConfig`.
 void config_noise_suppression_set_enabled(AudioProcessingConfig& config,
                                           bool enabled) {
   config.noise_suppression.enabled = enabled;
 }
 
-// Configures noise suppression level in the provided
-// `AudioProcessingConfig`.
+// Configures noise suppression level in the provided `AudioProcessingConfig`.
 void config_noise_suppression_set_level(AudioProcessingConfig& config,
                                         NoiseSuppressionLevel level) {
   config.noise_suppression.level = level;
@@ -1221,32 +1218,33 @@ std::unique_ptr<AudioProcessingConfig> audio_processing_get_config(
   return std::make_unique<AudioProcessingConfig>(ap->GetConfig());
 }
 
-// Returns whether AGC (auto gain control) is enabled in the provided
+// Indicates whether AGC (auto gain control) is enabled in the provided
 // `AudioProcessingConfig`.
 bool config_gain_controller1_get_enabled(AudioProcessingConfig& config) {
   return config.gain_controller1.enabled;
 }
 
-// Returns whether high pass filter is enabled in the provided
+// Indicates whether high pass filter is enabled in the provided
 // `AudioProcessingConfig`.
 bool config_high_pass_filter_get_enabled(AudioProcessingConfig& config) {
   return config.high_pass_filter.enabled;
 }
 
-// Returns whether echo cancellation is enabled in the provided
+// Indicates whether echo cancellation is enabled in the provided
 // `AudioProcessingConfig`.
 bool config_echo_cancellation_get_enabled(AudioProcessingConfig& config) {
   return config.echo_canceller.enabled;
 }
 
-// Returns whether noise supression is enabled in the provided
+// Indicates whether noise suppression is enabled in the provided
 // `AudioProcessingConfig`.
 bool config_noise_suppression_get_enabled(AudioProcessingConfig& config) {
   return config.noise_suppression.enabled;
 }
 
 // Returns noise suppression level in the provided `AudioProcessingConfig`.
-NoiseSuppressionLevel config_noise_suppression_get_level(AudioProcessingConfig& config) {
+NoiseSuppressionLevel config_noise_suppression_get_level(
+    AudioProcessingConfig& config) {
   return config.noise_suppression.level;
 }
 

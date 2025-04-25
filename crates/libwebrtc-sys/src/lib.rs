@@ -675,7 +675,7 @@ impl AudioProcessingConfig {
         webrtc::config_gain_controller1_set_enabled(self.0.pin_mut(), enabled);
     }
 
-    /// Enables/disables noise suppression in [`AudioProcessingConfig`].
+    /// Enables/disables noise suppression in this [`AudioProcessingConfig`].
     pub fn set_noise_suppression_enabled(&mut self, enabled: bool) {
         webrtc::config_noise_suppression_set_enabled(self.0.pin_mut(), enabled);
     }
@@ -700,31 +700,31 @@ impl AudioProcessingConfig {
         webrtc::config_echo_cancellation_set_enabled(self.0.pin_mut(), enabled);
     }
 
-    /// Returns whether auto gain control is enabled in this
+    /// Indicates whether auto gain control is enabled in this
     /// [`AudioProcessingConfig`].
     pub fn get_gain_controller_enabled(&mut self) -> bool {
         webrtc::config_gain_controller1_get_enabled(self.0.pin_mut())
     }
 
-    /// Returns whether noise suppression is enabled in
+    /// Indicates whether noise suppression is enabled in this
     /// [`AudioProcessingConfig`].
     pub fn get_noise_suppression_enabled(&mut self) -> bool {
         webrtc::config_noise_suppression_get_enabled(self.0.pin_mut())
     }
 
-    /// Returns configured [`NoiseSuppressionLevel`] of this
+    /// Returns the configured [`NoiseSuppressionLevel`] of this
     /// [`AudioProcessingConfig`].
     pub fn get_noise_suppression_level(&mut self) -> NoiseSuppressionLevel {
         webrtc::config_noise_suppression_get_level(self.0.pin_mut())
     }
 
-    /// Returns whether high pass filter is enabled in this
+    /// Indicates whether high pass filter is enabled in this
     /// [`AudioProcessingConfig`].
     pub fn get_high_pass_filter_enabled(&mut self) -> bool {
         webrtc::config_high_pass_filter_get_enabled(self.0.pin_mut())
     }
 
-    /// Returns whether acoustic echo cancellation is enabled in this
+    /// Indicates whether acoustic echo cancellation is enabled in this
     /// [`AudioProcessingConfig`].
     pub fn get_echo_cancellation_enabled(&mut self) -> bool {
         webrtc::config_echo_cancellation_get_enabled(self.0.pin_mut())

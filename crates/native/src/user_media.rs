@@ -563,11 +563,11 @@ impl Webrtc {
     }
 
     /// Applies the provided [`api::AudioProcessingConfig`] to the
-    /// [`sys::AudioSourceInterface`] of the reffered local audio track.
+    /// [`sys::AudioSourceInterface`] of the referred local [`AudioTrack`].
     ///
     /// # Errors
     ///
-    /// If the provided [`AudioTrackId`] referes a remote track.
+    /// If the provided [`AudioTrackId`] refers to a remote [`AudioTrack`].
     pub fn apply_audio_processing_config(
         &self,
         id: String,
@@ -580,7 +580,7 @@ impl Webrtc {
         };
 
         let MediaTrackSource::Local(src) = &track.source else {
-            bail!("Cannot change audio processing of remote media tracks");
+            bail!("Cannot change audio processing of remote `AudioTrack`");
         };
 
         src.update_audio_processing(conf);
@@ -588,12 +588,12 @@ impl Webrtc {
         Ok(())
     }
 
-    /// Applies the provided [`api::AudioProcessingConfig`] to the
-    /// [`sys::AudioSourceInterface`] of the reffered local audio track.
+    /// Returns the [`api::AudioProcessingConfig`] of the
+    /// [`sys::AudioSourceInterface`] of the referred local [`AudioTrack`].
     ///
     /// # Errors
     ///
-    /// If the provided [`AudioTrackId`] referes a remote track.
+    /// If the provided [`AudioTrackId`] refers to a remote [`AudioTrack`].
     pub fn get_audio_processing_config(
         &self,
         id: String,
@@ -605,7 +605,7 @@ impl Webrtc {
         };
 
         let MediaTrackSource::Local(src) = &track.source else {
-            bail!("Cannot change audio processing of remote media tracks");
+            bail!("Cannot get audio processing of remote `AudioTrack`");
         };
 
         let mut conf = src.ap.config();

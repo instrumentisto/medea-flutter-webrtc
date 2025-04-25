@@ -1459,13 +1459,20 @@ pub(crate) mod webrtc {
         kBundlePolicyMaxCompat,
     }
 
-    /// [`NoiseSuppression`] level,
+    /// Possible noise suppression levels.
     #[derive(Debug, Eq, Hash, PartialEq)]
     #[repr(i32)]
     pub enum NoiseSuppressionLevel {
+        /// Minimal noise suppression.
         kLow,
+
+        /// Moderate level of suppression.
         kModerate,
+
+        /// Aggressive noise suppression.
         kHigh,
+
+        /// Maximum suppression.
         kVeryHigh,
     }
 
@@ -1642,7 +1649,7 @@ pub(crate) mod webrtc {
             enabled: bool,
         );
 
-        /// Configures noise suppression level in the provided
+        /// Configures [`NoiseSuppressionLevel`] in the provided
         /// [`AudioProcessingConfig`].
         pub fn config_noise_suppression_set_level(
             config: Pin<&mut AudioProcessingConfig>,
@@ -1669,31 +1676,31 @@ pub(crate) mod webrtc {
             ap: &AudioProcessing,
         ) -> UniquePtr<AudioProcessingConfig>;
 
-        /// Returns whether AGC (auto gain control) is enabled in the provided
+        /// Indicates whether AGC (auto gain control) is enabled in the provided
         /// [`AudioProcessingConfig`].
         pub fn config_gain_controller1_get_enabled(
             config: Pin<&mut AudioProcessingConfig>,
         ) -> bool;
 
-        /// Returns whether noise supression is enabled in the provided
+        /// Indicates whether noise suppression is enabled in the provided
         /// [`AudioProcessingConfig`].
         pub fn config_noise_suppression_get_enabled(
             config: Pin<&mut AudioProcessingConfig>,
         ) -> bool;
 
-        /// Returns noise suppression level in the provided
+        /// Returns [`NoiseSuppressionLevel`] in the provided
         /// [`AudioProcessingConfig`].
         pub fn config_noise_suppression_get_level(
             config: Pin<&mut AudioProcessingConfig>,
         ) -> NoiseSuppressionLevel;
 
-        /// Returns whether high pass filter is enabled in the provided
+        /// Indicates whether high pass filter is enabled in the provided
         /// [`AudioProcessingConfig`].
         pub fn config_high_pass_filter_get_enabled(
             config: Pin<&mut AudioProcessingConfig>,
         ) -> bool;
 
-        /// Returns whether echo cancellation is enabled in the provided
+        /// Indicates whether echo cancellation is enabled in the provided
         /// [`AudioProcessingConfig`].
         pub fn config_echo_cancellation_get_enabled(
             config: Pin<&mut AudioProcessingConfig>,

@@ -2114,7 +2114,7 @@ pub struct AudioConstraints {
     /// First device will be chosen if an empty [`String`] is provided.
     pub device_id: Option<String>,
 
-    /// Audio processing configuration.
+    /// Audio processing configuration of the [`MediaStreamTrack`].
     pub processing: AudioProcessingConfig,
 }
 
@@ -2125,16 +2125,19 @@ pub struct AudioProcessingConfig {
     /// to maintain a steady overall volume level.
     pub auto_gain_control: Option<bool>,
 
-    /// Enables a high-pass filter to eliminate low-frequency noise.
+    /// Indicator whether a high-pass filter should be enabled to eliminate
+    /// low-frequency noise.
     pub high_pass_filter: Option<bool>,
 
-    /// Enables noise suppression to reduce background sounds.
+    /// Indicator whether noise suppression should be enabled to reduce
+    /// background sounds.
     pub noise_suppression: Option<bool>,
 
-    /// Sets the level of aggressiveness for noise suppression.
+    /// Level of aggressiveness for noise suppression.
     pub noise_suppression_level: Option<NoiseSuppressionLevel>,
 
-    /// Enables echo cancellation to prevent feedback.
+    /// Indicator whether echo cancellation should be enabled to prevent
+    /// feedback.
     pub echo_cancellation: Option<bool>,
 }
 
@@ -2144,7 +2147,7 @@ pub enum NoiseSuppressionLevel {
     /// Minimal noise suppression.
     Low,
 
-    /// A moderate level of suppression.
+    /// Moderate level of suppression.
     Moderate,
 
     /// Aggressive noise suppression.
@@ -2997,7 +3000,8 @@ pub fn set_audio_level_observer_enabled(
     );
 }
 
-/// Applies the given [`AudioProcessingConfig`] to specified local audio track.
+/// Applies the provided [`AudioProcessingConfig`] to specified local audio
+/// track.
 #[expect(clippy::needless_pass_by_value, reason = "FFI")]
 pub fn update_audio_processing(
     track_id: String,
