@@ -376,7 +376,8 @@ Future<void> setAudioLevelObserverEnabled({
   enabled: enabled,
 );
 
-/// Applies the given [`AudioProcessingConfig`] to specified local audio track.
+/// Applies the provided [`AudioProcessingConfig`] to specified local audio
+/// track.
 Future<void> updateAudioProcessing({
   required String trackId,
   required AudioProcessingConfig conf,
@@ -435,7 +436,7 @@ class AudioConstraints {
   /// First device will be chosen if an empty [`String`] is provided.
   final String? deviceId;
 
-  /// Audio processing configuration.
+  /// Audio processing configuration of the [`MediaStreamTrack`].
   final AudioProcessingConfig processing;
 
   const AudioConstraints({this.deviceId, required this.processing});
@@ -458,16 +459,19 @@ class AudioProcessingConfig {
   /// to maintain a steady overall volume level.
   final bool? autoGainControl;
 
-  /// Enables a high-pass filter to eliminate low-frequency noise.
+  /// Indicator whether a high-pass filter should be enabled to eliminate
+  /// low-frequency noise.
   final bool? highPassFilter;
 
-  /// Enables noise suppression to reduce background sounds.
+  /// Indicator whether noise suppression should be enabled to reduce
+  /// background sounds.
   final bool? noiseSuppression;
 
-  /// Sets the level of aggressiveness for noise suppression.
+  /// Level of aggressiveness for noise suppression.
   final NoiseSuppressionLevel? noiseSuppressionLevel;
 
-  /// Enables echo cancellation to prevent feedback.
+  /// Indicator whether echo cancellation should be enabled to prevent
+  /// feedback.
   final bool? echoCancellation;
 
   const AudioProcessingConfig({
@@ -936,7 +940,7 @@ enum NoiseSuppressionLevel {
   /// Minimal noise suppression.
   low,
 
-  /// A moderate level of suppression.
+  /// Moderate level of suppression.
   moderate,
 
   /// Aggressive noise suppression.

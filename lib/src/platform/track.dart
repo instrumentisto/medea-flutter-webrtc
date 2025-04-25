@@ -88,7 +88,7 @@ abstract class MediaStreamTrack {
   /// - [MediaStreamTrack.setEchoCancellationEnabled]
   /// - [MediaStreamTrack.setAutoGainControlEnabled]
   ///
-  /// Only supported for local audio tracks on desktop platforms.
+  /// Only supported for local audio [MediaStreamTrack]s on desktop platforms.
   bool isAudioProcessingAvailable() {
     return false;
   }

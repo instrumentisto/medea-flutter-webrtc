@@ -18,7 +18,7 @@ enum NoiseSuppressionLevel {
   /// Minimal noise suppression.
   low,
 
-  /// A moderate level of suppression.
+  /// Moderate level of suppression.
   moderate,
 
   /// Aggressive noise suppression.
@@ -92,17 +92,17 @@ class AudioConstraints implements DeviceMediaConstraints {
   /// source media to maintain a steady overall volume level.
   bool? autoGainControl;
 
-  /// Indicator whether to enables noise suppression to reduce background sounds.
+  /// Indicator whether to enable noise suppression to reduce background sounds.
   bool? noiseSuppression;
 
   /// Sets the level of aggressiveness for noise suppression if enabled.
   NoiseSuppressionLevel? noiseSuppressionLevel;
 
-  /// Indicator whether to automatically enables echo cancellation to prevent
+  /// Indicator whether to automatically enable echo cancellation to prevent
   /// feedback.
   bool? echoCancellation;
 
-  /// Indicator whether to enables a high-pass filter to eliminate low-frequency
+  /// Indicator whether to enable a high-pass filter to eliminate low-frequency
   /// noise.
   bool? highPassFilter;
 
