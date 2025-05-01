@@ -3,8 +3,6 @@ import 'dart:io' show Platform;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';
-import 'package:medea_flutter_webrtc/src/api/bridge/api.dart'
-    show getAudioProcessingConfig;
 import 'package:integration_test/integration_test.dart';
 
 void main() {
@@ -1440,6 +1438,13 @@ void main() {
   ) async {
     if (Platform.isAndroid || Platform.isIOS) {
       // Only supported on desktop.
+
+      var capsAudioOnly = DeviceConstraints();
+      capsAudioOnly.audio.mandatory = AudioConstraints();
+
+      var track = (await getUserMedia(capsAudioOnly))[0];
+      expect(track.isAudioProcessingAvailable(), isFalse);
+
       return;
     }
 
@@ -1449,15 +1454,14 @@ void main() {
       capsAudioOnly.audio.mandatory = AudioConstraints();
 
       var track = (await getUserMedia(capsAudioOnly))[0];
+      expect(track.isAudioProcessingAvailable(), isTrue);
 
-      var conf = await getAudioProcessingConfig(trackId: track.id());
-
-      expect(conf.noiseSuppression, isTrue);
-      expect(conf.highPassFilter, isTrue);
-      expect(conf.echoCancellation, isTrue);
-      expect(conf.autoGainControl, isTrue);
+      expect(await track.isNoiseSuppressionEnabled(), isTrue);
+      expect(track.isHighPassFilterEnabled(), isTrue);
+      expect(track.isEchoCancellationEnabled(), isTrue);
+      expect(track.isAutoGainControlEnabled(), isTrue);
       expect(
-        conf.noiseSuppressionLevel!.index,
+        (await track.getNoiseSuppressionLevel()).index,
         equals(NoiseSuppressionLevel.veryHigh.index),
       );
 
@@ -1477,14 +1481,12 @@ void main() {
 
       var track = (await getUserMedia(capsAudioOnly))[0];
 
-      var conf = await getAudioProcessingConfig(trackId: track.id());
-
-      expect(conf.noiseSuppression, isFalse);
-      expect(conf.highPassFilter, isFalse);
-      expect(conf.echoCancellation, isFalse);
-      expect(conf.autoGainControl, isFalse);
+      expect(await track.isNoiseSuppressionEnabled(), isFalse);
+      expect(await track.isHighPassFilterEnabled(), isFalse);
+      expect(await track.isEchoCancellationEnabled(), isFalse);
+      expect(await track.isAutoGainControlEnabled(), isFalse);
       expect(
-        conf.noiseSuppressionLevel!.index,
+        (await track.getNoiseSuppressionLevel()).index,
         equals(NoiseSuppressionLevel.low.index),
       );
 
@@ -1504,14 +1506,12 @@ void main() {
       await track.setAutoGainControlEnabled(false);
       await track.setNoiseSuppressionLevel(NoiseSuppressionLevel.low);
 
-      var conf = await getAudioProcessingConfig(trackId: track.id());
-
-      expect(conf.noiseSuppression, isFalse);
-      expect(conf.highPassFilter, isFalse);
-      expect(conf.echoCancellation, isFalse);
-      expect(conf.autoGainControl, isFalse);
+      expect(await track.isNoiseSuppressionEnabled(), isFalse);
+      expect(await track.isHighPassFilterEnabled(), isFalse);
+      expect(await track.isEchoCancellationEnabled(), isFalse);
+      expect(await track.isAutoGainControlEnabled(), isFalse);
       expect(
-        conf.noiseSuppressionLevel!.index,
+        (await track.getNoiseSuppressionLevel()).index,
         equals(NoiseSuppressionLevel.low.index),
       );
 
@@ -1537,14 +1537,12 @@ void main() {
       await track.setAutoGainControlEnabled(true);
       await track.setNoiseSuppressionLevel(NoiseSuppressionLevel.veryHigh);
 
-      var conf = await getAudioProcessingConfig(trackId: track.id());
-
-      expect(conf.noiseSuppression, isTrue);
-      expect(conf.highPassFilter, isTrue);
-      expect(conf.echoCancellation, isTrue);
-      expect(conf.autoGainControl, isTrue);
+      expect(await track.isNoiseSuppressionEnabled(), isTrue);
+      expect(await track.isHighPassFilterEnabled(), isTrue);
+      expect(await track.isEchoCancellationEnabled(), isTrue);
+      expect(await track.isAutoGainControlEnabled(), isTrue);
       expect(
-        conf.noiseSuppressionLevel!.index,
+        (await track.getNoiseSuppressionLevel()).index,
         equals(NoiseSuppressionLevel.veryHigh.index),
       );
 
