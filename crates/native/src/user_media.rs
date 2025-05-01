@@ -603,7 +603,7 @@ impl Webrtc {
         let id = AudioTrackId::from(id);
         let Some(track) = self.audio_tracks.get_mut(&(id, TrackOrigin::Local))
         else {
-            // This means that the `AudioTrack` was already removed, so to omit 
+            // This means that the `AudioTrack` was already removed, so to omit
             // erroring something should be returned. It shouldn't really matter
             // what is returned, so default values are just okay.
             return Ok(api::AudioProcessingConfig {
