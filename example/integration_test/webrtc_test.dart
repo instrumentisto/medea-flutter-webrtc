@@ -1444,8 +1444,25 @@ void main() {
 
       var track = (await getUserMedia(capsAudioOnly))[0];
       expect(track.isAudioProcessingAvailable(), isFalse);
+      expect(track.setNoiseSuppressionEnabled(true), throwsUnsupportedError);
+      expect(track.isNoiseSuppressionEnabled(), throwsUnsupportedError);
+
+      await track.stop();
 
       return;
+    }
+
+    {
+      // Does not work for video tracks
+      var capsVideoOnly = DeviceConstraints();
+      capsVideoOnly.video.mandatory = DeviceVideoConstraints();
+
+      var track = (await getUserMedia(capsVideoOnly))[0];
+      expect(track.isAudioProcessingAvailable(), isFalse);
+      expect(track.setNoiseSuppressionEnabled(true), throwsUnsupportedError);
+      expect(track.isNoiseSuppressionEnabled(), throwsUnsupportedError);
+
+      await track.stop();
     }
 
     {
