@@ -1457,9 +1457,9 @@ void main() {
       expect(track.isAudioProcessingAvailable(), isTrue);
 
       expect(await track.isNoiseSuppressionEnabled(), isTrue);
-      expect(track.isHighPassFilterEnabled(), isTrue);
-      expect(track.isEchoCancellationEnabled(), isTrue);
-      expect(track.isAutoGainControlEnabled(), isTrue);
+      expect(await track.isHighPassFilterEnabled(), isTrue);
+      expect(await track.isEchoCancellationEnabled(), isTrue);
+      expect(await track.isAutoGainControlEnabled(), isTrue);
       expect(
         (await track.getNoiseSuppressionLevel()).index,
         equals(NoiseSuppressionLevel.veryHigh.index),
