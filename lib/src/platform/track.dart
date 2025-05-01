@@ -118,12 +118,14 @@ abstract class MediaStreamTrack {
     throw _apNotSupported('setEchoCancellationEnabled');
   }
 
-  /// Enables/disables automatic gain control in the provided [MediaStreamTrack].
+  /// Enables/disables automatic gain control in the provided
+  /// [MediaStreamTrack].
   Future<void> setAutoGainControlEnabled(bool enabled) {
     throw _apNotSupported('setAutoGainControlEnabled');
   }
 
-  /// Indicates whether noise suppression is enabled in the provided [MediaStreamTrack].
+  /// Indicates whether noise suppression is enabled in the provided
+  /// [MediaStreamTrack].
   Future<bool> isNoiseSuppressionEnabled() {
     throw _apNotSupported('isNoiseSuppressionEnabled');
   }
@@ -132,17 +134,20 @@ abstract class MediaStreamTrack {
     throw _apNotSupported('getNoiseSuppressionLevel');
   }
 
-  /// Indicates whether high pass filter is enabled in the provided [MediaStreamTrack].
+  /// Indicates whether high pass filter is enabled in the provided
+  /// [MediaStreamTrack].
   Future<bool> isHighPassFilterEnabled() {
     throw _apNotSupported('isHighPassFilterEnabled');
   }
 
-  /// Indicates whether acoustic echo cancellation is enabled in the provided [MediaStreamTrack].
+  /// Indicates whether acoustic echo cancellation is enabled in the provided
+  /// [MediaStreamTrack].
   Future<bool> isEchoCancellationEnabled() {
     throw _apNotSupported('isEchoCancellationEnabled');
   }
 
-  /// Indicates whether automatic gain control is enabled in the provided [MediaStreamTrack].
+  /// Indicates whether automatic gain control is enabled in the provided
+  /// [MediaStreamTrack].
   Future<bool> isAutoGainControlEnabled() {
     throw _apNotSupported('isAutoGainControlEnabled');
   }
@@ -173,7 +178,7 @@ abstract class MediaStreamTrack {
   FutureOr<int?> height();
 }
 
-/// Creates an [UnsupportedError] to be thrown from audio processing methods.
+/// Creates an [UnsupportedError] to be thrown from audio processing [method]s.
 UnsupportedError _apNotSupported(String method) {
   return UnsupportedError(
     '$method is only support for local audio tracks '

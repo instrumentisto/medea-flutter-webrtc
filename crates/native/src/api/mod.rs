@@ -2087,7 +2087,7 @@ pub struct VideoConstraints {
     /// Identifier of the device generating the content of the
     /// [`MediaStreamTrack`].
     ///
-    /// First device will be chosen if an empty [`String`] is provided.
+    /// The first device will be chosen if an empty [`String`] is provided.
     pub device_id: Option<String>,
 
     /// Width in pixels.
@@ -2114,11 +2114,11 @@ pub struct AudioConstraints {
     /// First device will be chosen if an empty [`String`] is provided.
     pub device_id: Option<String>,
 
-    /// Audio processing configuration of the [`MediaStreamTrack`].
+    /// Audio processing configuration constraints of the [`MediaStreamTrack`].
     pub processing: AudioProcessingConstraints,
 }
 
-/// Audio processing configuration constraints.
+/// Constraints of an [`AudioProcessingConfig`].
 #[derive(Debug, Default)]
 pub struct AudioProcessingConstraints {
     /// Indicator whether the audio volume level should be automatically tuned
@@ -2141,7 +2141,7 @@ pub struct AudioProcessingConstraints {
     pub echo_cancellation: Option<bool>,
 }
 
-/// Audio processing configuration for some local audio [MediaStreamTrack].
+/// Audio processing configuration for some local audio [`MediaStreamTrack`].
 #[expect(clippy::struct_excessive_bools, reason = "that's ok")]
 #[derive(Debug)]
 pub struct AudioProcessingConfig {
