@@ -7,11 +7,12 @@
 *.swp
 profile
 
-.generated/
 DerivedData/
 build/
 GeneratedPluginRegistrant.h
 GeneratedPluginRegistrant.m
+
+.generated/
 
 *.pbxuser
 *.mode1v3
