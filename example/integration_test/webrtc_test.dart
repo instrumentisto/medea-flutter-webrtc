@@ -9,8 +9,10 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   setUpAll(() async {
-    await initFfiBridge();
-    await enableFakeMedia();
+    if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+      await initFfiBridge();
+      await enableFakeMedia();
+    }
   });
 
   testWidgets('Add transceiver', (WidgetTester tester) async {
