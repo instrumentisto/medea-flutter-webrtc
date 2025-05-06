@@ -20,22 +20,31 @@ All user visible changes to this project will be documented in this file. This p
     - `MediaStreamTrack.setEchoCancellationEnabled` method enabling/disabling acoustic echo cancellation for local audio `MediaStreamTrack`.
     - `MediaStreamTrack.setAutoGainControlEnabled` method enabling/disabling auto gain control for local audio `MediaStreamTrack`.
     - `AudioConstraints.noiseSuppression`, `AudioConstraints.noiseSuppressionLevel`, `AudioConstraints.highPassFilter`, `AudioConstraints.echoCancellation` fields to control audio processing when creating local audio `MediaStreamTrack`.
+- Support for getting audio processing settings for local audio `MediaStreamTrack`s on desktop: ([#199])
+    - `MediaStreamTrack.isNoiseSuppressionEnabled` method checking whether noise suppression is enabled for local audio `MediaStreamTrack`.
+    - `MediaStreamTrack.getNoiseSuppressionLevel` method returning noise suppression level of local audio `MediaStreamTrack`.
+    - `MediaStreamTrack.isHighPassFilterEnabled` method checking whether high pass filter is enabled for local audio `MediaStreamTrack`.
+    - `MediaStreamTrack.isEchoCancellationEnabled` method checking whether acoustic echo cancellation is enabled for local audio `MediaStreamTrack`.
+    - `MediaStreamTrack.isAutoGainControlEnabled` method checking whether automatic gain control is enabled for local audio `MediaStreamTrack`.
 
 ### Changed
 
 - Upgraded [OpenAL] library to [1.24.3][openal-1.24.3] version. ([#193])
 - Increased default noise suppression level for local audio `MediaStreamTrack`s on desktop from `moderate` to `veryHigh`. ([#197])
-- Upgraded [libwebrtc] to [135.0.7049.114] version. ([#196])
+- Upgraded [libwebrtc] to [136.0.7103.59] version. ([#196])
 
 ### Fixed
 
 - Audio processing not working properly on multiple local audio sources. ([#195])
+- Default device video resolution to 640x480. ([#198])
 
 [#193]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/193
 [#195]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/195
 [#196]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/196
 [#197]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/197
-[135.0.7049.114]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/135.0.7049.114
+[#198]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/198
+[#199]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/199
+[136.0.7103.59]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/136.0.7103.59
 [openal-1.24.3]: https://github.com/kcat/openal-soft/releases/tag/1.24.3
 
 
