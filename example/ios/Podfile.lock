@@ -1,0 +1,35 @@
+PODS:
+  - Flutter (1.0.0)
+  - instrumentisto-libwebrtc-bin (136.0.7103.59)
+  - integration_test (0.0.1):
+    - Flutter
+  - medea_flutter_webrtc (0.13.4-dev):
+    - Flutter
+    - instrumentisto-libwebrtc-bin (= 136.0.7103.59)
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - integration_test (from `.symlinks/plugins/integration_test/ios`)
+  - medea_flutter_webrtc (from `.symlinks/plugins/medea_flutter_webrtc/ios`)
+
+SPEC REPOS:
+  trunk:
+    - instrumentisto-libwebrtc-bin
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  integration_test:
+    :path: ".symlinks/plugins/integration_test/ios"
+  medea_flutter_webrtc:
+    :path: ".symlinks/plugins/medea_flutter_webrtc/ios"
+
+SPEC CHECKSUMS:
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  instrumentisto-libwebrtc-bin: 61147bd2b1d547ad0cb5d1b9e70912c0ecf21b88
+  integration_test: 252f60fa39af5e17c3aa9899d35d908a0721b573
+  medea_flutter_webrtc: 3a48ebabbc73b9c03754b6573f3445ace86f6db7
+
+PODFILE CHECKSUM: 1dbc3cbd33fc238907ad8f1ddbe5de6cf2d9c193
+
+COCOAPODS: 1.16.2
