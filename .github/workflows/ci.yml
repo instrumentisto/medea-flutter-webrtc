@@ -292,9 +292,9 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 24
-          cores: 3
+          cores: 2
           target: google_apis
-          arch: x86_64
+          arch: arm64-v8a
           profile: Nexus 6
           script: make flutter.test.mobile
         if: ${{ matrix.platform == 'android' }}
