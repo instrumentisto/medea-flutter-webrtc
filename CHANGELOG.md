@@ -32,7 +32,6 @@ All user visible changes to this project will be documented in this file. This p
 - Upgraded [OpenAL] library to [1.24.3][openal-1.24.3] version. ([#193])
 - Upgraded [libwebrtc] to [136.0.7103.59] version. ([#196])
 - Increased default noise suppression level for local audio `MediaStreamTrack`s on desktop from `moderate` to `veryHigh`. ([#197])
-- Upgraded [libwebrtc] to [136.0.7103.59] version. ([#196])
 
 ### Fixed
 
