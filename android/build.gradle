@@ -28,7 +28,7 @@ apply plugin: "kotlin-android"
 android {
     namespace = "com.instrumentisto.medea_flutter_webrtc"
 
-    compileSdk = 35
+    compileSdk = 34
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -44,7 +44,7 @@ android {
     }
 
     defaultConfig {
-        minSdk = 21
+        minSdk = 24
         consumerProguardFiles("proguard-rules.pro")
     }
 
