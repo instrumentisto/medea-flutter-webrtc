@@ -249,17 +249,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # TODO: Run tests on iOS.
         platform:
           - android
-#          - ios
+          - ios
           - linux
           - macos
           - windows
     runs-on: ${{ (matrix.platform == 'linux' &&   'ubuntu-latest')
               || (matrix.platform == 'windows' && 'windows-latest')
-              || (matrix.platform == 'ios' &&     'macos-14')
-              ||                                  'macos-13' }}
+              || (matrix.platform == 'ios' &&     'macos-latest')
+              ||                                  'macos-latest' }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@v1
