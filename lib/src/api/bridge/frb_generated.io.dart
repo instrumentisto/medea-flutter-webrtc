@@ -27,8 +27,8 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
       wire._rust_arc_decrement_strong_count_RustOpaque_ArcPeerConnectionPtr;
 
   CrossPlatformFinalizerArg
-  get rust_arc_decrement_strong_count_ArcRtpEncodingParametersPtr =>
-      wire._rust_arc_decrement_strong_count_RustOpaque_ArcRtpEncodingParametersPtr;
+  get rust_arc_decrement_strong_count_ArcRtpEncodingParametersPtr => wire
+      ._rust_arc_decrement_strong_count_RustOpaque_ArcRtpEncodingParametersPtr;
 
   CrossPlatformFinalizerArg
   get rust_arc_decrement_strong_count_ArcRtpParametersPtr =>

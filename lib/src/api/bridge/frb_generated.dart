@@ -6451,11 +6451,10 @@ class ArcPeerConnectionImpl extends RustOpaque implements ArcPeerConnection {
         RustLib.instance.api.rust_arc_increment_strong_count_ArcPeerConnection,
     rustArcDecrementStrongCount:
         RustLib.instance.api.rust_arc_decrement_strong_count_ArcPeerConnection,
-    rustArcDecrementStrongCountPtr:
-        RustLib
-            .instance
-            .api
-            .rust_arc_decrement_strong_count_ArcPeerConnectionPtr,
+    rustArcDecrementStrongCountPtr: RustLib
+        .instance
+        .api
+        .rust_arc_decrement_strong_count_ArcPeerConnectionPtr,
   );
 }
 
@@ -6473,21 +6472,18 @@ class ArcRtpEncodingParametersImpl extends RustOpaque
   ) : super.frbInternalSseDecode(ptr, externalSizeOnNative, _kStaticData);
 
   static final _kStaticData = RustArcStaticData(
-    rustArcIncrementStrongCount:
-        RustLib
-            .instance
-            .api
-            .rust_arc_increment_strong_count_ArcRtpEncodingParameters,
-    rustArcDecrementStrongCount:
-        RustLib
-            .instance
-            .api
-            .rust_arc_decrement_strong_count_ArcRtpEncodingParameters,
-    rustArcDecrementStrongCountPtr:
-        RustLib
-            .instance
-            .api
-            .rust_arc_decrement_strong_count_ArcRtpEncodingParametersPtr,
+    rustArcIncrementStrongCount: RustLib
+        .instance
+        .api
+        .rust_arc_increment_strong_count_ArcRtpEncodingParameters,
+    rustArcDecrementStrongCount: RustLib
+        .instance
+        .api
+        .rust_arc_decrement_strong_count_ArcRtpEncodingParameters,
+    rustArcDecrementStrongCountPtr: RustLib
+        .instance
+        .api
+        .rust_arc_decrement_strong_count_ArcRtpEncodingParametersPtr,
   );
 }
 
@@ -6508,11 +6504,10 @@ class ArcRtpParametersImpl extends RustOpaque implements ArcRtpParameters {
         RustLib.instance.api.rust_arc_increment_strong_count_ArcRtpParameters,
     rustArcDecrementStrongCount:
         RustLib.instance.api.rust_arc_decrement_strong_count_ArcRtpParameters,
-    rustArcDecrementStrongCountPtr:
-        RustLib
-            .instance
-            .api
-            .rust_arc_decrement_strong_count_ArcRtpParametersPtr,
+    rustArcDecrementStrongCountPtr: RustLib
+        .instance
+        .api
+        .rust_arc_decrement_strong_count_ArcRtpParametersPtr,
   );
 }
 
@@ -6533,10 +6528,9 @@ class ArcRtpTransceiverImpl extends RustOpaque implements ArcRtpTransceiver {
         RustLib.instance.api.rust_arc_increment_strong_count_ArcRtpTransceiver,
     rustArcDecrementStrongCount:
         RustLib.instance.api.rust_arc_decrement_strong_count_ArcRtpTransceiver,
-    rustArcDecrementStrongCountPtr:
-        RustLib
-            .instance
-            .api
-            .rust_arc_decrement_strong_count_ArcRtpTransceiverPtr,
+    rustArcDecrementStrongCountPtr: RustLib
+        .instance
+        .api
+        .rust_arc_decrement_strong_count_ArcRtpTransceiverPtr,
   );
 }
