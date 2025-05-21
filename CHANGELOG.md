@@ -17,7 +17,7 @@ All user visible changes to this project will be documented in this file. This p
 
 [#201]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/201
 [136.0.7103.113]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/136.0.7103.113
-[170d6d8c]: https://github.com/instrumentisto/medea-flutter-webrtc/commit/9613c018f9c08739f1121366f6049f23d7d1b51c
+[9613c018]: https://github.com/instrumentisto/medea-flutter-webrtc/commit/9613c018f9c08739f1121366f6049f23d7d1b51c
 [frb-2.10.0]: https://github.com/fzyzcjy/flutter_rust_bridge/releases/tag/v2.10.0
 
 
