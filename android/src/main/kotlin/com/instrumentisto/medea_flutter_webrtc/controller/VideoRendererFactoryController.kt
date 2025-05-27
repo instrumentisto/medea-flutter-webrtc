@@ -16,6 +16,8 @@ class VideoRendererFactoryController(
     private val messenger: BinaryMessenger,
     private val textureRegistry: TextureRegistry
 ) : MethodChannel.MethodCallHandler {
+  private val renderers: HashMap<Long, VideoRendererController> = HashMap()
+
   /** Channel listened for the [MethodCall]s. */
   private val chan = MethodChannel(messenger, ChannelNameGenerator.name("VideoRendererFactory", 0))
 
@@ -27,8 +29,14 @@ class VideoRendererFactoryController(
     when (call.method) {
       "create" -> {
         val renderer = FlutterRtcVideoRenderer(textureRegistry)
-        result.success(VideoRendererController(messenger, renderer).asFlutterResult())
+        result.success(VideoRendererController(messenger, renderer, renderers).asFlutterResult())
       }
     }
+  }
+
+  fun dispose() {
+    chan.setMethodCallHandler(null)
+    val renderers = this.renderers.toMap()
+    renderers.forEach { entry -> entry.value.dispose() }
   }
 }

@@ -19,13 +19,12 @@ import org.webrtc.MediaStreamTrack
  * @property messenger Messenger used for creating new [MethodChannel]s.
  * @param state State used for creating new [PeerConnectionFactoryProxy]s.
  */
-class PeerConnectionFactoryController(private val messenger: BinaryMessenger, state: State) :
-    MethodChannel.MethodCallHandler {
+class PeerConnectionFactoryController(
+    private val messenger: BinaryMessenger,
+    private val state: State
+) : MethodChannel.MethodCallHandler {
   /** Factory creating new [PeerConnectionController]s. */
-  private val factory: PeerConnectionFactoryProxy = PeerConnectionFactoryProxy(state)
-
-  /** Application context to access encoder and decoder used. */
-  private val state: State = state
+  val factory: PeerConnectionFactoryProxy = PeerConnectionFactoryProxy(state)
 
   /** Channel listened for the [MethodCall]s. */
   private val chan = MethodChannel(messenger, ChannelNameGenerator.name("PeerConnectionFactory", 0))

@@ -1,5 +1,6 @@
 package com.instrumentisto.medea_flutter_webrtc.proxy
 
+import android.util.Log
 import com.instrumentisto.medea_flutter_webrtc.utils.LocalTrackIdGenerator
 import org.webrtc.AudioSource
 import org.webrtc.PeerConnectionFactory
@@ -31,6 +32,7 @@ class AudioMediaTrackSource(
    * @return Newly created [MediaStreamTrackProxy].
    */
   override fun newTrack(): MediaStreamTrackProxy {
+    Log.e("AZAZAZAZAZAZAZ", "AudioMediaTrackSource newTrack")
     val track =
         MediaStreamTrackProxy(
             peerConnectionFactory.createAudioTrack(LocalTrackIdGenerator.nextId(), source),
@@ -58,6 +60,7 @@ class AudioMediaTrackSource(
 
   /** Disposes this [AudioMediaTrackSource]. */
   private fun dispose() {
+    Log.e("AZAZAZAZAZAZAZ", "AudioMediaTrackSource dispose")
     source.dispose()
   }
 }

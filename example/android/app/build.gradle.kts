@@ -9,7 +9,7 @@ plugins {
 android {
     namespace = "com.instrumentisto.medea_flutter_webrtc_example"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11

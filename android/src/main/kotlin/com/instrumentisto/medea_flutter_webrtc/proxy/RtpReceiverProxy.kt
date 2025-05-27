@@ -31,5 +31,6 @@ class RtpReceiverProxy(receiver: RtpReceiver) : Proxy<RtpReceiver>(receiver) {
   fun notifyRemoved() {
     track.stop()
     track.observableEventBroadcaster().onEnded()
+    //    obj.dispose()
   }
 }

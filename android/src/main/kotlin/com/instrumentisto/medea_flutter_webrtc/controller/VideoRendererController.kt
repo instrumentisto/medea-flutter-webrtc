@@ -17,7 +17,8 @@ import io.flutter.plugin.common.MethodChannel
  */
 class VideoRendererController(
     messenger: BinaryMessenger,
-    private val videoRenderer: FlutterRtcVideoRenderer
+    private val videoRenderer: FlutterRtcVideoRenderer,
+    private val renderers: HashMap<Long, VideoRendererController>
 ) : MethodChannel.MethodCallHandler, EventChannel.StreamHandler, IdentifiableController {
   /** Unique ID of the [MethodChannel] of this controller. */
   private val channelId: Long = nextChannelId()
@@ -36,6 +37,7 @@ class VideoRendererController(
   init {
     chan.setMethodCallHandler(this)
     eventChannel.setStreamHandler(this)
+    renderers.put(channelId, this)
 
     videoRenderer.setEventListener(
         object : FlutterRtcVideoRenderer.Companion.EventListener {
@@ -100,9 +102,10 @@ class VideoRendererController(
    *
    * Disposes underlying [FlutterRtcVideoRenderer].
    */
-  private fun dispose() {
+  fun dispose() {
     eventChannel.setStreamHandler(null)
     eventSink = null
+    renderers.remove(channelId)
     videoRenderer.dispose()
   }
 }

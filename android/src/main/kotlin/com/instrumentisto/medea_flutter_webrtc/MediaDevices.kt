@@ -61,7 +61,7 @@ private const val SPEAKERPHONE_DEVICE_ID: String = "speakerphone"
 private const val BLUETOOTH_HEADSET_DEVICE_ID: String = "bluetooth-headset"
 
 /** Cloned tracks for `getUserVideoTrack()` if the video source has not been released. */
-private val videoTracks: HashMap<VideoConstraints, MediaStreamTrackProxy> = HashMap()
+public val videoTracks: HashMap<VideoConstraints, MediaStreamTrackProxy> = HashMap()
 
 /**
  * Processor for `getUserMedia` requests.
@@ -77,7 +77,7 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
    * Enumerator for the camera devices, based on which new video [MediaStreamTrackProxy]s will be
    * created.
    */
-  private val cameraEnumerator: CameraEnumerator = getCameraEnumerator(state.getAppContext())
+  private val cameraEnumerator: CameraEnumerator = getCameraEnumerator(state.context)
 
   /** List of [EventObserver]s of these [MediaDevices]. */
   private var eventObservers: HashSet<EventObserver> = HashSet()
@@ -134,9 +134,7 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
   }
 
   init {
-    state
-        .getAppContext()
-        .registerReceiver(this, IntentFilter(AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED))
+    state.context.registerReceiver(this, IntentFilter(AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED))
     synchronizeHeadsetState()
     registerHeadsetStateReceiver()
   }
@@ -416,8 +414,7 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
               override fun onFirstFrameAvailable() {}
               override fun onCameraClosed() {}
             })
-    videoCapturer.initialize(
-        surfaceTextureRenderer, state.getAppContext(), videoSource.capturerObserver)
+    videoCapturer.initialize(surfaceTextureRenderer, state.context, videoSource.capturerObserver)
     videoCapturer.startCapture(width, height, fps)
 
     val facingMode =

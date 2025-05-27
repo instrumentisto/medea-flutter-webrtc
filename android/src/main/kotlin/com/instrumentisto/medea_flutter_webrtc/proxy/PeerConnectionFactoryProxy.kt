@@ -1,8 +1,10 @@
 package com.instrumentisto.medea_flutter_webrtc.proxy
 
 import android.media.AudioManager.*
+import com.instrumentisto.medea_flutter_webrtc.ForegroundCallService
 import com.instrumentisto.medea_flutter_webrtc.State
 import com.instrumentisto.medea_flutter_webrtc.model.PeerConnectionConfiguration
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Creator of new [PeerConnectionProxy]s.
@@ -18,7 +20,7 @@ class PeerConnectionFactoryProxy(val state: State) {
    *
    * [PeerObserver]s will be removed on a [PeerConnectionProxy] dispose.
    */
-  private var peerObservers: HashMap<Int, PeerObserver> = HashMap()
+  var peerObservers: ConcurrentHashMap<Int, PeerObserver> = ConcurrentHashMap()
 
   /**
    * Creates a new [PeerConnectionProxy] based on the provided [PeerConnectionConfiguration].
@@ -29,6 +31,7 @@ class PeerConnectionFactoryProxy(val state: State) {
    */
   fun create(config: PeerConnectionConfiguration): PeerConnectionProxy {
     if (peerObservers.isEmpty()) {
+      ForegroundCallService.start(state.context)
       state.getAudioManager().mode = MODE_IN_COMMUNICATION
     }
 
@@ -50,6 +53,7 @@ class PeerConnectionFactoryProxy(val state: State) {
   private fun removePeerObserver(id: Int) {
     peerObservers.remove(id)
     if (peerObservers.isEmpty()) {
+      ForegroundCallService.stop(state.context)
       state.getAudioManager().mode = MODE_NORMAL
     }
   }

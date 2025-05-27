@@ -1,6 +1,5 @@
 package com.instrumentisto.medea_flutter_webrtc.proxy
 
-import android.util.Log
 import com.instrumentisto.medea_flutter_webrtc.TrackRepository
 import com.instrumentisto.medea_flutter_webrtc.model.FacingMode
 import com.instrumentisto.medea_flutter_webrtc.model.MediaStreamTrackState
@@ -32,7 +31,7 @@ class MediaStreamTrackProxy(
   private var onStopSubscribers: MutableList<() -> Unit> = mutableListOf()
 
   /** Indicates that this [stop] was called on this [MediaStreamTrackProxy]. */
-  private var isStopped: Boolean = false
+  @Volatile private var isStopped: Boolean = false
 
   /** List of [EventObserver]s belonging to this [MediaStreamTrackProxy]. */
   private var eventObservers: HashSet<EventObserver> = HashSet()
@@ -172,8 +171,6 @@ class MediaStreamTrackProxy(
     if (!isStopped) {
       isStopped = true
       onStopSubscribers.forEach { sub -> sub() }
-    } else {
-      Log.w("FlutterWebRTC", "Double stop detected [deviceId: $deviceId]!")
     }
   }
 

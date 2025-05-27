@@ -2,6 +2,7 @@ package com.instrumentisto.medea_flutter_webrtc
 
 import com.instrumentisto.medea_flutter_webrtc.proxy.MediaStreamTrackProxy
 import java.lang.ref.WeakReference
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Repository for all the [MediaStreamTrackProxy]s.
@@ -11,7 +12,7 @@ import java.lang.ref.WeakReference
  */
 object TrackRepository {
   /** All [MediaStreamTrackProxy]s created in `flutter_webrtc`. */
-  private val tracks: HashMap<String, WeakReference<MediaStreamTrackProxy>> = HashMap()
+  val tracks: ConcurrentHashMap<String, WeakReference<MediaStreamTrackProxy>> = ConcurrentHashMap()
 
   /**
    * Adds a new [MediaStreamTrackProxy].
