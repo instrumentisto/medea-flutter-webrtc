@@ -1,6 +1,5 @@
 package com.instrumentisto.medea_flutter_webrtc.proxy
 
-import android.util.Log
 import com.instrumentisto.medea_flutter_webrtc.model.CodecCapability
 import com.instrumentisto.medea_flutter_webrtc.model.RtpTransceiverDirection
 import org.webrtc.RtpTransceiver
@@ -55,7 +54,6 @@ class RtpTransceiverProxy(obj: RtpTransceiver) : Proxy<RtpTransceiver>(obj) {
     if (disposed) return
 
     disposed = true
-    obj.stopStandard()
     receiver.setDisposed()
     sender.setDisposed()
   }

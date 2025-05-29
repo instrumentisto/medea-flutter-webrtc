@@ -47,7 +47,7 @@ class State(val context: Context) {
    * @return Current [PeerConnectionFactory] of this [State].
    */
   fun getPeerConnectionFactory(): PeerConnectionFactory {
-    if (factory == null) {
+    if (factory == null || factory!!.nativeOwnedFactoryAndThreads == 0L) {
       var audioDeviceModule =
           JavaAudioDeviceModule.builder(context)
               .setUseHardwareAcousticEchoCanceler(true)
@@ -63,6 +63,7 @@ class State(val context: Context) {
               .createPeerConnectionFactory()
       audioDeviceModule.release()
     }
+
     return factory!!
   }
 

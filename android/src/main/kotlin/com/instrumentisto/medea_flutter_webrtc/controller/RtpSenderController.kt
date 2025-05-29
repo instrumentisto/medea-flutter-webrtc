@@ -20,8 +20,12 @@ class RtpSenderController(messenger: BinaryMessenger, private val sender: RtpSen
   /** Channel listened for the [MethodCall]s. */
   private val chan = MethodChannel(messenger, ChannelNameGenerator.name("RtpSender", channelId))
 
+  override val disposeOrder: Int
+    get() = 2
+
   init {
     chan.setMethodCallHandler(this)
+    ControllerRegistry.register(this)
   }
 
   override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
@@ -82,10 +86,16 @@ class RtpSenderController(messenger: BinaryMessenger, private val sender: RtpSen
         result.success(null)
       }
       "dispose" -> {
-        chan.setMethodCallHandler(null)
+        dispose()
         result.success(null)
       }
     }
+  }
+
+  override fun dispose() {
+    sender.setDisposed()
+    chan.setMethodCallHandler(null)
+    ControllerRegistry.unregister(this)
   }
 
   /**

@@ -2,7 +2,6 @@ package com.instrumentisto.medea_flutter_webrtc.proxy
 
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import com.instrumentisto.medea_flutter_webrtc.model.IceCandidate
 import com.instrumentisto.medea_flutter_webrtc.model.IceConnectionState
 import com.instrumentisto.medea_flutter_webrtc.model.IceGatheringState
@@ -17,7 +16,7 @@ import org.webrtc.IceCandidate as WIceCandidate
  */
 class PeerObserver : PeerConnection.Observer {
   /** [PeerConnectionProxy] being notified about all events. */
-  var peer: PeerConnectionProxy? = null
+  private var peer: PeerConnectionProxy? = null
 
   override fun onSignalingChange(signallingState: PeerConnection.SignalingState?) {
     if (signallingState != null) {
@@ -64,8 +63,6 @@ class PeerObserver : PeerConnection.Observer {
   }
 
   override fun onTrack(transceiver: RtpTransceiver?) {
-    Log.e("AZAZAZAZAZAZAZ", "onTrack ${transceiver?.receiver?.track()?.kind()}")
-
     if (transceiver != null && peer != null) {
       if (!peer!!.disposed) {
         val receiverId = transceiver.receiver.id()
@@ -74,11 +71,6 @@ class PeerObserver : PeerConnection.Observer {
           for (trans in transceivers) {
             if (trans.receiver.id == receiverId) {
               peer?.observableEventBroadcaster()?.onTrack(trans.receiver.track, trans)
-
-              //              if (transceiver.receiver.track()?.kind() == "audio") {
-              //                trans.setDisposed();
-              //              }
-
               return@post
             }
           }
@@ -95,7 +87,6 @@ class PeerObserver : PeerConnection.Observer {
 
   override fun onRemoveTrack(receiver: RtpReceiver?) {
     if (receiver != null) {
-      Log.e("AZAZAZAZAZAZAZ", "onRemoveTrack ${receiver.id()}")
       Handler(Looper.getMainLooper()).post { peer?.receiverEnded(receiver) }
     }
   }

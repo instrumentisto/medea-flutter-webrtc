@@ -1,17 +1,16 @@
 package com.instrumentisto.medea_flutter_webrtc.proxy
 
 import android.media.AudioManager.*
-import com.instrumentisto.medea_flutter_webrtc.ForegroundCallService
 import com.instrumentisto.medea_flutter_webrtc.State
 import com.instrumentisto.medea_flutter_webrtc.model.PeerConnectionConfiguration
-import java.util.concurrent.ConcurrentHashMap
+import org.webrtc.PeerConnectionFactory
 
 /**
  * Creator of new [PeerConnectionProxy]s.
  *
  * @property state Global state used for creation.
  */
-class PeerConnectionFactoryProxy(val state: State) {
+class PeerConnectionFactoryProxy(private val state: State) {
   /** Counter for generating new [PeerConnectionProxy] IDs. */
   private var lastPeerConnectionId: Int = 0
 
@@ -20,7 +19,7 @@ class PeerConnectionFactoryProxy(val state: State) {
    *
    * [PeerObserver]s will be removed on a [PeerConnectionProxy] dispose.
    */
-  var peerObservers: ConcurrentHashMap<Int, PeerObserver> = ConcurrentHashMap()
+  private var peerObservers: HashMap<Int, PeerObserver> = HashMap()
 
   /**
    * Creates a new [PeerConnectionProxy] based on the provided [PeerConnectionConfiguration].
@@ -31,7 +30,6 @@ class PeerConnectionFactoryProxy(val state: State) {
    */
   fun create(config: PeerConnectionConfiguration): PeerConnectionProxy {
     if (peerObservers.isEmpty()) {
-      ForegroundCallService.start(state.context)
       state.getAudioManager().mode = MODE_IN_COMMUNICATION
     }
 
@@ -49,11 +47,20 @@ class PeerConnectionFactoryProxy(val state: State) {
     return peerProxy
   }
 
+  /** Returns underlying [PeerConnectionFactory] */
+  fun getPeerConnectionFactory(): PeerConnectionFactory {
+    return state.getPeerConnectionFactory()
+  }
+
+  /** Disposes underlying [PeerConnectionFactory] */
+  fun dispose() {
+    state.getPeerConnectionFactory().dispose()
+  }
+
   /** Removes the specified [PeerObserver] from the [peerObservers]. */
   private fun removePeerObserver(id: Int) {
     peerObservers.remove(id)
     if (peerObservers.isEmpty()) {
-      ForegroundCallService.stop(state.context)
       state.getAudioManager().mode = MODE_NORMAL
     }
   }

@@ -9,6 +9,7 @@ import io.flutter.plugin.common.MethodChannel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import org.webrtc.MediaStreamTrack
 
 /**
  * Controller of [MediaStreamTrackProxy] functional.
@@ -18,10 +19,13 @@ import kotlinx.coroutines.launch
  */
 class MediaStreamTrackController(
     private val messenger: BinaryMessenger,
-    private val track: MediaStreamTrackProxy
+    val track: MediaStreamTrackProxy
 ) : MethodChannel.MethodCallHandler, EventChannel.StreamHandler, IdentifiableController {
   /** Unique ID of the [MethodChannel] of this controller. */
   private val channelId: Long = nextChannelId()
+
+  /** ID of the underlying [MediaStreamTrack] */
+  val id: String = track.id
 
   /** Channel listened for the [MethodCall]s. */
   private val chan: MethodChannel =
@@ -42,7 +46,12 @@ class MediaStreamTrackController(
         }
       }
 
+  override val disposeOrder: Int
+    get() = 1
+
   init {
+    ControllerRegistry.register(this)
+
     chan.setMethodCallHandler(this)
     eventChannel.setStreamHandler(this)
     track.addEventObserver(eventObserver)
@@ -72,8 +81,7 @@ class MediaStreamTrackController(
         result.success(MediaStreamTrackController(messenger, track.fork()).asFlutterResult())
       }
       "dispose" -> {
-        chan.setMethodCallHandler(null)
-        result.success(null)
+        disposeInternal(false)
       }
     }
   }
@@ -85,7 +93,13 @@ class MediaStreamTrackController(
   }
 
   override fun onCancel(obj: Any?) {
+    eventChannel.setStreamHandler(null)
+    eventSink?.endOfStream()
     eventSink = null
+  }
+
+  override fun dispose() {
+    disposeInternal(true)
   }
 
   /**
@@ -102,4 +116,13 @@ class MediaStreamTrackController(
               Pair("facingMode", track.facingMode?.value))
           .mapNotNull { p -> p.second?.let { Pair(p.first, it) } }
           .toMap()
+
+  private fun disposeInternal(stop: Boolean) {
+    ControllerRegistry.unregister(this)
+    chan.setMethodCallHandler(null)
+    if (stop) {
+      onCancel(null)
+      track.stop()
+    }
+  }
 }

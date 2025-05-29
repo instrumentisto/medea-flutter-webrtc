@@ -25,8 +25,12 @@ class RtpTransceiverController(
   private val chan =
       MethodChannel(messenger, ChannelNameGenerator.name("RtpTransceiver", channelId))
 
+  override val disposeOrder: Int
+    get() = 3
+
   init {
     chan.setMethodCallHandler(this)
+    ControllerRegistry.register(this)
   }
 
   override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
@@ -73,10 +77,22 @@ class RtpTransceiverController(
         result.success(null)
       }
       "dispose" -> {
-        chan.setMethodCallHandler(null)
+        disposeInternal(false)
         result.success(null)
       }
     }
+  }
+
+  override fun dispose() {
+    disposeInternal(true)
+  }
+
+  fun disposeInternal(stop: Boolean) {
+    if (stop) {
+      transceiver.stop()
+    }
+    chan.setMethodCallHandler(null)
+    ControllerRegistry.unregister(this)
   }
 
   /**

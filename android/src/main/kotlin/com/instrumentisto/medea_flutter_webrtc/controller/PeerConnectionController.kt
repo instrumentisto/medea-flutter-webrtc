@@ -27,6 +27,9 @@ class PeerConnectionController(
   /** Unique ID of the [MethodChannel] of this controller. */
   private val channelId = nextChannelId()
 
+  override val disposeOrder: Int
+    get() = 4
+
   /** Channel listened for the [MethodCall]s. */
   private val chan: MethodChannel =
       MethodChannel(messenger, ChannelNameGenerator.name("PeerConnection", channelId))
@@ -84,6 +87,7 @@ class PeerConnectionController(
     chan.setMethodCallHandler(this)
     eventChannel.setStreamHandler(this)
     peer.addEventObserver(eventObserver)
+    ControllerRegistry.register(this)
   }
 
   override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
@@ -155,12 +159,9 @@ class PeerConnectionController(
               } else {
                 peer.addTransceiver(mediaType, RtpTransceiverInit.fromMap(transceiverInitArg))
               }
-          if (transceiver != null) {
-            val transceiverController = RtpTransceiverController(messenger, transceiver)
-            result.success(transceiverController.asFlutterResult())
-          } else {
-            result.success(null)
-          }
+
+          val transceiverController = RtpTransceiverController(messenger, transceiver)
+          result.success(transceiverController.asFlutterResult())
         } catch (e: Exception) {
           resultUnhandledException(result, e)
         }
@@ -190,7 +191,7 @@ class PeerConnectionController(
         }
       }
       "dispose" -> {
-        dispose()
+        disposeInternal(false)
         result.success(null)
       }
     }
@@ -222,8 +223,16 @@ class PeerConnectionController(
    *
    * Disposes underlying [PeerConnectionProxy].
    */
-  private fun dispose() {
+  override fun dispose() {
+    disposeInternal(true)
+  }
+
+  private fun disposeInternal(cancel: Boolean) {
     peer.dispose()
     chan.setMethodCallHandler(null)
+    if (cancel) {
+      onCancel(null)
+      ControllerRegistry.unregister(this)
+    }
   }
 }

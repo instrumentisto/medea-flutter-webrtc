@@ -103,6 +103,27 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
   /** Indicator whether bluetooth SCO is connected. */
   private var scoAudioStateConnected: Boolean = false
 
+  /**
+   * [AudioDeviceCallback] provided to [AudioManager.registerAudioDeviceCallback] which fires once
+   * new audio device is connected.
+   *
+   * [isBluetoothHeadsetConnected] will be updated based on this subscription.
+   */
+  private val audioDeviceCallback =
+      object : AudioDeviceCallback() {
+        override fun onAudioDevicesAdded(addedDevices: Array<AudioDeviceInfo>) {
+          if (addedDevices.any { isBluetoothDevice(it) }) {
+            setHeadsetState(true)
+          }
+        }
+
+        override fun onAudioDevicesRemoved(removedDevices: Array<AudioDeviceInfo>) {
+          if (removedDevices.any { isBluetoothDevice(it) }) {
+            synchronizeHeadsetState()
+          }
+        }
+      }
+
   companion object {
     /** Observer of [MediaDevices] events. */
     interface EventObserver {
@@ -136,31 +157,7 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
   init {
     state.context.registerReceiver(this, IntentFilter(AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED))
     synchronizeHeadsetState()
-    registerHeadsetStateReceiver()
-  }
-
-  /**
-   * Subscribes to the [AudioManager.registerAudioDeviceCallback] which fires once new audio device
-   * is connected.
-   *
-   * [isBluetoothHeadsetConnected] will be updated based on this subscription.
-   */
-  private fun registerHeadsetStateReceiver() {
-    audioManager.registerAudioDeviceCallback(
-        object : AudioDeviceCallback() {
-          override fun onAudioDevicesAdded(addedDevices: Array<AudioDeviceInfo>) {
-            if (addedDevices.any { isBluetoothDevice(it) }) {
-              setHeadsetState(true)
-            }
-          }
-
-          override fun onAudioDevicesRemoved(removedDevices: Array<AudioDeviceInfo>) {
-            if (removedDevices.any { isBluetoothDevice(it) }) {
-              synchronizeHeadsetState()
-            }
-          }
-        },
-        null)
+    audioManager.registerAudioDeviceCallback(audioDeviceCallback, null)
   }
 
   /** Actualizes Bluetooth headset state based on the [AudioManager.getDevices]. */
@@ -487,5 +484,10 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
         }
       }
     }
+  }
+
+  fun dispose() {
+    state.context.unregisterReceiver(this)
+    audioManager.unregisterAudioDeviceCallback(audioDeviceCallback)
   }
 }

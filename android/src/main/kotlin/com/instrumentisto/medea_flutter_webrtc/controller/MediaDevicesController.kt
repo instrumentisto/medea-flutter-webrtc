@@ -111,6 +111,14 @@ class MediaDevicesController(
   }
 
   override fun onCancel(obj: Any?) {
+    eventChannel.setStreamHandler(null)
+    eventSink?.endOfStream()
     eventSink = null
+  }
+
+  fun dispose() {
+    mediaDevices.dispose()
+    chan.setMethodCallHandler(null)
+    onCancel(null)
   }
 }

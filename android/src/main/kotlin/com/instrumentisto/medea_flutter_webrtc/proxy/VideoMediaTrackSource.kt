@@ -1,6 +1,5 @@
 package com.instrumentisto.medea_flutter_webrtc.proxy
 
-import android.util.Log
 import com.instrumentisto.medea_flutter_webrtc.SurfaceTextureRenderer
 import com.instrumentisto.medea_flutter_webrtc.model.FacingMode
 import com.instrumentisto.medea_flutter_webrtc.utils.LocalTrackIdGenerator
@@ -75,8 +74,6 @@ class VideoMediaTrackSource(
    * Disposes [VideoSource], [VideoCapturer] and [SurfaceTextureHelper].
    */
   private fun dispose() {
-    Log.e("AZAZAZAZAZAZAZ", "VideoMediaTrackSource dispose")
-
     videoCapturer.stopCapture()
     videoSource.dispose()
     videoCapturer.dispose()

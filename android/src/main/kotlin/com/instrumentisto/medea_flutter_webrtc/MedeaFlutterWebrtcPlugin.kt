@@ -1,6 +1,7 @@
 package com.instrumentisto.medea_flutter_webrtc
 
 import android.util.Log
+import com.instrumentisto.medea_flutter_webrtc.controller.ControllerRegistry
 import com.instrumentisto.medea_flutter_webrtc.controller.MediaDevicesController
 import com.instrumentisto.medea_flutter_webrtc.controller.PeerConnectionFactoryController
 import com.instrumentisto.medea_flutter_webrtc.controller.VideoRendererFactoryController
@@ -33,17 +34,10 @@ class MedeaFlutterWebrtcPlugin : FlutterPlugin, ActivityAware {
   override fun onDetachedFromEngine(registrar: FlutterPlugin.FlutterPluginBinding) {
     Log.i(TAG, "Detached from engine")
 
-    ForegroundCallService.stop(registrar.applicationContext)
+    ControllerRegistry.disposeAll()
+    mediaDevices?.dispose()
     videoRendererFactory?.dispose()
-    peerConnectionFactory?.factory?.peerObservers?.forEach { it.value.peer?.dispose() }
-    TrackRepository.tracks.values.forEach {
-      try {
-        it.get()?.stop()
-      } catch (_: Throwable) {
-        // Track might already be disposed, just ignore.
-      }
-    }
-    state?.getPeerConnectionFactory()?.dispose()
+    peerConnectionFactory?.dispose()
 
     messenger = null
     state = null
@@ -57,6 +51,7 @@ class MedeaFlutterWebrtcPlugin : FlutterPlugin, ActivityAware {
 
   override fun onAttachedToActivity(registrar: ActivityPluginBinding) {
     Log.i(TAG, "Attached to activity")
+
     activityPluginBinding = registrar
     permissions = Permissions(activityPluginBinding!!.activity)
     activityPluginBinding!!.addRequestPermissionsResultListener(permissions!!)
@@ -71,6 +66,7 @@ class MedeaFlutterWebrtcPlugin : FlutterPlugin, ActivityAware {
 
   override fun onDetachedFromActivity() {
     Log.i(TAG, "Detached from activity")
+
     activityPluginBinding!!.removeRequestPermissionsResultListener(permissions!!)
   }
 }

@@ -11,6 +11,7 @@ import com.instrumentisto.medea_flutter_webrtc.proxy.PeerConnectionFactoryProxy
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import kotlin.collections.set
 import org.webrtc.MediaStreamTrack
 
 /**
@@ -24,7 +25,7 @@ class PeerConnectionFactoryController(
     private val state: State
 ) : MethodChannel.MethodCallHandler {
   /** Factory creating new [PeerConnectionController]s. */
-  val factory: PeerConnectionFactoryProxy = PeerConnectionFactoryProxy(state)
+  private val factory: PeerConnectionFactoryProxy = PeerConnectionFactoryProxy(state)
 
   /** Channel listened for the [MethodCall]s. */
   private val chan = MethodChannel(messenger, ChannelNameGenerator.name("PeerConnectionFactory", 0))
@@ -59,7 +60,6 @@ class PeerConnectionFactoryController(
         val capabilities =
             RtpCapabilities.fromWebRtc(
                 factory
-                    .state
                     .getPeerConnectionFactory()
                     .getRtpSenderCapabilities(MediaStreamTrack.MediaType.values()[kind!!]))
         result.success(capabilities.asFlutterResult())
@@ -69,7 +69,6 @@ class PeerConnectionFactoryController(
         val capabilities =
             RtpCapabilities.fromWebRtc(
                 factory
-                    .state
                     .getPeerConnectionFactory()
                     .getRtpReceiverCapabilities(MediaStreamTrack.MediaType.values()[kind!!]))
         result.success(capabilities.asFlutterResult())
@@ -99,9 +98,14 @@ class PeerConnectionFactoryController(
         result.success(map.values.map { it.asFlutterResult() })
       }
       "dispose" -> {
-        chan.setMethodCallHandler(null)
+        dispose()
         result.success(null)
       }
     }
+  }
+
+  fun dispose() {
+    chan.setMethodCallHandler(null)
+    factory.dispose()
   }
 }
