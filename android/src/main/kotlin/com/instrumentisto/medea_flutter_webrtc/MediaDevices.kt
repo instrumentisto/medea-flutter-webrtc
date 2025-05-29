@@ -109,20 +109,7 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
    *
    * [isBluetoothHeadsetConnected] will be updated based on this subscription.
    */
-  private val audioDeviceCallback =
-      object : AudioDeviceCallback() {
-        override fun onAudioDevicesAdded(addedDevices: Array<AudioDeviceInfo>) {
-          if (addedDevices.any { isBluetoothDevice(it) }) {
-            setHeadsetState(true)
-          }
-        }
-
-        override fun onAudioDevicesRemoved(removedDevices: Array<AudioDeviceInfo>) {
-          if (removedDevices.any { isBluetoothDevice(it) }) {
-            synchronizeHeadsetState()
-          }
-        }
-      }
+  private var audioDeviceCallback: AudioDeviceCallback? = null;
 
   companion object {
     /** Observer of [MediaDevices] events. */
@@ -155,6 +142,20 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
   }
 
   init {
+    audioDeviceCallback = object : AudioDeviceCallback() {
+      override fun onAudioDevicesAdded(addedDevices: Array<AudioDeviceInfo>) {
+        if (addedDevices.any { isBluetoothDevice(it) }) {
+          setHeadsetState(true)
+        }
+      }
+
+      override fun onAudioDevicesRemoved(removedDevices: Array<AudioDeviceInfo>) {
+        if (removedDevices.any { isBluetoothDevice(it) }) {
+          synchronizeHeadsetState()
+        }
+      }
+    };
+
     state.context.registerReceiver(this, IntentFilter(AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED))
     synchronizeHeadsetState()
     audioManager.registerAudioDeviceCallback(audioDeviceCallback, null)
@@ -400,17 +401,7 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
 
     val surfaceTextureRenderer =
         SurfaceTextureHelper.create(Thread.currentThread().name, EglUtils.rootEglBaseContext)
-    val videoCapturer =
-        cameraEnumerator.createCapturer(
-            deviceId,
-            object : CameraVideoCapturer.CameraEventsHandler {
-              override fun onCameraError(p0: String?) {}
-              override fun onCameraDisconnected() {}
-              override fun onCameraFreezed(p0: String?) {}
-              override fun onCameraOpening(p0: String?) {}
-              override fun onFirstFrameAvailable() {}
-              override fun onCameraClosed() {}
-            })
+    val videoCapturer = cameraEnumerator.createCapturer(deviceId, null)
     videoCapturer.initialize(surfaceTextureRenderer, state.context, videoSource.capturerObserver)
     videoCapturer.startCapture(width, height, fps)
 
@@ -489,5 +480,6 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
   fun dispose() {
     state.context.unregisterReceiver(this)
     audioManager.unregisterAudioDeviceCallback(audioDeviceCallback)
+    audioDeviceCallback = null;
   }
 }

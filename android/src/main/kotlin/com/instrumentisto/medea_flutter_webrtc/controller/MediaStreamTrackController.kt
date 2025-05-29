@@ -82,6 +82,7 @@ class MediaStreamTrackController(
       }
       "dispose" -> {
         disposeInternal(false)
+        result.success(null)
       }
     }
   }

@@ -261,6 +261,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
     receivers.clear()
     eventObservers.clear()
     onDisposeSubscribers.forEach { sub -> sub(id) }
+    onDisposeSubscribers.clear();
   }
 
   /**

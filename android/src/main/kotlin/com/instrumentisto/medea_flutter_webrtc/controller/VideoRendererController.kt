@@ -108,6 +108,7 @@ class VideoRendererController(
    */
   override fun dispose() {
     eventChannel.setStreamHandler(null)
+    chan.setMethodCallHandler(null)
     eventSink = null
     videoRenderer.dispose()
     ControllerRegistry.unregister(this)
