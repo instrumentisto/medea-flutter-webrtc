@@ -148,6 +148,15 @@ class MediaStreamTrackProxy(
   }
 
   /**
+   * Removes the specified [EventObserver] from the list of [EventObserver].
+   *
+   * @param eventObserver [EventObserver] to be removed.
+   */
+  fun removeEventObserver(eventObserver: EventObserver) {
+    eventObservers.remove(eventObserver)
+  }
+
+  /**
    * Creates a new [MediaStreamTrackProxy] based on the same [MediaTrackSource] as this
    * [MediaStreamTrackProxy].
    *

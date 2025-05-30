@@ -44,12 +44,7 @@ class MediaStreamTrackController(
   private var eventSink: AnyThreadSink? = null
 
   /** [MediaStreamTrackProxy] events observer, sending all the events to the [eventSink]. */
-  private val eventObserver =
-      object : MediaStreamTrackProxy.Companion.EventObserver {
-        override fun onEnded() {
-          eventSink?.success(mapOf("event" to "onEnded"))
-        }
-      }
+  private var eventObserver: MediaStreamTrackProxy.Companion.EventObserver? = null
 
   override val disposeOrder: Int
     get() = 1
@@ -57,9 +52,16 @@ class MediaStreamTrackController(
   init {
     ControllerRegistry.register(this)
 
+    eventObserver =
+        object : MediaStreamTrackProxy.Companion.EventObserver {
+          override fun onEnded() {
+            eventSink?.success(mapOf("event" to "onEnded"))
+          }
+        }
+
     chan.setMethodCallHandler(this)
     eventChannel.setStreamHandler(this)
-    track.addEventObserver(eventObserver)
+    track.addEventObserver(eventObserver!!)
   }
 
   override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
@@ -130,6 +132,9 @@ class MediaStreamTrackController(
     scope.cancel("disposed")
     if (stop) {
       track.stop()
+      eventChannel.setStreamHandler(null)
+      track.removeEventObserver(eventObserver!!)
+      eventObserver = null
     }
   }
 }
