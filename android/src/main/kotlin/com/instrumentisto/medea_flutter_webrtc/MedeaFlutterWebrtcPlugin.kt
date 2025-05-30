@@ -26,6 +26,8 @@ class MedeaFlutterWebrtcPlugin : FlutterPlugin, ActivityAware {
   override fun onAttachedToEngine(registrar: FlutterPlugin.FlutterPluginBinding) {
     Log.i(TAG, "Attached to engine")
 
+    ForegroundCallService.start(registrar.applicationContext)
+
     messenger = registrar.binaryMessenger
     state = State(registrar.applicationContext)
     textureRegistry = registrar.textureRegistry
@@ -33,6 +35,8 @@ class MedeaFlutterWebrtcPlugin : FlutterPlugin, ActivityAware {
 
   override fun onDetachedFromEngine(registrar: FlutterPlugin.FlutterPluginBinding) {
     Log.i(TAG, "Detached from engine")
+
+    ForegroundCallService.stop(registrar.applicationContext)
 
     ControllerRegistry.disposeAll()
     mediaDevices?.dispose()
