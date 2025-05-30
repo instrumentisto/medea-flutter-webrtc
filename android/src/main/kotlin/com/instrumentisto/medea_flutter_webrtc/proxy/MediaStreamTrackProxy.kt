@@ -133,6 +133,7 @@ class MediaStreamTrackProxy(
     return object : EventObserver {
       override fun onEnded() {
         eventObservers.forEach { it.onEnded() }
+        eventObservers.clear()
       }
     }
   }
@@ -175,7 +176,6 @@ class MediaStreamTrackProxy(
       isStopped = true
       onStopSubscribers.forEach { sub -> sub() }
       onStopSubscribers.clear()
-      eventObservers.clear()
       if (sink != null) {
         (obj as VideoTrack).removeSink(sink)
         sink = null

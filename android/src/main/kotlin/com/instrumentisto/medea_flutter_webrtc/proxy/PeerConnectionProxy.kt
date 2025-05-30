@@ -259,7 +259,6 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
     obj.dispose()
     senders.clear()
     receivers.clear()
-    eventObservers.clear()
     onDisposeSubscribers.forEach { sub -> sub(id) }
     onDisposeSubscribers.clear()
   }

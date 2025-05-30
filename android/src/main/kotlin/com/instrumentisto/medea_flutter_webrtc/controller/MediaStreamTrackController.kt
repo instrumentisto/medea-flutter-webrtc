@@ -129,7 +129,6 @@ class MediaStreamTrackController(
     chan.setMethodCallHandler(null)
     scope.cancel("disposed")
     if (stop) {
-      onCancel(null)
       track.stop()
     }
   }
