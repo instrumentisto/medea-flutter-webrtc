@@ -72,6 +72,7 @@ abstract class NativeMediaStreamTrack extends MediaStreamTrack {
     switch (e['event']) {
       case 'onEnded':
         _onEnded?.call();
+        _eventSub?.cancel();
         break;
     }
   }

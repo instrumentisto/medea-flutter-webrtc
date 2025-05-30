@@ -6,9 +6,12 @@ import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import org.webrtc.MediaStreamTrack
 
 /**
  * Controller of [MediaStreamTrackProxy] functional.
@@ -18,10 +21,16 @@ import kotlinx.coroutines.launch
  */
 class MediaStreamTrackController(
     private val messenger: BinaryMessenger,
-    private val track: MediaStreamTrackProxy
+    val track: MediaStreamTrackProxy
 ) : MethodChannel.MethodCallHandler, EventChannel.StreamHandler, IdentifiableController {
+  /** [CoroutineScope] for this [MediaStreamTrackController] */
+  private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
   /** Unique ID of the [MethodChannel] of this controller. */
   private val channelId: Long = nextChannelId()
+
+  /** ID of the underlying [MediaStreamTrack] */
+  val id: String = track.id
 
   /** Channel listened for the [MethodCall]s. */
   private val chan: MethodChannel =
@@ -35,17 +44,24 @@ class MediaStreamTrackController(
   private var eventSink: AnyThreadSink? = null
 
   /** [MediaStreamTrackProxy] events observer, sending all the events to the [eventSink]. */
-  private val eventObserver =
-      object : MediaStreamTrackProxy.Companion.EventObserver {
-        override fun onEnded() {
-          eventSink?.success(mapOf("event" to "onEnded"))
-        }
-      }
+  private var eventObserver: MediaStreamTrackProxy.Companion.EventObserver? = null
+
+  override val disposeOrder: Int
+    get() = 1
 
   init {
+    ControllerRegistry.register(this)
+
+    eventObserver =
+        object : MediaStreamTrackProxy.Companion.EventObserver {
+          override fun onEnded() {
+            eventSink?.success(mapOf("event" to "onEnded"))
+          }
+        }
+
     chan.setMethodCallHandler(this)
     eventChannel.setStreamHandler(this)
-    track.addEventObserver(eventObserver)
+    track.addEventObserver(eventObserver!!)
   }
 
   override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
@@ -59,10 +75,10 @@ class MediaStreamTrackController(
         result.success(track.state.value)
       }
       "width" -> {
-        GlobalScope.launch(Dispatchers.Main) { result.success(track.width()) }
+        scope.launch { result.success(track.width()) }
       }
       "height" -> {
-        GlobalScope.launch(Dispatchers.Main) { result.success(track.height()) }
+        scope.launch { result.success(track.height()) }
       }
       "stop" -> {
         track.stop()
@@ -72,7 +88,7 @@ class MediaStreamTrackController(
         result.success(MediaStreamTrackController(messenger, track.fork()).asFlutterResult())
       }
       "dispose" -> {
-        chan.setMethodCallHandler(null)
+        disposeInternal(false)
         result.success(null)
       }
     }
@@ -85,7 +101,13 @@ class MediaStreamTrackController(
   }
 
   override fun onCancel(obj: Any?) {
+    eventChannel.setStreamHandler(null)
+    eventSink?.endOfStream()
     eventSink = null
+  }
+
+  override fun dispose() {
+    disposeInternal(true)
   }
 
   /**
@@ -102,4 +124,17 @@ class MediaStreamTrackController(
               Pair("facingMode", track.facingMode?.value))
           .mapNotNull { p -> p.second?.let { Pair(p.first, it) } }
           .toMap()
+
+  /** Releases allocated resources. */
+  private fun disposeInternal(stop: Boolean) {
+    ControllerRegistry.unregister(this)
+    chan.setMethodCallHandler(null)
+    scope.cancel("disposed")
+    if (stop) {
+      track.stop()
+      eventChannel.setStreamHandler(null)
+      track.removeEventObserver(eventObserver!!)
+      eventObserver = null
+    }
+  }
 }

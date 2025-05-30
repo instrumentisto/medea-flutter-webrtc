@@ -17,7 +17,7 @@ import io.flutter.plugin.common.MethodChannel
  */
 class VideoRendererController(
     messenger: BinaryMessenger,
-    private val videoRenderer: FlutterRtcVideoRenderer
+    private val videoRenderer: FlutterRtcVideoRenderer,
 ) : MethodChannel.MethodCallHandler, EventChannel.StreamHandler, IdentifiableController {
   /** Unique ID of the [MethodChannel] of this controller. */
   private val channelId: Long = nextChannelId()
@@ -33,9 +33,13 @@ class VideoRendererController(
   /** Event sink into which all [FlutterRtcVideoRenderer] events are sent. */
   private var eventSink: AnyThreadSink? = null
 
+  override val disposeOrder: Int
+    get() = 0
+
   init {
     chan.setMethodCallHandler(this)
     eventChannel.setStreamHandler(this)
+    ControllerRegistry.register(this)
 
     videoRenderer.setEventListener(
         object : FlutterRtcVideoRenderer.Companion.EventListener {
@@ -84,6 +88,8 @@ class VideoRendererController(
   }
 
   override fun onCancel(obj: Any?) {
+    eventChannel.setStreamHandler(null)
+    eventSink?.endOfStream()
     eventSink = null
   }
 
@@ -95,14 +101,11 @@ class VideoRendererController(
   fun asFlutterResult(): Map<String, Any> =
       mapOf("channelId" to channelId, "textureId" to videoRenderer.textureId())
 
-  /**
-   * Closes method channel of this [VideoRendererController].
-   *
-   * Disposes underlying [FlutterRtcVideoRenderer].
-   */
-  private fun dispose() {
+  override fun dispose() {
     eventChannel.setStreamHandler(null)
+    chan.setMethodCallHandler(null)
     eventSink = null
     videoRenderer.dispose()
+    ControllerRegistry.unregister(this)
   }
 }

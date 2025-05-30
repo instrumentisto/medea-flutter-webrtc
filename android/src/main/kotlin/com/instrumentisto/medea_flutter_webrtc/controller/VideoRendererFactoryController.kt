@@ -31,4 +31,9 @@ class VideoRendererFactoryController(
       }
     }
   }
+
+  /** Releases allocated resources. */
+  fun dispose() {
+    chan.setMethodCallHandler(null)
+  }
 }

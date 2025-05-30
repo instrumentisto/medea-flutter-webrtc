@@ -10,8 +10,10 @@ import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 /**
@@ -24,8 +26,14 @@ class PeerConnectionController(
     private val messenger: BinaryMessenger,
     private val peer: PeerConnectionProxy
 ) : MethodChannel.MethodCallHandler, EventChannel.StreamHandler, IdentifiableController {
+  /** [CoroutineScope] for this [PeerConnectionController] */
+  private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
   /** Unique ID of the [MethodChannel] of this controller. */
   private val channelId = nextChannelId()
+
+  override val disposeOrder: Int
+    get() = 4
 
   /** Channel listened for the [MethodCall]s. */
   private val chan: MethodChannel =
@@ -84,12 +92,13 @@ class PeerConnectionController(
     chan.setMethodCallHandler(this)
     eventChannel.setStreamHandler(this)
     peer.addEventObserver(eventObserver)
+    ControllerRegistry.register(this)
   }
 
   override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
     when (call.method) {
       "createOffer" -> {
-        GlobalScope.launch(Dispatchers.Main) {
+        scope.launch {
           try {
             result.success(peer.createOffer().asFlutterResult())
           } catch (e: Exception) {
@@ -98,7 +107,7 @@ class PeerConnectionController(
         }
       }
       "createAnswer" -> {
-        GlobalScope.launch(Dispatchers.Main) {
+        scope.launch {
           try {
             result.success(peer.createAnswer().asFlutterResult())
           } catch (e: Exception) {
@@ -114,7 +123,7 @@ class PeerConnectionController(
             } else {
               SessionDescription.fromMap(descriptionArg)
             }
-        GlobalScope.launch(Dispatchers.Main) {
+        scope.launch {
           try {
             peer.setLocalDescription(description)
             result.success(null)
@@ -125,7 +134,7 @@ class PeerConnectionController(
       }
       "setRemoteDescription" -> {
         val descriptionArg: Map<String, Any> = call.argument("description")!!
-        GlobalScope.launch(Dispatchers.Main) {
+        scope.launch {
           try {
             peer.setRemoteDescription(SessionDescription.fromMap(descriptionArg))
             result.success(null)
@@ -136,7 +145,7 @@ class PeerConnectionController(
       }
       "addIceCandidate" -> {
         val candidate: Map<String, Any> = call.argument("candidate")!!
-        GlobalScope.launch(Dispatchers.Main) {
+        scope.launch {
           try {
             peer.addIceCandidate(IceCandidate.fromMap(candidate))
             result.success(null)
@@ -155,12 +164,9 @@ class PeerConnectionController(
               } else {
                 peer.addTransceiver(mediaType, RtpTransceiverInit.fromMap(transceiverInitArg))
               }
-          if (transceiver != null) {
-            val transceiverController = RtpTransceiverController(messenger, transceiver)
-            result.success(transceiverController.asFlutterResult())
-          } else {
-            result.success(null)
-          }
+
+          val transceiverController = RtpTransceiverController(messenger, transceiver)
+          result.success(transceiverController.asFlutterResult())
         } catch (e: Exception) {
           resultUnhandledException(result, e)
         }
@@ -176,7 +182,7 @@ class PeerConnectionController(
         result.success(null)
       }
       "getStats" -> {
-        GlobalScope.launch(Dispatchers.Main) {
+        scope.launch {
           try {
             val stats = peer.getStats()
             if (stats == null) {
@@ -190,7 +196,7 @@ class PeerConnectionController(
         }
       }
       "dispose" -> {
-        dispose()
+        disposeInternal(false)
         result.success(null)
       }
     }
@@ -217,13 +223,22 @@ class PeerConnectionController(
   fun asFlutterResult(): Map<String, Any> =
       mapOf<String, Any>("channelId" to channelId, "id" to peer.id)
 
+  override fun dispose() {
+    disposeInternal(true)
+  }
+
   /**
    * Closes method and event channels of this [PeerConnectionController].
    *
    * Disposes underlying [PeerConnectionProxy].
    */
-  private fun dispose() {
+  private fun disposeInternal(cancel: Boolean) {
+    ControllerRegistry.unregister(this)
     peer.dispose()
     chan.setMethodCallHandler(null)
+    scope.cancel("disposed")
+    if (cancel) {
+      onCancel(null)
+    }
   }
 }
