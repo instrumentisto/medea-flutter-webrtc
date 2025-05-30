@@ -178,7 +178,7 @@ class MediaStreamTrackProxy(
       eventObservers.clear()
       if (sink != null) {
         (obj as VideoTrack).removeSink(sink)
-        sink = null;
+        sink = null
       }
     } else {
       Log.w(TAG, "Double stop detected [deviceId: $deviceId]!")

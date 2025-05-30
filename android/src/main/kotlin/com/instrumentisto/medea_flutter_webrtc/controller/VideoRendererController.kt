@@ -101,11 +101,6 @@ class VideoRendererController(
   fun asFlutterResult(): Map<String, Any> =
       mapOf("channelId" to channelId, "textureId" to videoRenderer.textureId())
 
-  /**
-   * Closes method channel of this [VideoRendererController].
-   *
-   * Disposes underlying [FlutterRtcVideoRenderer].
-   */
   override fun dispose() {
     eventChannel.setStreamHandler(null)
     chan.setMethodCallHandler(null)

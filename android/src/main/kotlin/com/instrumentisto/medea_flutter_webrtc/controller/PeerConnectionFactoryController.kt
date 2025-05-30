@@ -104,6 +104,7 @@ class PeerConnectionFactoryController(
     }
   }
 
+  /** Releases allocated resources. */
   fun dispose() {
     chan.setMethodCallHandler(null)
     factory.dispose()

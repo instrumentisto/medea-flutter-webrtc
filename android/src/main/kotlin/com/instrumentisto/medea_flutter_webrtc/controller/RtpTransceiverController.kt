@@ -87,6 +87,7 @@ class RtpTransceiverController(
     disposeInternal(true)
   }
 
+  /** Releases allocated resources. */
   fun disposeInternal(stop: Boolean) {
     if (stop) {
       transceiver.stop()

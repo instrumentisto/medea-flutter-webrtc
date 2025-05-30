@@ -9,14 +9,15 @@ interface IdentifiableController {
     private var counter: Long = 0
   }
 
+  /** Declares dispose order for this controller. */
   val disposeOrder: Int
+
+  /** Frees resources allocated by this [IdentifiableController]. */
+  fun dispose()
 
   /** @return New unique ID for this [IdentifiableController]'s channel. */
   fun nextChannelId(): Long {
     ThreadUtils.checkIsOnMainThread()
     return counter++
   }
-
-  /** Frees resources allocated by this [IdentifiableController]. */
-  fun dispose()
 }

@@ -61,7 +61,7 @@ private const val SPEAKERPHONE_DEVICE_ID: String = "speakerphone"
 private const val BLUETOOTH_HEADSET_DEVICE_ID: String = "bluetooth-headset"
 
 /** Cloned tracks for `getUserVideoTrack()` if the video source has not been released. */
-public val videoTracks: HashMap<VideoConstraints, MediaStreamTrackProxy> = HashMap()
+private val videoTracks: HashMap<VideoConstraints, MediaStreamTrackProxy> = HashMap()
 
 /**
  * Processor for `getUserMedia` requests.
@@ -109,7 +109,7 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
    *
    * [isBluetoothHeadsetConnected] will be updated based on this subscription.
    */
-  private var audioDeviceCallback: AudioDeviceCallback? = null;
+  private var audioDeviceCallback: AudioDeviceCallback? = null
 
   companion object {
     /** Observer of [MediaDevices] events. */
@@ -142,19 +142,20 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
   }
 
   init {
-    audioDeviceCallback = object : AudioDeviceCallback() {
-      override fun onAudioDevicesAdded(addedDevices: Array<AudioDeviceInfo>) {
-        if (addedDevices.any { isBluetoothDevice(it) }) {
-          setHeadsetState(true)
-        }
-      }
+    audioDeviceCallback =
+        object : AudioDeviceCallback() {
+          override fun onAudioDevicesAdded(addedDevices: Array<AudioDeviceInfo>) {
+            if (addedDevices.any { isBluetoothDevice(it) }) {
+              setHeadsetState(true)
+            }
+          }
 
-      override fun onAudioDevicesRemoved(removedDevices: Array<AudioDeviceInfo>) {
-        if (removedDevices.any { isBluetoothDevice(it) }) {
-          synchronizeHeadsetState()
+          override fun onAudioDevicesRemoved(removedDevices: Array<AudioDeviceInfo>) {
+            if (removedDevices.any { isBluetoothDevice(it) }) {
+              synchronizeHeadsetState()
+            }
+          }
         }
-      }
-    };
 
     state.context.registerReceiver(this, IntentFilter(AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED))
     synchronizeHeadsetState()
@@ -477,9 +478,10 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
     }
   }
 
+  /** Releases allocated resources. */
   fun dispose() {
     state.context.unregisterReceiver(this)
     audioManager.unregisterAudioDeviceCallback(audioDeviceCallback)
-    audioDeviceCallback = null;
+    audioDeviceCallback = null
   }
 }
