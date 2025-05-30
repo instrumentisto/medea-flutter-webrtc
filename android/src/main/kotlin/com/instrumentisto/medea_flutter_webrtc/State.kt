@@ -7,6 +7,7 @@ import org.webrtc.PeerConnectionFactory
 import org.webrtc.VideoDecoderFactory
 import org.webrtc.VideoEncoderFactory
 import org.webrtc.audio.JavaAudioDeviceModule
+import org.webrtc.audio.JavaAudioDeviceModule.AudioRecordStateCallback
 
 /**
  * Global context of the `flutter_webrtc` library.
@@ -51,6 +52,16 @@ class State(val context: Context) {
       var audioDeviceModule =
           JavaAudioDeviceModule.builder(context)
               .setUseHardwareAcousticEchoCanceler(true)
+              .setAudioRecordStateCallback(
+                  object : AudioRecordStateCallback {
+                    override fun onWebRtcAudioRecordStart() {
+                      ForegroundCallService.start(context)
+                    }
+
+                    override fun onWebRtcAudioRecordStop() {
+                      ForegroundCallService.stop(context)
+                    }
+                  })
               .setUseHardwareNoiseSuppressor(true)
               .createAudioDeviceModule()
 
