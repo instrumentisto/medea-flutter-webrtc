@@ -59,7 +59,7 @@ void PeerConnectionObserver::OnIceCandidateError(const std::string& address,
 
 // Propagates the removed `Candidate`s to the Rust side.
 void PeerConnectionObserver::OnIceCandidatesRemoved(
-    const std::vector<cricket::Candidate>& candidates) {
+    const std::vector<webrtc::Candidate>& candidates) {
   bridge::on_ice_candidates_removed(*cb_, candidates);
 }
 
@@ -70,7 +70,7 @@ void PeerConnectionObserver::OnIceConnectionReceivingChange(bool receiving) {
 
 // Propagates the received `CandidatePairChangeEvent` to the Rust side.
 void PeerConnectionObserver::OnIceSelectedCandidatePairChanged(
-    const cricket::CandidatePairChangeEvent& event) {
+    const webrtc::CandidatePairChangeEvent& event) {
   bridge::on_ice_selected_candidate_pair_changed(*cb_, event);
 }
 

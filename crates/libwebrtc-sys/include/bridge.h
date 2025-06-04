@@ -468,21 +468,21 @@ std::unique_ptr<AudioSourceInterface> get_audio_track_source(
 // Creates an SDP-ized form of this `Candidate`.
 
 // Returns `CandidatePairChangeEvent.candidate_pair` field value.
-const cricket::CandidatePair& get_candidate_pair(
-    const cricket::CandidatePairChangeEvent& event);
+const webrtc::CandidatePair& get_candidate_pair(
+    const webrtc::CandidatePairChangeEvent& event);
 
 // Returns `CandidatePairChangeEvent.last_data_received_ms` field value.
 int64_t get_last_data_received_ms(
-    const cricket::CandidatePairChangeEvent& event);
+    const webrtc::CandidatePairChangeEvent& event);
 
 // Returns `CandidatePairChangeEvent.reason` field value.
 std::unique_ptr<std::string> get_reason(
-    const cricket::CandidatePairChangeEvent& event);
+    const webrtc::CandidatePairChangeEvent& event);
 
 // Returns `CandidatePairChangeEvent.estimated_disconnected_time_ms` field
 // value.
 int64_t get_estimated_disconnected_time_ms(
-    const cricket::CandidatePairChangeEvent& event);
+    const webrtc::CandidatePairChangeEvent& event);
 
 // Returns a `mid` of the given `RtpTransceiverInterface`.
 rust::String get_transceiver_mid(const RtpTransceiverInterface& transceiver);
@@ -653,7 +653,7 @@ rust::Box<bridge::OptionRtcpFeedbackMessageType> rtcp_feedback_message_type(
 
 // Calls `Candidate->ToString`.
 std::unique_ptr<std::string> candidate_to_string(
-    const cricket::Candidate& candidate);
+    const webrtc::Candidate& candidate);
 
 // Returns the `parameters` as `std::vector<(std::string, std::string)>` of the
 // provided `RtpCodecParameters`.

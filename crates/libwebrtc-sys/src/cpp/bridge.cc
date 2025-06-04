@@ -705,32 +705,32 @@ std::unique_ptr<std::string> ice_candidate_interface_to_string(
 
 // Calls `Candidate->ToString`.
 std::unique_ptr<std::string> candidate_to_string(
-    const cricket::Candidate& candidate) {
+    const webrtc::Candidate& candidate) {
   return std::make_unique<std::string>(candidate.ToString());
 };
 
 // Returns `CandidatePairChangeEvent.candidate_pair` field value.
-const cricket::CandidatePair& get_candidate_pair(
-    const cricket::CandidatePairChangeEvent& event) {
+const webrtc::CandidatePair& get_candidate_pair(
+    const webrtc::CandidatePairChangeEvent& event) {
   return event.selected_candidate_pair;
 };
 
 // Returns `CandidatePairChangeEvent.last_data_received_ms` field value.
 int64_t get_last_data_received_ms(
-    const cricket::CandidatePairChangeEvent& event) {
+    const webrtc::CandidatePairChangeEvent& event) {
   return event.last_data_received_ms;
 }
 
 // Returns `CandidatePairChangeEvent.reason` field value.
 std::unique_ptr<std::string> get_reason(
-    const cricket::CandidatePairChangeEvent& event) {
+    const webrtc::CandidatePairChangeEvent& event) {
   return std::make_unique<std::string>(event.reason);
 }
 
 // Returns `CandidatePairChangeEvent.estimated_disconnected_time_ms` field
 // value.
 int64_t get_estimated_disconnected_time_ms(
-    const cricket::CandidatePairChangeEvent& event) {
+    const webrtc::CandidatePairChangeEvent& event) {
   return event.estimated_disconnected_time_ms;
 }
 

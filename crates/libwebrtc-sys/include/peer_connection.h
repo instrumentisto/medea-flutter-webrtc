@@ -45,7 +45,7 @@ class PeerConnectionObserver : public webrtc::PeerConnectionObserver {
 
   // Called when the ICE candidates have been removed.
   void OnIceCandidatesRemoved(
-      const std::vector<cricket::Candidate>& candidates) override;
+      const std::vector<webrtc::Candidate>& candidates) override;
 
   // Called when the `SignalingState` changes.
   void OnSignalingChange(
@@ -68,7 +68,7 @@ class PeerConnectionObserver : public webrtc::PeerConnectionObserver {
 
   // Called when the selected candidate pair for an ICE connection changes.
   void OnIceSelectedCandidatePairChanged(
-      const cricket::CandidatePairChangeEvent& event) override;
+      const webrtc::CandidatePairChangeEvent& event) override;
 
   // Called when a remote peer opens a data channel.
   void OnDataChannel(
