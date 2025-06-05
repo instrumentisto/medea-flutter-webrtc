@@ -59,6 +59,7 @@ class PeerConnectionFactoryProxy(private val state: State) {
   fun dispose() {
     if (disposed) return
 
+    disposed = true
     state.getPeerConnectionFactory().dispose()
   }
 

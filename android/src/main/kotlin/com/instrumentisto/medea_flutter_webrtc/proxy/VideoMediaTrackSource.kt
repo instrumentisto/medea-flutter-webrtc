@@ -79,6 +79,7 @@ class VideoMediaTrackSource(
   private fun dispose() {
     if (disposed) return
 
+    disposed = true
     videoCapturer.stopCapture()
     videoSource.dispose()
     videoCapturer.dispose()
