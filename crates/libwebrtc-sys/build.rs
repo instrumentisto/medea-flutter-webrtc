@@ -226,7 +226,7 @@ fn main() -> anyhow::Result<()> {
         // to have issues: https://issues.chromium.org/issues/40565911
         // not guaranteed to run and not tested by bots:
         // https://chromium.googlesource.com/chromium/src/+/main/docs/clang.md
-        build.compiler("clang");
+        build.compiler("clang++");
 
         build
             .flag("-DWEBRTC_LINUX")
