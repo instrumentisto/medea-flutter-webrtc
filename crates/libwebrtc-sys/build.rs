@@ -222,12 +222,23 @@ fn main() -> anyhow::Result<()> {
         }
         println!("cargo:rustc-link-arg=-fuse-ld=lld");
 
+        println!("----------------------------------------------------------");
+
+        {
+            println!("{:?}", Command::new("which").arg("clang").output());
+            println!("{:?}", Command::new("which").arg("clang++").output());
+            println!("{:?}", Command::new("clang").output());
+            println!("{:?}", Command::new("clang++").output());
+            println!("{:?}", Command::new("ls").arg("/usr/lib").output());
+        }
+
+        println!("----------------------------------------------------------");
+
         // Prefer clang over gcc cause chromium uses clang and gcc is known
         // to have issues: https://issues.chromium.org/issues/40565911
         // not guaranteed to run and not tested by bots:
         // https://chromium.googlesource.com/chromium/src/+/main/docs/clang.md
-        build.compiler("clang++");
-
+        build.compiler("clang");
         build
             .flag("-DWEBRTC_LINUX")
             .flag("-DWEBRTC_POSIX")
