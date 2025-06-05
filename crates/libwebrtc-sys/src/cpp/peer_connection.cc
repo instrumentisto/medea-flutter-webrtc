@@ -95,7 +95,7 @@ void PeerConnectionObserver::OnDataChannel(
 // Does nothing since we do not plan to support "Plan B" semantics.
 void PeerConnectionObserver::OnAddTrack(
     webrtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver,
-    const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface>>&
+    const std::vector<webrtc::scoped_refptr<webrtc::MediaStreamInterface>>&
         streams) {}
 
 // Creates a new `CreateSessionDescriptionObserver` backed by the provided
