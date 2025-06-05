@@ -485,7 +485,7 @@ void OpenALAudioDeviceModule::processPlayoutQueued() {
 
         // If this thread is quitting, then the task was not scheduled and must
         // be rescheduled when the thread will be restarted.
-        _data->playingQueued = !rtc::Thread::Current()->IsQuitting();
+        _data->playingQueued = !webrtc::Thread::Current()->IsQuitting();
       },
       webrtc::TimeDelta::Millis(10));
 }
@@ -743,7 +743,7 @@ void OpenALAudioDeviceModule::DisposeAudioSource(std::string device_id) {
   }
 }
 
-rtc::scoped_refptr<PlayoutDelegatingAPM> OpenALAudioDeviceModule::AudioProcessing() {
+webrtc::scoped_refptr<PlayoutDelegatingAPM> OpenALAudioDeviceModule::AudioProcessing() {
   return apm_;
 };
 
