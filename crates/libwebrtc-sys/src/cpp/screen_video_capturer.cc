@@ -100,7 +100,7 @@ ScreenVideoCapturer::ScreenVideoCapturer(
           capturer_.reset();
         },
         "ScreenCaptureThread",
-        webrtc::ThreadAttributes().SetPriority(rtc::ThreadPriority::kHigh));
+        webrtc::ThreadAttributes().SetPriority(webrtc::ThreadPriority::kHigh));
   }
 }
 
@@ -125,7 +125,7 @@ bool ScreenVideoCapturer::CaptureProcess() {
   capturer_->CaptureFrame();
   mouse_monitor_->Capture();
 
-  int last_capture_duration = (int)(rtc::TimeMillis() - started_time);
+  int last_capture_duration = (int)(webrtc::TimeMillis() - started_time);
   int capture_period =
       std::max((last_capture_duration * 100) / maxCpuConsumptionPercentage,
                requested_frame_duration_);
@@ -245,7 +245,7 @@ void ScreenVideoCapturer::OnCaptureResult(
   webrtc::VideoFrame captureFrame = webrtc::VideoFrame::Builder()
                                         .set_video_frame_buffer(dst_buffer)
                                         .set_timestamp_rtp(0)
-                                        .set_timestamp_ms(rtc::TimeMillis())
+                                        .set_timestamp_ms(webrtc::TimeMillis())
                                         .set_rotation(webrtc::kVideoRotation_0)
                                         .build();
 
