@@ -13,15 +13,12 @@ import io.flutter.plugin.common.MethodChannel
  * @property sender Underlying [RtpSenderProxy] to perform [MethodCall]s on.
  */
 class RtpSenderController(messenger: BinaryMessenger, private val sender: RtpSenderProxy) :
-    MethodChannel.MethodCallHandler, IdentifiableController {
+    Controller {
   /** Unique ID of the [MethodChannel] of this controller. */
   private val channelId = nextChannelId()
 
   /** Channel listened for the [MethodCall]s. */
   private val chan = MethodChannel(messenger, ChannelNameGenerator.name("RtpSender", channelId))
-
-  override val disposeOrder: Int
-    get() = 2
 
   init {
     chan.setMethodCallHandler(this)
@@ -93,9 +90,9 @@ class RtpSenderController(messenger: BinaryMessenger, private val sender: RtpSen
   }
 
   override fun dispose() {
-    sender.setDisposed()
-    chan.setMethodCallHandler(null)
     ControllerRegistry.unregister(this)
+    chan.setMethodCallHandler(null)
+    sender.setDisposed()
   }
 
   /**

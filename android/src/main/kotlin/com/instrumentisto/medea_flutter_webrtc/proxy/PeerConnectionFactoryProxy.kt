@@ -21,6 +21,9 @@ class PeerConnectionFactoryProxy(private val state: State) {
    */
   private var peerObservers: HashMap<Int, PeerObserver> = HashMap()
 
+  /** Disposed state of this [PeerConnectionFactoryProxy]. */
+  private var disposed = false
+
   /**
    * Creates a new [PeerConnectionProxy] based on the provided [PeerConnectionConfiguration].
    *
@@ -54,6 +57,8 @@ class PeerConnectionFactoryProxy(private val state: State) {
 
   /** Disposes underlying [PeerConnectionFactory] */
   fun dispose() {
+    if (disposed) return
+
     state.getPeerConnectionFactory().dispose()
   }
 

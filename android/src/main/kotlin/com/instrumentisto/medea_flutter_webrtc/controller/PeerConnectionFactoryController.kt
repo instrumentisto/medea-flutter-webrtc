@@ -23,7 +23,7 @@ import org.webrtc.MediaStreamTrack
 class PeerConnectionFactoryController(
     private val messenger: BinaryMessenger,
     private val state: State
-) : MethodChannel.MethodCallHandler {
+) : Controller {
   /** Factory creating new [PeerConnectionController]s. */
   private val factory: PeerConnectionFactoryProxy = PeerConnectionFactoryProxy(state)
 
@@ -105,7 +105,7 @@ class PeerConnectionFactoryController(
   }
 
   /** Releases allocated resources. */
-  fun dispose() {
+  override fun dispose() {
     chan.setMethodCallHandler(null)
     factory.dispose()
   }

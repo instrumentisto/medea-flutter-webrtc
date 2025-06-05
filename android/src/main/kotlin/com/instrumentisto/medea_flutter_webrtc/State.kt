@@ -55,11 +55,11 @@ class State(val context: Context) {
               .setAudioRecordStateCallback(
                   object : AudioRecordStateCallback {
                     override fun onWebRtcAudioRecordStart() {
-                      ForegroundCallService.start(context)
+                      //                      ForegroundCallService.start(context)
                     }
 
                     override fun onWebRtcAudioRecordStop() {
-                      ForegroundCallService.stop(context)
+                      //                      ForegroundCallService.stop(context)
                     }
                   })
               .setUseHardwareNoiseSuppressor(true)

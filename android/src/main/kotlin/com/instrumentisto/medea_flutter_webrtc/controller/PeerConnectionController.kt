@@ -25,15 +25,12 @@ import kotlinx.coroutines.launch
 class PeerConnectionController(
     private val messenger: BinaryMessenger,
     private val peer: PeerConnectionProxy
-) : MethodChannel.MethodCallHandler, EventChannel.StreamHandler, IdentifiableController {
+) : EventChannel.StreamHandler, Controller {
   /** [CoroutineScope] for this [PeerConnectionController] */
   private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
   /** Unique ID of the [MethodChannel] of this controller. */
   private val channelId = nextChannelId()
-
-  override val disposeOrder: Int
-    get() = 4
 
   /** Channel listened for the [MethodCall]s. */
   private val chan: MethodChannel =
@@ -234,9 +231,9 @@ class PeerConnectionController(
    */
   private fun disposeInternal(cancel: Boolean) {
     ControllerRegistry.unregister(this)
-    peer.dispose()
-    chan.setMethodCallHandler(null)
     scope.cancel("disposed")
+    chan.setMethodCallHandler(null)
+    peer.dispose()
     if (cancel) {
       onCancel(null)
     }

@@ -22,7 +22,7 @@ import org.webrtc.MediaStreamTrack
 class MediaStreamTrackController(
     private val messenger: BinaryMessenger,
     val track: MediaStreamTrackProxy
-) : MethodChannel.MethodCallHandler, EventChannel.StreamHandler, IdentifiableController {
+) : EventChannel.StreamHandler, Controller {
   /** [CoroutineScope] for this [MediaStreamTrackController] */
   private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
@@ -45,9 +45,6 @@ class MediaStreamTrackController(
 
   /** [MediaStreamTrackProxy] events observer, sending all the events to the [eventSink]. */
   private var eventObserver: MediaStreamTrackProxy.Companion.EventObserver? = null
-
-  override val disposeOrder: Int
-    get() = 1
 
   init {
     ControllerRegistry.register(this)
@@ -126,15 +123,16 @@ class MediaStreamTrackController(
           .toMap()
 
   /** Releases allocated resources. */
-  private fun disposeInternal(stop: Boolean) {
+  private fun disposeInternal(cancel: Boolean) {
     ControllerRegistry.unregister(this)
-    chan.setMethodCallHandler(null)
     scope.cancel("disposed")
-    if (stop) {
-      track.stop()
-      eventChannel.setStreamHandler(null)
-      track.removeEventObserver(eventObserver!!)
-      eventObserver = null
+    chan.setMethodCallHandler(null)
+    track.stop()
+    track.removeEventObserver(eventObserver!!)
+    eventObserver = null
+
+    if (cancel) {
+      onCancel(null)
     }
   }
 }

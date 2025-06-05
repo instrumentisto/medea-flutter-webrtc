@@ -17,16 +17,13 @@ import io.flutter.plugin.common.MethodChannel
 class RtpTransceiverController(
     private val messenger: BinaryMessenger,
     private val transceiver: RtpTransceiverProxy
-) : MethodChannel.MethodCallHandler, IdentifiableController {
+) : Controller {
   /** Unique ID of the [MethodChannel] of this controller. */
   private val channelId = nextChannelId()
 
   /** Channel listened for the [MethodCall]s. */
   private val chan =
       MethodChannel(messenger, ChannelNameGenerator.name("RtpTransceiver", channelId))
-
-  override val disposeOrder: Int
-    get() = 3
 
   init {
     chan.setMethodCallHandler(this)
@@ -89,11 +86,11 @@ class RtpTransceiverController(
 
   /** Releases allocated resources. */
   fun disposeInternal(stop: Boolean) {
+    ControllerRegistry.unregister(this)
+    chan.setMethodCallHandler(null)
     if (stop) {
       transceiver.stop()
     }
-    chan.setMethodCallHandler(null)
-    ControllerRegistry.unregister(this)
   }
 
   /**

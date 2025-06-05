@@ -35,9 +35,6 @@ class MedeaFlutterWebrtcPlugin : FlutterPlugin, ActivityAware {
     Log.i(TAG, "Detached from engine")
 
     ControllerRegistry.disposeAll()
-    mediaDevices?.dispose()
-    videoRendererFactory?.dispose()
-    peerConnectionFactory?.dispose()
 
     messenger = null
     state = null

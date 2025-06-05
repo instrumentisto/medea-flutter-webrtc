@@ -9,29 +9,29 @@ private val TAG = ControllerRegistry::class.java.simpleName
 /** Interface for all the controllers with unique IDs. */
 object ControllerRegistry {
   /** All currently registered [ControllerRegistry]s. */
-  private val controllers: TreeMap<Int, HashSet<IdentifiableController>> = TreeMap()
+  private val controllers: TreeMap<Int, HashSet<Controller>> = TreeMap()
 
-  /** Registers the provided [IdentifiableController] as active. */
-  fun register(controller: IdentifiableController) {
+  /** Registers the provided [Controller] as active. */
+  fun register(controller: Controller) {
     ThreadUtils.checkIsOnMainThread()
 
-    val set = controllers.getOrPut(controller.disposeOrder) { HashSet() }
+    val set = controllers.getOrPut(controller.disposeOrder()) { HashSet() }
     set.add(controller)
   }
 
-  /** Unregisters the provided [IdentifiableController] when it is disposed. */
-  fun unregister(controller: IdentifiableController) {
+  /** Unregisters the provided [Controller] when it is disposed. */
+  fun unregister(controller: Controller) {
     ThreadUtils.checkIsOnMainThread()
 
-    controllers[controller.disposeOrder]?.let { set ->
+    controllers[controller.disposeOrder()]?.let { set ->
       set.remove(controller)
       if (set.isEmpty()) {
-        controllers.remove(controller.disposeOrder)
+        controllers.remove(controller.disposeOrder())
       }
     }
   }
 
-  /** Disposes all registered [IdentifiableController]s. */
+  /** Disposes all registered [Controller]s. */
   fun disposeAll() {
     ThreadUtils.checkIsOnMainThread()
 

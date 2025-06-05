@@ -18,7 +18,7 @@ import io.flutter.plugin.common.MethodChannel
 class VideoRendererController(
     messenger: BinaryMessenger,
     private val videoRenderer: FlutterRtcVideoRenderer,
-) : MethodChannel.MethodCallHandler, EventChannel.StreamHandler, IdentifiableController {
+) : EventChannel.StreamHandler, Controller {
   /** Unique ID of the [MethodChannel] of this controller. */
   private val channelId: Long = nextChannelId()
 
@@ -32,9 +32,6 @@ class VideoRendererController(
 
   /** Event sink into which all [FlutterRtcVideoRenderer] events are sent. */
   private var eventSink: AnyThreadSink? = null
-
-  override val disposeOrder: Int
-    get() = 0
 
   init {
     chan.setMethodCallHandler(this)
@@ -102,10 +99,9 @@ class VideoRendererController(
       mapOf("channelId" to channelId, "textureId" to videoRenderer.textureId())
 
   override fun dispose() {
-    eventChannel.setStreamHandler(null)
-    chan.setMethodCallHandler(null)
-    eventSink = null
-    videoRenderer.dispose()
     ControllerRegistry.unregister(this)
+    chan.setMethodCallHandler(null)
+    onCancel(null)
+    videoRenderer.dispose()
   }
 }

@@ -36,6 +36,9 @@ class VideoMediaTrackSource(
    */
   private var aliveTracksCount: Int = 0
 
+  /** Disposed state of this [VideoMediaTrackSource]. */
+  private var disposed = false
+
   /**
    * Creates a new [MediaStreamTrackProxy] with the underlying [VideoSource].
    *
@@ -74,6 +77,8 @@ class VideoMediaTrackSource(
    * Disposes [VideoSource], [VideoCapturer] and [SurfaceTextureHelper].
    */
   private fun dispose() {
+    if (disposed) return
+
     videoCapturer.stopCapture()
     videoSource.dispose()
     videoCapturer.dispose()

@@ -28,7 +28,7 @@ class MediaDevicesController(
     private val messenger: BinaryMessenger,
     state: State,
     permissions: Permissions
-) : MethodChannel.MethodCallHandler, EventChannel.StreamHandler {
+) : EventChannel.StreamHandler, Controller {
   /** [CoroutineScope] for this [MediaDevicesController] */
   private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
@@ -122,7 +122,7 @@ class MediaDevicesController(
   }
 
   /** Releases allocated resources. */
-  fun dispose() {
+  override fun dispose() {
     mediaDevices.dispose()
     chan.setMethodCallHandler(null)
     scope.cancel("disposed")
