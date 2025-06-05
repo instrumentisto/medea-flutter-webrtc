@@ -74,14 +74,14 @@ ALCGETINTEGER64VSOFT alcGetInteger64vSOFT /* = nullptr*/;
 
 struct OpenALAudioDeviceModule::Data {
   Data() {
-    _playoutThread = rtc::Thread::Create();
-    _recordingThread = rtc::Thread::Create();
-    rtc::Thread::Current()->AllowInvokesToThread(_playoutThread.get());
-    rtc::Thread::Current()->AllowInvokesToThread(_recordingThread.get());
+    _playoutThread = webrtc::Thread::Create();
+    _recordingThread = webrtc::Thread::Create();
+    webrtc::Thread::Current()->AllowInvokesToThread(_playoutThread.get());
+    webrtc::Thread::Current()->AllowInvokesToThread(_recordingThread.get());
   }
 
-  std::unique_ptr<rtc::Thread> _playoutThread;
-  std::unique_ptr<rtc::Thread> _recordingThread;
+  std::unique_ptr<webrtc::Thread> _playoutThread;
+  std::unique_ptr<webrtc::Thread> _recordingThread;
   ALuint source = 0;
   int queuedBuffersCount = 0;
   std::array<ALuint, kBuffersFullCount> buffers = {{0}};
@@ -162,10 +162,10 @@ int32_t OpenALAudioDeviceModule::ActiveAudioLayer(
   return 0;
 }
 
-rtc::scoped_refptr<OpenALAudioDeviceModule> OpenALAudioDeviceModule::Create(
+webrtc::scoped_refptr<OpenALAudioDeviceModule> OpenALAudioDeviceModule::Create(
     AudioLayer audio_layer,
     webrtc::TaskQueueFactory* task_queue_factory) {
-  auto adm = rtc::make_ref_counted<OpenALAudioDeviceModule>();
+  auto adm = webrtc::make_ref_counted<OpenALAudioDeviceModule>();
 
   adm->audio_device_buffer_ =
       std::make_unique<webrtc::AudioDeviceBuffer>(task_queue_factory);
@@ -708,9 +708,9 @@ void OpenALAudioDeviceModule::stopPlayingOnThread() {
   _data->_playoutThread->Stop();
 }
 
-rtc::scoped_refptr<bridge::LocalAudioSource> OpenALAudioDeviceModule::CreateAudioSource(
+webrtc::scoped_refptr<bridge::LocalAudioSource> OpenALAudioDeviceModule::CreateAudioSource(
     uint32_t device_index,
-    rtc::scoped_refptr<webrtc::AudioProcessing> ap) {
+    webrtc::scoped_refptr<webrtc::AudioProcessing> ap) {
   std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
 
   std::string device_id;

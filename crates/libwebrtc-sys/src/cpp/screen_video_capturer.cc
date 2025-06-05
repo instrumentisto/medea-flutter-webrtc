@@ -73,7 +73,7 @@ ScreenVideoCapturer::ScreenVideoCapturer(
       requested_frame_duration_((int) (1000.0f / target_fps)),
       quit_(false) {
   if (capture_thread_.empty()) {
-    capture_thread_ = rtc::PlatformThread::SpawnJoinable(
+    capture_thread_ = webrtc::PlatformThread::SpawnJoinable(
         [this, source_id] {
           auto options = CreateDesktopCaptureOptions();
           std::unique_ptr<webrtc::DesktopCapturer> screen_capturer(
@@ -100,7 +100,7 @@ ScreenVideoCapturer::ScreenVideoCapturer(
           capturer_.reset();
         },
         "ScreenCaptureThread",
-        rtc::ThreadAttributes().SetPriority(rtc::ThreadPriority::kHigh));
+        webrtc::ThreadAttributes().SetPriority(rtc::ThreadPriority::kHigh));
   }
 }
 
@@ -121,7 +121,7 @@ bool ScreenVideoCapturer::CaptureProcess() {
   CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0, true);
 #endif
 
-  int64_t started_time = rtc::TimeMillis();
+  int64_t started_time = webrtc::TimeMillis();
   capturer_->CaptureFrame();
   mouse_monitor_->Capture();
 
@@ -178,7 +178,7 @@ void ScreenVideoCapturer::OnCaptureResult(
     output_size.set(2, 2);
   }
 
-  rtc::scoped_refptr<webrtc::I420Buffer> dst_buffer(
+  webrtc::scoped_refptr<webrtc::I420Buffer> dst_buffer(
       webrtc::I420Buffer::Create(output_size.width(), output_size.height()));
   dst_buffer->InitializeData();
 

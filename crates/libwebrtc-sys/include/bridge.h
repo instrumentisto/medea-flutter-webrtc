@@ -50,11 +50,11 @@ class TrackEventObserver : public webrtc::ObserverInterface {
   void OnChanged();
 
   // Sets the inner `MediaStreamTrackInterface`.
-  void set_track(rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track);
+  void set_track(webrtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track);
 
  private:
   // `MediaStreamTrackInterface` to determine the event.
-  std::optional<rtc::scoped_refptr<webrtc::MediaStreamTrackInterface>> track_;
+  std::optional<webrtc::scoped_refptr<webrtc::MediaStreamTrackInterface>> track_;
 
   // Rust side callback.
   rust::Box<bridge::DynTrackEventCallback> cb_;
@@ -75,8 +75,8 @@ struct OptionI32;
 struct OptionRtcpFeedbackMessageType;
 struct OptionString;
 
-using Thread = rtc::Thread;
-using VideoSinkInterface = rtc::VideoSinkInterface<webrtc::VideoFrame>;
+using Thread = webrtc::Thread;
+using VideoSinkInterface = webrtc::VideoSinkInterface<webrtc::VideoFrame>;
 
 using MediaType = webrtc::MediaType;
 
@@ -100,20 +100,20 @@ using VideoRotation = webrtc::VideoRotation;
 using RtpTransceiverDirection = webrtc::RtpTransceiverDirection;
 using TrackState = webrtc::MediaStreamTrackInterface::TrackState;
 
-using AudioDeviceModule = rtc::scoped_refptr<ExtendedADM>;
-using AudioProcessing = rtc::scoped_refptr<webrtc::AudioProcessing>;
-using AudioSourceInterface = rtc::scoped_refptr<LocalAudioSource>;
-using AudioTrackInterface = rtc::scoped_refptr<webrtc::AudioTrackInterface>;
-using MediaStreamInterface = rtc::scoped_refptr<webrtc::MediaStreamInterface>;
+using AudioDeviceModule = webrtc::scoped_refptr<ExtendedADM>;
+using AudioProcessing = webrtc::scoped_refptr<webrtc::AudioProcessing>;
+using AudioSourceInterface = webrtc::scoped_refptr<LocalAudioSource>;
+using AudioTrackInterface = webrtc::scoped_refptr<webrtc::AudioTrackInterface>;
+using MediaStreamInterface = webrtc::scoped_refptr<webrtc::MediaStreamInterface>;
 using PeerConnectionFactoryInterface =
-    rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface>;
-using RtpSenderInterface = rtc::scoped_refptr<webrtc::RtpSenderInterface>;
-using VideoTrackInterface = rtc::scoped_refptr<webrtc::VideoTrackInterface>;
+    webrtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface>;
+using RtpSenderInterface = webrtc::scoped_refptr<webrtc::RtpSenderInterface>;
+using VideoTrackInterface = webrtc::scoped_refptr<webrtc::VideoTrackInterface>;
 using VideoTrackSourceInterface =
-    rtc::scoped_refptr<webrtc::VideoTrackSourceInterface>;
-using RtpReceiverInterface = rtc::scoped_refptr<webrtc::RtpReceiverInterface>;
+    webrtc::scoped_refptr<webrtc::VideoTrackSourceInterface>;
+using RtpReceiverInterface = webrtc::scoped_refptr<webrtc::RtpReceiverInterface>;
 using MediaStreamTrackInterface =
-    rtc::scoped_refptr<webrtc::MediaStreamTrackInterface>;
+    webrtc::scoped_refptr<webrtc::MediaStreamTrackInterface>;
 
 using RtpCodecCapability = webrtc::RtpCodecCapability;
 using RtcpFeedback = webrtc::RtcpFeedback;
@@ -223,13 +223,13 @@ int32_t video_device_name(VideoDeviceInfo& device_info,
                           rust::String& guid);
 
 // Creates a new `Thread`.
-std::unique_ptr<rtc::Thread> create_thread();
+std::unique_ptr<webrtc::Thread> create_thread();
 
 // Creates a default `TaskQueueFactory`, basing on the current platform.
 std::unique_ptr<TaskQueueFactory> create_default_task_queue_factory();
 
 // Creates a new `Thread` with a socket server.
-std::unique_ptr<rtc::Thread> create_thread_with_socket_server();
+std::unique_ptr<webrtc::Thread> create_thread_with_socket_server();
 
 // Creates a new `VideoTrackSourceInterface` from the specified video input
 // device according to the specified constraints.
