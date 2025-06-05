@@ -7,6 +7,7 @@ import org.webrtc.PeerConnectionFactory
 import org.webrtc.VideoDecoderFactory
 import org.webrtc.VideoEncoderFactory
 import org.webrtc.audio.JavaAudioDeviceModule
+import org.webrtc.audio.JavaAudioDeviceModule.AudioRecordStateCallback
 
 /**
  * Global context of the `flutter_webrtc` library.
@@ -15,10 +16,7 @@ import org.webrtc.audio.JavaAudioDeviceModule
  *
  * @property context Android [Context] used, for example, for `getUserMedia` requests.
  */
-class State(private val context: Context) {
-  /** Module for the controlling audio devices in context of `libwebrtc`. */
-  private var audioDeviceModule: JavaAudioDeviceModule? = null
-
+class State(val context: Context) {
   /** [VideoEncoderFactory] used by the [PeerConnectionFactory]. */
   var encoder: WebrtcVideoEncoderFactory
 
@@ -50,10 +48,20 @@ class State(private val context: Context) {
    * @return Current [PeerConnectionFactory] of this [State].
    */
   fun getPeerConnectionFactory(): PeerConnectionFactory {
-    if (factory == null) {
-      audioDeviceModule =
+    if (factory == null || factory!!.nativeOwnedFactoryAndThreads == 0L) {
+      var audioDeviceModule =
           JavaAudioDeviceModule.builder(context)
               .setUseHardwareAcousticEchoCanceler(true)
+              .setAudioRecordStateCallback(
+                  object : AudioRecordStateCallback {
+                    override fun onWebRtcAudioRecordStart() {
+                      //                      ForegroundCallService.start(context)
+                    }
+
+                    override fun onWebRtcAudioRecordStop() {
+                      //                      ForegroundCallService.stop(context)
+                    }
+                  })
               .setUseHardwareNoiseSuppressor(true)
               .createAudioDeviceModule()
 
@@ -64,16 +72,10 @@ class State(private val context: Context) {
               .setVideoDecoderFactory(decoder)
               .setAudioDeviceModule(audioDeviceModule)
               .createPeerConnectionFactory()
-
-      audioDeviceModule!!.setSpeakerMute(false)
+      audioDeviceModule.release()
     }
 
     return factory!!
-  }
-
-  /** @return Android SDK [Context]. */
-  fun getAppContext(): Context {
-    return context
   }
 
   /** @return [AudioManager] system service. */
