@@ -223,7 +223,7 @@ fn main() -> anyhow::Result<()> {
         println!("cargo:rustc-link-arg=-fuse-ld=lld");
 
         // Prefer `clang` over `gcc`, because Chromium uses `clang` and `gcc` is
-        // known to have issues, is not guaranteed to run and not tested by 
+        // known to have issues, is not guaranteed to run and not tested by
         // bots. See:
         // https://issues.chromium.org/issues/40565911
         // https://chromium.googlesource.com/chromium/src/+/main/docs/clang.md
