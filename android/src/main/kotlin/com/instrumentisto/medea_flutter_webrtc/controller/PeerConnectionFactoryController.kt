@@ -104,7 +104,7 @@ class PeerConnectionFactoryController(
     }
   }
 
-  /** Releases allocated resources. */
+  /** Releases all the allocated resources. */
   override fun dispose() {
     chan.setMethodCallHandler(null)
     factory.dispose()

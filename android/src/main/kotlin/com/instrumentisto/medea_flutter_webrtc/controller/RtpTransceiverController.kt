@@ -84,7 +84,7 @@ class RtpTransceiverController(
     disposeInternal(true)
   }
 
-  /** Releases allocated resources. */
+  /** Releases all the allocated resources. */
   fun disposeInternal(stop: Boolean) {
     ControllerRegistry.unregister(this)
     chan.setMethodCallHandler(null)

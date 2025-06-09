@@ -32,7 +32,7 @@ class VideoRendererFactoryController(
     }
   }
 
-  /** Releases allocated resources. */
+  /** Releases all the allocated resources. */
   override fun dispose() {
     chan.setMethodCallHandler(null)
   }

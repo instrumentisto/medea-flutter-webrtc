@@ -148,7 +148,7 @@ class MediaStreamTrackProxy(
   }
 
   /**
-   * Removes the specified [EventObserver] from the list of [EventObserver].
+   * Removes the specified [EventObserver] from the list of [EventObserver]s.
    *
    * @param eventObserver [EventObserver] to be removed.
    */

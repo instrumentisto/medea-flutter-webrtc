@@ -53,9 +53,9 @@ class RtpTransceiverProxy(obj: RtpTransceiver) : Proxy<RtpTransceiver>(obj) {
   fun setDisposed() {
     if (disposed) return
 
-    disposed = true
     receiver.setDisposed()
     sender.setDisposed()
+    disposed = true
   }
 
   /** Sets [RtpTransceiverDirection] of the underlying [RtpTransceiver]. */

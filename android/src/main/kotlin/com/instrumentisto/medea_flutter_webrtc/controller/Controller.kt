@@ -3,7 +3,7 @@ package com.instrumentisto.medea_flutter_webrtc.controller
 import io.flutter.plugin.common.MethodChannel
 import org.webrtc.ThreadUtils
 
-/** Interface for all the controllers that handle calls from Dart. */
+/** Interface for a controller that handles calls from Dart. */
 interface Controller : MethodChannel.MethodCallHandler {
   companion object {
     /** Last unique ID created for this [Controller]. */

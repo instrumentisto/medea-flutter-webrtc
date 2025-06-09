@@ -478,7 +478,7 @@ class MediaDevices(val state: State, private val permissions: Permissions) : Bro
     }
   }
 
-  /** Releases allocated resources. */
+  /** Releases all the allocated resources. */
   fun dispose() {
     state.context.unregisterReceiver(this)
     audioManager.unregisterAudioDeviceCallback(audioDeviceCallback)

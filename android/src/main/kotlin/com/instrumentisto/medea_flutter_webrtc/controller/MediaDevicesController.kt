@@ -121,7 +121,7 @@ class MediaDevicesController(
     eventSink = null
   }
 
-  /** Releases allocated resources. */
+  /** Releases all the allocated resources. */
   override fun dispose() {
     mediaDevices.dispose()
     chan.setMethodCallHandler(null)

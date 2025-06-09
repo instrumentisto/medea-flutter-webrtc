@@ -63,7 +63,7 @@ class AudioMediaTrackSource(
   private fun dispose() {
     if (disposed) return
 
-    disposed = true
     source.dispose()
+    disposed = true
   }
 }

@@ -6,7 +6,7 @@ import org.webrtc.ThreadUtils
 
 private val TAG = ControllerRegistry::class.java.simpleName
 
-/** Interface for all the controllers with unique IDs. */
+/** Registry for [Controller]s with unique IDs. */
 object ControllerRegistry {
   /** All currently registered [ControllerRegistry]s. */
   private val controllers: TreeMap<Int, HashSet<Controller>> = TreeMap()
@@ -19,7 +19,7 @@ object ControllerRegistry {
     set.add(controller)
   }
 
-  /** Unregisters the provided [Controller] when it is disposed. */
+  /** Unregisters the provided [Controller] once it's disposed. */
   fun unregister(controller: Controller) {
     ThreadUtils.checkIsOnMainThread()
 
@@ -31,23 +31,23 @@ object ControllerRegistry {
     }
   }
 
-  /** Disposes all registered [Controller]s. */
+  /** Disposes all the registered [Controller]s. */
   fun disposeAll() {
     ThreadUtils.checkIsOnMainThread()
 
-    // Clone since calling dispose() modifies `controllers` map
+    // Clone since calling dispose() modifies the `controllers` map.
     val all = controllers.values.flatten().toList()
 
     all.forEach {
       try {
         it.dispose()
       } catch (e: Throwable) {
-        Log.e(TAG, "Exception while disposing controller: $e")
+        Log.e(TAG, "Exception while disposing `Controller`: $e")
       }
     }
 
     if (controllers.isNotEmpty()) {
-      Log.e(TAG, "Controllers list is not empty after disposeAll()")
+      Log.e(TAG, "`Controller`s list is not empty after `disposeAll()`")
     }
   }
 }

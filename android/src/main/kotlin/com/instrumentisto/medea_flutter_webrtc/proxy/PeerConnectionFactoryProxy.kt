@@ -50,17 +50,17 @@ class PeerConnectionFactoryProxy(private val state: State) {
     return peerProxy
   }
 
-  /** Returns underlying [PeerConnectionFactory] */
+  /** Returns the underlying [PeerConnectionFactory]. */
   fun getPeerConnectionFactory(): PeerConnectionFactory {
     return state.getPeerConnectionFactory()
   }
 
-  /** Disposes underlying [PeerConnectionFactory] */
+  /** Disposes the underlying [PeerConnectionFactory]. */
   fun dispose() {
     if (disposed) return
 
-    disposed = true
     state.getPeerConnectionFactory().dispose()
+    disposed = true
   }
 
   /** Removes the specified [PeerObserver] from the [peerObservers]. */

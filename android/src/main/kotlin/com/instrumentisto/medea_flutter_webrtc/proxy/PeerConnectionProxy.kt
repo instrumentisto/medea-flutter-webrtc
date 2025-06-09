@@ -252,7 +252,6 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
   fun dispose() {
     if (disposed) return
 
-    disposed = true
     for (transceiver in transceivers.values) {
       transceiver.setDisposed()
     }
@@ -261,6 +260,7 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
     receivers.clear()
     onDisposeSubscribers.forEach { sub -> sub(id) }
     onDisposeSubscribers.clear()
+    disposed = true
   }
 
   /**

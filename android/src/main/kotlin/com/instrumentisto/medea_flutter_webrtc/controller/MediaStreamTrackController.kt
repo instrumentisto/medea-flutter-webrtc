@@ -29,7 +29,7 @@ class MediaStreamTrackController(
   /** Unique ID of the [MethodChannel] of this controller. */
   private val channelId: Long = nextChannelId()
 
-  /** ID of the underlying [MediaStreamTrack] */
+  /** ID of the underlying [MediaStreamTrack]. */
   val id: String = track.id
 
   /** Channel listened for the [MethodCall]s. */
@@ -122,7 +122,7 @@ class MediaStreamTrackController(
           .mapNotNull { p -> p.second?.let { Pair(p.first, it) } }
           .toMap()
 
-  /** Releases allocated resources. */
+  /** Releases all the allocated resources. */
   private fun disposeInternal(cancel: Boolean) {
     ControllerRegistry.unregister(this)
     scope.cancel("disposed")
