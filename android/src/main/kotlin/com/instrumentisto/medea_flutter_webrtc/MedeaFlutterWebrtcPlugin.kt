@@ -34,9 +34,9 @@ class MedeaFlutterWebrtcPlugin : FlutterPlugin, ActivityAware {
   override fun onDetachedFromEngine(registrar: FlutterPlugin.FlutterPluginBinding) {
     Log.i(TAG, "Detached from engine")
 
-    ForegroundCallService.stop(registrar.applicationContext, permissions!!)
     ControllerRegistry.disposeAll()
 
+    ForegroundCallService.stop(registrar.applicationContext, permissions!!)
     messenger = null
     state = null
     textureRegistry = null
