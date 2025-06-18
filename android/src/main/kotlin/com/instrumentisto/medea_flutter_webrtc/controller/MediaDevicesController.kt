@@ -59,7 +59,6 @@ class MediaDevicesController(
 
   init {
     ControllerRegistry.register(this)
-    ControllerRegistry.register(this)
     chan.setMethodCallHandler(this)
     eventChannel.setStreamHandler(this)
     mediaDevices.addObserver(eventObserver)
@@ -107,17 +106,6 @@ class MediaDevicesController(
           } catch (e: Exception) {
             result.error("SetOutputAudioIdException", e.message, null)
           }
-        }
-      }
-      "setupForegroundService" -> {
-        try {
-          val config: Map<String, Any> = call.argument("config")!!
-
-          ForegroundCallService.setup(ForegroundCallService.Config.fromMap(config))
-
-          result.success(null)
-        } catch (e: Exception) {
-          result.error("SetOutputAudioIdException", e.message, null)
         }
       }
       "setupForegroundService" -> {

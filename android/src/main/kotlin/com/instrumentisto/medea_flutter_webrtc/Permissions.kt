@@ -67,10 +67,12 @@ class Permissions(private val activity: Activity) :
     }
   }
 
+  /** Adds [GrantedObserver] that will be notified whenever a new permission is granted. */
   fun addObserver(listener: GrantedObserver) {
     grantedListeners.add(listener)
   }
 
+  /** Removes the provided [GrantedObserver]. */
   fun removeObserver(listener: GrantedObserver) {
     grantedListeners.remove(listener)
   }
