@@ -1,4 +1,4 @@
-//! Downloads, compiles and links [`libwebrtc-bin`] and [OpenAL] libraries.
+//! Downloads, compiles, and links [`libwebrtc-bin`] and [OpenAL] libraries.
 //!
 //! [`libwebrtc-bin`]: https://github.com/instrumentisto/libwebrtc-bin
 //! [OpenAL]: https://github.com/kcat/openal-soft
@@ -90,6 +90,7 @@
     clippy::shadow_unrelated,
     clippy::significant_drop_in_scrutinee,
     clippy::significant_drop_tightening,
+    clippy::single_option_map,
     clippy::str_to_string,
     clippy::string_add,
     clippy::string_lit_as_bytes,
@@ -172,7 +173,7 @@ use walkdir::{DirEntry, WalkDir};
 /// [`libwebrtc-bin`]: https://github.com/instrumentisto/libwebrtc-bin
 static LIBWEBRTC_URL: &str = "\
     https://github.com/instrumentisto/libwebrtc-bin/releases/download\
-                                                            /136.0.7103.92";
+                                                            /137.0.7151.68";
 
 /// URL for downloading `openal-soft` source code.
 static OPENAL_URL: &str =
@@ -220,6 +221,13 @@ fn main() -> anyhow::Result<()> {
             );
         }
         println!("cargo:rustc-link-arg=-fuse-ld=lld");
+
+        // Prefer `clang` over `gcc`, because Chromium uses `clang` and `gcc` is
+        // known to have issues, is not guaranteed to run and not tested by
+        // bots. See:
+        // https://issues.chromium.org/issues/40565911
+        // https://chromium.googlesource.com/chromium/src/+/main/docs/clang.md
+        build.compiler("clang");
         build
             .flag("-DWEBRTC_LINUX")
             .flag("-DWEBRTC_POSIX")
@@ -228,7 +236,7 @@ fn main() -> anyhow::Result<()> {
     }
     #[cfg(target_os = "macos")]
     {
-        println!("cargo:rustc-env=MACOSX_DEPLOYMENT_TARGET=10.11");
+        println!("cargo:rustc-env=MACOSX_DEPLOYMENT_TARGET=10.15");
         build
             .include(libpath.join("include/sdk/objc/base"))
             .include(libpath.join("include/sdk/objc"));
@@ -294,19 +302,19 @@ fn get_target() -> anyhow::Result<String> {
 fn get_expected_libwebrtc_hash() -> anyhow::Result<&'static str> {
     Ok(match get_target()?.as_str() {
         "aarch64-unknown-linux-gnu" => {
-            "ecbb5eedf8ddd7b834767f83e7407921cc28b409e830b13f551633de5f4d37bc"
+            "355382b0488e27f3147b5f8225eeca7a18c97abab3d91dc89f22183446478d5a"
         }
         "x86_64-unknown-linux-gnu" => {
-            "de699b4a280114e8c591c2f709c799ed4f5dc1e9548ad927d7adeac6560c2275"
+            "044bbe713919be96e862de0a3c13322f9406cde836b560eaa915b69f9397ea83"
         }
         "aarch64-apple-darwin" => {
-            "b8bf690e89531b59daca202d3e277b1f9140c2ce9a0e8b2cc6cb6cc917e11f6b"
+            "d0efba8668d20e1511596864ac04626aa81816cbfe0a5f9f6109fc71648c94f0"
         }
         "x86_64-apple-darwin" => {
-            "44dcbdd2f6e5f62649a64fe2ac23b82935f9a235405d31b7f0ea3b3393407a57"
+            "765ebc144282b0bb5e3602adf13008e3416f05a5946630be0b0c4c41afc73e37"
         }
         "x86_64-pc-windows-msvc" => {
-            "19878f707df76ca364f169ef330dc789d97bc83b0dcd6f877803c3a5a2539aec"
+            "25e44a76ec15b3a4f70965d65a22d5160e8fa9ca17fc72abf8465dd03d7477d0"
         }
         arch => return Err(anyhow::anyhow!("Unsupported target: {arch}")),
     })

@@ -6,6 +6,33 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## main
+
+[Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.14.0...main)
+
+## BC Breaks
+
+- Bumped up [macOS] deployment target to 10.15. ([#203])
+
+### Changed
+
+- Upgraded [libwebrtc] to [137.0.7151.68] version. ([#203], [007bd441])
+- Upgraded [`flutter_rust_bridge`] crate to [2.10.0][frb-2.10.0] version. ([#201])
+
+### Fixed
+
+- Resources cleanup when `medea_flutter_webrtc` Flutter plugin is detached on Android. ([#202])
+
+[#201]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/201
+[#202]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/202
+[#203]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/203
+[007bd441]: https://github.com/instrumentisto/medea-flutter-webrtc/commit/007bd441ce5386aa84e47b3dcc49bdfee070241d
+[137.0.7151.68]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/137.0.7151.68
+[frb-2.10.0]: https://github.com/fzyzcjy/flutter_rust_bridge/releases/tag/v2.10.0
+
+
+
+
 ## [0.14.0] · 2025-05-15
 [0.14.0]: https://github.com/instrumentisto/medea-flutter-webrtc/tree/0.14.0
 
@@ -379,7 +406,7 @@ All user visible changes to this project will be documented in this file. This p
 - `enableFakeMedia` method. ([#65], [#71], [#82])
 - Atomic `RtpTransceiver.setRecv` and `RtpTransceiver.setSend` methods. ([#73])
 - Way to disable context menu over `RTCVideoView` on Web platform. ([#9])
-  
+
 ### Fixed
 
 - `WebVideoRenderer` not applying `mirror` and `enableContextMenu` values. ([#62])

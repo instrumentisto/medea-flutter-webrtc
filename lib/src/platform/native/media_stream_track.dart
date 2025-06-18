@@ -67,11 +67,13 @@ abstract class NativeMediaStreamTrack extends MediaStreamTrack {
 
   /// Listener for all the [MediaStreamTrack] events received from the native
   /// side.
-  void eventListener(dynamic event) {
+  void eventListener(dynamic event) async {
     final dynamic e = event;
     switch (e['event']) {
       case 'onEnded':
         _onEnded?.call();
+        await _eventSub?.cancel();
+        _eventSub = null;
         break;
     }
   }
@@ -151,13 +153,11 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
   Future<void> dispose() async {
     if (!_disposed) {
       _disposed = true;
+      _stopped = true;
       _onEnded = null;
-      if (!_stopped) {
-        _stopped = true;
-        await _chan.invokeMethod('stop');
-      }
       await _chan.invokeMethod('dispose');
       await _eventSub?.cancel();
+      _eventSub = null;
     }
   }
 
@@ -244,14 +244,13 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
 
   @override
   Future<MediaStreamTrack> clone() async {
-    var ffiTrack =
-        _stopped
-            ? null
-            : await ffi.cloneTrack(
-              trackId: _id,
-              peerId: _peerId,
-              kind: ffi.MediaType.values[_kind.index],
-            );
+    var ffiTrack = _stopped
+        ? null
+        : await ffi.cloneTrack(
+            trackId: _id,
+            peerId: _peerId,
+            kind: ffi.MediaType.values[_kind.index],
+          );
 
     if (ffiTrack != null) {
       return NativeMediaStreamTrack.from(ffiTrack);
@@ -291,10 +290,10 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   Future<MediaStreamTrackState> state() async {
     return !_stopped
         ? MediaStreamTrackState.values[(await ffi.trackState(
-          peerId: _peerId,
-          trackId: _id,
-          kind: ffi.MediaType.values[_kind.index],
-        )).index]
+            peerId: _peerId,
+            trackId: _id,
+            kind: ffi.MediaType.values[_kind.index],
+          )).index]
         : MediaStreamTrackState.ended;
   }
 
@@ -426,10 +425,9 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
       super.getNoiseSuppressionLevel();
     }
 
-    var level =
-        (await ffi.getAudioProcessingConfig(
-          trackId: _id,
-        )).noiseSuppressionLevel;
+    var level = (await ffi.getAudioProcessingConfig(
+      trackId: _id,
+    )).noiseSuppressionLevel;
 
     return NoiseSuppressionLevel.values[level.index];
   }
