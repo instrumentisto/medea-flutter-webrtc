@@ -9,6 +9,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
+import android.content.res.AssetFileDescriptor
+import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
@@ -16,15 +18,26 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.IconCompat
+import com.instrumentisto.medea_flutter_webrtc.exception.PermissionException
+import io.flutter.FlutterInjector
+import java.io.FileInputStream
 import org.webrtc.ThreadUtils
 
 private val TAG = ForegroundCallService::class.java.simpleName
 
-private const val FG_CALL_NOTIFICATION_ID: Int = 874213596
-private const val NOTIFICATION_CHAN_ID: String = "FOREGROUND_CALL_CHAN"
-private const val NOTIFICATION_CHAN_NAME: String = "Ongoing call"
+/** [ForegroundCallService] [Notification] ID */
+private const val FG_CALL_NOTIFICATION_ID: Int = 834557517
 
+/** [ForegroundCallService] [NotificationChannel] ID */
+private const val NOTIFICATION_CHAN_ID: String = "FOREGROUND_CALL_CHAN"
+
+/**
+ * Foreground [Service] that ensures that audio/video recording/playback will keep working when
+ * application is in the background.
+ */
 class ForegroundCallService : Service() {
+
   /** [ForegroundCallService] configuration received from Dart-side. */
   class Config {
     /**
@@ -43,19 +56,18 @@ class ForegroundCallService : Service() {
     var notificationText: String = "Ongoing text"
 
     /** [NotificationCompat.Builder.setSmallIcon] value. */
-    var notificationIcon: String = ""
+    var notificationIcon: String = "assets/icons/app_icon.png"
 
     companion object {
       /** Creates a new [Config] object based on the data received from Flutter. */
       fun fromMap(map: Map<String, Any>): Config {
         val config = Config()
-        val notification = map["notification"] as Map<String, Any>
 
         config.enabled = map["enabled"] as Boolean
-        config.notificationOngoing = notification["ongoing"] as Boolean
-        config.notificationTitle = notification["title"] as String
-        config.notificationText = notification["text"] as String
-        config.notificationIcon = notification["icon"] as String
+        config.notificationOngoing = map["notificationOngoing"] as Boolean
+        config.notificationTitle = map["notificationTitle"] as String
+        config.notificationText = map["notificationText"] as String
+        config.notificationIcon = map["notificationIcon"] as String
 
         return config
       }
@@ -103,8 +115,8 @@ class ForegroundCallService : Service() {
     /**
      * [NotificationChannel] that [Notification] will be posted on.
      *
-     * It is created with [NOTIFICATION_CHAN_ID] and [NOTIFICATION_CHAN_NAME] on the first
-     * [ForegroundCallService.start] call if API level >= 26.
+     * It is created with [NOTIFICATION_CHAN_ID] on the first [ForegroundCallService.start] call if
+     * API level >= 26.
      */
     private var notificationChannel: NotificationChannel? = null
 
@@ -118,8 +130,8 @@ class ForegroundCallService : Service() {
     private var currentForegroundServiceType: Int? = null
 
     /**
-     * Update [ForegroundCallService] current [Config]. Might [ForegroundCallService.start] or
-     * [ForegroundCallService.stop] if [Config.enabled] has changed .
+     * Update [ForegroundCallService] current [Config]. Might start or stop if [Config.enabled] has
+     * changed.
      */
     suspend fun setup(newConfig: Config, context: Context, permissions: Permissions) {
       ThreadUtils.checkIsOnMainThread()
@@ -128,13 +140,16 @@ class ForegroundCallService : Service() {
         return
       }
 
-      if (shouldBeRunning && newConfig.enabled) {
+      if (shouldBeRunning && !newConfig.enabled) {
+        internalStop(context, permissions)
+      } else if (shouldBeRunning) {
+        currentConfig = newConfig
+        // Start or update settings if already running.
         start(context, permissions)
-      } else if (shouldBeRunning && !newConfig.enabled) {
-        stop(context, permissions)
+      } else {
+        // Not running so just update config.
+        currentConfig = newConfig
       }
-
-      currentConfig = newConfig
     }
 
     /**
@@ -147,21 +162,28 @@ class ForegroundCallService : Service() {
 
       shouldBeRunning = true
 
-      if (currentConfig?.enabled == false) {
+      if (currentConfig == null || currentConfig!!.enabled == false) {
         return
       }
 
       // POST_NOTIFICATIONS permission is only required since API level 33
       if (Build.VERSION.SDK_INT >= 33) {
-        permissions.requestPermission(Manifest.permission.POST_NOTIFICATIONS)
+        try {
+          permissions.requestPermission(Manifest.permission.POST_NOTIFICATIONS)
+        } catch (e: PermissionException) {
+          Log.w(TAG, "POST_NOTIFICATIONS is declined, foreground service will have no notification")
+        }
       }
 
       if (notificationChannel == null && Build.VERSION.SDK_INT >= 26) {
         notificationChannel =
             NotificationChannel(
-                NOTIFICATION_CHAN_ID,
-                NOTIFICATION_CHAN_NAME,
-                NotificationManager.IMPORTANCE_DEFAULT)
+                    NOTIFICATION_CHAN_ID, "Ongoing call", NotificationManager.IMPORTANCE_LOW)
+                .apply {
+                  enableLights(false)
+                  enableVibration(false)
+                  setShowBadge(false)
+                }
         NotificationManagerCompat.from(context).createNotificationChannel(notificationChannel!!)
       }
 
@@ -189,11 +211,18 @@ class ForegroundCallService : Service() {
 
     /** Stops [ForegroundCallService] if it is running. */
     fun stop(context: Context, permissions: Permissions) {
-      Log.v(TAG, "Stop")
-
       ThreadUtils.checkIsOnMainThread()
 
       shouldBeRunning = false
+
+      internalStop(context, permissions)
+    }
+
+    /** Stops [ForegroundCallService] if it is running. */
+    private fun internalStop(context: Context, permissions: Permissions) {
+      Log.v(TAG, "Stop")
+
+      ThreadUtils.checkIsOnMainThread()
 
       if (grantedObserver != null) {
         permissions.removeObserver(grantedObserver!!)
@@ -243,7 +272,10 @@ class ForegroundCallService : Service() {
     Log.v(TAG, "Started with startId = $startId")
 
     if (currentConfig == null || !currentConfig!!.enabled) {
+      ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
       stopSelf()
+
+      return START_NOT_STICKY
     }
 
     val notification =
@@ -251,7 +283,8 @@ class ForegroundCallService : Service() {
             .setOngoing(currentConfig!!.notificationOngoing)
             .setContentTitle(currentConfig!!.notificationTitle)
             .setContentText(currentConfig!!.notificationText)
-            .setSmallIcon(android.R.drawable.ic_menu_call)
+            .setSilent(true)
+            .setSmallIcon(getIcon(currentConfig!!.notificationIcon))
             .build()
 
     currentForegroundServiceType = serviceType(this)
@@ -264,10 +297,31 @@ class ForegroundCallService : Service() {
     return START_NOT_STICKY
   }
 
+  /** Returns [IconCompat] from the provided [path] to a bitmap file. */
+  private fun getIcon(path: String): IconCompat {
+    var assetFd: AssetFileDescriptor? = null
+    var assetIS: FileInputStream? = null
+
+    try {
+      val assetPath = FlutterInjector.instance().flutterLoader().getLookupKeyForAsset(path)
+      assetFd = this.assets.openFd(assetPath)
+      assetIS = assetFd.createInputStream()
+
+      return IconCompat.createWithBitmap(BitmapFactory.decodeStream(assetIS))
+    } catch (e: Exception) {
+      Log.e(TAG, "Failed to open icon at `$e`, will use fallback.")
+
+      return IconCompat.createWithResource(this, android.R.drawable.ic_menu_call)
+    } finally {
+      assetIS?.close()
+      assetFd?.close()
+    }
+  }
+
   override fun onDestroy() {
     Log.v(TAG, "onDestroy")
+    (getSystemService(NOTIFICATION_SERVICE) as NotificationManager).cancel(FG_CALL_NOTIFICATION_ID)
     super.onDestroy()
-    ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
   }
 
   override fun onBind(intent: Intent?): IBinder? {
@@ -276,7 +330,8 @@ class ForegroundCallService : Service() {
 
   override fun onTaskRemoved(rootIntent: Intent?) {
     Log.v(TAG, "onTaskRemoved")
-    (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).cancel(
-        FG_CALL_NOTIFICATION_ID)
+
+    ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
+    stopSelf()
   }
 }

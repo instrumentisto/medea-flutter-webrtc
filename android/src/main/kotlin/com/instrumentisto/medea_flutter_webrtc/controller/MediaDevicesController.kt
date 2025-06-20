@@ -109,14 +109,18 @@ class MediaDevicesController(
         }
       }
       "setupForegroundService" -> {
-        try {
-          val config: Map<String, Any> = call.argument("config")!!
+        scope.launch {
+          try {
+            val configArg: Map<String, Any> = call.argument("config")!!
+            val config = ForegroundCallService.Config.fromMap(configArg)
+            ForegroundCallService.setup(
+                config, mediaDevices.state.context, mediaDevices.permissions)
 
-          ForegroundCallService.setup(ForegroundCallService.Config.fromMap(config))
-
-          result.success(null)
-        } catch (e: Exception) {
-          result.error("SetOutputAudioIdException", e.message, null)
+            result.success(null)
+          } catch (e: Exception) {
+            e.printStackTrace()
+            result.error("SetupForegroundService Exception", e.message, null)
+          }
         }
       }
     }

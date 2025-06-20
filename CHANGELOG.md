@@ -10,6 +10,10 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.14.0...main)
 
+### Added
+
+- `setupForegroundService` function to setup foreground service so camera, microphone and audio playback would work when application is in background on Android. (#204) 
+
 ## BC Breaks
 
 - Bumped up [macOS] deployment target to 10.15. ([#203])
@@ -26,6 +30,7 @@ All user visible changes to this project will be documented in this file. This p
 [#201]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/201
 [#202]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/202
 [#203]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/203
+[#204]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/204
 [todo]: https://github.com/instrumentisto/medea-flutter-webrtc/commit/todo
 [137.0.7151.103]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/137.0.7151.103
 [frb-2.10.0]: https://github.com/fzyzcjy/flutter_rust_bridge/releases/tag/v2.10.0

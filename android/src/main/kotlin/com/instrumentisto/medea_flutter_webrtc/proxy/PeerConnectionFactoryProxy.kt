@@ -34,11 +34,6 @@ class PeerConnectionFactoryProxy(private val state: State, private val permissio
    * @return Newly created [PeerConnectionProxy].
    */
   suspend fun create(config: PeerConnectionConfiguration): PeerConnectionProxy {
-    if (peerObservers.isEmpty()) {
-      state.getAudioManager().mode = MODE_IN_COMMUNICATION
-      ForegroundCallService.start(state.context, permissions)
-    }
-
     val id = nextId()
     val peerObserver = PeerObserver()
     val peer =
@@ -47,6 +42,11 @@ class PeerConnectionFactoryProxy(private val state: State, private val permissio
     val peerProxy = PeerConnectionProxy(id, peer)
     peerObserver.setPeerConnection(peerProxy)
     peerProxy.onDispose(::removePeerObserver)
+
+    if (peerObservers.isEmpty()) {
+      state.getAudioManager().mode = MODE_IN_COMMUNICATION
+      ForegroundCallService.start(state.context, permissions)
+    }
 
     peerObservers[id] = peerObserver
 

@@ -36,7 +36,6 @@ class MedeaFlutterWebrtcPlugin : FlutterPlugin, ActivityAware {
 
     ControllerRegistry.disposeAll()
 
-    ForegroundCallService.stop(registrar.applicationContext, permissions!!)
     messenger = null
     state = null
     textureRegistry = null
@@ -65,6 +64,7 @@ class MedeaFlutterWebrtcPlugin : FlutterPlugin, ActivityAware {
   override fun onDetachedFromActivity() {
     Log.i(TAG, "Detached from activity")
 
+    ForegroundCallService.stop(state!!.context, permissions!!)
     activityPluginBinding!!.removeRequestPermissionsResultListener(permissions!!)
     activityPluginBinding = null
   }
