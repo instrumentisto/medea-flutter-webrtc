@@ -10,13 +10,13 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.14.0...main)
 
-### Added
-
-- `setupForegroundService` function to maintain camera/microphone/audio when app is backgrounded on Android (#204)
-
 ## BC Breaks
 
 - Bumped up [macOS] deployment target to 10.15. ([#203])
+
+### Added
+
+- `setupForegroundService()` function for maintaining camera/microphone/audio when application is in background on Android. ([#204])
 
 ### Changed
 

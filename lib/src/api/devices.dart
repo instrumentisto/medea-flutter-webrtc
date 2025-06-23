@@ -395,36 +395,36 @@ class ForegroundServiceConfig {
     this.notificationIcon = 'assets/icons/app_icon.png',
   });
 
-  /// Indicator whether foregorund service is enabled.
+  /// Indicator whether the foreground service is enabled.
   bool enabled;
 
-  /// [ongoing] property of a notfication.
+  /// [ongoing] property of a notification.
   ///
   /// [ongoing]: https://tinyurl.com/ntfctn-doc#FLAG_ONGOING_EVENT
   bool notificationOngoing;
 
-  /// [contentTitle] property of a notfication.
+  /// [contentTitle] property of a notification.
   ///
   /// [contentTitle]: https://tinyurl.com/ntfctn-doc#EXTRA_TITLE
   String notificationTitle;
 
-  /// [contentText] property of a notfication.
+  /// [contentText] property of a notification.
   ///
   /// [contentText]: https://tinyurl.com/ntfctn-doc#EXTRA_TEXT
   String notificationText;
 
-  /// [icon] property of a notfication.
+  /// [icon] property of a notification.
   ///
-  /// This should be a full path to a bundled bitmap file. So if you have
-  /// your assets configured in `pubspec.yaml` like this:
-  /// ```
+  /// This should be a full path to a bundled bitmap file. For the assets
+  /// configured in `pubspec.yaml` like this:
+  /// ```yaml
   /// assets:
-  ///     - assets/icons/app_icon.png
+  ///   - assets/icons/app_icon.png
   /// ```
-  /// Then the full path would be `assets/icons/app_icon.png`.
+  /// The full path would be `assets/icons/app_icon.png`.
   ///
-  /// [ic_menu_call] will be used as a fallback if fail to construct an icon
-  /// from the given path.
+  /// [ic_menu_call] will be used as a fallback if construction an icon from the
+  /// provided path fails.
   ///
   /// [icon]: https://tinyurl.com/ntfctn-doc#icon
   /// [ic_menu_call]: https://tinyurl.com/andrawable#ic_menu_call
@@ -443,19 +443,20 @@ class ForegroundServiceConfig {
   }
 }
 
-/// Configures foreground service and it's notification on Android.
+/// Configures a foreground service and its notification on Android.
 ///
-/// Foreground service is required so audio/video recording/playback would work
+/// Foreground service is required for audio/video recording/playback to work
 /// when application is in the background.
 ///
 /// Application will start foreground service whenever there is at least one
-/// active peer connection and stop when there is none. This can also be
-/// controlled via [ForegroundServiceConfig.enabled]. Foreground service can be
-/// stopped while running and restarted again by changing this parameter.
+/// active peer connection and stop when there are none anymore. This can also
+/// be controlled via [ForegroundServiceConfig.enabled] option. Foreground
+/// service can be stopped while running and restarted again by changing this
+/// parameter.
 ///
 /// Foreground service notification parameters can be updated using this method
-/// at any moment. I.e. you can change title and text while notification is
-/// displayed and it will be updated immediately.
+/// at any moment. I.e., the title and the text could be changed while the
+/// notification is displayed and they would be updated immediately.
 Future<void> setupForegroundService(ForegroundServiceConfig config) async {
   if (Platform.isAndroid) {
     await _mediaDevicesMethodChannel.invokeMethod('setupForegroundService', {

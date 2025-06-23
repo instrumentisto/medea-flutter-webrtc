@@ -26,22 +26,22 @@ import org.webrtc.ThreadUtils
 
 private val TAG = ForegroundCallService::class.java.simpleName
 
-/** [ForegroundCallService] [Notification] ID */
+/** [ForegroundCallService] [Notification] ID. */
 private const val FG_CALL_NOTIFICATION_ID: Int = 834557517
 
-/** [ForegroundCallService] [NotificationChannel] ID */
+/** [ForegroundCallService] [NotificationChannel] ID. */
 private const val NOTIFICATION_CHAN_ID: String = "FOREGROUND_CALL_CHAN"
 
 /**
- * Foreground [Service] that ensures that audio/video recording/playback will keep working when
+ * Foreground [Service] ensuring that audio/video recording/playback will keep working when
  * application is in the background.
  */
 class ForegroundCallService : Service() {
 
-  /** [ForegroundCallService] configuration received from Dart-side. */
+  /** [ForegroundCallService] configuration received from Dart side. */
   class Config {
     /**
-     * Indicates whether [ForegroundCallService] is enabled, meaning that it will be started
+     * Indicator whether a [ForegroundCallService] is enabled, meaning that it will be started
      * whenever [ForegroundCallService.start] is called.
      */
     var enabled: Boolean = true
@@ -59,7 +59,7 @@ class ForegroundCallService : Service() {
     var notificationIcon: String = "assets/icons/app_icon.png"
 
     companion object {
-      /** Creates a new [Config] object based on the data received from Flutter. */
+      /** Creates a new [Config] object based on the data received from Dart. */
       fun fromMap(map: Map<String, Any>): Config {
         val config = Config()
 
@@ -103,35 +103,37 @@ class ForegroundCallService : Service() {
     private var currentConfig: Config? = null
 
     /**
-     * Indicator whether [ForegroundCallService] should be running. However it can still be disabled
-     * with [Config.enabled].
+     * Indicator whether this [ForegroundCallService] should be running.
      *
-     * This exists because [ForegroundCallService.start] might be called before it is allowed by the
-     * [Config]. In this case [ForegroundCallService] will be started in
-     * [ForegroundCallService.setup] when [Config] update is handled.
+     * However, it can still be disabled via [Config.enabled] option.
+     *
+     * This exists because the [ForegroundCallService.start] methid might be called before it's
+     * allowed by the [Config]. In this case this [ForegroundCallService] will be started in the
+     * [ForegroundCallService.setup] menthod once the [Config] update is handled.
      */
     private var shouldBeRunning: Boolean = false
 
     /**
-     * [NotificationChannel] that [Notification] will be posted on.
+     * [NotificationChannel] that [Notification]s will be posted on.
      *
-     * It is created with [NOTIFICATION_CHAN_ID] on the first [ForegroundCallService.start] call if
+     * It's created with [NOTIFICATION_CHAN_ID] on the first [ForegroundCallService.start] call if
      * API level >= 26.
      */
     private var notificationChannel: NotificationChannel? = null
 
     /**
-     * [Permissions.Companion.GrantedObserver] that updates foreground service type if new
-     * permission has been granted after initial start.
+     * [Permissions.Companion.GrantedObserver] updating foreground service type if a new permission
+     * has been granted after initial start.
      */
     private var grantedObserver: Permissions.Companion.GrantedObserver? = null
 
-    /** Latest foreground service type provided to [startForeground]. */
+    /** Latest foreground service type provided to the [startForeground] method. */
     private var currentForegroundServiceType: Int? = null
 
     /**
-     * Update [ForegroundCallService] current [Config]. Might start or stop if [Config.enabled] has
-     * changed.
+     * Updates the [ForegroundCallService]'s current [Config].
+     *
+     * Might start or stop if the [Config.enabled] option has changed.
      */
     suspend fun setup(newConfig: Config, context: Context, permissions: Permissions) {
       ThreadUtils.checkIsOnMainThread()
@@ -153,8 +155,8 @@ class ForegroundCallService : Service() {
     }
 
     /**
-     * Starts [ForegroundCallService] and its [Notification] but only if it is enabled by current
-     * [Config].
+     * Starts [ForegroundCallService] and its [Notification], but only if it's enabled by the
+     * current [Config].
      */
     suspend fun start(context: Context, permissions: Permissions) {
       Log.v(TAG, "Start")
@@ -166,7 +168,7 @@ class ForegroundCallService : Service() {
         return
       }
 
-      // POST_NOTIFICATIONS permission is only required since API level 33
+      // `POST_NOTIFICATIONS` permission is only required since API level 33.
       if (Build.VERSION.SDK_INT >= 33) {
         try {
           permissions.requestPermission(Manifest.permission.POST_NOTIFICATIONS)
@@ -187,10 +189,10 @@ class ForegroundCallService : Service() {
         NotificationManagerCompat.from(context).createNotificationChannel(notificationChannel!!)
       }
 
-      // foregroundServiceType was added in API 29
+      // `foregroundServiceType` was added in API 29.
       if (Build.VERSION.SDK_INT >= 29 && grantedObserver == null) {
-        // If the foreground service needs new permissions after you launch it, you should call
-        // startForeground() again and add the new service types.
+        // If the foreground service needs new permissions after launching, the `startForeground()`
+        // should be called again and add the new service types.
         grantedObserver =
             object : Permissions.Companion.GrantedObserver {
               override fun onGranted(granted: String) {
@@ -209,7 +211,7 @@ class ForegroundCallService : Service() {
           context, Intent(context, ForegroundCallService::class.java))
     }
 
-    /** Stops [ForegroundCallService] if it is running. */
+    /** Stops [ForegroundCallService] if it's running. */
     fun stop(context: Context, permissions: Permissions) {
       ThreadUtils.checkIsOnMainThread()
 
@@ -218,7 +220,11 @@ class ForegroundCallService : Service() {
       internalStop(context, permissions)
     }
 
-    /** Stops [ForegroundCallService] if it is running. */
+    /**
+     * Stops [ForegroundCallService] if it's running.
+     *
+     * For internal use only.
+     */
     private fun internalStop(context: Context, permissions: Permissions) {
       Log.v(TAG, "Stop")
 
@@ -234,16 +240,16 @@ class ForegroundCallService : Service() {
     }
 
     /**
-     * Returns service type that should be provided to [startForeground] based on granted
-     * permissions.
+     * Returns service type that should be provided to the [startForeground] method based on
+     * the granted permissions.
      */
     private fun serviceType(ctx: Context): Int {
-      // foregroundServiceType was added in API 29
+      // `foregroundServiceType` was added in API 29.
       return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         var serviceType = ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
 
-        // FOREGROUND_SERVICE_TYPE_CAMERA and FOREGROUND_SERVICE_TYPE_MICROPHONE were added in
-        // API 30
+        // `FOREGROUND_SERVICE_TYPE_CAMERA` and `FOREGROUND_SERVICE_TYPE_MICROPHONE` were added in
+        // API 30.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
           if (ctx.checkSelfPermission(Manifest.permission.CAMERA) ==
               PackageManager.PERMISSION_GRANTED) {
@@ -289,15 +295,15 @@ class ForegroundCallService : Service() {
 
     currentForegroundServiceType = serviceType(this)
 
-    // Once the service has been created, the service must call its startForeground() method within
-    // five seconds.
+    // Once the service has been created, it must call its `startForeground()` method within
+    // 5 seconds.
     ServiceCompat.startForeground(
         this, FG_CALL_NOTIFICATION_ID, notification, currentForegroundServiceType!!)
 
     return START_NOT_STICKY
   }
 
-  /** Returns [IconCompat] from the provided [path] to a bitmap file. */
+  /** Returns the [IconCompat] from the provided [path] to a bitmap file. */
   private fun getIcon(path: String): IconCompat {
     var assetFd: AssetFileDescriptor? = null
     var assetIS: FileInputStream? = null

@@ -59,7 +59,7 @@ If you need to use a [Bluetooth] device (like headphones), then also add:
 <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 ```
 
-It also comes with an optional foreground service that keeps audio/video recording/playout active, it requires following permission to work:
+It also comes with an optional foreground service that keeps audio/video recording/playout active, it requires the following permission to work, if used:
 ```xml
 <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />

@@ -20,7 +20,7 @@ const val PERMISSIONS_REQUEST_ID = 856146223
 class Permissions(private val activity: Activity) :
     PluginRegistry.RequestPermissionsResultListener {
 
-  // Use HashSet to store by identity
+  /** [GrantedObserver]s to be notified whenever a new permission is granted. */
   private val grantedListeners = HashSet<GrantedObserver>()
 
   /**
@@ -48,8 +48,9 @@ class Permissions(private val activity: Activity) :
   }
 
   /**
-   * Requests user for provided permission granting. Resolves immediately if permission is already
-   * granted.
+   * Requests user for provided permission granting.
+   *
+   * Resolves immediately if permission is already granted.
    *
    * @throws [PermissionException] if user rejected permission request.
    */
