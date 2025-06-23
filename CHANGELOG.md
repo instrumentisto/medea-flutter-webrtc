@@ -12,7 +12,7 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Added
 
-- `setupForegroundService` function to setup foreground service so camera, microphone and audio playback would work when application is in background on Android. (#204) 
+- `setupForegroundService` function to maintain camera/microphone/audio when app is backgrounded on Android (#204)
 
 ## BC Breaks
 
