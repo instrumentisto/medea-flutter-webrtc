@@ -240,8 +240,8 @@ class ForegroundCallService : Service() {
     }
 
     /**
-     * Returns service type that should be provided to the [startForeground] method based on
-     * the granted permissions.
+     * Returns service type that should be provided to the [startForeground] method based on the
+     * granted permissions.
      */
     private fun serviceType(ctx: Context): Int {
       // `foregroundServiceType` was added in API 29.
