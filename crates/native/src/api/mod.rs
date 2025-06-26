@@ -1,5 +1,10 @@
 //! API surface and implementation for Flutter.
 
+pub mod media_device_info;
+pub mod media_display_info;
+pub mod rtc_ice_candidate_stats;
+pub mod rtp_capabilities;
+
 use std::{
     sync::{
         Arc, LazyLock, Mutex,
@@ -12,13 +17,24 @@ use std::{
 use flutter_rust_bridge::for_generated::FLUTTER_RUST_BRIDGE_RUNTIME_VERSION;
 use libwebrtc_sys as sys;
 
+pub use self::{
+    media_device_info::{MediaDeviceInfo, MediaDeviceKind, enumerate_devices},
+    media_display_info::{MediaDisplayInfo, enumerate_displays},
+    rtc_ice_candidate_stats::{
+        CandidateType, IceCandidateStats, RtcIceCandidateStats,
+    },
+    rtp_capabilities::{
+        RtpCapabilities, get_rtp_receiver_capabilities,
+        get_rtp_sender_capabilities,
+    },
+};
 // Re-exporting since it is used in the generated code.
 pub use crate::{
     PeerConnection, RtpEncodingParameters, RtpParameters, RtpTransceiver,
     renderer::TextureEvent,
 };
 use crate::{
-    Webrtc, devices,
+    Webrtc,
     frb::{FrbHandler, new_frb_handler},
     frb_generated::{
         FLUTTER_RUST_BRIDGE_CODEGEN_VERSION, RustOpaque, StreamSink,
@@ -129,48 +145,6 @@ impl From<sys::RtcMediaSourceStatsMediaType> for RtcMediaSourceStatsMediaType {
                 echo_return_loss,
                 echo_return_loss_enhancement,
             },
-        }
-    }
-}
-
-/// [RTCIceCandidateType] represents the type of the ICE candidate, as defined
-/// in [Section 15.1 of RFC 5245][1].
-///
-/// [RTCIceCandidateType]: https://w3.org/TR/webrtc#rtcicecandidatetype-enum
-/// [1]: https://tools.ietf.org/html/rfc5245#section-15.1
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum CandidateType {
-    /// Host candidate, as defined in [Section 4.1.1.1 of RFC 5245][1].
-    ///
-    /// [1]: https://tools.ietf.org/html/rfc5245#section-4.1.1.1
-    Host,
-
-    /// Server reflexive candidate, as defined in
-    /// [Section 4.1.1.2 of RFC 5245][1].
-    ///
-    /// [1]: https://tools.ietf.org/html/rfc5245#section-4.1.1.2
-    Srflx,
-
-    /// Peer reflexive candidate, as defined in
-    /// [Section 4.1.1.2 of RFC 5245][1].
-    ///
-    /// [1]: https://tools.ietf.org/html/rfc5245#section-4.1.1.2
-    Prflx,
-
-    /// Relay candidate, as defined in [Section 7.1.3.2.1 of RFC 5245][1].
-    ///
-    /// [1]: https://tools.ietf.org/html/rfc5245#section-7.1.3.2.1
-    Relay,
-}
-
-impl From<sys::CandidateType> for CandidateType {
-    fn from(kind: sys::CandidateType) -> Self {
-        match kind {
-            sys::CandidateType::kHost => Self::Host,
-            sys::CandidateType::kSrflx => Self::Srflx,
-            sys::CandidateType::kPrflx => Self::Prflx,
-            sys::CandidateType::kRelay => Self::Relay,
-            _ => unreachable!(),
         }
     }
 }
@@ -461,108 +435,6 @@ impl From<sys::IceRole> for IceRole {
             sys::IceRole::Unknown => Self::Unknown,
             sys::IceRole::Controlling => Self::Controlling,
             sys::IceRole::Controlled => Self::Controlled,
-        }
-    }
-}
-
-/// Properties of a `candidate` in [Section 15.1 of RFC 5245][1].
-/// It corresponds to an [RTCIceTransport] object.
-///
-/// [`RtcIceCandidateStats::Local`] or [`RtcIceCandidateStats::Remote`] variant.
-///
-/// [Full doc on W3C][2].
-///
-/// [RTCIceTransport]: https://w3.org/TR/webrtc#dom-rtcicetransport
-/// [1]: https://tools.ietf.org/html/rfc5245#section-15.1
-/// [2]: https://w3.org/TR/webrtc-stats#icecandidate-dict%2A
-pub struct IceCandidateStats {
-    /// Unique ID that is associated to the object that was inspected to produce
-    /// the [RTCTransportStats][1] associated with this candidate.
-    ///
-    /// [1]: https://w3.org/TR/webrtc-stats#transportstats-dict%2A
-    pub transport_id: Option<String>,
-
-    /// Address of the candidate, allowing for IPv4 addresses, IPv6 addresses,
-    /// and fully qualified domain names (FQDNs).
-    pub address: Option<String>,
-
-    /// Port number of the candidate.
-    pub port: Option<i32>,
-
-    /// Valid values for transport is one of `udp` and `tcp`.
-    pub protocol: Protocol,
-
-    /// Type of the ICE candidate.
-    pub candidate_type: CandidateType,
-
-    /// Calculated as defined in [Section 15.1 of RFC 5245][1].
-    ///
-    /// [1]: https://tools.ietf.org/html/rfc5245#section-15.1
-    pub priority: Option<i32>,
-
-    /// For local candidates this is the URL of the ICE server from which the
-    /// candidate was obtained. It is the same as the [url][2] surfaced in the
-    /// [RTCPeerConnectionIceEvent][1].
-    ///
-    /// [`None`] for remote candidates.
-    ///
-    /// [1]: https://w3.org/TR/webrtc#rtcpeerconnectioniceevent
-    /// [2]: https://w3.org/TR/webrtc#dom-rtcpeerconnectioniceevent-url
-    pub url: Option<String>,
-
-    /// Protocol used by the endpoint to communicate with the TURN server.
-    ///
-    /// Only present for local candidates.
-    pub relay_protocol: Option<Protocol>,
-}
-
-impl From<sys::IceCandidateStats> for IceCandidateStats {
-    fn from(val: sys::IceCandidateStats) -> Self {
-        let sys::IceCandidateStats {
-            transport_id,
-            address,
-            port,
-            protocol,
-            candidate_type,
-            priority,
-            url,
-        } = val;
-        Self {
-            transport_id,
-            address,
-            port,
-            protocol: protocol.into(),
-            candidate_type: candidate_type.into(),
-            priority,
-            url,
-            relay_protocol: None,
-        }
-    }
-}
-
-/// Representation of the static capabilities of an endpoint.
-///
-/// Applications can use these capabilities to construct [`RtpParameters`].
-#[derive(Debug)]
-pub struct RtpCapabilities {
-    /// Supported codecs.
-    pub codecs: Vec<RtpCodecCapability>,
-
-    /// Supported [RTP] header extensions.
-    ///
-    /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
-    pub header_extensions: Vec<RtpHeaderExtensionCapability>,
-}
-
-impl From<sys::RtpCapabilities> for RtpCapabilities {
-    fn from(value: sys::RtpCapabilities) -> Self {
-        Self {
-            codecs: value.codecs().into_iter().map(Into::into).collect(),
-            header_extensions: value
-                .header_extensions()
-                .into_iter()
-                .map(Into::into)
-                .collect(),
         }
     }
 }
@@ -976,15 +848,6 @@ impl From<sys::RtpCodecCapability> for RtpCodecCapability {
                 .collect(),
         }
     }
-}
-
-/// [`IceCandidateStats`] of either local or remote candidate.
-pub enum RtcIceCandidateStats {
-    /// [`IceCandidateStats`] of local candidate.
-    Local(IceCandidateStats),
-
-    /// [`IceCandidateStats`] of remote candidate.
-    Remote(IceCandidateStats),
 }
 
 /// Fields of [`RtcStatsType::RtcOutboundRtpStreamStats`] variant.
@@ -1835,19 +1698,6 @@ impl From<sys::PeerConnectionState> for PeerConnectionState {
     }
 }
 
-/// Possible kinds of media devices.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum MediaDeviceKind {
-    /// Audio input device (for example, a microphone).
-    AudioInput,
-
-    /// Audio output device (for example, a pair of headphones).
-    AudioOutput,
-
-    /// Video input device (for example, a webcam).
-    VideoInput,
-}
-
 /// Indicator of the current [MediaStreamTrackState][0] of a
 /// [`MediaStreamTrack`].
 ///
@@ -2042,29 +1892,6 @@ pub struct RtcSessionDescription {
 
     /// Type of this [`RtcSessionDescription`].
     pub kind: SdpType,
-}
-
-/// Information describing a single media input or output device.
-#[derive(Debug)]
-pub struct MediaDeviceInfo {
-    /// Unique identifier for the represented device.
-    pub device_id: String,
-
-    /// Kind of the represented device.
-    pub kind: MediaDeviceKind,
-
-    /// Label describing the represented device.
-    pub label: String,
-}
-
-/// Information describing a display.
-#[derive(Debug)]
-pub struct MediaDisplayInfo {
-    /// Unique identifier of the device representing the display.
-    pub device_id: String,
-
-    /// Title describing the represented display.
-    pub title: Option<String>,
 }
 
 /// [MediaStreamConstraints], used to instruct what sort of
@@ -2596,19 +2423,6 @@ pub fn is_fake_media() -> bool {
     FAKE_MEDIA.load(Ordering::Acquire)
 }
 
-/// Returns a list of all available media input and output devices, such as
-/// microphones, cameras, headsets, and so forth.
-pub fn enumerate_devices() -> anyhow::Result<Vec<MediaDeviceInfo>> {
-    WEBRTC.lock().unwrap().enumerate_devices()
-}
-
-/// Returns a list of all available displays that can be used for screen
-/// capturing.
-#[must_use]
-pub fn enumerate_displays() -> Vec<MediaDisplayInfo> {
-    devices::enumerate_displays()
-}
-
 /// Creates a new [`PeerConnection`] and returns its ID.
 #[expect(clippy::needless_pass_by_value, reason = "FFI")]
 pub fn create_peer_connection(
@@ -2799,34 +2613,6 @@ pub fn sender_get_parameters(
     transceiver: RustOpaque<Arc<RtpTransceiver>>,
 ) -> RtcRtpSendParameters {
     RtcRtpSendParameters::from(transceiver.sender_get_parameters())
-}
-
-/// Returns the capabilities of an [RTP] sender of the provided [`MediaType`].
-///
-/// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
-#[must_use]
-pub fn get_rtp_sender_capabilities(kind: MediaType) -> RtpCapabilities {
-    RtpCapabilities::from(
-        WEBRTC
-            .lock()
-            .unwrap()
-            .peer_connection_factory
-            .get_rtp_sender_capabilities(kind.into()),
-    )
-}
-
-/// Returns the capabilities of an [RTP] receiver of the provided [`MediaType`].
-///
-/// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
-#[must_use]
-pub fn get_rtp_receiver_capabilities(kind: MediaType) -> RtpCapabilities {
-    RtpCapabilities::from(
-        WEBRTC
-            .lock()
-            .unwrap()
-            .peer_connection_factory
-            .get_rtp_receiver_capabilities(kind.into()),
-    )
 }
 
 /// Sets [`RtpParameters`] into the provided [`RtpTransceiver`]'s `sender`.
