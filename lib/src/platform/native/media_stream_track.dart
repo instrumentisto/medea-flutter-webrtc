@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 
 import '/medea_flutter_webrtc.dart';
-import '/src/api/bridge/api.dart' as ffi;
+import '/src/api/bridge/frb.dart' as ffi;
 import '/src/api/channel.dart';
 
 /// Representation of a single media unit.

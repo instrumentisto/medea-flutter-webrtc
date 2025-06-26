@@ -1,5 +1,5 @@
 import '/src/api/peer.dart';
-import 'bridge/api.dart' as ffi;
+import 'bridge/frb.dart' as ffi;
 import 'bridge/lib.dart';
 
 /// Encoding describing a single configuration of a codec for an [RTCRtpSender].
