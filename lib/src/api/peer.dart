@@ -12,7 +12,7 @@ import '/src/model/sdp.dart';
 import '/src/model/track.dart';
 import '/src/model/transceiver.dart';
 import '/src/platform/native/media_stream_track.dart';
-import 'bridge/api.dart' as ffi;
+import 'bridge/frb.dart' as ffi;
 import 'bridge/frb_generated.dart';
 import 'bridge/lib.dart';
 import 'channel.dart';

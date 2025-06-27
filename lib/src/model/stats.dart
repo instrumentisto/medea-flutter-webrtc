@@ -1,6 +1,6 @@
 import 'package:collection/collection.dart';
 
-import '/src/api/bridge/api.dart' as ffi;
+import '/src/api/bridge/frb.dart' as ffi;
 
 /// Tries to parse the provided [value] as [int].
 ///

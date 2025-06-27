@@ -1,4 +1,4 @@
-import '/src/api/bridge/api.dart' as ffi;
+import '/src/api/bridge/frb.dart' as ffi;
 
 /// ICE transport which should be used by some peer connection.
 enum IceTransportType {
