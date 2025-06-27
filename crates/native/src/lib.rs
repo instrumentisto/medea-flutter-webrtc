@@ -160,7 +160,7 @@
     unreachable_pub,
     reason = "needs refactoring"
 )]
-
+#[expect(clippy::module_name_repetitions, reason = "codegen")]
 pub mod api;
 #[expect( // codegen
     clippy::absolute_paths,
@@ -172,7 +172,6 @@ pub mod api;
     clippy::redundant_else,
     clippy::semicolon_if_nothing_returned,
     clippy::significant_drop_tightening,
-    clippy::too_many_lines,
     clippy::undocumented_unsafe_blocks,
     clippy::unimplemented,
     clippy::uninlined_format_args,
