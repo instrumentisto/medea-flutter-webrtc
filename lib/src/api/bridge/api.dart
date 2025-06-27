@@ -13,7 +13,7 @@ import 'renderer.dart';
 part 'api.freezed.dart';
 
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `TrackKind`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `hash`, `hash`, `hash`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `hash`, `hash`, `hash`
 
 /// Returns all [`VideoCodecInfo`]s of the supported video encoders.
 Future<List<VideoCodecInfo>> videoEncoders() =>
@@ -30,16 +30,6 @@ Future<void> enableFakeMedia() =>
 
 /// Indicates whether application is configured to use fake media devices.
 Future<bool> isFakeMedia() => RustLib.instance.api.crateApiIsFakeMedia();
-
-/// Returns a list of all available media input and output devices, such as
-/// microphones, cameras, headsets, and so forth.
-Future<List<MediaDeviceInfo>> enumerateDevices() =>
-    RustLib.instance.api.crateApiEnumerateDevices();
-
-/// Returns a list of all available displays that can be used for screen
-/// capturing.
-Future<List<MediaDisplayInfo>> enumerateDisplays() =>
-    RustLib.instance.api.crateApiEnumerateDisplays();
 
 /// Creates a new [`PeerConnection`] and returns its ID.
 Stream<PeerConnectionEvent> createPeerConnection({
@@ -828,70 +818,6 @@ enum IceTransportsType {
 
   /// No ICE candidate offered.
   none,
-}
-
-/// Information describing a single media input or output device.
-class MediaDeviceInfo {
-  /// Unique identifier for the represented device.
-  final String deviceId;
-
-  /// Kind of the represented device.
-  final MediaDeviceKind kind;
-
-  /// Label describing the represented device.
-  final String label;
-
-  const MediaDeviceInfo({
-    required this.deviceId,
-    required this.kind,
-    required this.label,
-  });
-
-  @override
-  int get hashCode => deviceId.hashCode ^ kind.hashCode ^ label.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is MediaDeviceInfo &&
-          runtimeType == other.runtimeType &&
-          deviceId == other.deviceId &&
-          kind == other.kind &&
-          label == other.label;
-}
-
-/// Possible kinds of media devices.
-enum MediaDeviceKind {
-  /// Audio input device (for example, a microphone).
-  audioInput,
-
-  /// Audio output device (for example, a pair of headphones).
-  audioOutput,
-
-  /// Video input device (for example, a webcam).
-  videoInput,
-}
-
-/// Information describing a display.
-class MediaDisplayInfo {
-  /// Unique identifier of the device representing the display.
-  final String deviceId;
-
-  /// Title describing the represented display.
-  final String? title;
-
-  const MediaDisplayInfo({required this.deviceId, this.title});
-
-  @override
-  int get hashCode => deviceId.hashCode ^ title.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is MediaDisplayInfo &&
-          runtimeType == other.runtimeType &&
-          deviceId == other.deviceId &&
-          title == other.title;
 }
 
 /// [MediaStreamConstraints], used to instruct what sort of

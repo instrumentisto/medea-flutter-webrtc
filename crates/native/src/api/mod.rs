@@ -1,5 +1,8 @@
 //! API surface and implementation for Flutter.
 
+pub mod media_device_info;
+pub mod media_display_info;
+
 use std::{
     sync::{
         Arc, LazyLock, Mutex,
@@ -12,13 +15,17 @@ use std::{
 use flutter_rust_bridge::for_generated::FLUTTER_RUST_BRIDGE_RUNTIME_VERSION;
 use libwebrtc_sys as sys;
 
+pub use self::{
+    media_device_info::{MediaDeviceInfo, MediaDeviceKind, enumerate_devices},
+    media_display_info::{MediaDisplayInfo, enumerate_displays},
+};
 // Re-exporting since it is used in the generated code.
 pub use crate::{
     PeerConnection, RtpEncodingParameters, RtpParameters, RtpTransceiver,
     renderer::TextureEvent,
 };
 use crate::{
-    Webrtc, devices,
+    Webrtc,
     frb::{FrbHandler, new_frb_handler},
     frb_generated::{
         FLUTTER_RUST_BRIDGE_CODEGEN_VERSION, RustOpaque, StreamSink,
@@ -1835,19 +1842,6 @@ impl From<sys::PeerConnectionState> for PeerConnectionState {
     }
 }
 
-/// Possible kinds of media devices.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum MediaDeviceKind {
-    /// Audio input device (for example, a microphone).
-    AudioInput,
-
-    /// Audio output device (for example, a pair of headphones).
-    AudioOutput,
-
-    /// Video input device (for example, a webcam).
-    VideoInput,
-}
-
 /// Indicator of the current [MediaStreamTrackState][0] of a
 /// [`MediaStreamTrack`].
 ///
@@ -2042,29 +2036,6 @@ pub struct RtcSessionDescription {
 
     /// Type of this [`RtcSessionDescription`].
     pub kind: SdpType,
-}
-
-/// Information describing a single media input or output device.
-#[derive(Debug)]
-pub struct MediaDeviceInfo {
-    /// Unique identifier for the represented device.
-    pub device_id: String,
-
-    /// Kind of the represented device.
-    pub kind: MediaDeviceKind,
-
-    /// Label describing the represented device.
-    pub label: String,
-}
-
-/// Information describing a display.
-#[derive(Debug)]
-pub struct MediaDisplayInfo {
-    /// Unique identifier of the device representing the display.
-    pub device_id: String,
-
-    /// Title describing the represented display.
-    pub title: Option<String>,
 }
 
 /// [MediaStreamConstraints], used to instruct what sort of
@@ -2594,19 +2565,6 @@ pub fn enable_fake_media() {
 /// Indicates whether application is configured to use fake media devices.
 pub fn is_fake_media() -> bool {
     FAKE_MEDIA.load(Ordering::Acquire)
-}
-
-/// Returns a list of all available media input and output devices, such as
-/// microphones, cameras, headsets, and so forth.
-pub fn enumerate_devices() -> anyhow::Result<Vec<MediaDeviceInfo>> {
-    WEBRTC.lock().unwrap().enumerate_devices()
-}
-
-/// Returns a list of all available displays that can be used for screen
-/// capturing.
-#[must_use]
-pub fn enumerate_displays() -> Vec<MediaDisplayInfo> {
-    devices::enumerate_displays()
 }
 
 /// Creates a new [`PeerConnection`] and returns its ID.
