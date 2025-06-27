@@ -4,7 +4,7 @@ import 'package:medea_flutter_webrtc/src/model/track.dart';
 import '../model/capability.dart';
 import '/src/api/parameters.dart';
 import '/src/platform/track.dart';
-import 'bridge/api.dart' as ffi;
+import 'bridge/frb.dart' as ffi;
 import 'bridge/lib.dart';
 import 'channel.dart';
 import 'peer.dart';
