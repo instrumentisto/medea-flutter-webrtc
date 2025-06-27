@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';
 import '/src/platform/native/media_stream_track.dart';
-import 'bridge/api.dart' as ffi;
+import 'bridge/frb.dart' as ffi;
 import 'channel.dart';
 
 /// Default video width when capturing user's camera.

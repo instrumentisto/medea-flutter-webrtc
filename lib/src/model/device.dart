@@ -1,4 +1,4 @@
-import '/src/api/bridge/api.dart' as ffi;
+import '/src/api/bridge/frb.dart' as ffi;
 
 /// Media device kind.
 enum MediaDeviceKind {

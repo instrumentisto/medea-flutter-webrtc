@@ -10,6 +10,12 @@ import 'dart:ffi' as ffi;
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated_io.dart';
 
 import 'api.dart';
+import 'api/media_device_info.dart';
+import 'api/media_display_info.dart';
+import 'api/rtc_ice_candidate_stats.dart';
+import 'api/rtp_capabilities.dart';
+import 'api/rtp_codec_capability.dart';
+import 'api/rtp_header_extension_capability.dart';
 import 'frb_generated.dart';
 import 'lib.dart';
 import 'renderer.dart';

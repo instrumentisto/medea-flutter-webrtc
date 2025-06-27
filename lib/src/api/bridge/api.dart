@@ -6,6 +6,7 @@
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 
+import 'api/rtc_ice_candidate_stats.dart';
 import 'frb_generated.dart';
 import 'lib.dart';
 import 'renderer.dart';
@@ -13,7 +14,7 @@ import 'renderer.dart';
 part 'api.freezed.dart';
 
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `TrackKind`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `hash`, `hash`, `hash`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `hash`, `hash`, `hash`
 
 /// Returns all [`VideoCodecInfo`]s of the supported video encoders.
 Future<List<VideoCodecInfo>> videoEncoders() =>
@@ -30,16 +31,6 @@ Future<void> enableFakeMedia() =>
 
 /// Indicates whether application is configured to use fake media devices.
 Future<bool> isFakeMedia() => RustLib.instance.api.crateApiIsFakeMedia();
-
-/// Returns a list of all available media input and output devices, such as
-/// microphones, cameras, headsets, and so forth.
-Future<List<MediaDeviceInfo>> enumerateDevices() =>
-    RustLib.instance.api.crateApiEnumerateDevices();
-
-/// Returns a list of all available displays that can be used for screen
-/// capturing.
-Future<List<MediaDisplayInfo>> enumerateDisplays() =>
-    RustLib.instance.api.crateApiEnumerateDisplays();
 
 /// Creates a new [`PeerConnection`] and returns its ID.
 Stream<PeerConnectionEvent> createPeerConnection({
@@ -170,16 +161,6 @@ Future<List<RtcStats>> getPeerStats({required ArcPeerConnection peer}) =>
 Future<void> stopTransceiver({required ArcRtpTransceiver transceiver}) =>
     RustLib.instance.api.crateApiStopTransceiver(transceiver: transceiver);
 
-/// Changes the preferred [`RtpTransceiver`] codecs to the provided
-/// [`Vec`]`<`[`RtpCodecCapability`]`>`.
-Future<void> setCodecPreferences({
-  required ArcRtpTransceiver transceiver,
-  required List<RtpCodecCapability> codecs,
-}) => RustLib.instance.api.crateApiSetCodecPreferences(
-  transceiver: transceiver,
-  codecs: codecs,
-);
-
 /// Replaces the specified [`AudioTrack`] (or [`VideoTrack`]) on the
 /// [`sys::RtpTransceiverInterface`]'s `sender`.
 ///
@@ -200,18 +181,6 @@ Future<RtcRtpSendParameters> senderGetParameters({
   required ArcRtpTransceiver transceiver,
 }) =>
     RustLib.instance.api.crateApiSenderGetParameters(transceiver: transceiver);
-
-/// Returns the capabilities of an [RTP] sender of the provided [`MediaType`].
-///
-/// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
-Future<RtpCapabilities> getRtpSenderCapabilities({required MediaType kind}) =>
-    RustLib.instance.api.crateApiGetRtpSenderCapabilities(kind: kind);
-
-/// Returns the capabilities of an [RTP] receiver of the provided [`MediaType`].
-///
-/// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
-Future<RtpCapabilities> getRtpReceiverCapabilities({required MediaType kind}) =>
-    RustLib.instance.api.crateApiGetRtpReceiverCapabilities(kind: kind);
 
 /// Sets [`RtpParameters`] into the provided [`RtpTransceiver`]'s `sender`.
 Future<void> senderSetParameters({
@@ -579,35 +548,6 @@ enum BundlePolicy {
   maxCompat,
 }
 
-/// [RTCIceCandidateType] represents the type of the ICE candidate, as defined
-/// in [Section 15.1 of RFC 5245][1].
-///
-/// [RTCIceCandidateType]: https://w3.org/TR/webrtc#rtcicecandidatetype-enum
-/// [1]: https://tools.ietf.org/html/rfc5245#section-15.1
-enum CandidateType {
-  /// Host candidate, as defined in [Section 4.1.1.1 of RFC 5245][1].
-  ///
-  /// [1]: https://tools.ietf.org/html/rfc5245#section-4.1.1.1
-  host,
-
-  /// Server reflexive candidate, as defined in
-  /// [Section 4.1.1.2 of RFC 5245][1].
-  ///
-  /// [1]: https://tools.ietf.org/html/rfc5245#section-4.1.1.2
-  srflx,
-
-  /// Peer reflexive candidate, as defined in
-  /// [Section 4.1.1.2 of RFC 5245][1].
-  ///
-  /// [1]: https://tools.ietf.org/html/rfc5245#section-4.1.1.2
-  prflx,
-
-  /// Relay candidate, as defined in [Section 7.1.3.2.1 of RFC 5245][1].
-  ///
-  /// [1]: https://tools.ietf.org/html/rfc5245#section-7.1.3.2.1
-  relay,
-}
-
 @freezed
 sealed class GetMediaError with _$GetMediaError {
   const GetMediaError._();
@@ -629,93 +569,6 @@ sealed class GetMediaResult with _$GetMediaResult {
 
   /// Failed to get requested media.
   const factory GetMediaResult.err(GetMediaError field0) = GetMediaResult_Err;
-}
-
-/// Properties of a `candidate` in [Section 15.1 of RFC 5245][1].
-/// It corresponds to an [RTCIceTransport] object.
-///
-/// [`RtcIceCandidateStats::Local`] or [`RtcIceCandidateStats::Remote`] variant.
-///
-/// [Full doc on W3C][2].
-///
-/// [RTCIceTransport]: https://w3.org/TR/webrtc#dom-rtcicetransport
-/// [1]: https://tools.ietf.org/html/rfc5245#section-15.1
-/// [2]: https://w3.org/TR/webrtc-stats#icecandidate-dict%2A
-class IceCandidateStats {
-  /// Unique ID that is associated to the object that was inspected to produce
-  /// the [RTCTransportStats][1] associated with this candidate.
-  ///
-  /// [1]: https://w3.org/TR/webrtc-stats#transportstats-dict%2A
-  final String? transportId;
-
-  /// Address of the candidate, allowing for IPv4 addresses, IPv6 addresses,
-  /// and fully qualified domain names (FQDNs).
-  final String? address;
-
-  /// Port number of the candidate.
-  final int? port;
-
-  /// Valid values for transport is one of `udp` and `tcp`.
-  final Protocol protocol;
-
-  /// Type of the ICE candidate.
-  final CandidateType candidateType;
-
-  /// Calculated as defined in [Section 15.1 of RFC 5245][1].
-  ///
-  /// [1]: https://tools.ietf.org/html/rfc5245#section-15.1
-  final int? priority;
-
-  /// For local candidates this is the URL of the ICE server from which the
-  /// candidate was obtained. It is the same as the [url][2] surfaced in the
-  /// [RTCPeerConnectionIceEvent][1].
-  ///
-  /// [`None`] for remote candidates.
-  ///
-  /// [1]: https://w3.org/TR/webrtc#rtcpeerconnectioniceevent
-  /// [2]: https://w3.org/TR/webrtc#dom-rtcpeerconnectioniceevent-url
-  final String? url;
-
-  /// Protocol used by the endpoint to communicate with the TURN server.
-  ///
-  /// Only present for local candidates.
-  final Protocol? relayProtocol;
-
-  const IceCandidateStats({
-    this.transportId,
-    this.address,
-    this.port,
-    required this.protocol,
-    required this.candidateType,
-    this.priority,
-    this.url,
-    this.relayProtocol,
-  });
-
-  @override
-  int get hashCode =>
-      transportId.hashCode ^
-      address.hashCode ^
-      port.hashCode ^
-      protocol.hashCode ^
-      candidateType.hashCode ^
-      priority.hashCode ^
-      url.hashCode ^
-      relayProtocol.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is IceCandidateStats &&
-          runtimeType == other.runtimeType &&
-          transportId == other.transportId &&
-          address == other.address &&
-          port == other.port &&
-          protocol == other.protocol &&
-          candidateType == other.candidateType &&
-          priority == other.priority &&
-          url == other.url &&
-          relayProtocol == other.relayProtocol;
 }
 
 /// [RTCIceConnectionState][1] representation.
@@ -828,70 +681,6 @@ enum IceTransportsType {
 
   /// No ICE candidate offered.
   none,
-}
-
-/// Information describing a single media input or output device.
-class MediaDeviceInfo {
-  /// Unique identifier for the represented device.
-  final String deviceId;
-
-  /// Kind of the represented device.
-  final MediaDeviceKind kind;
-
-  /// Label describing the represented device.
-  final String label;
-
-  const MediaDeviceInfo({
-    required this.deviceId,
-    required this.kind,
-    required this.label,
-  });
-
-  @override
-  int get hashCode => deviceId.hashCode ^ kind.hashCode ^ label.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is MediaDeviceInfo &&
-          runtimeType == other.runtimeType &&
-          deviceId == other.deviceId &&
-          kind == other.kind &&
-          label == other.label;
-}
-
-/// Possible kinds of media devices.
-enum MediaDeviceKind {
-  /// Audio input device (for example, a microphone).
-  audioInput,
-
-  /// Audio output device (for example, a pair of headphones).
-  audioOutput,
-
-  /// Video input device (for example, a webcam).
-  videoInput,
-}
-
-/// Information describing a display.
-class MediaDisplayInfo {
-  /// Unique identifier of the device representing the display.
-  final String deviceId;
-
-  /// Title describing the represented display.
-  final String? title;
-
-  const MediaDisplayInfo({required this.deviceId, this.title});
-
-  @override
-  int get hashCode => deviceId.hashCode ^ title.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is MediaDisplayInfo &&
-          runtimeType == other.runtimeType &&
-          deviceId == other.deviceId &&
-          title == other.title;
 }
 
 /// [MediaStreamConstraints], used to instruct what sort of
@@ -1192,19 +981,6 @@ class RtcConfiguration {
           iceTransportPolicy == other.iceTransportPolicy &&
           bundlePolicy == other.bundlePolicy &&
           iceServers == other.iceServers;
-}
-
-@freezed
-sealed class RtcIceCandidateStats with _$RtcIceCandidateStats {
-  const RtcIceCandidateStats._();
-
-  /// [`IceCandidateStats`] of local candidate.
-  const factory RtcIceCandidateStats.local(IceCandidateStats field0) =
-      RtcIceCandidateStats_Local;
-
-  /// [`IceCandidateStats`] of remote candidate.
-  const factory RtcIceCandidateStats.remote(IceCandidateStats field0) =
-      RtcIceCandidateStats_Remote;
 }
 
 /// Description of STUN and TURN servers that can be used by an [ICE Agent][1]
@@ -2118,169 +1894,6 @@ enum RtcpFeedbackType {
 
   /// Transport wide congestion control.
   transportCc,
-}
-
-/// Representation of the static capabilities of an endpoint.
-///
-/// Applications can use these capabilities to construct [`RtpParameters`].
-class RtpCapabilities {
-  /// Supported codecs.
-  final List<RtpCodecCapability> codecs;
-
-  /// Supported [RTP] header extensions.
-  ///
-  /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
-  final List<RtpHeaderExtensionCapability> headerExtensions;
-
-  const RtpCapabilities({required this.codecs, required this.headerExtensions});
-
-  @override
-  int get hashCode => codecs.hashCode ^ headerExtensions.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is RtpCapabilities &&
-          runtimeType == other.runtimeType &&
-          codecs == other.codecs &&
-          headerExtensions == other.headerExtensions;
-}
-
-/// Representation of static capabilities of an endpoint's implementation of a
-/// codec.
-class RtpCodecCapability {
-  /// Default payload type for the codec.
-  ///
-  /// Mainly needed for codecs that have statically assigned payload types.
-  final int? preferredPayloadType;
-
-  /// List of [`ScalabilityMode`]s supported by the video codec.
-  final List<ScalabilityMode> scalabilityModes;
-
-  /// Built [MIME "type/subtype"][0] string from `name` and `kind`.
-  ///
-  /// [0]: https://en.wikipedia.org/wiki/Media_type
-  final String mimeType;
-
-  /// Used to identify the codec. Equivalent to [MIME subtype][0].
-  ///
-  /// [0]: https://en.wikipedia.org/wiki/Media_type#Subtypes
-  final String name;
-
-  /// [`MediaType`] of this codec. Equivalent to [MIME] top-level type.
-  ///
-  /// [MIME]: https://en.wikipedia.org/wiki/Media_type
-  final MediaType kind;
-
-  /// If [`None`], the implementation default is used.
-  final int? clockRate;
-
-  /// Number of audio channels used.
-  ///
-  /// [`None`] for video codecs.
-  ///
-  /// If [`None`] for audio, the implementation default is used.
-  final int? numChannels;
-
-  /// Codec-specific parameters that must be signaled to the remote party.
-  ///
-  /// Corresponds to `a=fmtp` parameters in [SDP].
-  ///
-  /// Contrary to ORTC, these parameters are named using all lowercase
-  /// strings. This helps make the mapping to [SDP] simpler, if an application
-  /// is using [SDP]. Boolean values are represented by the string "1".
-  ///
-  /// [SDP]: https://en.wikipedia.org/wiki/Session_Description_Protocol
-  final List<(String, String)> parameters;
-
-  /// Feedback mechanisms to be used for this codec.
-  final List<RtcpFeedback> feedback;
-
-  const RtpCodecCapability({
-    this.preferredPayloadType,
-    required this.scalabilityModes,
-    required this.mimeType,
-    required this.name,
-    required this.kind,
-    this.clockRate,
-    this.numChannels,
-    required this.parameters,
-    required this.feedback,
-  });
-
-  @override
-  int get hashCode =>
-      preferredPayloadType.hashCode ^
-      scalabilityModes.hashCode ^
-      mimeType.hashCode ^
-      name.hashCode ^
-      kind.hashCode ^
-      clockRate.hashCode ^
-      numChannels.hashCode ^
-      parameters.hashCode ^
-      feedback.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is RtpCodecCapability &&
-          runtimeType == other.runtimeType &&
-          preferredPayloadType == other.preferredPayloadType &&
-          scalabilityModes == other.scalabilityModes &&
-          mimeType == other.mimeType &&
-          name == other.name &&
-          kind == other.kind &&
-          clockRate == other.clockRate &&
-          numChannels == other.numChannels &&
-          parameters == other.parameters &&
-          feedback == other.feedback;
-}
-
-/// Representation of capabilities/preferences of an implementation for a header
-/// extension of [`RtpCapabilities`].
-class RtpHeaderExtensionCapability {
-  /// [URI] of this extension, as defined in [RFC 8285].
-  ///
-  /// [RFC 8285]: https://tools.ietf.org/html/rfc8285
-  /// [URI]: https://en.wikipedia.org/wiki/Uniform_Resource_Identifier
-  final String uri;
-
-  /// Preferred value of ID that goes in the packet.
-  final int? preferredId;
-
-  /// If [`true`], it's preferred that the value in the header is encrypted.
-  final bool preferredEncrypted;
-
-  /// Direction of the extension.
-  ///
-  /// [`RtpTransceiverDirection::Stopped`] value is only used with
-  /// `RtpTransceiverInterface::SetHeaderExtensionsToNegotiate()` and
-  /// `SetHeaderExtensionsToNegotiate()`.
-  final RtpTransceiverDirection direction;
-
-  const RtpHeaderExtensionCapability({
-    required this.uri,
-    this.preferredId,
-    required this.preferredEncrypted,
-    required this.direction,
-  });
-
-  @override
-  int get hashCode =>
-      uri.hashCode ^
-      preferredId.hashCode ^
-      preferredEncrypted.hashCode ^
-      direction.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is RtpHeaderExtensionCapability &&
-          runtimeType == other.runtimeType &&
-          uri == other.uri &&
-          preferredId == other.preferredId &&
-          preferredEncrypted == other.preferredEncrypted &&
-          direction == other.direction;
 }
 
 /// [RTCRtpTransceiverDirection][1] representation.
