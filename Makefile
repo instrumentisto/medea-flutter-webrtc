@@ -57,7 +57,7 @@ lint: cargo.lint flutter.analyze
 
 run: flutter.run
 
-test: cargo.test flutter.test.desktop flutter.test.mobile
+test: cargo.test flutter.test flutter.test.android
 
 
 
@@ -131,22 +131,23 @@ flutter.run:
 		$(if $(call eq,$(device),),,-d $(device))
 
 
-# Run Flutter plugin integration tests on the current host as desktop.
+# Run Flutter plugin integration tests on some device.
 #
 # Usage:
-#	make flutter.test.desktop
+#	make flutter.test [device=<device-id>]
 
-flutter.test.desktop:
+flutter.test:
 	cd example/ && \
-	flutter test integration_test -d $(CURRENT_OS)
+	flutter test integration_test \
+	            $(if $(call eq,$(device),),,-d $(device))
 
 
-# Run Flutter plugin integration tests on an attached mobile device.
+# Run Flutter plugin integration tests on an attached Android device.
 #
 # Usage:
-#	make flutter.test.mobile [device=<device-id>] [debug=(no|yes)]
+#	make flutter.test.android [device=<device-id>] [debug=(no|yes)]
 
-flutter.test.mobile:
+flutter.test.android:
 	cd example/ && \
 	flutter drive --driver=test_driver/integration_driver.dart \
 	              --target=integration_test/webrtc_test.dart \
@@ -424,7 +425,7 @@ docs.rust: cargo.doc
 
 test.cargo: cargo.test
 
-test.flutter: flutter.test.desktop flutter.test.mobile
+test.flutter: flutter.test flutter.test.android
 
 
 
@@ -438,7 +439,7 @@ test.flutter: flutter.test.desktop flutter.test.mobile
         	cargo.test \
         docs.rust \
         flutter.analyze flutter.clean flutter.build flutter.fmt flutter.pub \
-        	flutter.run flutter.test.desktop flutter.test.mobile \
+        	flutter.run flutter.test flutter.test.android \
         kt.fmt \
         rustup.targets \
         swift.fmt \
