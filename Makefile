@@ -144,9 +144,10 @@ flutter.test.desktop:
 # Run Flutter plugin integration tests on an attached mobile device.
 #
 # Usage:
-#	make flutter.test.mobile [device=<device-id>] [debug=(no|yes)]
+#	make flutter.test.mobile platform=(android|ios) [device=<device-id>] [debug=(no|yes)]
 
 flutter.test.mobile:
+	bash ./crates/libwebrtc-sys/download_mobile.sh $(platform) && \
 	cd example/ && \
 	flutter drive --driver=test_driver/integration_driver.dart \
 	              --target=integration_test/webrtc_test.dart \

@@ -13,6 +13,7 @@ concurrency:
 
 env:
   RUST_BACKTRACE: 1
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
 
@@ -315,7 +316,7 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: Nexus 6
-          script: make flutter.test.mobile
+          script: make flutter.test.mobile platform=${{ matrix.platform }}
         if: ${{ matrix.platform == 'android' }}
 
       - name: Add TCC permissions on macOS
@@ -360,7 +361,8 @@ jobs:
           os: iOS
         if: ${{ matrix.platform == 'ios' }}
       - name: Test on `${{ matrix.platform }}` platform with simulator
-        run: make flutter.test.mobile device=${{ steps.simulator.outputs.udid }}
+        run: make flutter.test.mobile platform=${{ matrix.platform }}
+                                      device=${{ steps.simulator.outputs.udid }}
                                       debug=yes
         if: ${{ matrix.platform == 'ios' }}
 
