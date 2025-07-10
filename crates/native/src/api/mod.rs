@@ -1,6 +1,7 @@
 //! API surface and implementation for Flutter.
 
 pub mod media_info;
+pub mod rtc_rtp_send_parameters;
 pub mod stats;
 
 use std::{
@@ -17,6 +18,7 @@ use libwebrtc_sys as sys;
 
 pub use self::{
     media_info::{MediaDeviceInfo, MediaDeviceKind, MediaDisplayInfo},
+    rtc_rtp_send_parameters::RtcRtpSendParameters,
     stats::{
         CandidateType, IceCandidateStats, IceRole, Protocol,
         RtcIceCandidateStats, RtcInboundRtpStreamMediaType,
@@ -1269,37 +1271,6 @@ pub struct RtcRtpTransceiver {
     ///
     /// [1]: https://w3.org/TR/webrtc#dom-rtcrtptransceiver-direction
     pub direction: RtpTransceiverDirection,
-}
-
-/// Representation of [RTCRtpSendParameters][0].
-///
-/// [0]: https://w3.org/TR/webrtc#dom-rtcrtpsendparameters
-pub struct RtcRtpSendParameters {
-    /// Sequence containing parameters for sending [RTP] encodings of media.
-    ///
-    /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
-    pub encodings:
-        Vec<(RtcRtpEncodingParameters, RustOpaque<Arc<RtpEncodingParameters>>)>,
-
-    /// Reference to the Rust side [`RtpParameters`].
-    pub inner: RustOpaque<Arc<RtpParameters>>,
-}
-
-impl From<RtpParameters> for RtcRtpSendParameters {
-    fn from(v: RtpParameters) -> Self {
-        let encodings = v
-            .get_encodings()
-            .into_iter()
-            .map(|e| {
-                (
-                    RtcRtpEncodingParameters::from(&e),
-                    RustOpaque::new(Arc::new(RtpEncodingParameters::from(e))),
-                )
-            })
-            .collect();
-
-        Self { encodings, inner: RustOpaque::new(Arc::new(v)) }
-    }
 }
 
 /// Representation of a track event, sent when a new [`MediaStreamTrack`] is
