@@ -264,7 +264,7 @@ impl<T> Track<T> {
     }
 }
 
-/// Representation of a Video [`Track`] interface.
+/// Representation of a video [`Track`] interface.
 pub type VideoTrack = Track<kind::Video>;
 
 impl VideoTrack {
@@ -466,7 +466,7 @@ impl sys::OnFrameCallback for VideoFormatSink {
     }
 }
 
-/// Representation of a Audio [`Track`] interface.
+/// Representation of a audio [`Track`] interface.
 pub type AudioTrack = Track<kind::Audio>;
 
 impl AudioTrack {
