@@ -42,7 +42,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.10.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -15912171;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -905378928;
 
 // Section: executor
 
@@ -85,7 +85,7 @@ let api_init = <crate::api::RtpTransceiverInit>::sse_decode(&mut deserializer);d
                     })())
                 } })
 }
-fn wire__crate__api__audio_processing_constraints_default_impl(
+fn wire__crate__api__media__constraints__audio__audio_processing_constraints_default_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
     rust_vec_len_: i32,
@@ -96,7 +96,7 @@ fn wire__crate__api__audio_processing_constraints_default_impl(
             let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             deserializer.end(); move |context|  {
                     transform_result_sse::<_, ()>((move ||  {
-                         let output_ok = Result::<_,()>::Ok(crate::api::AudioProcessingConstraints::default())?;   Ok(output_ok)
+                         let output_ok = Result::<_,()>::Ok(crate::api::media::constraints::audio::AudioProcessingConstraints::default())?;   Ok(output_ok)
                     })())
                 } })
 }
@@ -236,7 +236,7 @@ fn wire__crate__api__dispose_video_sink_impl(
                     })())
                 } })
 }
-fn wire__crate__api__enable_fake_media_impl(
+fn wire__crate__api__media__enable_fake_media_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
     rust_vec_len_: i32,
@@ -247,11 +247,11 @@ fn wire__crate__api__enable_fake_media_impl(
             let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             deserializer.end(); move |context|  {
                     transform_result_sse::<_, ()>((move ||  {
-                         let output_ok = Result::<_,()>::Ok({ crate::api::enable_fake_media(); })?;   Ok(output_ok)
+                         let output_ok = Result::<_,()>::Ok({ crate::api::media::enable_fake_media(); })?;   Ok(output_ok)
                     })())
                 } })
 }
-fn wire__crate__api__enumerate_devices_impl(
+fn wire__crate__api__media__enumerate_devices_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
     rust_vec_len_: i32,
@@ -262,11 +262,11 @@ fn wire__crate__api__enumerate_devices_impl(
             let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             deserializer.end(); move |context|  {
                     transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>((move ||  {
-                         let output_ok = crate::api::enumerate_devices()?;   Ok(output_ok)
+                         let output_ok = crate::api::media::enumerate_devices()?;   Ok(output_ok)
                     })())
                 } })
 }
-fn wire__crate__api__enumerate_displays_impl(
+fn wire__crate__api__media__enumerate_displays_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
     rust_vec_len_: i32,
@@ -277,7 +277,7 @@ fn wire__crate__api__enumerate_displays_impl(
             let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             deserializer.end(); move |context|  {
                     transform_result_sse::<_, ()>((move ||  {
-                         let output_ok = Result::<_,()>::Ok(crate::api::enumerate_displays())?;   Ok(output_ok)
+                         let output_ok = Result::<_,()>::Ok(crate::api::media::enumerate_displays())?;   Ok(output_ok)
                     })())
                 } })
 }
@@ -305,7 +305,7 @@ fn wire__crate__api__get_media_impl(
     FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec,_,_>(flutter_rust_bridge::for_generated::TaskInfo{ debug_name: "get_media", port: Some(port_), mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal }, move || { 
             let message = unsafe { flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(ptr_, rust_vec_len_, data_len_) };
             let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_constraints = <crate::api::MediaStreamConstraints>::sse_decode(&mut deserializer);deserializer.end(); move |context|  {
+            let api_constraints = <crate::api::media::constraints::MediaStreamConstraints>::sse_decode(&mut deserializer);deserializer.end(); move |context|  {
                     transform_result_sse::<_, ()>((move ||  {
                          let output_ok = Result::<_,()>::Ok(crate::api::get_media(api_constraints))?;   Ok(output_ok)
                     })())
@@ -401,7 +401,7 @@ fn wire__crate__api__get_transceivers_impl(
                     })())
                 } })
 }
-fn wire__crate__api__is_fake_media_impl(
+fn wire__crate__api__media__is_fake_media_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
     rust_vec_len_: i32,
@@ -412,11 +412,11 @@ fn wire__crate__api__is_fake_media_impl(
             let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             deserializer.end(); move |context|  {
                     transform_result_sse::<_, ()>((move ||  {
-                         let output_ok = Result::<_,()>::Ok(crate::api::is_fake_media())?;   Ok(output_ok)
+                         let output_ok = Result::<_,()>::Ok(crate::api::media::is_fake_media())?;   Ok(output_ok)
                     })())
                 } })
 }
-fn wire__crate__api__microphone_volume_impl(
+fn wire__crate__api__media__microphone_volume_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
     rust_vec_len_: i32,
@@ -427,11 +427,11 @@ fn wire__crate__api__microphone_volume_impl(
             let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             deserializer.end(); move |context|  {
                     transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>((move ||  {
-                         let output_ok = crate::api::microphone_volume()?;   Ok(output_ok)
+                         let output_ok = crate::api::media::microphone_volume()?;   Ok(output_ok)
                     })())
                 } })
 }
-fn wire__crate__api__microphone_volume_is_available_impl(
+fn wire__crate__api__media__microphone_volume_is_available_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
     rust_vec_len_: i32,
@@ -442,7 +442,7 @@ fn wire__crate__api__microphone_volume_is_available_impl(
             let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             deserializer.end(); move |context|  {
                     transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>((move ||  {
-                         let output_ok = crate::api::microphone_volume_is_available()?;   Ok(output_ok)
+                         let output_ok = crate::api::media::microphone_volume_is_available()?;   Ok(output_ok)
                     })())
                 } })
 }
@@ -544,7 +544,7 @@ let api_enabled = <bool>::sse_decode(&mut deserializer);deserializer.end(); move
                     })())
                 } })
 }
-fn wire__crate__api__set_audio_playout_device_impl(
+fn wire__crate__api__media__set_audio_playout_device_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
     rust_vec_len_: i32,
@@ -555,7 +555,7 @@ fn wire__crate__api__set_audio_playout_device_impl(
             let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             let api_device_id = <String>::sse_decode(&mut deserializer);deserializer.end(); move |context|  {
                     transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>((move ||  {
-                         let output_ok = crate::api::set_audio_playout_device(api_device_id)?;   Ok(output_ok)
+                         let output_ok = crate::api::media::set_audio_playout_device(api_device_id)?;   Ok(output_ok)
                     })())
                 } })
 }
@@ -592,7 +592,7 @@ let api_sdp = <String>::sse_decode(&mut deserializer);deserializer.end(); move |
                     })())
                 } })
 }
-fn wire__crate__api__set_microphone_volume_impl(
+fn wire__crate__api__media__set_microphone_volume_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
     rust_vec_len_: i32,
@@ -603,11 +603,11 @@ fn wire__crate__api__set_microphone_volume_impl(
             let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             let api_level = <u8>::sse_decode(&mut deserializer);deserializer.end(); move |context|  {
                     transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>((move ||  {
-                         let output_ok = crate::api::set_microphone_volume(api_level)?;   Ok(output_ok)
+                         let output_ok = crate::api::media::set_microphone_volume(api_level)?;   Ok(output_ok)
                     })())
                 } })
 }
-fn wire__crate__api__set_on_device_changed_impl(
+fn wire__crate__api__media__set_on_device_changed_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
     rust_vec_len_: i32,
@@ -618,7 +618,7 @@ fn wire__crate__api__set_on_device_changed_impl(
             let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             let api_cb = <StreamSink<(),flutter_rust_bridge::for_generated::SseCodec>>::sse_decode(&mut deserializer);deserializer.end(); move |context|  {
                     transform_result_sse::<_, ()>((move ||  {
-                         let output_ok = Result::<_,()>::Ok({ crate::api::set_on_device_changed(api_cb); })?;   Ok(output_ok)
+                         let output_ok = Result::<_,()>::Ok({ crate::api::media::set_on_device_changed(api_cb); })?;   Ok(output_ok)
                     })())
                 } })
 }
@@ -781,7 +781,7 @@ fn wire__crate__api__update_audio_processing_impl(
             let message = unsafe { flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(ptr_, rust_vec_len_, data_len_) };
             let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             let api_track_id = <String>::sse_decode(&mut deserializer);
-let api_conf = <crate::api::AudioProcessingConstraints>::sse_decode(&mut deserializer);deserializer.end(); move |context|  {
+let api_conf = <crate::api::media::constraints::audio::AudioProcessingConstraints>::sse_decode(&mut deserializer);deserializer.end(); move |context|  {
                     transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>((move ||  {
                          let output_ok = crate::api::update_audio_processing(api_track_id, api_conf)?;   Ok(output_ok)
                     })())
@@ -948,15 +948,14 @@ impl SseDecode for String {
     }
 }
 
-impl SseDecode for crate::api::AudioConstraints {
+impl SseDecode for crate::api::media::constraints::audio::AudioConstraints {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(
         deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer,
     ) -> Self {
         let mut var_deviceId = <Option<String>>::sse_decode(deserializer);
-        let mut var_processing =
-            <crate::api::AudioProcessingConstraints>::sse_decode(deserializer);
-        return crate::api::AudioConstraints {
+        let mut var_processing = <crate::api::media::constraints::audio::AudioProcessingConstraints>::sse_decode(deserializer);
+        return crate::api::media::constraints::audio::AudioConstraints {
             device_id: var_deviceId,
             processing: var_processing,
         };
@@ -984,7 +983,9 @@ impl SseDecode for crate::api::AudioProcessingConfig {
     }
 }
 
-impl SseDecode for crate::api::AudioProcessingConstraints {
+impl SseDecode
+    for crate::api::media::constraints::audio::AudioProcessingConstraints
+{
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(
         deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer,
@@ -996,13 +997,7 @@ impl SseDecode for crate::api::AudioProcessingConstraints {
             crate::api::NoiseSuppressionLevel,
         >>::sse_decode(deserializer);
         let mut var_echoCancellation = <Option<bool>>::sse_decode(deserializer);
-        return crate::api::AudioProcessingConstraints {
-            auto_gain_control: var_autoGainControl,
-            high_pass_filter: var_highPassFilter,
-            noise_suppression: var_noiseSuppression,
-            noise_suppression_level: var_noiseSuppressionLevel,
-            echo_cancellation: var_echoCancellation,
-        };
+        return crate::api::media::constraints::audio::AudioProcessingConstraints{auto_gain_control: var_autoGainControl, high_pass_filter: var_highPassFilter, noise_suppression: var_noiseSuppression, noise_suppression_level: var_noiseSuppressionLevel, echo_cancellation: var_echoCancellation};
     }
 }
 
@@ -1524,16 +1519,18 @@ impl SseDecode for crate::api::media_info::MediaDisplayInfo {
     }
 }
 
-impl SseDecode for crate::api::MediaStreamConstraints {
+impl SseDecode for crate::api::media::constraints::MediaStreamConstraints {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(
         deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer,
     ) -> Self {
-        let mut var_audio =
-            <Option<crate::api::AudioConstraints>>::sse_decode(deserializer);
-        let mut var_video =
-            <Option<crate::api::VideoConstraints>>::sse_decode(deserializer);
-        return crate::api::MediaStreamConstraints {
+        let mut var_audio = <Option<
+            crate::api::media::constraints::audio::AudioConstraints,
+        >>::sse_decode(deserializer);
+        let mut var_video = <Option<
+            crate::api::media::constraints::video::VideoConstraints,
+        >>::sse_decode(deserializer);
+        return crate::api::media::constraints::MediaStreamConstraints {
             audio: var_audio,
             video: var_video,
         };
@@ -1606,15 +1603,15 @@ impl SseDecode for Option<String> {
     }
 }
 
-impl SseDecode for Option<crate::api::AudioConstraints> {
+impl SseDecode
+    for Option<crate::api::media::constraints::audio::AudioConstraints>
+{
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(
         deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer,
     ) -> Self {
         if (<bool>::sse_decode(deserializer)) {
-            return Some(<crate::api::AudioConstraints>::sse_decode(
-                deserializer,
-            ));
+            return Some(<crate::api::media::constraints::audio::AudioConstraints>::sse_decode(deserializer));
         } else {
             return None;
         }
@@ -1770,15 +1767,15 @@ impl SseDecode for Option<u64> {
     }
 }
 
-impl SseDecode for Option<crate::api::VideoConstraints> {
+impl SseDecode
+    for Option<crate::api::media::constraints::video::VideoConstraints>
+{
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(
         deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer,
     ) -> Self {
         if (<bool>::sse_decode(deserializer)) {
-            return Some(<crate::api::VideoConstraints>::sse_decode(
-                deserializer,
-            ));
+            return Some(<crate::api::media::constraints::video::VideoConstraints>::sse_decode(deserializer));
         } else {
             return None;
         }
@@ -2672,7 +2669,7 @@ impl SseDecode for crate::api::VideoCodecInfo {
     }
 }
 
-impl SseDecode for crate::api::VideoConstraints {
+impl SseDecode for crate::api::media::constraints::video::VideoConstraints {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(
         deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer,
@@ -2682,7 +2679,7 @@ impl SseDecode for crate::api::VideoConstraints {
         let mut var_height = <u32>::sse_decode(deserializer);
         let mut var_frameRate = <u32>::sse_decode(deserializer);
         let mut var_isDisplay = <bool>::sse_decode(deserializer);
-        return crate::api::VideoConstraints {
+        return crate::api::media::constraints::video::VideoConstraints {
             device_id: var_deviceId,
             width: var_width,
             height: var_height,
@@ -2701,293 +2698,56 @@ fn pde_ffi_dispatcher_primary_impl(
 ) {
     // Codec=Pde (Serialization + dispatch), see doc to use other codecs
     match func_id {
-        1 => wire__crate__api__add_ice_candidate_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        2 => wire__crate__api__add_transceiver_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        3 => wire__crate__api__audio_processing_constraints_default_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        4 => wire__crate__api__clone_track_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        5 => wire__crate__api__create_answer_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        6 => wire__crate__api__create_offer_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        7 => wire__crate__api__create_peer_connection_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        8 => wire__crate__api__create_video_sink_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        9 => wire__crate__api__dispose_peer_connection_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        10 => wire__crate__api__dispose_track_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        11 => wire__crate__api__dispose_video_sink_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        12 => wire__crate__api__enable_fake_media_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        13 => wire__crate__api__enumerate_devices_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        14 => wire__crate__api__enumerate_displays_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        15 => wire__crate__api__get_audio_processing_config_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        16 => {
-            wire__crate__api__get_media_impl(port, ptr, rust_vec_len, data_len)
-        }
-        17 => wire__crate__api__stats__get_peer_stats_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        18 => wire__crate__api__get_rtp_receiver_capabilities_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        19 => wire__crate__api__get_rtp_sender_capabilities_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        20 => wire__crate__api__get_transceiver_direction_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        21 => wire__crate__api__get_transceiver_mid_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        22 => wire__crate__api__get_transceivers_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        23 => wire__crate__api__is_fake_media_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        24 => wire__crate__api__microphone_volume_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        25 => wire__crate__api__microphone_volume_is_available_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        26 => wire__crate__api__register_track_observer_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        27 => wire__crate__api__restart_ice_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        28 => wire__crate__api__sender_get_parameters_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        29 => wire__crate__api__sender_replace_track_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        30 => wire__crate__api__sender_set_parameters_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        31 => wire__crate__api__set_audio_level_observer_enabled_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        32 => wire__crate__api__set_audio_playout_device_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        33 => wire__crate__api__set_codec_preferences_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        34 => wire__crate__api__set_local_description_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        35 => wire__crate__api__set_microphone_volume_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        36 => wire__crate__api__set_on_device_changed_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        37 => wire__crate__api__set_remote_description_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        38 => wire__crate__api__set_track_enabled_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        39 => wire__crate__api__set_transceiver_direction_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        40 => wire__crate__api__set_transceiver_recv_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        41 => wire__crate__api__set_transceiver_send_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        42 => wire__crate__api__stop_transceiver_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        43 => wire__crate__api__track_height_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        44 => wire__crate__api__track_state_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        45 => wire__crate__api__track_width_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        46 => wire__crate__api__update_audio_processing_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        47 => wire__crate__api__video_decoders_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        48 => wire__crate__api__video_encoders_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        _ => unreachable!(),
-    }
+                        1 => wire__crate__api__add_ice_candidate_impl(port, ptr, rust_vec_len, data_len),
+2 => wire__crate__api__add_transceiver_impl(port, ptr, rust_vec_len, data_len),
+3 => wire__crate__api__media__constraints__audio__audio_processing_constraints_default_impl(port, ptr, rust_vec_len, data_len),
+4 => wire__crate__api__clone_track_impl(port, ptr, rust_vec_len, data_len),
+5 => wire__crate__api__create_answer_impl(port, ptr, rust_vec_len, data_len),
+6 => wire__crate__api__create_offer_impl(port, ptr, rust_vec_len, data_len),
+7 => wire__crate__api__create_peer_connection_impl(port, ptr, rust_vec_len, data_len),
+8 => wire__crate__api__create_video_sink_impl(port, ptr, rust_vec_len, data_len),
+9 => wire__crate__api__dispose_peer_connection_impl(port, ptr, rust_vec_len, data_len),
+10 => wire__crate__api__dispose_track_impl(port, ptr, rust_vec_len, data_len),
+11 => wire__crate__api__dispose_video_sink_impl(port, ptr, rust_vec_len, data_len),
+12 => wire__crate__api__media__enable_fake_media_impl(port, ptr, rust_vec_len, data_len),
+13 => wire__crate__api__media__enumerate_devices_impl(port, ptr, rust_vec_len, data_len),
+14 => wire__crate__api__media__enumerate_displays_impl(port, ptr, rust_vec_len, data_len),
+15 => wire__crate__api__get_audio_processing_config_impl(port, ptr, rust_vec_len, data_len),
+16 => wire__crate__api__get_media_impl(port, ptr, rust_vec_len, data_len),
+17 => wire__crate__api__stats__get_peer_stats_impl(port, ptr, rust_vec_len, data_len),
+18 => wire__crate__api__get_rtp_receiver_capabilities_impl(port, ptr, rust_vec_len, data_len),
+19 => wire__crate__api__get_rtp_sender_capabilities_impl(port, ptr, rust_vec_len, data_len),
+20 => wire__crate__api__get_transceiver_direction_impl(port, ptr, rust_vec_len, data_len),
+21 => wire__crate__api__get_transceiver_mid_impl(port, ptr, rust_vec_len, data_len),
+22 => wire__crate__api__get_transceivers_impl(port, ptr, rust_vec_len, data_len),
+23 => wire__crate__api__media__is_fake_media_impl(port, ptr, rust_vec_len, data_len),
+24 => wire__crate__api__media__microphone_volume_impl(port, ptr, rust_vec_len, data_len),
+25 => wire__crate__api__media__microphone_volume_is_available_impl(port, ptr, rust_vec_len, data_len),
+26 => wire__crate__api__register_track_observer_impl(port, ptr, rust_vec_len, data_len),
+27 => wire__crate__api__restart_ice_impl(port, ptr, rust_vec_len, data_len),
+28 => wire__crate__api__sender_get_parameters_impl(port, ptr, rust_vec_len, data_len),
+29 => wire__crate__api__sender_replace_track_impl(port, ptr, rust_vec_len, data_len),
+30 => wire__crate__api__sender_set_parameters_impl(port, ptr, rust_vec_len, data_len),
+31 => wire__crate__api__set_audio_level_observer_enabled_impl(port, ptr, rust_vec_len, data_len),
+32 => wire__crate__api__media__set_audio_playout_device_impl(port, ptr, rust_vec_len, data_len),
+33 => wire__crate__api__set_codec_preferences_impl(port, ptr, rust_vec_len, data_len),
+34 => wire__crate__api__set_local_description_impl(port, ptr, rust_vec_len, data_len),
+35 => wire__crate__api__media__set_microphone_volume_impl(port, ptr, rust_vec_len, data_len),
+36 => wire__crate__api__media__set_on_device_changed_impl(port, ptr, rust_vec_len, data_len),
+37 => wire__crate__api__set_remote_description_impl(port, ptr, rust_vec_len, data_len),
+38 => wire__crate__api__set_track_enabled_impl(port, ptr, rust_vec_len, data_len),
+39 => wire__crate__api__set_transceiver_direction_impl(port, ptr, rust_vec_len, data_len),
+40 => wire__crate__api__set_transceiver_recv_impl(port, ptr, rust_vec_len, data_len),
+41 => wire__crate__api__set_transceiver_send_impl(port, ptr, rust_vec_len, data_len),
+42 => wire__crate__api__stop_transceiver_impl(port, ptr, rust_vec_len, data_len),
+43 => wire__crate__api__track_height_impl(port, ptr, rust_vec_len, data_len),
+44 => wire__crate__api__track_state_impl(port, ptr, rust_vec_len, data_len),
+45 => wire__crate__api__track_width_impl(port, ptr, rust_vec_len, data_len),
+46 => wire__crate__api__update_audio_processing_impl(port, ptr, rust_vec_len, data_len),
+47 => wire__crate__api__video_decoders_impl(port, ptr, rust_vec_len, data_len),
+48 => wire__crate__api__video_encoders_impl(port, ptr, rust_vec_len, data_len),
+                        _ => unreachable!(),
+                    }
 }
 
 fn pde_ffi_dispatcher_sync_impl(
@@ -3005,7 +2765,9 @@ fn pde_ffi_dispatcher_sync_impl(
 // Section: rust2dart
 
 // Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for crate::api::AudioConstraints {
+impl flutter_rust_bridge::IntoDart
+    for crate::api::media::constraints::audio::AudioConstraints
+{
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
             self.device_id.into_into_dart().into_dart(),
@@ -3015,13 +2777,17 @@ impl flutter_rust_bridge::IntoDart for crate::api::AudioConstraints {
     }
 }
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
-    for crate::api::AudioConstraints
+    for crate::api::media::constraints::audio::AudioConstraints
 {
 }
-impl flutter_rust_bridge::IntoIntoDart<crate::api::AudioConstraints>
-    for crate::api::AudioConstraints
+impl
+    flutter_rust_bridge::IntoIntoDart<
+        crate::api::media::constraints::audio::AudioConstraints,
+    > for crate::api::media::constraints::audio::AudioConstraints
 {
-    fn into_into_dart(self) -> crate::api::AudioConstraints {
+    fn into_into_dart(
+        self,
+    ) -> crate::api::media::constraints::audio::AudioConstraints {
         self
     }
 }
@@ -3050,7 +2816,9 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::AudioProcessingConfig>
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for crate::api::AudioProcessingConstraints {
+impl flutter_rust_bridge::IntoDart
+    for crate::api::media::constraints::audio::AudioProcessingConstraints
+{
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
             self.auto_gain_control.into_into_dart().into_dart(),
@@ -3063,13 +2831,17 @@ impl flutter_rust_bridge::IntoDart for crate::api::AudioProcessingConstraints {
     }
 }
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
-    for crate::api::AudioProcessingConstraints
+    for crate::api::media::constraints::audio::AudioProcessingConstraints
 {
 }
-impl flutter_rust_bridge::IntoIntoDart<crate::api::AudioProcessingConstraints>
-    for crate::api::AudioProcessingConstraints
+impl
+    flutter_rust_bridge::IntoIntoDart<
+        crate::api::media::constraints::audio::AudioProcessingConstraints,
+    > for crate::api::media::constraints::audio::AudioProcessingConstraints
 {
-    fn into_into_dart(self) -> crate::api::AudioProcessingConstraints {
+    fn into_into_dart(
+        self,
+    ) -> crate::api::media::constraints::audio::AudioProcessingConstraints {
         self
     }
 }
@@ -3372,7 +3144,9 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::media_info::MediaDisplayInfo>
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for crate::api::MediaStreamConstraints {
+impl flutter_rust_bridge::IntoDart
+    for crate::api::media::constraints::MediaStreamConstraints
+{
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
             self.audio.into_into_dart().into_dart(),
@@ -3382,13 +3156,17 @@ impl flutter_rust_bridge::IntoDart for crate::api::MediaStreamConstraints {
     }
 }
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
-    for crate::api::MediaStreamConstraints
+    for crate::api::media::constraints::MediaStreamConstraints
 {
 }
-impl flutter_rust_bridge::IntoIntoDart<crate::api::MediaStreamConstraints>
-    for crate::api::MediaStreamConstraints
+impl
+    flutter_rust_bridge::IntoIntoDart<
+        crate::api::media::constraints::MediaStreamConstraints,
+    > for crate::api::media::constraints::MediaStreamConstraints
 {
-    fn into_into_dart(self) -> crate::api::MediaStreamConstraints {
+    fn into_into_dart(
+        self,
+    ) -> crate::api::media::constraints::MediaStreamConstraints {
         self
     }
 }
@@ -4362,7 +4140,9 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::VideoCodecInfo>
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for crate::api::VideoConstraints {
+impl flutter_rust_bridge::IntoDart
+    for crate::api::media::constraints::video::VideoConstraints
+{
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
             self.device_id.into_into_dart().into_dart(),
@@ -4375,13 +4155,17 @@ impl flutter_rust_bridge::IntoDart for crate::api::VideoConstraints {
     }
 }
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
-    for crate::api::VideoConstraints
+    for crate::api::media::constraints::video::VideoConstraints
 {
 }
-impl flutter_rust_bridge::IntoIntoDart<crate::api::VideoConstraints>
-    for crate::api::VideoConstraints
+impl
+    flutter_rust_bridge::IntoIntoDart<
+        crate::api::media::constraints::video::VideoConstraints,
+    > for crate::api::media::constraints::video::VideoConstraints
 {
-    fn into_into_dart(self) -> crate::api::VideoConstraints {
+    fn into_into_dart(
+        self,
+    ) -> crate::api::media::constraints::video::VideoConstraints {
         self
     }
 }
@@ -4511,17 +4295,14 @@ impl SseEncode for String {
     }
 }
 
-impl SseEncode for crate::api::AudioConstraints {
+impl SseEncode for crate::api::media::constraints::audio::AudioConstraints {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(
         self,
         serializer: &mut flutter_rust_bridge::for_generated::SseSerializer,
     ) {
         <Option<String>>::sse_encode(self.device_id, serializer);
-        <crate::api::AudioProcessingConstraints>::sse_encode(
-            self.processing,
-            serializer,
-        );
+        <crate::api::media::constraints::audio::AudioProcessingConstraints>::sse_encode(self.processing, serializer);
     }
 }
 
@@ -4542,7 +4323,9 @@ impl SseEncode for crate::api::AudioProcessingConfig {
     }
 }
 
-impl SseEncode for crate::api::AudioProcessingConstraints {
+impl SseEncode
+    for crate::api::media::constraints::audio::AudioProcessingConstraints
+{
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(
         self,
@@ -5058,18 +4841,14 @@ impl SseEncode for crate::api::media_info::MediaDisplayInfo {
     }
 }
 
-impl SseEncode for crate::api::MediaStreamConstraints {
+impl SseEncode for crate::api::media::constraints::MediaStreamConstraints {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(
         self,
         serializer: &mut flutter_rust_bridge::for_generated::SseSerializer,
     ) {
-        <Option<crate::api::AudioConstraints>>::sse_encode(
-            self.audio, serializer,
-        );
-        <Option<crate::api::VideoConstraints>>::sse_encode(
-            self.video, serializer,
-        );
+        <Option<crate::api::media::constraints::audio::AudioConstraints>>::sse_encode(self.audio, serializer);
+        <Option<crate::api::media::constraints::video::VideoConstraints>>::sse_encode(self.video, serializer);
     }
 }
 
@@ -5140,7 +4919,9 @@ impl SseEncode for Option<String> {
     }
 }
 
-impl SseEncode for Option<crate::api::AudioConstraints> {
+impl SseEncode
+    for Option<crate::api::media::constraints::audio::AudioConstraints>
+{
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(
         self,
@@ -5148,7 +4929,7 @@ impl SseEncode for Option<crate::api::AudioConstraints> {
     ) {
         <bool>::sse_encode(self.is_some(), serializer);
         if let Some(value) = self {
-            <crate::api::AudioConstraints>::sse_encode(value, serializer);
+            <crate::api::media::constraints::audio::AudioConstraints>::sse_encode(value, serializer);
         }
     }
 }
@@ -5299,7 +5080,9 @@ impl SseEncode for Option<u64> {
     }
 }
 
-impl SseEncode for Option<crate::api::VideoConstraints> {
+impl SseEncode
+    for Option<crate::api::media::constraints::video::VideoConstraints>
+{
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(
         self,
@@ -5307,7 +5090,7 @@ impl SseEncode for Option<crate::api::VideoConstraints> {
     ) {
         <bool>::sse_encode(self.is_some(), serializer);
         if let Some(value) = self {
-            <crate::api::VideoConstraints>::sse_encode(value, serializer);
+            <crate::api::media::constraints::video::VideoConstraints>::sse_encode(value, serializer);
         }
     }
 }
@@ -6109,7 +5892,7 @@ impl SseEncode for crate::api::VideoCodecInfo {
     }
 }
 
-impl SseEncode for crate::api::VideoConstraints {
+impl SseEncode for crate::api::media::constraints::video::VideoConstraints {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(
         self,

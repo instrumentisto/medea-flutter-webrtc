@@ -6,7 +6,9 @@
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 
-import 'api/media_info.dart';
+import 'api/media/constraints.dart';
+import 'api/media/constraints/audio.dart';
+import 'api/media/constraints/video.dart';
 import 'frb_generated.dart';
 import 'lib.dart';
 import 'renderer.dart';
@@ -14,7 +16,7 @@ import 'renderer.dart';
 part 'api.freezed.dart';
 
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `TrackKind`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `hash`, `hash`, `hash`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `hash`, `hash`, `hash`
 
 /// Returns all [`VideoCodecInfo`]s of the supported video encoders.
 Future<List<VideoCodecInfo>> videoEncoders() =>
@@ -23,24 +25,6 @@ Future<List<VideoCodecInfo>> videoEncoders() =>
 /// Returns all [`VideoCodecInfo`]s of the supported video decoders.
 Future<List<VideoCodecInfo>> videoDecoders() =>
     RustLib.instance.api.crateApiVideoDecoders();
-
-/// Configures media acquisition to use fake devices instead of actual camera
-/// and microphone.
-Future<void> enableFakeMedia() =>
-    RustLib.instance.api.crateApiEnableFakeMedia();
-
-/// Indicates whether application is configured to use fake media devices.
-Future<bool> isFakeMedia() => RustLib.instance.api.crateApiIsFakeMedia();
-
-/// Returns a list of all available media input and output devices, such as
-/// microphones, cameras, headsets, and so forth.
-Future<List<MediaDeviceInfo>> enumerateDevices() =>
-    RustLib.instance.api.crateApiEnumerateDevices();
-
-/// Returns a list of all available displays that can be used for screen
-/// capturing.
-Future<List<MediaDisplayInfo>> enumerateDisplays() =>
-    RustLib.instance.api.crateApiEnumerateDisplays();
 
 /// Creates a new [`PeerConnection`] and returns its ID.
 Stream<PeerConnectionEvent> createPeerConnection({
@@ -248,25 +232,6 @@ Future<GetMediaResult> getMedia({
   required MediaStreamConstraints constraints,
 }) => RustLib.instance.api.crateApiGetMedia(constraints: constraints);
 
-/// Sets the specified `audio playout` device.
-Future<void> setAudioPlayoutDevice({required String deviceId}) =>
-    RustLib.instance.api.crateApiSetAudioPlayoutDevice(deviceId: deviceId);
-
-/// Indicates whether the microphone is available to set volume.
-Future<bool> microphoneVolumeIsAvailable() =>
-    RustLib.instance.api.crateApiMicrophoneVolumeIsAvailable();
-
-/// Sets the microphone system volume according to the specified `level` in
-/// percents.
-///
-/// Valid values range is `[0; 100]`.
-Future<void> setMicrophoneVolume({required int level}) =>
-    RustLib.instance.api.crateApiSetMicrophoneVolume(level: level);
-
-/// Returns the current level of the microphone volume in `[0; 100]` range.
-Future<int> microphoneVolume() =>
-    RustLib.instance.api.crateApiMicrophoneVolume();
-
 /// Disposes the specified [`MediaStreamTrack`].
 Future<void> disposeTrack({
   required String trackId,
@@ -389,14 +354,6 @@ Future<AudioProcessingConfig> getAudioProcessingConfig({
   required String trackId,
 }) => RustLib.instance.api.crateApiGetAudioProcessingConfig(trackId: trackId);
 
-/// Sets the provided `OnDeviceChangeCallback` as the callback to be called
-/// whenever a set of available media devices changes.
-///
-/// Only one callback can be set at a time, so the previous one will be dropped,
-/// if any.
-Stream<void> setOnDeviceChanged() =>
-    RustLib.instance.api.crateApiSetOnDeviceChanged();
-
 /// Creates a new [`VideoSink`] attached to the specified video track.
 ///
 /// `callback_ptr` argument should be a pointer to an [`UniquePtr`] pointing to
@@ -423,32 +380,6 @@ Stream<TextureEvent> createVideoSink({
 /// [`VideoSink`]: crate::VideoSink
 Future<void> disposeVideoSink({required PlatformInt64 sinkId}) =>
     RustLib.instance.api.crateApiDisposeVideoSink(sinkId: sinkId);
-
-/// Nature and settings of the audio [`MediaStreamTrack`] returned by
-/// [`Webrtc::get_media()`].
-class AudioConstraints {
-  /// Identifier of the device generating the content of the
-  /// [`MediaStreamTrack`].
-  ///
-  /// First device will be chosen if an empty [`String`] is provided.
-  final String? deviceId;
-
-  /// Audio processing configuration constraints of the [`MediaStreamTrack`].
-  final AudioProcessingConstraints processing;
-
-  const AudioConstraints({this.deviceId, required this.processing});
-
-  @override
-  int get hashCode => deviceId.hashCode ^ processing.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is AudioConstraints &&
-          runtimeType == other.runtimeType &&
-          deviceId == other.deviceId &&
-          processing == other.processing;
-}
 
 /// Audio processing configuration for some local audio [`MediaStreamTrack`].
 class AudioProcessingConfig {
@@ -491,58 +422,6 @@ class AudioProcessingConfig {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is AudioProcessingConfig &&
-          runtimeType == other.runtimeType &&
-          autoGainControl == other.autoGainControl &&
-          highPassFilter == other.highPassFilter &&
-          noiseSuppression == other.noiseSuppression &&
-          noiseSuppressionLevel == other.noiseSuppressionLevel &&
-          echoCancellation == other.echoCancellation;
-}
-
-/// Constraints of an [`AudioProcessingConfig`].
-class AudioProcessingConstraints {
-  /// Indicator whether the audio volume level should be automatically tuned
-  /// to maintain a steady overall volume level.
-  final bool? autoGainControl;
-
-  /// Indicator whether a high-pass filter should be enabled to eliminate
-  /// low-frequency noise.
-  final bool? highPassFilter;
-
-  /// Indicator whether noise suppression should be enabled to reduce
-  /// background sounds.
-  final bool? noiseSuppression;
-
-  /// Level of aggressiveness for noise suppression.
-  final NoiseSuppressionLevel? noiseSuppressionLevel;
-
-  /// Indicator whether echo cancellation should be enabled to prevent
-  /// feedback.
-  final bool? echoCancellation;
-
-  const AudioProcessingConstraints({
-    this.autoGainControl,
-    this.highPassFilter,
-    this.noiseSuppression,
-    this.noiseSuppressionLevel,
-    this.echoCancellation,
-  });
-
-  static Future<AudioProcessingConstraints> default_() =>
-      RustLib.instance.api.crateApiAudioProcessingConstraintsDefault();
-
-  @override
-  int get hashCode =>
-      autoGainControl.hashCode ^
-      highPassFilter.hashCode ^
-      noiseSuppression.hashCode ^
-      noiseSuppressionLevel.hashCode ^
-      echoCancellation.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is AudioProcessingConstraints &&
           runtimeType == other.runtimeType &&
           autoGainControl == other.autoGainControl &&
           highPassFilter == other.highPassFilter &&
@@ -685,31 +564,6 @@ enum IceTransportsType {
 
   /// No ICE candidate offered.
   none,
-}
-
-/// [MediaStreamConstraints], used to instruct what sort of
-/// [`MediaStreamTrack`]s to return by the [`Webrtc::get_media()`].
-///
-/// [1]: https://w3.org/TR/mediacapture-streams#dom-mediastreamconstraints
-class MediaStreamConstraints {
-  /// Specifies the nature and settings of the audio [`MediaStreamTrack`].
-  final AudioConstraints? audio;
-
-  /// Specifies the nature and settings of the video [`MediaStreamTrack`].
-  final VideoConstraints? video;
-
-  const MediaStreamConstraints({this.audio, this.video});
-
-  @override
-  int get hashCode => audio.hashCode ^ video.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is MediaStreamConstraints &&
-          runtimeType == other.runtimeType &&
-          audio == other.audio &&
-          video == other.video;
 }
 
 /// Representation of a single media track within a [MediaStream].
@@ -1818,54 +1672,4 @@ class VideoCodecInfo {
           runtimeType == other.runtimeType &&
           isHardwareAccelerated == other.isHardwareAccelerated &&
           codec == other.codec;
-}
-
-/// Nature and settings of the video [`MediaStreamTrack`] returned by
-/// [`Webrtc::get_media()`].
-class VideoConstraints {
-  /// Identifier of the device generating the content of the
-  /// [`MediaStreamTrack`].
-  ///
-  /// The first device will be chosen if an empty [`String`] is provided.
-  final String? deviceId;
-
-  /// Width in pixels.
-  final int width;
-
-  /// Height in pixels.
-  final int height;
-
-  /// Exact frame rate (frames per second).
-  final int frameRate;
-
-  /// Indicator whether the request video track should be acquired via screen
-  /// capturing.
-  final bool isDisplay;
-
-  const VideoConstraints({
-    this.deviceId,
-    required this.width,
-    required this.height,
-    required this.frameRate,
-    required this.isDisplay,
-  });
-
-  @override
-  int get hashCode =>
-      deviceId.hashCode ^
-      width.hashCode ^
-      height.hashCode ^
-      frameRate.hashCode ^
-      isDisplay.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is VideoConstraints &&
-          runtimeType == other.runtimeType &&
-          deviceId == other.deviceId &&
-          width == other.width &&
-          height == other.height &&
-          frameRate == other.frameRate &&
-          isDisplay == other.isDisplay;
 }
