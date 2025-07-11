@@ -42,7 +42,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.10.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -15912171;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -2122063044;
 
 // Section: executor
 
@@ -68,7 +68,7 @@ let api_sdp_mline_index = <i32>::sse_decode(&mut deserializer);deserializer.end(
                     })())
                 } })
 }
-fn wire__crate__api__add_transceiver_impl(
+fn wire__crate__api__transceiver__add_transceiver_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
     rust_vec_len_: i32,
@@ -79,9 +79,9 @@ fn wire__crate__api__add_transceiver_impl(
             let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             let api_peer = <RustOpaqueMoi<Arc < PeerConnection >>>::sse_decode(&mut deserializer);
 let api_media_type = <crate::api::MediaType>::sse_decode(&mut deserializer);
-let api_init = <crate::api::RtpTransceiverInit>::sse_decode(&mut deserializer);deserializer.end(); move |context|  {
+let api_init = <crate::api::transceiver::init::RtpTransceiverInit>::sse_decode(&mut deserializer);deserializer.end(); move |context|  {
                     transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>((move ||  {
-                         let output_ok = crate::api::add_transceiver(api_peer, api_media_type, api_init)?;   Ok(output_ok)
+                         let output_ok = crate::api::transceiver::add_transceiver(api_peer, api_media_type, api_init)?;   Ok(output_ok)
                     })())
                 } })
 }
@@ -356,7 +356,7 @@ fn wire__crate__api__get_rtp_sender_capabilities_impl(
                     })())
                 } })
 }
-fn wire__crate__api__get_transceiver_direction_impl(
+fn wire__crate__api__transceiver__get_transceiver_direction_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
     rust_vec_len_: i32,
@@ -367,11 +367,11 @@ fn wire__crate__api__get_transceiver_direction_impl(
             let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             let api_transceiver = <RustOpaqueMoi<Arc < RtpTransceiver >>>::sse_decode(&mut deserializer);deserializer.end(); move |context|  {
                     transform_result_sse::<_, ()>((move ||  {
-                         let output_ok = Result::<_,()>::Ok(crate::api::get_transceiver_direction(api_transceiver))?;   Ok(output_ok)
+                         let output_ok = Result::<_,()>::Ok(crate::api::transceiver::get_transceiver_direction(api_transceiver))?;   Ok(output_ok)
                     })())
                 } })
 }
-fn wire__crate__api__get_transceiver_mid_impl(
+fn wire__crate__api__transceiver__get_transceiver_mid_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
     rust_vec_len_: i32,
@@ -382,11 +382,11 @@ fn wire__crate__api__get_transceiver_mid_impl(
             let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             let api_transceiver = <RustOpaqueMoi<Arc < RtpTransceiver >>>::sse_decode(&mut deserializer);deserializer.end(); move |context|  {
                     transform_result_sse::<_, ()>((move ||  {
-                         let output_ok = Result::<_,()>::Ok(crate::api::get_transceiver_mid(api_transceiver))?;   Ok(output_ok)
+                         let output_ok = Result::<_,()>::Ok(crate::api::transceiver::get_transceiver_mid(api_transceiver))?;   Ok(output_ok)
                     })())
                 } })
 }
-fn wire__crate__api__get_transceivers_impl(
+fn wire__crate__api__transceiver__get_transceivers_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
     rust_vec_len_: i32,
@@ -397,7 +397,7 @@ fn wire__crate__api__get_transceivers_impl(
             let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             let api_peer = <RustOpaqueMoi<Arc < PeerConnection >>>::sse_decode(&mut deserializer);deserializer.end(); move |context|  {
                     transform_result_sse::<_, ()>((move ||  {
-                         let output_ok = Result::<_,()>::Ok(crate::api::get_transceivers(api_peer))?;   Ok(output_ok)
+                         let output_ok = Result::<_,()>::Ok(crate::api::transceiver::get_transceivers(api_peer))?;   Ok(output_ok)
                     })())
                 } })
 }
@@ -657,7 +657,7 @@ let api_enabled = <bool>::sse_decode(&mut deserializer);deserializer.end(); move
                     })())
                 } })
 }
-fn wire__crate__api__set_transceiver_direction_impl(
+fn wire__crate__api__transceiver__set_transceiver_direction_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
     rust_vec_len_: i32,
@@ -667,13 +667,13 @@ fn wire__crate__api__set_transceiver_direction_impl(
             let message = unsafe { flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(ptr_, rust_vec_len_, data_len_) };
             let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             let api_transceiver = <RustOpaqueMoi<Arc < RtpTransceiver >>>::sse_decode(&mut deserializer);
-let api_direction = <crate::api::RtpTransceiverDirection>::sse_decode(&mut deserializer);deserializer.end(); move |context|  {
+let api_direction = <crate::api::transceiver::direction::RtpTransceiverDirection>::sse_decode(&mut deserializer);deserializer.end(); move |context|  {
                     transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>((move ||  {
-                         let output_ok = crate::api::set_transceiver_direction(api_transceiver, api_direction)?;   Ok(output_ok)
+                         let output_ok = crate::api::transceiver::set_transceiver_direction(api_transceiver, api_direction)?;   Ok(output_ok)
                     })())
                 } })
 }
-fn wire__crate__api__set_transceiver_recv_impl(
+fn wire__crate__api__transceiver__set_transceiver_recv_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
     rust_vec_len_: i32,
@@ -685,11 +685,11 @@ fn wire__crate__api__set_transceiver_recv_impl(
             let api_transceiver = <RustOpaqueMoi<Arc < RtpTransceiver >>>::sse_decode(&mut deserializer);
 let api_recv = <bool>::sse_decode(&mut deserializer);deserializer.end(); move |context|  {
                     transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>((move ||  {
-                         let output_ok = crate::api::set_transceiver_recv(api_transceiver, api_recv)?;   Ok(output_ok)
+                         let output_ok = crate::api::transceiver::set_transceiver_recv(api_transceiver, api_recv)?;   Ok(output_ok)
                     })())
                 } })
 }
-fn wire__crate__api__set_transceiver_send_impl(
+fn wire__crate__api__transceiver__set_transceiver_send_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
     rust_vec_len_: i32,
@@ -701,11 +701,11 @@ fn wire__crate__api__set_transceiver_send_impl(
             let api_transceiver = <RustOpaqueMoi<Arc < RtpTransceiver >>>::sse_decode(&mut deserializer);
 let api_send = <bool>::sse_decode(&mut deserializer);deserializer.end(); move |context|  {
                     transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>((move ||  {
-                         let output_ok = crate::api::set_transceiver_send(api_transceiver, api_send)?;   Ok(output_ok)
+                         let output_ok = crate::api::transceiver::set_transceiver_send(api_transceiver, api_send)?;   Ok(output_ok)
                     })())
                 } })
 }
-fn wire__crate__api__stop_transceiver_impl(
+fn wire__crate__api__transceiver__stop_transceiver_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
     rust_vec_len_: i32,
@@ -716,7 +716,7 @@ fn wire__crate__api__stop_transceiver_impl(
             let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             let api_transceiver = <RustOpaqueMoi<Arc < RtpTransceiver >>>::sse_decode(&mut deserializer);deserializer.end(); move |context|  {
                     transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>((move ||  {
-                         let output_ok = crate::api::stop_transceiver(api_transceiver)?;   Ok(output_ok)
+                         let output_ok = crate::api::transceiver::stop_transceiver(api_transceiver)?;   Ok(output_ok)
                     })())
                 } })
 }
@@ -1374,7 +1374,7 @@ impl SseDecode for Vec<crate::api::RtcRtpEncodingParameters> {
     }
 }
 
-impl SseDecode for Vec<crate::api::RtcRtpTransceiver> {
+impl SseDecode for Vec<crate::api::transceiver::RtcRtpTransceiver> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(
         deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer,
@@ -1382,9 +1382,11 @@ impl SseDecode for Vec<crate::api::RtcRtpTransceiver> {
         let mut len_ = <i32>::sse_decode(deserializer);
         let mut ans_ = vec![];
         for idx_ in 0..len_ {
-            ans_.push(<crate::api::RtcRtpTransceiver>::sse_decode(
-                deserializer,
-            ));
+            ans_.push(
+                <crate::api::transceiver::RtcRtpTransceiver>::sse_decode(
+                    deserializer,
+                ),
+            );
         }
         return ans_;
     }
@@ -2087,7 +2089,7 @@ impl SseDecode for crate::api::RtcRtpSendParameters {
     }
 }
 
-impl SseDecode for crate::api::RtcRtpTransceiver {
+impl SseDecode for crate::api::transceiver::RtcRtpTransceiver {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(
         deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer,
@@ -2097,9 +2099,8 @@ impl SseDecode for crate::api::RtcRtpTransceiver {
         let mut var_transceiver =
             <RustOpaqueMoi<Arc<RtpTransceiver>>>::sse_decode(deserializer);
         let mut var_mid = <Option<String>>::sse_decode(deserializer);
-        let mut var_direction =
-            <crate::api::RtpTransceiverDirection>::sse_decode(deserializer);
-        return crate::api::RtcRtpTransceiver {
+        let mut var_direction = <crate::api::transceiver::direction::RtpTransceiverDirection>::sse_decode(deserializer);
+        return crate::api::transceiver::RtcRtpTransceiver {
             peer: var_peer,
             transceiver: var_transceiver,
             mid: var_mid,
@@ -2278,7 +2279,9 @@ impl SseDecode for crate::api::RtcTrackEvent {
         let mut var_track =
             <crate::api::MediaStreamTrack>::sse_decode(deserializer);
         let mut var_transceiver =
-            <crate::api::RtcRtpTransceiver>::sse_decode(deserializer);
+            <crate::api::transceiver::RtcRtpTransceiver>::sse_decode(
+                deserializer,
+            );
         return crate::api::RtcTrackEvent {
             track: var_track,
             transceiver: var_transceiver,
@@ -2398,8 +2401,7 @@ impl SseDecode for crate::api::RtpHeaderExtensionCapability {
         let mut var_uri = <String>::sse_decode(deserializer);
         let mut var_preferredId = <Option<i32>>::sse_decode(deserializer);
         let mut var_preferredEncrypted = <bool>::sse_decode(deserializer);
-        let mut var_direction =
-            <crate::api::RtpTransceiverDirection>::sse_decode(deserializer);
+        let mut var_direction = <crate::api::transceiver::direction::RtpTransceiverDirection>::sse_decode(deserializer);
         return crate::api::RtpHeaderExtensionCapability {
             uri: var_uri,
             preferred_id: var_preferredId,
@@ -2409,38 +2411,34 @@ impl SseDecode for crate::api::RtpHeaderExtensionCapability {
     }
 }
 
-impl SseDecode for crate::api::RtpTransceiverDirection {
+impl SseDecode for crate::api::transceiver::direction::RtpTransceiverDirection {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(
         deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer,
     ) -> Self {
         let mut inner = <i32>::sse_decode(deserializer);
         return match inner {
-            0 => crate::api::RtpTransceiverDirection::SendRecv,
-            1 => crate::api::RtpTransceiverDirection::SendOnly,
-            2 => crate::api::RtpTransceiverDirection::RecvOnly,
-            3 => crate::api::RtpTransceiverDirection::Inactive,
-            4 => crate::api::RtpTransceiverDirection::Stopped,
-            _ => unreachable!(
-                "Invalid variant for RtpTransceiverDirection: {}",
-                inner
-            ),
+            0 => crate::api::transceiver::direction::RtpTransceiverDirection::SendRecv,
+1 => crate::api::transceiver::direction::RtpTransceiverDirection::SendOnly,
+2 => crate::api::transceiver::direction::RtpTransceiverDirection::RecvOnly,
+3 => crate::api::transceiver::direction::RtpTransceiverDirection::Inactive,
+4 => crate::api::transceiver::direction::RtpTransceiverDirection::Stopped,
+            _ => unreachable!("Invalid variant for RtpTransceiverDirection: {}", inner),
         };
     }
 }
 
-impl SseDecode for crate::api::RtpTransceiverInit {
+impl SseDecode for crate::api::transceiver::init::RtpTransceiverInit {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(
         deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer,
     ) -> Self {
-        let mut var_direction =
-            <crate::api::RtpTransceiverDirection>::sse_decode(deserializer);
+        let mut var_direction = <crate::api::transceiver::direction::RtpTransceiverDirection>::sse_decode(deserializer);
         let mut var_sendEncodings =
             <Vec<crate::api::RtcRtpEncodingParameters>>::sse_decode(
                 deserializer,
             );
-        return crate::api::RtpTransceiverInit {
+        return crate::api::transceiver::init::RtpTransceiverInit {
             direction: var_direction,
             send_encodings: var_sendEncodings,
         };
@@ -2707,7 +2705,7 @@ fn pde_ffi_dispatcher_primary_impl(
             rust_vec_len,
             data_len,
         ),
-        2 => wire__crate__api__add_transceiver_impl(
+        2 => wire__crate__api__transceiver__add_transceiver_impl(
             port,
             ptr,
             rust_vec_len,
@@ -2812,19 +2810,19 @@ fn pde_ffi_dispatcher_primary_impl(
             rust_vec_len,
             data_len,
         ),
-        20 => wire__crate__api__get_transceiver_direction_impl(
+        20 => wire__crate__api__transceiver__get_transceiver_direction_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        21 => wire__crate__api__get_transceiver_mid_impl(
+        21 => wire__crate__api__transceiver__get_transceiver_mid_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        22 => wire__crate__api__get_transceivers_impl(
+        22 => wire__crate__api__transceiver__get_transceivers_impl(
             port,
             ptr,
             rust_vec_len,
@@ -2926,25 +2924,25 @@ fn pde_ffi_dispatcher_primary_impl(
             rust_vec_len,
             data_len,
         ),
-        39 => wire__crate__api__set_transceiver_direction_impl(
+        39 => wire__crate__api__transceiver__set_transceiver_direction_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        40 => wire__crate__api__set_transceiver_recv_impl(
+        40 => wire__crate__api__transceiver__set_transceiver_recv_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        41 => wire__crate__api__set_transceiver_send_impl(
+        41 => wire__crate__api__transceiver__set_transceiver_send_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        42 => wire__crate__api__stop_transceiver_impl(
+        42 => wire__crate__api__transceiver__stop_transceiver_impl(
             port,
             ptr,
             rust_vec_len,
@@ -3776,7 +3774,9 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::RtcRtpSendParameters>
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for crate::api::RtcRtpTransceiver {
+impl flutter_rust_bridge::IntoDart
+    for crate::api::transceiver::RtcRtpTransceiver
+{
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
             self.peer.into_into_dart().into_dart(),
@@ -3788,13 +3788,15 @@ impl flutter_rust_bridge::IntoDart for crate::api::RtcRtpTransceiver {
     }
 }
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
-    for crate::api::RtcRtpTransceiver
+    for crate::api::transceiver::RtcRtpTransceiver
 {
 }
-impl flutter_rust_bridge::IntoIntoDart<crate::api::RtcRtpTransceiver>
-    for crate::api::RtcRtpTransceiver
+impl
+    flutter_rust_bridge::IntoIntoDart<
+        crate::api::transceiver::RtcRtpTransceiver,
+    > for crate::api::transceiver::RtcRtpTransceiver
 {
-    fn into_into_dart(self) -> crate::api::RtcRtpTransceiver {
+    fn into_into_dart(self) -> crate::api::transceiver::RtcRtpTransceiver {
         self
     }
 }
@@ -4086,7 +4088,9 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::RtpHeaderExtensionCapability>
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for crate::api::RtpTransceiverDirection {
+impl flutter_rust_bridge::IntoDart
+    for crate::api::transceiver::direction::RtpTransceiverDirection
+{
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         match self {
             Self::SendRecv => 0.into_dart(),
@@ -4099,18 +4103,24 @@ impl flutter_rust_bridge::IntoDart for crate::api::RtpTransceiverDirection {
     }
 }
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
-    for crate::api::RtpTransceiverDirection
+    for crate::api::transceiver::direction::RtpTransceiverDirection
 {
 }
-impl flutter_rust_bridge::IntoIntoDart<crate::api::RtpTransceiverDirection>
-    for crate::api::RtpTransceiverDirection
+impl
+    flutter_rust_bridge::IntoIntoDart<
+        crate::api::transceiver::direction::RtpTransceiverDirection,
+    > for crate::api::transceiver::direction::RtpTransceiverDirection
 {
-    fn into_into_dart(self) -> crate::api::RtpTransceiverDirection {
+    fn into_into_dart(
+        self,
+    ) -> crate::api::transceiver::direction::RtpTransceiverDirection {
         self
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for crate::api::RtpTransceiverInit {
+impl flutter_rust_bridge::IntoDart
+    for crate::api::transceiver::init::RtpTransceiverInit
+{
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
             self.direction.into_into_dart().into_dart(),
@@ -4120,13 +4130,17 @@ impl flutter_rust_bridge::IntoDart for crate::api::RtpTransceiverInit {
     }
 }
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
-    for crate::api::RtpTransceiverInit
+    for crate::api::transceiver::init::RtpTransceiverInit
 {
 }
-impl flutter_rust_bridge::IntoIntoDart<crate::api::RtpTransceiverInit>
-    for crate::api::RtpTransceiverInit
+impl
+    flutter_rust_bridge::IntoIntoDart<
+        crate::api::transceiver::init::RtpTransceiverInit,
+    > for crate::api::transceiver::init::RtpTransceiverInit
 {
-    fn into_into_dart(self) -> crate::api::RtpTransceiverInit {
+    fn into_into_dart(
+        self,
+    ) -> crate::api::transceiver::init::RtpTransceiverInit {
         self
     }
 }
@@ -4920,7 +4934,7 @@ impl SseEncode for Vec<crate::api::RtcRtpEncodingParameters> {
     }
 }
 
-impl SseEncode for Vec<crate::api::RtcRtpTransceiver> {
+impl SseEncode for Vec<crate::api::transceiver::RtcRtpTransceiver> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(
         self,
@@ -4928,7 +4942,9 @@ impl SseEncode for Vec<crate::api::RtcRtpTransceiver> {
     ) {
         <i32>::sse_encode(self.len() as _, serializer);
         for item in self {
-            <crate::api::RtcRtpTransceiver>::sse_encode(item, serializer);
+            <crate::api::transceiver::RtcRtpTransceiver>::sse_encode(
+                item, serializer,
+            );
         }
     }
 }
@@ -5586,7 +5602,7 @@ impl SseEncode for crate::api::RtcRtpSendParameters {
     }
 }
 
-impl SseEncode for crate::api::RtcRtpTransceiver {
+impl SseEncode for crate::api::transceiver::RtcRtpTransceiver {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(
         self,
@@ -5598,10 +5614,7 @@ impl SseEncode for crate::api::RtcRtpTransceiver {
             serializer,
         );
         <Option<String>>::sse_encode(self.mid, serializer);
-        <crate::api::RtpTransceiverDirection>::sse_encode(
-            self.direction,
-            serializer,
-        );
+        <crate::api::transceiver::direction::RtpTransceiverDirection>::sse_encode(self.direction, serializer);
     }
 }
 
@@ -5701,7 +5714,7 @@ impl SseEncode for crate::api::RtcTrackEvent {
         serializer: &mut flutter_rust_bridge::for_generated::SseSerializer,
     ) {
         <crate::api::MediaStreamTrack>::sse_encode(self.track, serializer);
-        <crate::api::RtcRtpTransceiver>::sse_encode(
+        <crate::api::transceiver::RtcRtpTransceiver>::sse_encode(
             self.transceiver,
             serializer,
         );
@@ -5811,45 +5824,32 @@ impl SseEncode for crate::api::RtpHeaderExtensionCapability {
         <String>::sse_encode(self.uri, serializer);
         <Option<i32>>::sse_encode(self.preferred_id, serializer);
         <bool>::sse_encode(self.preferred_encrypted, serializer);
-        <crate::api::RtpTransceiverDirection>::sse_encode(
-            self.direction,
-            serializer,
-        );
+        <crate::api::transceiver::direction::RtpTransceiverDirection>::sse_encode(self.direction, serializer);
     }
 }
 
-impl SseEncode for crate::api::RtpTransceiverDirection {
+impl SseEncode for crate::api::transceiver::direction::RtpTransceiverDirection {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(
         self,
         serializer: &mut flutter_rust_bridge::for_generated::SseSerializer,
     ) {
-        <i32>::sse_encode(
-            match self {
-                crate::api::RtpTransceiverDirection::SendRecv => 0,
-                crate::api::RtpTransceiverDirection::SendOnly => 1,
-                crate::api::RtpTransceiverDirection::RecvOnly => 2,
-                crate::api::RtpTransceiverDirection::Inactive => 3,
-                crate::api::RtpTransceiverDirection::Stopped => 4,
-                _ => {
-                    unimplemented!("");
-                }
-            },
-            serializer,
-        );
+        <i32>::sse_encode(match self {crate::api::transceiver::direction::RtpTransceiverDirection::SendRecv => { 0 }
+crate::api::transceiver::direction::RtpTransceiverDirection::SendOnly => { 1 }
+crate::api::transceiver::direction::RtpTransceiverDirection::RecvOnly => { 2 }
+crate::api::transceiver::direction::RtpTransceiverDirection::Inactive => { 3 }
+crate::api::transceiver::direction::RtpTransceiverDirection::Stopped => { 4 }
+ _ => { unimplemented!(""); }}, serializer);
     }
 }
 
-impl SseEncode for crate::api::RtpTransceiverInit {
+impl SseEncode for crate::api::transceiver::init::RtpTransceiverInit {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(
         self,
         serializer: &mut flutter_rust_bridge::for_generated::SseSerializer,
     ) {
-        <crate::api::RtpTransceiverDirection>::sse_encode(
-            self.direction,
-            serializer,
-        );
+        <crate::api::transceiver::direction::RtpTransceiverDirection>::sse_encode(self.direction, serializer);
         <Vec<crate::api::RtcRtpEncodingParameters>>::sse_encode(
             self.send_encodings,
             serializer,
