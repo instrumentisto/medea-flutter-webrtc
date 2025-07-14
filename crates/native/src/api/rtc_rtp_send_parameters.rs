@@ -1,4 +1,4 @@
-//! See [RTCRtpSendParameters][0].
+//! [RTCRtpSendParameters][0] definitions.
 //!
 //! [0]: https://w3.org/TR/webrtc#dom-rtcrtpsendparameters
 
