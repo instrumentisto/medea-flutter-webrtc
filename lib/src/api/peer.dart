@@ -13,6 +13,7 @@ import '/src/model/track.dart';
 import '/src/model/transceiver.dart';
 import '/src/platform/native/media_stream_track.dart';
 import 'bridge/api.dart' as ffi;
+import 'bridge/api/media_stream_track/media_type.dart' as ffi;
 import 'bridge/api/stats.dart' as ffi;
 import 'bridge/api/transceiver.dart' as ffi;
 import 'bridge/api/transceiver/direction.dart' as ffi;
