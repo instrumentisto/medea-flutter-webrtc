@@ -10,7 +10,18 @@ import 'dart:ffi' as ffi;
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated_io.dart';
 
 import 'api.dart';
+import 'api/capability.dart';
+import 'api/capability/rtp_codec.dart';
+import 'api/capability/rtp_codec/rtcp_feedback.dart';
+import 'api/capability/rtp_codec/scalability_mode.dart';
+import 'api/capability/rtp_header_extension_capability.dart';
 import 'api/media_info.dart';
+import 'api/media_stream_track.dart';
+import 'api/media_stream_track/audio_processing_config.dart';
+import 'api/media_stream_track/media_type.dart';
+import 'api/media_stream_track/track_event.dart';
+import 'api/media_stream_track/track_state.dart';
+import 'api/rtc_rtp_encoding_parameters.dart';
 import 'api/rtc_rtp_send_parameters.dart';
 import 'api/stats.dart';
 import 'api/stats/ice_role.dart';

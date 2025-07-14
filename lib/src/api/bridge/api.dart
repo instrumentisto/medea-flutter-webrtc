@@ -7,15 +7,18 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 
 import 'api/media_info.dart';
+import 'api/media_stream_track.dart';
+import 'api/media_stream_track/audio_processing_config.dart';
+import 'api/media_stream_track/media_type.dart';
+import 'api/rtc_rtp_encoding_parameters.dart';
 import 'api/rtc_rtp_send_parameters.dart';
 import 'frb_generated.dart';
 import 'lib.dart';
-import 'renderer.dart';
 
 part 'api.freezed.dart';
 
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `TrackKind`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `hash`, `hash`, `hash`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 
 /// Returns all [`VideoCodecInfo`]s of the supported video encoders.
 Future<List<VideoCodecInfo>> videoEncoders() =>
@@ -168,16 +171,6 @@ Future<RtpTransceiverDirection> getTransceiverDirection({
 Future<void> stopTransceiver({required ArcRtpTransceiver transceiver}) =>
     RustLib.instance.api.crateApiStopTransceiver(transceiver: transceiver);
 
-/// Changes the preferred [`RtpTransceiver`] codecs to the provided
-/// [`Vec`]`<`[`RtpCodecCapability`]`>`.
-Future<void> setCodecPreferences({
-  required ArcRtpTransceiver transceiver,
-  required List<RtpCodecCapability> codecs,
-}) => RustLib.instance.api.crateApiSetCodecPreferences(
-  transceiver: transceiver,
-  codecs: codecs,
-);
-
 /// Replaces the specified [`AudioTrack`] (or [`VideoTrack`]) on the
 /// [`sys::RtpTransceiverInterface`]'s `sender`.
 ///
@@ -198,18 +191,6 @@ Future<RtcRtpSendParameters> senderGetParameters({
   required ArcRtpTransceiver transceiver,
 }) =>
     RustLib.instance.api.crateApiSenderGetParameters(transceiver: transceiver);
-
-/// Returns the capabilities of an [RTP] sender of the provided [`MediaType`].
-///
-/// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
-Future<RtpCapabilities> getRtpSenderCapabilities({required MediaType kind}) =>
-    RustLib.instance.api.crateApiGetRtpSenderCapabilities(kind: kind);
-
-/// Returns the capabilities of an [RTP] receiver of the provided [`MediaType`].
-///
-/// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
-Future<RtpCapabilities> getRtpReceiverCapabilities({required MediaType kind}) =>
-    RustLib.instance.api.crateApiGetRtpReceiverCapabilities(kind: kind);
 
 /// Sets [`RtpParameters`] into the provided [`RtpTransceiver`]'s `sender`.
 Future<void> senderSetParameters({
@@ -241,14 +222,6 @@ Future<void> restartIce({required ArcPeerConnection peer}) =>
 Future<void> disposePeerConnection({required ArcPeerConnection peer}) =>
     RustLib.instance.api.crateApiDisposePeerConnection(peer: peer);
 
-/// Creates a [MediaStream] with tracks according to provided
-/// [`MediaStreamConstraints`].
-///
-/// [MediaStream]: https://w3.org/TR/mediacapture-streams#dom-mediastream
-Future<GetMediaResult> getMedia({
-  required MediaStreamConstraints constraints,
-}) => RustLib.instance.api.crateApiGetMedia(constraints: constraints);
-
 /// Sets the specified `audio playout` device.
 Future<void> setAudioPlayoutDevice({required String deviceId}) =>
     RustLib.instance.api.crateApiSetAudioPlayoutDevice(deviceId: deviceId);
@@ -268,128 +241,6 @@ Future<void> setMicrophoneVolume({required int level}) =>
 Future<int> microphoneVolume() =>
     RustLib.instance.api.crateApiMicrophoneVolume();
 
-/// Disposes the specified [`MediaStreamTrack`].
-Future<void> disposeTrack({
-  required String trackId,
-  int? peerId,
-  required MediaType kind,
-}) => RustLib.instance.api.crateApiDisposeTrack(
-  trackId: trackId,
-  peerId: peerId,
-  kind: kind,
-);
-
-/// Returns the [readyState][0] property of the [`MediaStreamTrack`] by its ID
-/// and [`MediaType`].
-///
-/// [0]: https://w3.org/TR/mediacapture-streams#dfn-readystate
-Future<TrackState> trackState({
-  required String trackId,
-  int? peerId,
-  required MediaType kind,
-}) => RustLib.instance.api.crateApiTrackState(
-  trackId: trackId,
-  peerId: peerId,
-  kind: kind,
-);
-
-/// Returns the [height] property of the media track by its ID and
-/// [`MediaType`].
-///
-/// Blocks until the [height] is initialized.
-///
-/// [height]: https://w3.org/TR/mediacapture-streams#dfn-height
-Future<int?> trackHeight({
-  required String trackId,
-  int? peerId,
-  required MediaType kind,
-}) => RustLib.instance.api.crateApiTrackHeight(
-  trackId: trackId,
-  peerId: peerId,
-  kind: kind,
-);
-
-/// Returns the [width] property of the media track by its ID and [`MediaType`].
-///
-/// Blocks until the [width] is initialized.
-///
-/// [width]: https://w3.org/TR/mediacapture-streams#dfn-height
-Future<int?> trackWidth({
-  required String trackId,
-  int? peerId,
-  required MediaType kind,
-}) => RustLib.instance.api.crateApiTrackWidth(
-  trackId: trackId,
-  peerId: peerId,
-  kind: kind,
-);
-
-/// Changes the [enabled][1] property of the [`MediaStreamTrack`] by its ID and
-/// [`MediaType`].
-///
-/// [1]: https://w3.org/TR/mediacapture-streams#track-enabled
-Future<void> setTrackEnabled({
-  required String trackId,
-  int? peerId,
-  required MediaType kind,
-  required bool enabled,
-}) => RustLib.instance.api.crateApiSetTrackEnabled(
-  trackId: trackId,
-  peerId: peerId,
-  kind: kind,
-  enabled: enabled,
-);
-
-/// Clones the specified [`MediaStreamTrack`].
-Future<MediaStreamTrack?> cloneTrack({
-  required String trackId,
-  int? peerId,
-  required MediaType kind,
-}) => RustLib.instance.api.crateApiCloneTrack(
-  trackId: trackId,
-  peerId: peerId,
-  kind: kind,
-);
-
-/// Registers an observer to the [`MediaStreamTrack`] events.
-Stream<TrackEvent> registerTrackObserver({
-  int? peerId,
-  required String trackId,
-  required MediaType kind,
-}) => RustLib.instance.api.crateApiRegisterTrackObserver(
-  peerId: peerId,
-  trackId: trackId,
-  kind: kind,
-);
-
-/// Enables or disables audio level observing of the audio [`MediaStreamTrack`]
-/// with the provided `track_id`.
-Future<void> setAudioLevelObserverEnabled({
-  required String trackId,
-  int? peerId,
-  required bool enabled,
-}) => RustLib.instance.api.crateApiSetAudioLevelObserverEnabled(
-  trackId: trackId,
-  peerId: peerId,
-  enabled: enabled,
-);
-
-/// Applies the provided [`AudioProcessingConstraints`] to specified local audio
-/// track.
-Future<void> updateAudioProcessing({
-  required String trackId,
-  required AudioProcessingConstraints conf,
-}) => RustLib.instance.api.crateApiUpdateAudioProcessing(
-  trackId: trackId,
-  conf: conf,
-);
-
-/// Returns the current [`AudioProcessingConfig`] for the specified local audio
-/// track.
-Future<AudioProcessingConfig> getAudioProcessingConfig({
-  required String trackId,
-}) => RustLib.instance.api.crateApiGetAudioProcessingConfig(trackId: trackId);
-
 /// Sets the provided `OnDeviceChangeCallback` as the callback to be called
 /// whenever a set of available media devices changes.
 ///
@@ -397,33 +248,6 @@ Future<AudioProcessingConfig> getAudioProcessingConfig({
 /// if any.
 Stream<void> setOnDeviceChanged() =>
     RustLib.instance.api.crateApiSetOnDeviceChanged();
-
-/// Creates a new [`VideoSink`] attached to the specified video track.
-///
-/// `callback_ptr` argument should be a pointer to an [`UniquePtr`] pointing to
-/// an [`sys::OnFrameCallback`].
-///
-/// [`UniquePtr`]: cxx::UniquePtr
-/// [`VideoSink`]: crate::VideoSink
-Stream<TextureEvent> createVideoSink({
-  required PlatformInt64 sinkId,
-  int? peerId,
-  required String trackId,
-  required PlatformInt64 callbackPtr,
-  required PlatformInt64 textureId,
-}) => RustLib.instance.api.crateApiCreateVideoSink(
-  sinkId: sinkId,
-  peerId: peerId,
-  trackId: trackId,
-  callbackPtr: callbackPtr,
-  textureId: textureId,
-);
-
-/// Destroys a [`VideoSink`] by the provided ID.
-///
-/// [`VideoSink`]: crate::VideoSink
-Future<void> disposeVideoSink({required PlatformInt64 sinkId}) =>
-    RustLib.instance.api.crateApiDisposeVideoSink(sinkId: sinkId);
 
 /// Nature and settings of the audio [`MediaStreamTrack`] returned by
 /// [`Webrtc::get_media()`].
@@ -449,55 +273,6 @@ class AudioConstraints {
           runtimeType == other.runtimeType &&
           deviceId == other.deviceId &&
           processing == other.processing;
-}
-
-/// Audio processing configuration for some local audio [`MediaStreamTrack`].
-class AudioProcessingConfig {
-  /// Indicator whether the audio volume level should be automatically tuned
-  /// to maintain a steady overall volume level.
-  final bool autoGainControl;
-
-  /// Indicator whether a high-pass filter should be enabled to eliminate
-  /// low-frequency noise.
-  final bool highPassFilter;
-
-  /// Indicator whether noise suppression should be enabled to reduce
-  /// background sounds.
-  final bool noiseSuppression;
-
-  /// Level of aggressiveness for noise suppression.
-  final NoiseSuppressionLevel noiseSuppressionLevel;
-
-  /// Indicator whether echo cancellation should be enabled to prevent
-  /// feedback.
-  final bool echoCancellation;
-
-  const AudioProcessingConfig({
-    required this.autoGainControl,
-    required this.highPassFilter,
-    required this.noiseSuppression,
-    required this.noiseSuppressionLevel,
-    required this.echoCancellation,
-  });
-
-  @override
-  int get hashCode =>
-      autoGainControl.hashCode ^
-      highPassFilter.hashCode ^
-      noiseSuppression.hashCode ^
-      noiseSuppressionLevel.hashCode ^
-      echoCancellation.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is AudioProcessingConfig &&
-          runtimeType == other.runtimeType &&
-          autoGainControl == other.autoGainControl &&
-          highPassFilter == other.highPassFilter &&
-          noiseSuppression == other.noiseSuppression &&
-          noiseSuppressionLevel == other.noiseSuppressionLevel &&
-          echoCancellation == other.echoCancellation;
 }
 
 /// Constraints of an [`AudioProcessingConfig`].
@@ -575,29 +350,6 @@ enum BundlePolicy {
   ///
   /// [1]: https://w3.org/TR/webrtc#dom-rtcbundlepolicy-max-compat
   maxCompat,
-}
-
-@freezed
-sealed class GetMediaError with _$GetMediaError {
-  const GetMediaError._();
-
-  /// Could not acquire audio track.
-  const factory GetMediaError.audio(String field0) = GetMediaError_Audio;
-
-  /// Could not acquire video track.
-  const factory GetMediaError.video(String field0) = GetMediaError_Video;
-}
-
-@freezed
-sealed class GetMediaResult with _$GetMediaResult {
-  const GetMediaResult._();
-
-  /// Requested media tracks.
-  const factory GetMediaResult.ok(List<MediaStreamTrack> field0) =
-      GetMediaResult_Ok;
-
-  /// Failed to get requested media.
-  const factory GetMediaResult.err(GetMediaError field0) = GetMediaResult_Err;
 }
 
 /// [RTCIceConnectionState][1] representation.
@@ -711,86 +463,6 @@ class MediaStreamConstraints {
           runtimeType == other.runtimeType &&
           audio == other.audio &&
           video == other.video;
-}
-
-/// Representation of a single media track within a [MediaStream].
-///
-/// Typically, these are audio or video tracks, but other track types may exist
-/// as well.
-///
-/// [MediaStream]: https://w3.org/TR/mediacapture-streams#dom-mediastream
-class MediaStreamTrack {
-  /// Unique identifier (GUID) of this [`MediaStreamTrack`].
-  final String id;
-
-  /// Unique identifier of the [`PeerConnection`] from which this
-  /// [`MediaStreamTrack`] was received.
-  ///
-  /// Always [`None`] for local [`MediaStreamTrack`]s.
-  final int? peerId;
-
-  /// Label identifying the track source, as in "internal microphone".
-  final String deviceId;
-
-  /// [`MediaType`] of this [`MediaStreamTrack`].
-  final MediaType kind;
-
-  /// Indicator whether this [`MediaStreamTrack`] is allowed to render the
-  /// source stream.
-  ///
-  /// This can be used to intentionally mute a track.
-  final bool enabled;
-
-  const MediaStreamTrack({
-    required this.id,
-    this.peerId,
-    required this.deviceId,
-    required this.kind,
-    required this.enabled,
-  });
-
-  @override
-  int get hashCode =>
-      id.hashCode ^
-      peerId.hashCode ^
-      deviceId.hashCode ^
-      kind.hashCode ^
-      enabled.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is MediaStreamTrack &&
-          runtimeType == other.runtimeType &&
-          id == other.id &&
-          peerId == other.peerId &&
-          deviceId == other.deviceId &&
-          kind == other.kind &&
-          enabled == other.enabled;
-}
-
-/// Possible media types of a [`MediaStreamTrack`].
-enum MediaType {
-  /// Audio [`MediaStreamTrack`].
-  audio,
-
-  /// Video [`MediaStreamTrack`].
-  video,
-}
-
-/// [`AudioProcessingConfig`] noise suppression aggressiveness.
-enum NoiseSuppressionLevel {
-  /// Minimal noise suppression.
-  low,
-
-  /// Moderate level of suppression.
-  moderate,
-
-  /// Aggressive noise suppression.
-  high,
-
-  /// Maximum suppression.
-  veryHigh,
 }
 
 @freezed
@@ -1013,65 +685,6 @@ class RtcIceServer {
           credential == other.credential;
 }
 
-/// Representation of [RTCRtpEncodingParameters][0].
-///
-/// [0]: https://w3.org/TR/webrtc#rtcrtpencodingparameters
-class RtcRtpEncodingParameters {
-  /// [RTP stream ID (RID)][0] to be sent using the RID header extension.
-  ///
-  /// [0]: https://w3.org/TR/webrtc#dom-rtcrtpcodingparameters-rid
-  final String rid;
-
-  /// Indicator whether the described [`RtcRtpEncodingParameters`] are
-  /// currently actively being used.
-  final bool active;
-
-  /// Maximum number of bits per second to allow for these
-  /// [`RtcRtpEncodingParameters`].
-  final int? maxBitrate;
-
-  /// Maximum number of frames per second to allow for these
-  /// [`RtcRtpEncodingParameters`].
-  final double? maxFramerate;
-
-  /// Factor for scaling down the video with these
-  /// [`RtcRtpEncodingParameters`].
-  final double? scaleResolutionDownBy;
-
-  /// Scalability mode describing layers within the media stream.
-  final String? scalabilityMode;
-
-  const RtcRtpEncodingParameters({
-    required this.rid,
-    required this.active,
-    this.maxBitrate,
-    this.maxFramerate,
-    this.scaleResolutionDownBy,
-    this.scalabilityMode,
-  });
-
-  @override
-  int get hashCode =>
-      rid.hashCode ^
-      active.hashCode ^
-      maxBitrate.hashCode ^
-      maxFramerate.hashCode ^
-      scaleResolutionDownBy.hashCode ^
-      scalabilityMode.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is RtcRtpEncodingParameters &&
-          runtimeType == other.runtimeType &&
-          rid == other.rid &&
-          active == other.active &&
-          maxBitrate == other.maxBitrate &&
-          maxFramerate == other.maxFramerate &&
-          scaleResolutionDownBy == other.scaleResolutionDownBy &&
-          scalabilityMode == other.scalabilityMode;
-}
-
 /// Representation of a permanent pair of an [RTCRtpSender] and an
 /// [RTCRtpReceiver], along with some shared state.
 ///
@@ -1169,226 +782,6 @@ class RtcTrackEvent {
           transceiver == other.transceiver;
 }
 
-/// [RTCP] feedback message intended to enable congestion control for
-/// interactive real-time traffic using [RTP].
-///
-/// [RTCP]: https://en.wikipedia.org/wiki/RTP_Control_Protocol
-/// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
-class RtcpFeedback {
-  /// Message type of this [`RtcpFeedback`].
-  final RtcpFeedbackMessageType? messageType;
-
-  /// Kind of this [`RtcpFeedback`].
-  final RtcpFeedbackType kind;
-
-  const RtcpFeedback({this.messageType, required this.kind});
-
-  @override
-  int get hashCode => messageType.hashCode ^ kind.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is RtcpFeedback &&
-          runtimeType == other.runtimeType &&
-          messageType == other.messageType &&
-          kind == other.kind;
-}
-
-/// Possible message types of an [`RtcpFeedback`], when is type is
-/// [`RtcpFeedbackType::Nack`] or [`RtcpFeedbackType::Ccm`].
-enum RtcpFeedbackMessageType {
-  /// Equivalent to `{ type: "nack", parameter: undefined }` in ORTC.
-  genericNack,
-
-  /// Usable with [`RtcpFeedbackType::Nack`].
-  pli,
-
-  /// Usable with [`RtcpFeedbackType::Ccm`].
-  fir,
-}
-
-/// Possible types of an [`RtcpFeedback`].
-enum RtcpFeedbackType {
-  /// Codec control messages.
-  ccm,
-
-  /// Loss notification feedback.
-  lntf,
-
-  /// Negative acknowledgemen.
-  nack,
-
-  /// Receiver estimated maximum bitrate.
-  remb,
-
-  /// Transport wide congestion control.
-  transportCc,
-}
-
-/// Representation of the static capabilities of an endpoint.
-///
-/// Applications can use these capabilities to construct [`RtpParameters`].
-class RtpCapabilities {
-  /// Supported codecs.
-  final List<RtpCodecCapability> codecs;
-
-  /// Supported [RTP] header extensions.
-  ///
-  /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
-  final List<RtpHeaderExtensionCapability> headerExtensions;
-
-  const RtpCapabilities({required this.codecs, required this.headerExtensions});
-
-  @override
-  int get hashCode => codecs.hashCode ^ headerExtensions.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is RtpCapabilities &&
-          runtimeType == other.runtimeType &&
-          codecs == other.codecs &&
-          headerExtensions == other.headerExtensions;
-}
-
-/// Representation of static capabilities of an endpoint's implementation of a
-/// codec.
-class RtpCodecCapability {
-  /// Default payload type for the codec.
-  ///
-  /// Mainly needed for codecs that have statically assigned payload types.
-  final int? preferredPayloadType;
-
-  /// List of [`ScalabilityMode`]s supported by the video codec.
-  final List<ScalabilityMode> scalabilityModes;
-
-  /// Built [MIME "type/subtype"][0] string from `name` and `kind`.
-  ///
-  /// [0]: https://en.wikipedia.org/wiki/Media_type
-  final String mimeType;
-
-  /// Used to identify the codec. Equivalent to [MIME subtype][0].
-  ///
-  /// [0]: https://en.wikipedia.org/wiki/Media_type#Subtypes
-  final String name;
-
-  /// [`MediaType`] of this codec. Equivalent to [MIME] top-level type.
-  ///
-  /// [MIME]: https://en.wikipedia.org/wiki/Media_type
-  final MediaType kind;
-
-  /// If [`None`], the implementation default is used.
-  final int? clockRate;
-
-  /// Number of audio channels used.
-  ///
-  /// [`None`] for video codecs.
-  ///
-  /// If [`None`] for audio, the implementation default is used.
-  final int? numChannels;
-
-  /// Codec-specific parameters that must be signaled to the remote party.
-  ///
-  /// Corresponds to `a=fmtp` parameters in [SDP].
-  ///
-  /// Contrary to ORTC, these parameters are named using all lowercase
-  /// strings. This helps make the mapping to [SDP] simpler, if an application
-  /// is using [SDP]. Boolean values are represented by the string "1".
-  ///
-  /// [SDP]: https://en.wikipedia.org/wiki/Session_Description_Protocol
-  final List<(String, String)> parameters;
-
-  /// Feedback mechanisms to be used for this codec.
-  final List<RtcpFeedback> feedback;
-
-  const RtpCodecCapability({
-    this.preferredPayloadType,
-    required this.scalabilityModes,
-    required this.mimeType,
-    required this.name,
-    required this.kind,
-    this.clockRate,
-    this.numChannels,
-    required this.parameters,
-    required this.feedback,
-  });
-
-  @override
-  int get hashCode =>
-      preferredPayloadType.hashCode ^
-      scalabilityModes.hashCode ^
-      mimeType.hashCode ^
-      name.hashCode ^
-      kind.hashCode ^
-      clockRate.hashCode ^
-      numChannels.hashCode ^
-      parameters.hashCode ^
-      feedback.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is RtpCodecCapability &&
-          runtimeType == other.runtimeType &&
-          preferredPayloadType == other.preferredPayloadType &&
-          scalabilityModes == other.scalabilityModes &&
-          mimeType == other.mimeType &&
-          name == other.name &&
-          kind == other.kind &&
-          clockRate == other.clockRate &&
-          numChannels == other.numChannels &&
-          parameters == other.parameters &&
-          feedback == other.feedback;
-}
-
-/// Representation of capabilities/preferences of an implementation for a header
-/// extension of [`RtpCapabilities`].
-class RtpHeaderExtensionCapability {
-  /// [URI] of this extension, as defined in [RFC 8285].
-  ///
-  /// [RFC 8285]: https://tools.ietf.org/html/rfc8285
-  /// [URI]: https://en.wikipedia.org/wiki/Uniform_Resource_Identifier
-  final String uri;
-
-  /// Preferred value of ID that goes in the packet.
-  final int? preferredId;
-
-  /// If [`true`], it's preferred that the value in the header is encrypted.
-  final bool preferredEncrypted;
-
-  /// Direction of the extension.
-  ///
-  /// [`RtpTransceiverDirection::Stopped`] value is only used with
-  /// `RtpTransceiverInterface::SetHeaderExtensionsToNegotiate()` and
-  /// `SetHeaderExtensionsToNegotiate()`.
-  final RtpTransceiverDirection direction;
-
-  const RtpHeaderExtensionCapability({
-    required this.uri,
-    this.preferredId,
-    required this.preferredEncrypted,
-    required this.direction,
-  });
-
-  @override
-  int get hashCode =>
-      uri.hashCode ^
-      preferredId.hashCode ^
-      preferredEncrypted.hashCode ^
-      direction.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is RtpHeaderExtensionCapability &&
-          runtimeType == other.runtimeType &&
-          uri == other.uri &&
-          preferredId == other.preferredId &&
-          preferredEncrypted == other.preferredEncrypted &&
-          direction == other.direction;
-}
-
 /// [RTCRtpTransceiverDirection][1] representation.
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtcrtptransceiverdirection
@@ -1473,181 +866,6 @@ class RtpTransceiverInit {
           sendEncodings == other.sendEncodings;
 }
 
-/// [ScalabilityMode][0] representation.
-///
-/// [0]: https://tinyurl.com/35ae3mbe
-enum ScalabilityMode {
-  /// [ScalabilityMode.L1T1][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#L1T1*
-  l1T1,
-
-  /// [ScalabilityMode.L1T2][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#L1T2*
-  l1T2,
-
-  /// [ScalabilityMode.L1T3][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#L1T3*
-  l1T3,
-
-  /// [ScalabilityMode.L2T1][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#L2T1*
-  l2T1,
-
-  /// [ScalabilityMode.L2T1h][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#L2T1*
-  l2T1H,
-
-  /// [ScalabilityMode.L2T1_KEY][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#L2T1_KEY*
-  l2T1Key,
-
-  /// [ScalabilityMode.L2T2][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#L2T2h*
-  l2T2,
-
-  /// [ScalabilityMode.L2T2h][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#L2T2*
-  l2T2H,
-
-  /// [ScalabilityMode.L2T2_KEY][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#L2T2_KEY*
-  l2T2Key,
-
-  /// [ScalabilityMode.L2T2_KEY_SHIFT][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#L2T2_KEY_SHIFT*
-  l2T2KeyShift,
-
-  /// [ScalabilityMode.L2T3][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#L2T3*
-  l2T3,
-
-  /// [ScalabilityMode.L2T3h][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#L2T3*
-  l2T3H,
-
-  /// [ScalabilityMode.L2T3_KEY][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#L2T3_KEY*
-  l2T3Key,
-
-  /// [ScalabilityMode.L3T1][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#L3T1*
-  l3T1,
-
-  /// [ScalabilityMode.L3T1h][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#L3T1*
-  l3T1H,
-
-  /// [ScalabilityMode.L3T1_KEY][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#L3T1_KEY*
-  l3T1Key,
-
-  /// [ScalabilityMode.L3T2][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#L3T2h*
-  l3T2,
-
-  /// [ScalabilityMode.L3T2h][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#L3T2*
-  l3T2H,
-
-  /// [ScalabilityMode.L3T2_KEY][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#L3T2_KEY*
-  l3T2Key,
-
-  /// [ScalabilityMode.kL3T3][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#kL3T3*
-  l3T3,
-
-  /// [ScalabilityMode.kL3T3h][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#kL3T3*
-  l3T3H,
-
-  /// [ScalabilityMode.kL3T3_KEY][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#L3T3_KEY*
-  l3T3Key,
-
-  /// [ScalabilityMode.kS2T1][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#kS2T1*
-  s2T1,
-
-  /// [ScalabilityMode.kS2T1h][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#kS2T1*
-  s2T1H,
-
-  /// [ScalabilityMode.kS2T2][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#kS2T2*
-  s2T2,
-
-  /// [ScalabilityMode.kS2T2h][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#kS2T2*
-  s2T2H,
-
-  /// [ScalabilityMode.S2T3][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#S2T3h*
-  s2T3,
-
-  /// [ScalabilityMode.S2T3h][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#S2T3*
-  s2T3H,
-
-  /// [ScalabilityMode.S3T1h][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#S3T1*
-  s3T1,
-
-  /// [ScalabilityMode.S3T1h][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#S3T1*
-  s3T1H,
-
-  /// [ScalabilityMode.S3T2][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#S3T2*
-  s3T2,
-
-  /// [ScalabilityMode.S3T2h][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#S3T2*
-  s3T2H,
-
-  /// [ScalabilityMode.S3T3][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#S3T3*
-  s3T3,
-
-  /// [ScalabilityMode.S3T3h][0] mode.
-  ///
-  /// [0]: https://w3.org/TR/webrtc-svc#S3T3*
-  s3T3H,
-}
-
 /// [RTCSdpType] representation.
 ///
 /// [RTCSdpType]: https://w3.org/TR/webrtc#dom-rtcsdptype
@@ -1706,40 +924,6 @@ enum SignalingState {
   ///
   /// [1]: https://w3.org/TR/webrtc#dom-rtcsignalingstate-closed
   closed,
-}
-
-@freezed
-sealed class TrackEvent with _$TrackEvent {
-  const TrackEvent._();
-
-  /// Ended event of the [`MediaStreamTrack`] interface is fired when playback
-  /// or streaming has stopped because the end of the media was reached or
-  /// because no further data is available.
-  const factory TrackEvent.ended() = TrackEvent_Ended;
-
-  /// Event indicating an audio level change in the [`MediaStreamTrack`].
-  const factory TrackEvent.audioLevelUpdated(int field0) =
-      TrackEvent_AudioLevelUpdated;
-
-  /// Event indicating that the [`MediaStreamTrack`] has completely
-  /// initialized and can be used on Flutter side.
-  const factory TrackEvent.trackCreated() = TrackEvent_TrackCreated;
-}
-
-/// Indicator of the current [MediaStreamTrackState][0] of a
-/// [`MediaStreamTrack`].
-///
-/// [0]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrackstate
-enum TrackState {
-  /// [MediaStreamTrackState.live][0] representation.
-  ///
-  /// [0]: https://tinyurl.com/w3mcs#idl-def-MediaStreamTrackState.live
-  live,
-
-  /// [MediaStreamTrackState.ended][0] representation.
-  ///
-  /// [0]: https://tinyurl.com/w3mcs#idl-def-MediaStreamTrackState.ended
-  ended,
 }
 
 /// Supported video codecs.
