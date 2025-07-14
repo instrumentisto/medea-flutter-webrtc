@@ -6,9 +6,12 @@
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 
-import '../../api.dart';
 import '../../frb_generated.dart';
 import '../../lib.dart';
+import '../media_stream_track.dart';
+import '../media_stream_track/media_type.dart';
+import '../transceiver.dart';
+import '../transceiver/direction.dart';
 import 'events/ice_connection_state.dart';
 import 'events/ice_gathering_state.dart';
 import 'events/peer_connection_state.dart';

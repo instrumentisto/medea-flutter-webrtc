@@ -5,9 +5,10 @@
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-import '../api.dart';
 import '../frb_generated.dart';
 import '../lib.dart';
+import 'media_stream_track.dart';
+import 'media_stream_track/media_type.dart';
 import 'peer/events.dart';
 import 'peer/events/ice_connection_state.dart';
 import 'peer/events/ice_gathering_state.dart';
@@ -19,6 +20,8 @@ import 'peer/rtc_configuration/bundle_policy.dart';
 import 'peer/rtc_configuration/ice_transports_type.dart';
 import 'peer/rtc_configuration/rtc_ice_server.dart';
 import 'peer/rtc_session_description.dart';
+import 'transceiver.dart';
+import 'transceiver/direction.dart';
 
 /// Creates a new [`PeerConnection`] and returns its ID.
 Stream<PeerConnectionEvent> createPeerConnection({
