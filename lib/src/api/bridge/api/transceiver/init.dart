@@ -5,8 +5,8 @@
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-import '../../api.dart';
 import '../../frb_generated.dart';
+import '../rtc_rtp_encoding_parameters.dart';
 import 'direction.dart';
 
 /// Representation of an [RTCRtpTransceiverInit][0].

@@ -9,7 +9,19 @@ import 'dart:convert';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'api.dart';
+import 'api/capability.dart';
+import 'api/capability/rtp_codec.dart';
+import 'api/capability/rtp_codec/rtcp_feedback.dart';
+import 'api/capability/rtp_codec/scalability_mode.dart';
+import 'api/capability/rtp_header_extension_capability.dart';
 import 'api/media_info.dart';
+import 'api/media_stream_track.dart';
+import 'api/media_stream_track/audio_processing_config.dart';
+import 'api/media_stream_track/media_type.dart';
+import 'api/media_stream_track/track_event.dart';
+import 'api/media_stream_track/track_state.dart';
+import 'api/rtc_rtp_encoding_parameters.dart';
+import 'api/rtc_rtp_send_parameters.dart';
 import 'api/stats.dart';
 import 'api/stats/ice_role.dart';
 import 'api/stats/rtc_ice_candidate_stats.dart';
@@ -78,7 +90,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.10.0';
 
   @override
-  int get rustContentHash => -2122063044;
+  int get rustContentHash => -537910938;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -105,7 +117,7 @@ abstract class RustLibApi extends BaseApi {
   Future<AudioProcessingConstraints>
   crateApiAudioProcessingConstraintsDefault();
 
-  Future<MediaStreamTrack?> crateApiCloneTrack({
+  Future<MediaStreamTrack?> crateApiMediaStreamTrackCloneTrack({
     required String trackId,
     int? peerId,
     required MediaType kind,
@@ -129,7 +141,7 @@ abstract class RustLibApi extends BaseApi {
     required RtcConfiguration configuration,
   });
 
-  Stream<TextureEvent> crateApiCreateVideoSink({
+  Stream<TextureEvent> crateApiMediaStreamTrackCreateVideoSink({
     required PlatformInt64 sinkId,
     int? peerId,
     required String trackId,
@@ -139,13 +151,15 @@ abstract class RustLibApi extends BaseApi {
 
   Future<void> crateApiDisposePeerConnection({required ArcPeerConnection peer});
 
-  Future<void> crateApiDisposeTrack({
+  Future<void> crateApiMediaStreamTrackDisposeTrack({
     required String trackId,
     int? peerId,
     required MediaType kind,
   });
 
-  Future<void> crateApiDisposeVideoSink({required PlatformInt64 sinkId});
+  Future<void> crateApiMediaStreamTrackDisposeVideoSink({
+    required PlatformInt64 sinkId,
+  });
 
   Future<void> crateApiEnableFakeMedia();
 
@@ -153,11 +167,12 @@ abstract class RustLibApi extends BaseApi {
 
   Future<List<MediaDisplayInfo>> crateApiEnumerateDisplays();
 
-  Future<AudioProcessingConfig> crateApiGetAudioProcessingConfig({
+  Future<AudioProcessingConfig>
+  crateApiMediaStreamTrackAudioProcessingConfigGetAudioProcessingConfig({
     required String trackId,
   });
 
-  Future<GetMediaResult> crateApiGetMedia({
+  Future<GetMediaResult> crateApiMediaStreamTrackGetMedia({
     required MediaStreamConstraints constraints,
   });
 
@@ -165,11 +180,11 @@ abstract class RustLibApi extends BaseApi {
     required ArcPeerConnection peer,
   });
 
-  Future<RtpCapabilities> crateApiGetRtpReceiverCapabilities({
+  Future<RtpCapabilities> crateApiCapabilityGetRtpReceiverCapabilities({
     required MediaType kind,
   });
 
-  Future<RtpCapabilities> crateApiGetRtpSenderCapabilities({
+  Future<RtpCapabilities> crateApiCapabilityGetRtpSenderCapabilities({
     required MediaType kind,
   });
 
@@ -191,7 +206,7 @@ abstract class RustLibApi extends BaseApi {
 
   Future<bool> crateApiMicrophoneVolumeIsAvailable();
 
-  Stream<TrackEvent> crateApiRegisterTrackObserver({
+  Stream<TrackEvent> crateApiMediaStreamTrackRegisterTrackObserver({
     int? peerId,
     required String trackId,
     required MediaType kind,
@@ -214,7 +229,7 @@ abstract class RustLibApi extends BaseApi {
     required RtcRtpSendParameters params,
   });
 
-  Future<void> crateApiSetAudioLevelObserverEnabled({
+  Future<void> crateApiMediaStreamTrackSetAudioLevelObserverEnabled({
     required String trackId,
     int? peerId,
     required bool enabled,
@@ -222,7 +237,7 @@ abstract class RustLibApi extends BaseApi {
 
   Future<void> crateApiSetAudioPlayoutDevice({required String deviceId});
 
-  Future<void> crateApiSetCodecPreferences({
+  Future<void> crateApiCapabilityRtpCodecSetCodecPreferences({
     required ArcRtpTransceiver transceiver,
     required List<RtpCodecCapability> codecs,
   });
@@ -243,7 +258,7 @@ abstract class RustLibApi extends BaseApi {
     required String sdp,
   });
 
-  Future<void> crateApiSetTrackEnabled({
+  Future<void> crateApiMediaStreamTrackSetTrackEnabled({
     required String trackId,
     int? peerId,
     required MediaType kind,
@@ -269,25 +284,25 @@ abstract class RustLibApi extends BaseApi {
     required ArcRtpTransceiver transceiver,
   });
 
-  Future<int?> crateApiTrackHeight({
+  Future<int?> crateApiMediaStreamTrackTrackHeight({
     required String trackId,
     int? peerId,
     required MediaType kind,
   });
 
-  Future<TrackState> crateApiTrackState({
+  Future<TrackState> crateApiMediaStreamTrackTrackState({
     required String trackId,
     int? peerId,
     required MediaType kind,
   });
 
-  Future<int?> crateApiTrackWidth({
+  Future<int?> crateApiMediaStreamTrackTrackWidth({
     required String trackId,
     int? peerId,
     required MediaType kind,
   });
 
-  Future<void> crateApiUpdateAudioProcessing({
+  Future<void> crateApiMediaStreamTrackUpdateAudioProcessing({
     required String trackId,
     required AudioProcessingConstraints conf,
   });
@@ -448,7 +463,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<MediaStreamTrack?> crateApiCloneTrack({
+  Future<MediaStreamTrack?> crateApiMediaStreamTrackCloneTrack({
     required String trackId,
     int? peerId,
     required MediaType kind,
@@ -471,17 +486,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_opt_box_autoadd_media_stream_track,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiCloneTrackConstMeta,
+        constMeta: kCrateApiMediaStreamTrackCloneTrackConstMeta,
         argValues: [trackId, peerId, kind],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiCloneTrackConstMeta => const TaskConstMeta(
-    debugName: "clone_track",
-    argNames: ["trackId", "peerId", "kind"],
-  );
+  TaskConstMeta get kCrateApiMediaStreamTrackCloneTrackConstMeta =>
+      const TaskConstMeta(
+        debugName: "clone_track",
+        argNames: ["trackId", "peerId", "kind"],
+      );
 
   @override
   Future<RtcSessionDescription> crateApiCreateAnswer({
@@ -598,7 +614,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Stream<TextureEvent> crateApiCreateVideoSink({
+  Stream<TextureEvent> crateApiMediaStreamTrackCreateVideoSink({
     required PlatformInt64 sinkId,
     int? peerId,
     required String trackId,
@@ -628,7 +644,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             decodeSuccessData: sse_decode_unit,
             decodeErrorData: null,
           ),
-          constMeta: kCrateApiCreateVideoSinkConstMeta,
+          constMeta: kCrateApiMediaStreamTrackCreateVideoSinkConstMeta,
           argValues: [cb, sinkId, peerId, trackId, callbackPtr, textureId],
           apiImpl: this,
         ),
@@ -637,10 +653,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     return cb.stream;
   }
 
-  TaskConstMeta get kCrateApiCreateVideoSinkConstMeta => const TaskConstMeta(
-    debugName: "create_video_sink",
-    argNames: ["cb", "sinkId", "peerId", "trackId", "callbackPtr", "textureId"],
-  );
+  TaskConstMeta get kCrateApiMediaStreamTrackCreateVideoSinkConstMeta =>
+      const TaskConstMeta(
+        debugName: "create_video_sink",
+        argNames: [
+          "cb",
+          "sinkId",
+          "peerId",
+          "trackId",
+          "callbackPtr",
+          "textureId",
+        ],
+      );
 
   @override
   Future<void> crateApiDisposePeerConnection({
@@ -676,7 +700,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<void> crateApiDisposeTrack({
+  Future<void> crateApiMediaStreamTrackDisposeTrack({
     required String trackId,
     int? peerId,
     required MediaType kind,
@@ -699,20 +723,23 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiDisposeTrackConstMeta,
+        constMeta: kCrateApiMediaStreamTrackDisposeTrackConstMeta,
         argValues: [trackId, peerId, kind],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiDisposeTrackConstMeta => const TaskConstMeta(
-    debugName: "dispose_track",
-    argNames: ["trackId", "peerId", "kind"],
-  );
+  TaskConstMeta get kCrateApiMediaStreamTrackDisposeTrackConstMeta =>
+      const TaskConstMeta(
+        debugName: "dispose_track",
+        argNames: ["trackId", "peerId", "kind"],
+      );
 
   @override
-  Future<void> crateApiDisposeVideoSink({required PlatformInt64 sinkId}) {
+  Future<void> crateApiMediaStreamTrackDisposeVideoSink({
+    required PlatformInt64 sinkId,
+  }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
@@ -729,17 +756,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiDisposeVideoSinkConstMeta,
+        constMeta: kCrateApiMediaStreamTrackDisposeVideoSinkConstMeta,
         argValues: [sinkId],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiDisposeVideoSinkConstMeta => const TaskConstMeta(
-    debugName: "dispose_video_sink",
-    argNames: ["sinkId"],
-  );
+  TaskConstMeta get kCrateApiMediaStreamTrackDisposeVideoSinkConstMeta =>
+      const TaskConstMeta(
+        debugName: "dispose_video_sink",
+        argNames: ["sinkId"],
+      );
 
   @override
   Future<void> crateApiEnableFakeMedia() {
@@ -823,7 +851,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       const TaskConstMeta(debugName: "enumerate_displays", argNames: []);
 
   @override
-  Future<AudioProcessingConfig> crateApiGetAudioProcessingConfig({
+  Future<AudioProcessingConfig>
+  crateApiMediaStreamTrackAudioProcessingConfigGetAudioProcessingConfig({
     required String trackId,
   }) {
     return handler.executeNormal(
@@ -842,21 +871,23 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_audio_processing_config,
           decodeErrorData: sse_decode_AnyhowException,
         ),
-        constMeta: kCrateApiGetAudioProcessingConfigConstMeta,
+        constMeta:
+            kCrateApiMediaStreamTrackAudioProcessingConfigGetAudioProcessingConfigConstMeta,
         argValues: [trackId],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiGetAudioProcessingConfigConstMeta =>
+  TaskConstMeta
+  get kCrateApiMediaStreamTrackAudioProcessingConfigGetAudioProcessingConfigConstMeta =>
       const TaskConstMeta(
         debugName: "get_audio_processing_config",
         argNames: ["trackId"],
       );
 
   @override
-  Future<GetMediaResult> crateApiGetMedia({
+  Future<GetMediaResult> crateApiMediaStreamTrackGetMedia({
     required MediaStreamConstraints constraints,
   }) {
     return handler.executeNormal(
@@ -878,14 +909,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_get_media_result,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiGetMediaConstMeta,
+        constMeta: kCrateApiMediaStreamTrackGetMediaConstMeta,
         argValues: [constraints],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiGetMediaConstMeta =>
+  TaskConstMeta get kCrateApiMediaStreamTrackGetMediaConstMeta =>
       const TaskConstMeta(debugName: "get_media", argNames: ["constraints"]);
 
   @override
@@ -919,7 +950,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       const TaskConstMeta(debugName: "get_peer_stats", argNames: ["peer"]);
 
   @override
-  Future<RtpCapabilities> crateApiGetRtpReceiverCapabilities({
+  Future<RtpCapabilities> crateApiCapabilityGetRtpReceiverCapabilities({
     required MediaType kind,
   }) {
     return handler.executeNormal(
@@ -938,21 +969,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_rtp_capabilities,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiGetRtpReceiverCapabilitiesConstMeta,
+        constMeta: kCrateApiCapabilityGetRtpReceiverCapabilitiesConstMeta,
         argValues: [kind],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiGetRtpReceiverCapabilitiesConstMeta =>
+  TaskConstMeta get kCrateApiCapabilityGetRtpReceiverCapabilitiesConstMeta =>
       const TaskConstMeta(
         debugName: "get_rtp_receiver_capabilities",
         argNames: ["kind"],
       );
 
   @override
-  Future<RtpCapabilities> crateApiGetRtpSenderCapabilities({
+  Future<RtpCapabilities> crateApiCapabilityGetRtpSenderCapabilities({
     required MediaType kind,
   }) {
     return handler.executeNormal(
@@ -971,14 +1002,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_rtp_capabilities,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiGetRtpSenderCapabilitiesConstMeta,
+        constMeta: kCrateApiCapabilityGetRtpSenderCapabilitiesConstMeta,
         argValues: [kind],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiGetRtpSenderCapabilitiesConstMeta =>
+  TaskConstMeta get kCrateApiCapabilityGetRtpSenderCapabilitiesConstMeta =>
       const TaskConstMeta(
         debugName: "get_rtp_sender_capabilities",
         argNames: ["kind"],
@@ -1165,7 +1196,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Stream<TrackEvent> crateApiRegisterTrackObserver({
+  Stream<TrackEvent> crateApiMediaStreamTrackRegisterTrackObserver({
     int? peerId,
     required String trackId,
     required MediaType kind,
@@ -1191,7 +1222,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             decodeSuccessData: sse_decode_unit,
             decodeErrorData: null,
           ),
-          constMeta: kCrateApiRegisterTrackObserverConstMeta,
+          constMeta: kCrateApiMediaStreamTrackRegisterTrackObserverConstMeta,
           argValues: [cb, peerId, trackId, kind],
           apiImpl: this,
         ),
@@ -1200,7 +1231,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     return cb.stream;
   }
 
-  TaskConstMeta get kCrateApiRegisterTrackObserverConstMeta =>
+  TaskConstMeta get kCrateApiMediaStreamTrackRegisterTrackObserverConstMeta =>
       const TaskConstMeta(
         debugName: "register_track_observer",
         argNames: ["cb", "peerId", "trackId", "kind"],
@@ -1339,7 +1370,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<void> crateApiSetAudioLevelObserverEnabled({
+  Future<void> crateApiMediaStreamTrackSetAudioLevelObserverEnabled({
     required String trackId,
     int? peerId,
     required bool enabled,
@@ -1362,14 +1393,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiSetAudioLevelObserverEnabledConstMeta,
+        constMeta:
+            kCrateApiMediaStreamTrackSetAudioLevelObserverEnabledConstMeta,
         argValues: [trackId, peerId, enabled],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiSetAudioLevelObserverEnabledConstMeta =>
+  TaskConstMeta
+  get kCrateApiMediaStreamTrackSetAudioLevelObserverEnabledConstMeta =>
       const TaskConstMeta(
         debugName: "set_audio_level_observer_enabled",
         argNames: ["trackId", "peerId", "enabled"],
@@ -1407,7 +1440,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<void> crateApiSetCodecPreferences({
+  Future<void> crateApiCapabilityRtpCodecSetCodecPreferences({
     required ArcRtpTransceiver transceiver,
     required List<RtpCodecCapability> codecs,
   }) {
@@ -1428,14 +1461,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiSetCodecPreferencesConstMeta,
+        constMeta: kCrateApiCapabilityRtpCodecSetCodecPreferencesConstMeta,
         argValues: [transceiver, codecs],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiSetCodecPreferencesConstMeta =>
+  TaskConstMeta get kCrateApiCapabilityRtpCodecSetCodecPreferencesConstMeta =>
       const TaskConstMeta(
         debugName: "set_codec_preferences",
         argNames: ["transceiver", "codecs"],
@@ -1579,7 +1612,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<void> crateApiSetTrackEnabled({
+  Future<void> crateApiMediaStreamTrackSetTrackEnabled({
     required String trackId,
     int? peerId,
     required MediaType kind,
@@ -1604,17 +1637,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiSetTrackEnabledConstMeta,
+        constMeta: kCrateApiMediaStreamTrackSetTrackEnabledConstMeta,
         argValues: [trackId, peerId, kind, enabled],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiSetTrackEnabledConstMeta => const TaskConstMeta(
-    debugName: "set_track_enabled",
-    argNames: ["trackId", "peerId", "kind", "enabled"],
-  );
+  TaskConstMeta get kCrateApiMediaStreamTrackSetTrackEnabledConstMeta =>
+      const TaskConstMeta(
+        debugName: "set_track_enabled",
+        argNames: ["trackId", "peerId", "kind", "enabled"],
+      );
 
   @override
   Future<void> crateApiTransceiverSetTransceiverDirection({
@@ -1755,7 +1789,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<int?> crateApiTrackHeight({
+  Future<int?> crateApiMediaStreamTrackTrackHeight({
     required String trackId,
     int? peerId,
     required MediaType kind,
@@ -1778,20 +1812,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_opt_box_autoadd_i_32,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiTrackHeightConstMeta,
+        constMeta: kCrateApiMediaStreamTrackTrackHeightConstMeta,
         argValues: [trackId, peerId, kind],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiTrackHeightConstMeta => const TaskConstMeta(
-    debugName: "track_height",
-    argNames: ["trackId", "peerId", "kind"],
-  );
+  TaskConstMeta get kCrateApiMediaStreamTrackTrackHeightConstMeta =>
+      const TaskConstMeta(
+        debugName: "track_height",
+        argNames: ["trackId", "peerId", "kind"],
+      );
 
   @override
-  Future<TrackState> crateApiTrackState({
+  Future<TrackState> crateApiMediaStreamTrackTrackState({
     required String trackId,
     int? peerId,
     required MediaType kind,
@@ -1814,20 +1849,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_track_state,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiTrackStateConstMeta,
+        constMeta: kCrateApiMediaStreamTrackTrackStateConstMeta,
         argValues: [trackId, peerId, kind],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiTrackStateConstMeta => const TaskConstMeta(
-    debugName: "track_state",
-    argNames: ["trackId", "peerId", "kind"],
-  );
+  TaskConstMeta get kCrateApiMediaStreamTrackTrackStateConstMeta =>
+      const TaskConstMeta(
+        debugName: "track_state",
+        argNames: ["trackId", "peerId", "kind"],
+      );
 
   @override
-  Future<int?> crateApiTrackWidth({
+  Future<int?> crateApiMediaStreamTrackTrackWidth({
     required String trackId,
     int? peerId,
     required MediaType kind,
@@ -1850,20 +1886,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_opt_box_autoadd_i_32,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiTrackWidthConstMeta,
+        constMeta: kCrateApiMediaStreamTrackTrackWidthConstMeta,
         argValues: [trackId, peerId, kind],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiTrackWidthConstMeta => const TaskConstMeta(
-    debugName: "track_width",
-    argNames: ["trackId", "peerId", "kind"],
-  );
+  TaskConstMeta get kCrateApiMediaStreamTrackTrackWidthConstMeta =>
+      const TaskConstMeta(
+        debugName: "track_width",
+        argNames: ["trackId", "peerId", "kind"],
+      );
 
   @override
-  Future<void> crateApiUpdateAudioProcessing({
+  Future<void> crateApiMediaStreamTrackUpdateAudioProcessing({
     required String trackId,
     required AudioProcessingConstraints conf,
   }) {
@@ -1884,14 +1921,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: sse_decode_AnyhowException,
         ),
-        constMeta: kCrateApiUpdateAudioProcessingConstMeta,
+        constMeta: kCrateApiMediaStreamTrackUpdateAudioProcessingConstMeta,
         argValues: [trackId, conf],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiUpdateAudioProcessingConstMeta =>
+  TaskConstMeta get kCrateApiMediaStreamTrackUpdateAudioProcessingConstMeta =>
       const TaskConstMeta(
         debugName: "update_audio_processing",
         argNames: ["trackId", "conf"],
