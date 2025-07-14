@@ -1,4 +1,4 @@
-//! See [RTCIceGatheringState][1].
+//! [RTCIceGatheringState][1] definitions.
 //!
 //! [1]: https://w3.org/TR/webrtc#dom-rtcicegatheringstate
 

@@ -1,4 +1,4 @@
-//! See [RTCBundlePolicy][1].
+//! [RTCBundlePolicy][1] definitions.
 //!
 //! [1]: https://w3.org/TR/webrtc#dom-rtcbundlepolicy
 

@@ -1,4 +1,4 @@
-//! See [RTCIceTransportPolicy][1].
+//! [RTCIceTransportPolicy][1] definitions.
 //!
 //! [1]: https://w3.org/TR/webrtc#dom-rtcicetransportpolicy
 

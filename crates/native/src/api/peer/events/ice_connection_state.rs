@@ -1,4 +1,4 @@
-//! See [RTCIceConnectionState][1].
+//! [RTCIceConnectionState][1] definitions.
 //!
 //! [1]: https://w3.org/TR/webrtc#dom-rtciceconnectionstate
 

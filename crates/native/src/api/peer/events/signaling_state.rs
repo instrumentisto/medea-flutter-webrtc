@@ -1,4 +1,4 @@
-//! See [RTCSignalingState].
+//! [RTCSignalingState] definitions.
 //!
 //! [RTCSignalingState]: https://w3.org/TR/webrtc#state-definitions
 
