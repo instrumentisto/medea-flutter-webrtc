@@ -3265,13 +3265,9 @@ pub enum RtcStatsType {
     Unimplemented,
 }
 
-impl TryFrom<webrtc::RTCIceCandidatePairStatsWrap> for RtcStatsType {
-    type Error = anyhow::Error;
-
-    fn try_from(
-        mut value: webrtc::RTCIceCandidatePairStatsWrap,
-    ) -> anyhow::Result<Self> {
-        Ok(Self::RtcIceCandidatePairStats {
+impl From<webrtc::RTCIceCandidatePairStatsWrap> for RtcStatsType {
+    fn from(mut value: webrtc::RTCIceCandidatePairStatsWrap) -> Self {
+        Self::RtcIceCandidatePairStats {
             state: value.state,
             nominated: value.nominated.take(),
             bytes_sent: value.bytes_sent.take(),
@@ -3279,7 +3275,101 @@ impl TryFrom<webrtc::RTCIceCandidatePairStatsWrap> for RtcStatsType {
             total_round_trip_time: value.total_round_trip_time.take(),
             current_round_trip_time: value.current_round_trip_time.take(),
             available_outgoing_bitrate: value.available_outgoing_bitrate.take(),
-        })
+        }
+    }
+}
+impl From<webrtc::RTCInboundRTPStreamStatsWrap> for RtcStatsType {
+    fn from(mut value: webrtc::RTCInboundRTPStreamStatsWrap) -> Self {
+        let media_type = if value.media_type == webrtc::MediaKind::Audio {
+            RtcInboundRtpStreamMediaType::Audio {
+                total_samples_received: value.total_samples_received.take(),
+                concealed_samples: value.concealed_samples.take(),
+                silent_concealed_samples: value.silent_concealed_samples.take(),
+                audio_level: value.audio_level.take(),
+                total_audio_energy: value.total_audio_energy.take(),
+                total_samples_duration: value.total_samples_duration.take(),
+            }
+        } else {
+            RtcInboundRtpStreamMediaType::Video {
+                frames_decoded: value.frames_decoded.take(),
+                key_frames_decoded: value.key_frames_decoded.take(),
+                frame_width: value.frame_width.take(),
+                frame_height: value.frame_height.take(),
+                total_inter_frame_delay: value.total_inter_frame_delay.take(),
+                frames_per_second: value.frames_per_second.take(),
+                fir_count: value.fir_count.take(),
+                pli_count: value.pli_count.take(),
+                concealment_events: value.concealment_events.take(),
+                frames_received: value.frames_received.take(),
+            }
+        };
+
+        Self::RtcInboundRtpStreamStats {
+            remote_id: value.remote_id.take(),
+            bytes_received: value.bytes_received.take(),
+            packets_received: value.packets_received.take(),
+            total_decode_time: value.total_decode_time.take(),
+            jitter_buffer_emitted_count: value
+                .jitter_buffer_emitted_count
+                .take(),
+            media_type: Some(media_type),
+        }
+    }
+}
+
+impl From<webrtc::RTCOutboundRTPStreamStatsWrap> for RtcStatsType {
+    fn from(mut value: webrtc::RTCOutboundRTPStreamStatsWrap) -> Self {
+        let kind = if value.kind == webrtc::MediaKind::Audio {
+            RtcOutboundRtpStreamStatsMediaType::Audio
+        } else {
+            RtcOutboundRtpStreamStatsMediaType::Video {
+                frame_width: value.frame_width.take(),
+                frame_height: value.frame_height.take(),
+                frames_per_second: value.frames_per_second.take(),
+            }
+        };
+
+        Self::RtcOutboundRtpStreamStats {
+            track_id: value.track_id.take(),
+            media_type: kind,
+            bytes_sent: value.bytes_sent.take(),
+            packets_sent: value.packets_sent.take(),
+            media_source_id: value.media_source_id.take(),
+        }
+    }
+}
+
+impl From<webrtc::RTCRemoteInboundRtpStreamStatsWrap> for RtcStatsType {
+    fn from(mut value: webrtc::RTCRemoteInboundRtpStreamStatsWrap) -> Self {
+        Self::RtcRemoteInboundRtpStreamStats {
+            local_id: value.local_id.take(),
+            round_trip_time: value.round_trip_time.take(),
+            fraction_lost: value.fraction_lost.take(),
+            round_trip_time_measurements: value
+                .round_trip_time_measurements
+                .take(),
+        }
+    }
+}
+
+impl From<webrtc::RTCRemoteOutboundRtpStreamStatsWrap> for RtcStatsType {
+    fn from(mut value: webrtc::RTCRemoteOutboundRtpStreamStatsWrap) -> Self {
+        Self::RtcRemoteOutboundRtpStreamStats {
+            local_id: value.local_id.take(),
+            remote_timestamp: value.remote_timestamp.take(),
+            reports_sent: value.reports_sent.take(),
+        }
+    }
+}
+
+impl From<webrtc::RTCTransportStatsWrap> for RtcStatsType {
+    fn from(mut value: webrtc::RTCTransportStatsWrap) -> Self {
+        Self::RtcTransportStats {
+            packets_sent: value.packets_sent.take(),
+            packets_received: value.packets_received.take(),
+            bytes_sent: value.bytes_sent.take(),
+            bytes_received: value.bytes_received.take(),
+        }
     }
 }
 
@@ -3316,49 +3406,6 @@ impl TryFrom<webrtc::RTCIceCandidateStatsWrap> for RtcStatsType {
     }
 }
 
-impl TryFrom<webrtc::RTCInboundRTPStreamStatsWrap> for RtcStatsType {
-    type Error = anyhow::Error;
-
-    fn try_from(
-        mut value: webrtc::RTCInboundRTPStreamStatsWrap,
-    ) -> anyhow::Result<Self> {
-        let media_type = if value.media_type == webrtc::MediaKind::Audio {
-            RtcInboundRtpStreamMediaType::Audio {
-                total_samples_received: value.total_samples_received.take(),
-                concealed_samples: value.concealed_samples.take(),
-                silent_concealed_samples: value.silent_concealed_samples.take(),
-                audio_level: value.audio_level.take(),
-                total_audio_energy: value.total_audio_energy.take(),
-                total_samples_duration: value.total_samples_duration.take(),
-            }
-        } else {
-            RtcInboundRtpStreamMediaType::Video {
-                frames_decoded: value.frames_decoded.take(),
-                key_frames_decoded: value.key_frames_decoded.take(),
-                frame_width: value.frame_width.take(),
-                frame_height: value.frame_height.take(),
-                total_inter_frame_delay: value.total_inter_frame_delay.take(),
-                frames_per_second: value.frames_per_second.take(),
-                fir_count: value.fir_count.take(),
-                pli_count: value.pli_count.take(),
-                concealment_events: value.concealment_events.take(),
-                frames_received: value.frames_received.take(),
-            }
-        };
-
-        Ok(Self::RtcInboundRtpStreamStats {
-            remote_id: value.remote_id.take(),
-            bytes_received: value.bytes_received.take(),
-            packets_received: value.packets_received.take(),
-            total_decode_time: value.total_decode_time.take(),
-            jitter_buffer_emitted_count: value
-                .jitter_buffer_emitted_count
-                .take(),
-            media_type: Some(media_type),
-        })
-    }
-}
-
 impl TryFrom<webrtc::RTCMediaSourceStatsWrap> for RtcStatsType {
     type Error = anyhow::Error;
 
@@ -3376,120 +3423,50 @@ impl TryFrom<webrtc::RTCMediaSourceStatsWrap> for RtcStatsType {
     }
 }
 
-impl TryFrom<webrtc::RTCOutboundRTPStreamStatsWrap> for RtcStatsType {
-    type Error = anyhow::Error;
-
-    fn try_from(
-        mut value: webrtc::RTCOutboundRTPStreamStatsWrap,
-    ) -> anyhow::Result<Self> {
-        let kind = if value.kind == webrtc::MediaKind::Audio {
-            RtcOutboundRtpStreamStatsMediaType::Audio
-        } else {
-            RtcOutboundRtpStreamStatsMediaType::Video {
-                frame_width: value.frame_width.take(),
-                frame_height: value.frame_height.take(),
-                frames_per_second: value.frames_per_second.take(),
-            }
-        };
-
-        Ok(Self::RtcOutboundRtpStreamStats {
-            track_id: value.track_id.take(),
-            media_type: kind,
-            bytes_sent: value.bytes_sent.take(),
-            packets_sent: value.packets_sent.take(),
-            media_source_id: value.media_source_id.take(),
-        })
-    }
-}
-
-impl TryFrom<webrtc::RTCRemoteInboundRtpStreamStatsWrap> for RtcStatsType {
-    type Error = anyhow::Error;
-
-    fn try_from(
-        mut value: webrtc::RTCRemoteInboundRtpStreamStatsWrap,
-    ) -> anyhow::Result<Self> {
-        Ok(Self::RtcRemoteInboundRtpStreamStats {
-            local_id: value.local_id.take(),
-            round_trip_time: value.round_trip_time.take(),
-            fraction_lost: value.fraction_lost.take(),
-            round_trip_time_measurements: value
-                .round_trip_time_measurements
-                .take(),
-        })
-    }
-}
-
-impl TryFrom<webrtc::RTCRemoteOutboundRtpStreamStatsWrap> for RtcStatsType {
-    type Error = anyhow::Error;
-
-    fn try_from(
-        mut value: webrtc::RTCRemoteOutboundRtpStreamStatsWrap,
-    ) -> anyhow::Result<Self> {
-        Ok(Self::RtcRemoteOutboundRtpStreamStats {
-            local_id: value.local_id.take(),
-            remote_timestamp: value.remote_timestamp.take(),
-            reports_sent: value.reports_sent.take(),
-        })
-    }
-}
-
-impl TryFrom<webrtc::RTCTransportStatsWrap> for RtcStatsType {
-    type Error = anyhow::Error;
-
-    fn try_from(
-        mut value: webrtc::RTCTransportStatsWrap,
-    ) -> anyhow::Result<Self> {
-        Ok(Self::RtcTransportStats {
-            packets_sent: value.packets_sent.take(),
-            packets_received: value.packets_received.take(),
-            bytes_sent: value.bytes_sent.take(),
-            bytes_received: value.bytes_received.take(),
-        })
-    }
-}
-
 impl TryFrom<webrtc::RTCStatsWrap> for RtcStatsType {
     type Error = anyhow::Error;
 
     fn try_from(stats: webrtc::RTCStatsWrap) -> anyhow::Result<Self> {
         use webrtc::RTCStatsType as T;
 
-        match stats.kind {
+        Ok(match stats.kind {
             T::RTCIceCandidatePairStats => {
                 webrtc::cast_to_rtc_ice_candidate_pair_stats(stats.stats)?
-                    .try_into()
+                    .into()
             }
             T::RTCIceCandidateStats => {
-                webrtc::cast_to_rtc_ice_candidate_stats(stats.stats)?.try_into()
+                webrtc::cast_to_rtc_ice_candidate_stats(stats.stats)?
+                    .try_into()?
             }
             T::RTCInboundRTPStreamStats => {
                 webrtc::cast_to_rtc_inbound_rtp_stream_stats(stats.stats)?
-                    .try_into()
+                    .into()
             }
             T::RTCMediaSourceStats => {
-                webrtc::cast_to_rtc_media_source_stats(stats.stats)?.try_into()
+                webrtc::cast_to_rtc_media_source_stats(stats.stats)?
+                    .try_into()?
             }
             T::RTCOutboundRTPStreamStats => {
                 webrtc::cast_to_rtc_outbound_rtp_stream_stats(stats.stats)?
-                    .try_into()
+                    .into()
             }
             T::RTCRemoteInboundRtpStreamStats => {
                 webrtc::cast_to_rtc_remote_inbound_rtp_stream_stats(
                     stats.stats,
                 )?
-                .try_into()
+                .into()
             }
             T::RTCRemoteOutboundRtpStreamStats => {
                 webrtc::cast_to_rtc_remote_outbound_rtp_stream_stats(
                     stats.stats,
                 )?
-                .try_into()
+                .into()
             }
             T::RTCTransportStats => {
-                webrtc::cast_to_rtc_transport_stats(stats.stats)?.try_into()
+                webrtc::cast_to_rtc_transport_stats(stats.stats)?.into()
             }
-            _ => Ok(Self::Unimplemented),
-        }
+            _ => Self::Unimplemented,
+        })
     }
 }
 
