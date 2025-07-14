@@ -1,4 +1,4 @@
-//! See [RTCRtpEncodingParameters][0].
+//! [RTCRtpEncodingParameters][0] definitions.
 //!
 //! [0]: https://w3.org/TR/webrtc#rtcrtpencodingparameters
 
