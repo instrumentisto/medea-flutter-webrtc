@@ -1,4 +1,4 @@
-//! See [RTCRtpTransceiverDirection][1].
+//! [RTCRtpTransceiverDirection][1] definitions.
 //!
 //! [1]: https://w3.org/TR/webrtc#dom-rtcrtptransceiverdirection
 

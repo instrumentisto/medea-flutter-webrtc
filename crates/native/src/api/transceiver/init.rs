@@ -1,4 +1,4 @@
-//! See [RTCRtpTransceiverInit][0].
+//! [RTCRtpTransceiverInit][0] definitions.
 //!
 //! [0]: https://w3.org/TR/webrtc#dom-rtcrtptransceiverinit
 
