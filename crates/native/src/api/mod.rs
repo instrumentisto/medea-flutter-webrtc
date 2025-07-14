@@ -2,8 +2,8 @@
 
 pub mod capability;
 pub mod media_info;
-pub mod peer;
 pub mod media_stream_track;
+pub mod peer;
 pub mod rtc_rtp_encoding_parameters;
 pub mod rtc_rtp_send_parameters;
 pub mod stats;
@@ -30,6 +30,14 @@ pub use self::{
         get_rtp_sender_capabilities, set_codec_preferences,
     },
     media_info::{MediaDeviceInfo, MediaDeviceKind, MediaDisplayInfo},
+    media_stream_track::{
+        AudioProcessingConfig, GetMediaError, GetMediaResult, MediaStreamTrack,
+        MediaType, NoiseSuppressionLevel, TrackEvent, TrackState, clone_track,
+        create_video_sink, dispose_track, dispose_video_sink,
+        get_audio_processing_config, get_media, register_track_observer,
+        set_audio_level_observer_enabled, set_track_enabled, track_height,
+        track_state, track_width, update_audio_processing,
+    },
     peer::{
         BundlePolicy, IceConnectionState, IceGatheringState, IceTransportsType,
         PeerConnectionEvent, PeerConnectionState, RtcConfiguration,
@@ -38,14 +46,6 @@ pub use self::{
         create_answer, create_offer, create_peer_connection,
         dispose_peer_connection, restart_ice, set_local_description,
         set_remote_description, video_decoders, video_encoders,
-    },
-    media_stream_track::{
-        AudioProcessingConfig, GetMediaError, GetMediaResult, MediaStreamTrack,
-        MediaType, NoiseSuppressionLevel, TrackEvent, TrackState, clone_track,
-        create_video_sink, dispose_track, dispose_video_sink,
-        get_audio_processing_config, get_media, register_track_observer,
-        set_audio_level_observer_enabled, set_track_enabled, track_height,
-        track_state, track_width, update_audio_processing,
     },
     rtc_rtp_encoding_parameters::RtcRtpEncodingParameters,
     rtc_rtp_send_parameters::RtcRtpSendParameters,
