@@ -2,9 +2,9 @@
 
 pub mod capability;
 pub mod media_info;
-pub mod rtc_rtp_send_parameters;
 pub mod media_stream_track;
 pub mod rtc_rtp_encoding_parameters;
+pub mod rtc_rtp_send_parameters;
 pub mod stats;
 
 use std::{
@@ -27,7 +27,6 @@ pub use self::{
         get_rtp_sender_capabilities, set_codec_preferences,
     },
     media_info::{MediaDeviceInfo, MediaDeviceKind, MediaDisplayInfo},
-    rtc_rtp_send_parameters::RtcRtpSendParameters,
     media_stream_track::{
         AudioProcessingConfig, GetMediaError, GetMediaResult, MediaStreamTrack,
         MediaType, NoiseSuppressionLevel, TrackEvent, TrackState, clone_track,
@@ -37,6 +36,7 @@ pub use self::{
         track_state, track_width, update_audio_processing,
     },
     rtc_rtp_encoding_parameters::RtcRtpEncodingParameters,
+    rtc_rtp_send_parameters::RtcRtpSendParameters,
     stats::{
         CandidateType, IceCandidateStats, IceRole, Protocol,
         RtcIceCandidateStats, RtcInboundRtpStreamMediaType,
