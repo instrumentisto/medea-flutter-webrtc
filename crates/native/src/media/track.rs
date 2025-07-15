@@ -466,7 +466,7 @@ impl sys::OnFrameCallback for VideoFormatSink {
     }
 }
 
-/// Representation of a audio [`Track`] interface.
+/// Representation of an audio [`Track`] interface.
 pub type AudioTrack = Track<kind::Audio>;
 
 impl AudioTrack {
