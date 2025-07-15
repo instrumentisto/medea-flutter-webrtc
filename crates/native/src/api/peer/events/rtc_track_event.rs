@@ -1,4 +1,4 @@
-//! Representation of a track event.
+//! Representation of a [`MediaStreamTrack`] event.
 
 #[cfg(doc)]
 use crate::PeerConnection;

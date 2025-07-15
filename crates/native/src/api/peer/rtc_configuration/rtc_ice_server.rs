@@ -1,9 +1,9 @@
 //! Description of STUN and TURN servers.
+
 /// Description of STUN and TURN servers that can be used by an [ICE Agent][1]
 /// to establish a connection with a peer.
 ///
 /// [1]: https://w3.org/TR/webrtc#dfn-ice-agent
-
 #[derive(Debug)]
 pub struct RtcIceServer {
     /// STUN or TURN URI(s).

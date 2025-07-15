@@ -1,4 +1,4 @@
-//! Configuration of the [`PeerConnection`].
+//! Configuration of a [`PeerConnection`].
 
 pub mod bundle_policy;
 pub mod ice_transports_type;

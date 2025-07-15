@@ -41,7 +41,7 @@ class RtcSessionDescription {
   /// String representation of the SDP.
   final String sdp;
 
-  /// Type of this [`crate::api::RtcSessionDescription`].
+  /// Type of this [`RtcSessionDescription`].
   final SdpType kind;
 
   const RtcSessionDescription({required this.sdp, required this.kind});

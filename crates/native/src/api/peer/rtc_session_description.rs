@@ -1,4 +1,6 @@
-//! Description of an RTC session.
+//! [RTCSessionDescription] definitions.
+//!
+//! [RTCSessionDescription]: https://w3.org/TR/webrtc#dom-rtcsessiondescription
 
 use std::sync::{Arc, mpsc};
 
@@ -14,7 +16,7 @@ pub struct RtcSessionDescription {
     /// String representation of the SDP.
     pub sdp: String,
 
-    /// Type of this [`crate::api::RtcSessionDescription`].
+    /// Type of this [`RtcSessionDescription`].
     pub kind: SdpType,
 }
 
