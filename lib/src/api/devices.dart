@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';
 import '/src/platform/native/media_stream_track.dart';
-import 'bridge/api.dart' as ffi;
 import 'bridge/api/media.dart' as ffi;
 import 'bridge/api/media/constraints.dart' as ffi;
 import 'bridge/api/media/constraints/audio.dart' as ffi;

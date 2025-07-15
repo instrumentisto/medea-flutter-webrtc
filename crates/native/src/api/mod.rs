@@ -30,7 +30,9 @@ pub use self::{
     media::{
         AudioConstraints, AudioProcessingConstraints, MediaStreamConstraints,
         VideoConstraints, enable_fake_media, enumerate_devices,
-        enumerate_displays, is_fake_media,
+        enumerate_displays, is_fake_media, microphone_volume,
+        microphone_volume_is_available, set_audio_playout_device,
+        set_microphone_volume, set_on_device_changed,
     },
     media_info::{MediaDeviceInfo, MediaDeviceKind, MediaDisplayInfo},
     media_stream_track::{
@@ -154,36 +156,4 @@ pub fn sender_set_parameters(
     params: RtcRtpSendParameters,
 ) -> anyhow::Result<()> {
     transceiver.sender_set_parameters(params)
-}
-
-/// Sets the specified `audio playout` device.
-pub fn set_audio_playout_device(device_id: String) -> anyhow::Result<()> {
-    WEBRTC.lock().unwrap().set_audio_playout_device(device_id)
-}
-
-/// Indicates whether the microphone is available to set volume.
-pub fn microphone_volume_is_available() -> anyhow::Result<bool> {
-    WEBRTC.lock().unwrap().microphone_volume_is_available()
-}
-
-/// Sets the microphone system volume according to the specified `level` in
-/// percents.
-///
-/// Valid values range is `[0; 100]`.
-pub fn set_microphone_volume(level: u8) -> anyhow::Result<()> {
-    WEBRTC.lock().unwrap().set_microphone_volume(level)
-}
-
-/// Returns the current level of the microphone volume in `[0; 100]` range.
-pub fn microphone_volume() -> anyhow::Result<u32> {
-    WEBRTC.lock().unwrap().microphone_volume()
-}
-
-/// Sets the provided `OnDeviceChangeCallback` as the callback to be called
-/// whenever a set of available media devices changes.
-///
-/// Only one callback can be set at a time, so the previous one will be dropped,
-/// if any.
-pub fn set_on_device_changed(cb: StreamSink<()>) {
-    WEBRTC.lock().unwrap().set_on_device_changed(cb);
 }
