@@ -10,6 +10,8 @@ import 'bridge/api/media.dart' as ffi;
 import 'bridge/api/media/constraints.dart' as ffi;
 import 'bridge/api/media/constraints/audio.dart' as ffi;
 import 'bridge/api/media/constraints/video.dart' as ffi;
+import 'bridge/api/media_stream_track.dart' as ffi;
+import 'bridge/api/media_stream_track/audio_processing_config.dart' as ffi;
 import 'channel.dart';
 
 /// Default video width when capturing user's camera.
