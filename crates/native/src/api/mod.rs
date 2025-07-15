@@ -1,7 +1,7 @@
 //! API surface and implementation for Flutter.
 
-pub mod media;
 pub mod capability;
+pub mod media;
 pub mod media_info;
 pub mod media_stream_track;
 pub mod peer;
@@ -21,16 +21,16 @@ use flutter_rust_bridge::for_generated::FLUTTER_RUST_BRIDGE_RUNTIME_VERSION;
 use libwebrtc_sys as sys;
 
 pub use self::{
-    media::{
-        AudioConstraints, AudioProcessingConstraints, MediaStreamConstraints,
-        VideoConstraints, enable_fake_media, enumerate_devices,
-        enumerate_displays, is_fake_media,
-    },
     capability::{
         RtcpFeedback, RtcpFeedbackMessageType, RtcpFeedbackType,
         RtpCapabilities, RtpCodecCapability, RtpHeaderExtensionCapability,
         ScalabilityMode, get_rtp_receiver_capabilities,
         get_rtp_sender_capabilities, set_codec_preferences,
+    },
+    media::{
+        AudioConstraints, AudioProcessingConstraints, MediaStreamConstraints,
+        VideoConstraints, enable_fake_media, enumerate_devices,
+        enumerate_displays, is_fake_media,
     },
     media_info::{MediaDeviceInfo, MediaDeviceKind, MediaDisplayInfo},
     media_stream_track::{
