@@ -42,30 +42,3 @@ Future<void> senderSetParameters({
   transceiver: transceiver,
   params: params,
 );
-
-/// Sets the specified `audio playout` device.
-Future<void> setAudioPlayoutDevice({required String deviceId}) =>
-    RustLib.instance.api.crateApiSetAudioPlayoutDevice(deviceId: deviceId);
-
-/// Indicates whether the microphone is available to set volume.
-Future<bool> microphoneVolumeIsAvailable() =>
-    RustLib.instance.api.crateApiMicrophoneVolumeIsAvailable();
-
-/// Sets the microphone system volume according to the specified `level` in
-/// percents.
-///
-/// Valid values range is `[0; 100]`.
-Future<void> setMicrophoneVolume({required int level}) =>
-    RustLib.instance.api.crateApiSetMicrophoneVolume(level: level);
-
-/// Returns the current level of the microphone volume in `[0; 100]` range.
-Future<int> microphoneVolume() =>
-    RustLib.instance.api.crateApiMicrophoneVolume();
-
-/// Sets the provided `OnDeviceChangeCallback` as the callback to be called
-/// whenever a set of available media devices changes.
-///
-/// Only one callback can be set at a time, so the previous one will be dropped,
-/// if any.
-Stream<void> setOnDeviceChanged() =>
-    RustLib.instance.api.crateApiSetOnDeviceChanged();

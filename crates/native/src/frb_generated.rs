@@ -42,7 +42,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.10.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -109806465;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1851697459;
 
 // Section: executor
 
@@ -416,21 +416,6 @@ fn wire__crate__api__media__is_fake_media_impl(
                     })())
                 } })
 }
-fn wire__crate__api__microphone_volume_impl(
-    port_: flutter_rust_bridge::for_generated::MessagePort,
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
-) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec,_,_>(flutter_rust_bridge::for_generated::TaskInfo{ debug_name: "microphone_volume", port: Some(port_), mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal }, move || { 
-            let message = unsafe { flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(ptr_, rust_vec_len_, data_len_) };
-            let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            deserializer.end(); move |context|  {
-                    transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>((move ||  {
-                         let output_ok = crate::api::microphone_volume()?;   Ok(output_ok)
-                    })())
-                } })
-}
 fn wire__crate__api__media__microphone_volume_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -443,21 +428,6 @@ fn wire__crate__api__media__microphone_volume_impl(
             deserializer.end(); move |context|  {
                     transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>((move ||  {
                          let output_ok = crate::api::media::microphone_volume()?;   Ok(output_ok)
-                    })())
-                } })
-}
-fn wire__crate__api__microphone_volume_is_available_impl(
-    port_: flutter_rust_bridge::for_generated::MessagePort,
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
-) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec,_,_>(flutter_rust_bridge::for_generated::TaskInfo{ debug_name: "microphone_volume_is_available", port: Some(port_), mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal }, move || { 
-            let message = unsafe { flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(ptr_, rust_vec_len_, data_len_) };
-            let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            deserializer.end(); move |context|  {
-                    transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>((move ||  {
-                         let output_ok = crate::api::microphone_volume_is_available()?;   Ok(output_ok)
                     })())
                 } })
 }
@@ -574,21 +544,6 @@ let api_enabled = <bool>::sse_decode(&mut deserializer);deserializer.end(); move
                     })())
                 } })
 }
-fn wire__crate__api__set_audio_playout_device_impl(
-    port_: flutter_rust_bridge::for_generated::MessagePort,
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
-) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec,_,_>(flutter_rust_bridge::for_generated::TaskInfo{ debug_name: "set_audio_playout_device", port: Some(port_), mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal }, move || { 
-            let message = unsafe { flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(ptr_, rust_vec_len_, data_len_) };
-            let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_device_id = <String>::sse_decode(&mut deserializer);deserializer.end(); move |context|  {
-                    transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>((move ||  {
-                         let output_ok = crate::api::set_audio_playout_device(api_device_id)?;   Ok(output_ok)
-                    })())
-                } })
-}
 fn wire__crate__api__media__set_audio_playout_device_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -637,21 +592,6 @@ let api_sdp = <String>::sse_decode(&mut deserializer);deserializer.end(); move |
                     })())
                 } })
 }
-fn wire__crate__api__set_microphone_volume_impl(
-    port_: flutter_rust_bridge::for_generated::MessagePort,
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
-) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec,_,_>(flutter_rust_bridge::for_generated::TaskInfo{ debug_name: "set_microphone_volume", port: Some(port_), mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal }, move || { 
-            let message = unsafe { flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(ptr_, rust_vec_len_, data_len_) };
-            let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_level = <u8>::sse_decode(&mut deserializer);deserializer.end(); move |context|  {
-                    transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>((move ||  {
-                         let output_ok = crate::api::set_microphone_volume(api_level)?;   Ok(output_ok)
-                    })())
-                } })
-}
 fn wire__crate__api__media__set_microphone_volume_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -664,21 +604,6 @@ fn wire__crate__api__media__set_microphone_volume_impl(
             let api_level = <u8>::sse_decode(&mut deserializer);deserializer.end(); move |context|  {
                     transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>((move ||  {
                          let output_ok = crate::api::media::set_microphone_volume(api_level)?;   Ok(output_ok)
-                    })())
-                } })
-}
-fn wire__crate__api__set_on_device_changed_impl(
-    port_: flutter_rust_bridge::for_generated::MessagePort,
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
-) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec,_,_>(flutter_rust_bridge::for_generated::TaskInfo{ debug_name: "set_on_device_changed", port: Some(port_), mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal }, move || { 
-            let message = unsafe { flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(ptr_, rust_vec_len_, data_len_) };
-            let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_cb = <StreamSink<(),flutter_rust_bridge::for_generated::SseCodec>>::sse_decode(&mut deserializer);deserializer.end(); move |context|  {
-                    transform_result_sse::<_, ()>((move ||  {
-                         let output_ok = Result::<_,()>::Ok({ crate::api::set_on_device_changed(api_cb); })?;   Ok(output_ok)
                     })())
                 } })
 }
@@ -2732,36 +2657,31 @@ fn pde_ffi_dispatcher_primary_impl(
 21 => wire__crate__api__transceiver__get_transceiver_mid_impl(port, ptr, rust_vec_len, data_len),
 22 => wire__crate__api__transceiver__get_transceivers_impl(port, ptr, rust_vec_len, data_len),
 23 => wire__crate__api__media__is_fake_media_impl(port, ptr, rust_vec_len, data_len),
-24 => wire__crate__api__microphone_volume_impl(port, ptr, rust_vec_len, data_len),
-25 => wire__crate__api__media__microphone_volume_impl(port, ptr, rust_vec_len, data_len),
-26 => wire__crate__api__microphone_volume_is_available_impl(port, ptr, rust_vec_len, data_len),
-27 => wire__crate__api__media__microphone_volume_is_available_impl(port, ptr, rust_vec_len, data_len),
-28 => wire__crate__api__media_stream_track__register_track_observer_impl(port, ptr, rust_vec_len, data_len),
-29 => wire__crate__api__peer__restart_ice_impl(port, ptr, rust_vec_len, data_len),
-30 => wire__crate__api__sender_get_parameters_impl(port, ptr, rust_vec_len, data_len),
-31 => wire__crate__api__sender_replace_track_impl(port, ptr, rust_vec_len, data_len),
-32 => wire__crate__api__sender_set_parameters_impl(port, ptr, rust_vec_len, data_len),
-33 => wire__crate__api__media_stream_track__set_audio_level_observer_enabled_impl(port, ptr, rust_vec_len, data_len),
-34 => wire__crate__api__set_audio_playout_device_impl(port, ptr, rust_vec_len, data_len),
-35 => wire__crate__api__media__set_audio_playout_device_impl(port, ptr, rust_vec_len, data_len),
-36 => wire__crate__api__capability__rtp_codec__set_codec_preferences_impl(port, ptr, rust_vec_len, data_len),
-37 => wire__crate__api__peer__rtc_session_description__set_local_description_impl(port, ptr, rust_vec_len, data_len),
-38 => wire__crate__api__set_microphone_volume_impl(port, ptr, rust_vec_len, data_len),
-39 => wire__crate__api__media__set_microphone_volume_impl(port, ptr, rust_vec_len, data_len),
-40 => wire__crate__api__set_on_device_changed_impl(port, ptr, rust_vec_len, data_len),
-41 => wire__crate__api__media__set_on_device_changed_impl(port, ptr, rust_vec_len, data_len),
-42 => wire__crate__api__peer__rtc_session_description__set_remote_description_impl(port, ptr, rust_vec_len, data_len),
-43 => wire__crate__api__media_stream_track__set_track_enabled_impl(port, ptr, rust_vec_len, data_len),
-44 => wire__crate__api__transceiver__set_transceiver_direction_impl(port, ptr, rust_vec_len, data_len),
-45 => wire__crate__api__transceiver__set_transceiver_recv_impl(port, ptr, rust_vec_len, data_len),
-46 => wire__crate__api__transceiver__set_transceiver_send_impl(port, ptr, rust_vec_len, data_len),
-47 => wire__crate__api__transceiver__stop_transceiver_impl(port, ptr, rust_vec_len, data_len),
-48 => wire__crate__api__media_stream_track__track_height_impl(port, ptr, rust_vec_len, data_len),
-49 => wire__crate__api__media_stream_track__track_state_impl(port, ptr, rust_vec_len, data_len),
-50 => wire__crate__api__media_stream_track__track_width_impl(port, ptr, rust_vec_len, data_len),
-51 => wire__crate__api__media_stream_track__update_audio_processing_impl(port, ptr, rust_vec_len, data_len),
-52 => wire__crate__api__peer__video_codec_info__video_decoders_impl(port, ptr, rust_vec_len, data_len),
-53 => wire__crate__api__peer__video_codec_info__video_encoders_impl(port, ptr, rust_vec_len, data_len),
+24 => wire__crate__api__media__microphone_volume_impl(port, ptr, rust_vec_len, data_len),
+25 => wire__crate__api__media__microphone_volume_is_available_impl(port, ptr, rust_vec_len, data_len),
+26 => wire__crate__api__media_stream_track__register_track_observer_impl(port, ptr, rust_vec_len, data_len),
+27 => wire__crate__api__peer__restart_ice_impl(port, ptr, rust_vec_len, data_len),
+28 => wire__crate__api__sender_get_parameters_impl(port, ptr, rust_vec_len, data_len),
+29 => wire__crate__api__sender_replace_track_impl(port, ptr, rust_vec_len, data_len),
+30 => wire__crate__api__sender_set_parameters_impl(port, ptr, rust_vec_len, data_len),
+31 => wire__crate__api__media_stream_track__set_audio_level_observer_enabled_impl(port, ptr, rust_vec_len, data_len),
+32 => wire__crate__api__media__set_audio_playout_device_impl(port, ptr, rust_vec_len, data_len),
+33 => wire__crate__api__capability__rtp_codec__set_codec_preferences_impl(port, ptr, rust_vec_len, data_len),
+34 => wire__crate__api__peer__rtc_session_description__set_local_description_impl(port, ptr, rust_vec_len, data_len),
+35 => wire__crate__api__media__set_microphone_volume_impl(port, ptr, rust_vec_len, data_len),
+36 => wire__crate__api__media__set_on_device_changed_impl(port, ptr, rust_vec_len, data_len),
+37 => wire__crate__api__peer__rtc_session_description__set_remote_description_impl(port, ptr, rust_vec_len, data_len),
+38 => wire__crate__api__media_stream_track__set_track_enabled_impl(port, ptr, rust_vec_len, data_len),
+39 => wire__crate__api__transceiver__set_transceiver_direction_impl(port, ptr, rust_vec_len, data_len),
+40 => wire__crate__api__transceiver__set_transceiver_recv_impl(port, ptr, rust_vec_len, data_len),
+41 => wire__crate__api__transceiver__set_transceiver_send_impl(port, ptr, rust_vec_len, data_len),
+42 => wire__crate__api__transceiver__stop_transceiver_impl(port, ptr, rust_vec_len, data_len),
+43 => wire__crate__api__media_stream_track__track_height_impl(port, ptr, rust_vec_len, data_len),
+44 => wire__crate__api__media_stream_track__track_state_impl(port, ptr, rust_vec_len, data_len),
+45 => wire__crate__api__media_stream_track__track_width_impl(port, ptr, rust_vec_len, data_len),
+46 => wire__crate__api__media_stream_track__update_audio_processing_impl(port, ptr, rust_vec_len, data_len),
+47 => wire__crate__api__peer__video_codec_info__video_decoders_impl(port, ptr, rust_vec_len, data_len),
+48 => wire__crate__api__peer__video_codec_info__video_encoders_impl(port, ptr, rust_vec_len, data_len),
                         _ => unreachable!(),
                     }
 }
