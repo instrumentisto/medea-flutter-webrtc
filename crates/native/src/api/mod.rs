@@ -76,7 +76,7 @@ use crate::{
     Webrtc,
     frb::{FrbHandler, new_frb_handler},
     frb_generated::{
-        FLUTTER_RUST_BRIDGE_CODEGEN_VERSION, RustOpaque, StreamSink,
+        FLUTTER_RUST_BRIDGE_CODEGEN_VERSION, RustOpaque,
     },
 };
 
