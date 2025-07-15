@@ -5,8 +5,8 @@
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-import '../../api.dart';
 import '../../frb_generated.dart';
+import '../media_stream_track/audio_processing_config.dart';
 import 'constraints/audio.dart';
 import 'constraints/video.dart';
 

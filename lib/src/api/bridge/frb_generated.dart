@@ -9,11 +9,36 @@ import 'dart:convert';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'api.dart';
+import 'api/capability.dart';
+import 'api/capability/rtp_codec.dart';
+import 'api/capability/rtp_codec/rtcp_feedback.dart';
+import 'api/capability/rtp_codec/scalability_mode.dart';
+import 'api/capability/rtp_header_extension_capability.dart';
 import 'api/media.dart';
 import 'api/media/constraints.dart';
 import 'api/media/constraints/audio.dart';
 import 'api/media/constraints/video.dart';
 import 'api/media_info.dart';
+import 'api/media_stream_track.dart';
+import 'api/media_stream_track/audio_processing_config.dart';
+import 'api/media_stream_track/media_type.dart';
+import 'api/media_stream_track/track_event.dart';
+import 'api/media_stream_track/track_state.dart';
+import 'api/peer.dart';
+import 'api/peer/events.dart';
+import 'api/peer/events/ice_connection_state.dart';
+import 'api/peer/events/ice_gathering_state.dart';
+import 'api/peer/events/peer_connection_state.dart';
+import 'api/peer/events/rtc_track_event.dart';
+import 'api/peer/events/signaling_state.dart';
+import 'api/peer/rtc_configuration.dart';
+import 'api/peer/rtc_configuration/bundle_policy.dart';
+import 'api/peer/rtc_configuration/ice_transports_type.dart';
+import 'api/peer/rtc_configuration/rtc_ice_server.dart';
+import 'api/peer/rtc_session_description.dart';
+import 'api/peer/video_codec_info.dart';
+import 'api/rtc_rtp_encoding_parameters.dart';
+import 'api/rtc_rtp_send_parameters.dart';
 import 'api/stats.dart';
 import 'api/stats/ice_role.dart';
 import 'api/stats/rtc_ice_candidate_stats.dart';
@@ -21,6 +46,9 @@ import 'api/stats/rtc_inbound_rtp_stream_media_type.dart';
 import 'api/stats/rtc_media_source_stats_media_type.dart';
 import 'api/stats/rtc_outbound_rtp_stream_media_type.dart';
 import 'api/stats/rtc_stats_ice_candidate_pair_state.dart';
+import 'api/transceiver.dart';
+import 'api/transceiver/direction.dart';
+import 'api/transceiver/init.dart';
 import 'frb_generated.dart';
 import 'lib.dart';
 import 'renderer.dart';
@@ -79,7 +107,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.10.0';
 
   @override
-  int get rustContentHash => -905378928;
+  int get rustContentHash => -109806465;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -90,14 +118,14 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
 }
 
 abstract class RustLibApi extends BaseApi {
-  Future<void> crateApiAddIceCandidate({
+  Future<void> crateApiPeerAddIceCandidate({
     required ArcPeerConnection peer,
     required String candidate,
     required String sdpMid,
     required int sdpMlineIndex,
   });
 
-  Future<RtcRtpTransceiver> crateApiAddTransceiver({
+  Future<RtcRtpTransceiver> crateApiTransceiverAddTransceiver({
     required ArcPeerConnection peer,
     required MediaType mediaType,
     required RtpTransceiverInit init,
@@ -106,31 +134,31 @@ abstract class RustLibApi extends BaseApi {
   Future<AudioProcessingConstraints>
   crateApiMediaConstraintsAudioAudioProcessingConstraintsDefault();
 
-  Future<MediaStreamTrack?> crateApiCloneTrack({
+  Future<MediaStreamTrack?> crateApiMediaStreamTrackCloneTrack({
     required String trackId,
     int? peerId,
     required MediaType kind,
   });
 
-  Future<RtcSessionDescription> crateApiCreateAnswer({
+  Future<RtcSessionDescription> crateApiPeerCreateAnswer({
     required ArcPeerConnection peer,
     required bool voiceActivityDetection,
     required bool iceRestart,
     required bool useRtpMux,
   });
 
-  Future<RtcSessionDescription> crateApiCreateOffer({
+  Future<RtcSessionDescription> crateApiPeerCreateOffer({
     required ArcPeerConnection peer,
     required bool voiceActivityDetection,
     required bool iceRestart,
     required bool useRtpMux,
   });
 
-  Stream<PeerConnectionEvent> crateApiCreatePeerConnection({
+  Stream<PeerConnectionEvent> crateApiPeerCreatePeerConnection({
     required RtcConfiguration configuration,
   });
 
-  Stream<TextureEvent> crateApiCreateVideoSink({
+  Stream<TextureEvent> crateApiMediaStreamTrackCreateVideoSink({
     required PlatformInt64 sinkId,
     int? peerId,
     required String trackId,
@@ -138,15 +166,19 @@ abstract class RustLibApi extends BaseApi {
     required PlatformInt64 textureId,
   });
 
-  Future<void> crateApiDisposePeerConnection({required ArcPeerConnection peer});
+  Future<void> crateApiPeerDisposePeerConnection({
+    required ArcPeerConnection peer,
+  });
 
-  Future<void> crateApiDisposeTrack({
+  Future<void> crateApiMediaStreamTrackDisposeTrack({
     required String trackId,
     int? peerId,
     required MediaType kind,
   });
 
-  Future<void> crateApiDisposeVideoSink({required PlatformInt64 sinkId});
+  Future<void> crateApiMediaStreamTrackDisposeVideoSink({
+    required PlatformInt64 sinkId,
+  });
 
   Future<void> crateApiMediaEnableFakeMedia();
 
@@ -154,11 +186,12 @@ abstract class RustLibApi extends BaseApi {
 
   Future<List<MediaDisplayInfo>> crateApiMediaEnumerateDisplays();
 
-  Future<AudioProcessingConfig> crateApiGetAudioProcessingConfig({
+  Future<AudioProcessingConfig>
+  crateApiMediaStreamTrackAudioProcessingConfigGetAudioProcessingConfig({
     required String trackId,
   });
 
-  Future<GetMediaResult> crateApiGetMedia({
+  Future<GetMediaResult> crateApiMediaStreamTrackGetMedia({
     required MediaStreamConstraints constraints,
   });
 
@@ -166,39 +199,43 @@ abstract class RustLibApi extends BaseApi {
     required ArcPeerConnection peer,
   });
 
-  Future<RtpCapabilities> crateApiGetRtpReceiverCapabilities({
+  Future<RtpCapabilities> crateApiCapabilityGetRtpReceiverCapabilities({
     required MediaType kind,
   });
 
-  Future<RtpCapabilities> crateApiGetRtpSenderCapabilities({
+  Future<RtpCapabilities> crateApiCapabilityGetRtpSenderCapabilities({
     required MediaType kind,
   });
 
-  Future<RtpTransceiverDirection> crateApiGetTransceiverDirection({
+  Future<RtpTransceiverDirection> crateApiTransceiverGetTransceiverDirection({
     required ArcRtpTransceiver transceiver,
   });
 
-  Future<String?> crateApiGetTransceiverMid({
+  Future<String?> crateApiTransceiverGetTransceiverMid({
     required ArcRtpTransceiver transceiver,
   });
 
-  Future<List<RtcRtpTransceiver>> crateApiGetTransceivers({
+  Future<List<RtcRtpTransceiver>> crateApiTransceiverGetTransceivers({
     required ArcPeerConnection peer,
   });
 
   Future<bool> crateApiMediaIsFakeMedia();
 
+  Future<int> crateApiMicrophoneVolume();
+
   Future<int> crateApiMediaMicrophoneVolume();
+
+  Future<bool> crateApiMicrophoneVolumeIsAvailable();
 
   Future<bool> crateApiMediaMicrophoneVolumeIsAvailable();
 
-  Stream<TrackEvent> crateApiRegisterTrackObserver({
+  Stream<TrackEvent> crateApiMediaStreamTrackRegisterTrackObserver({
     int? peerId,
     required String trackId,
     required MediaType kind,
   });
 
-  Future<void> crateApiRestartIce({required ArcPeerConnection peer});
+  Future<void> crateApiPeerRestartIce({required ArcPeerConnection peer});
 
   Future<RtcRtpSendParameters> crateApiSenderGetParameters({
     required ArcRtpTransceiver transceiver,
@@ -215,87 +252,93 @@ abstract class RustLibApi extends BaseApi {
     required RtcRtpSendParameters params,
   });
 
-  Future<void> crateApiSetAudioLevelObserverEnabled({
+  Future<void> crateApiMediaStreamTrackSetAudioLevelObserverEnabled({
     required String trackId,
     int? peerId,
     required bool enabled,
   });
 
+  Future<void> crateApiSetAudioPlayoutDevice({required String deviceId});
+
   Future<void> crateApiMediaSetAudioPlayoutDevice({required String deviceId});
 
-  Future<void> crateApiSetCodecPreferences({
+  Future<void> crateApiCapabilityRtpCodecSetCodecPreferences({
     required ArcRtpTransceiver transceiver,
     required List<RtpCodecCapability> codecs,
   });
 
-  Future<void> crateApiSetLocalDescription({
+  Future<void> crateApiPeerRtcSessionDescriptionSetLocalDescription({
     required ArcPeerConnection peer,
     required SdpType kind,
     required String sdp,
   });
+
+  Future<void> crateApiSetMicrophoneVolume({required int level});
 
   Future<void> crateApiMediaSetMicrophoneVolume({required int level});
 
+  Stream<void> crateApiSetOnDeviceChanged();
+
   Stream<void> crateApiMediaSetOnDeviceChanged();
 
-  Future<void> crateApiSetRemoteDescription({
+  Future<void> crateApiPeerRtcSessionDescriptionSetRemoteDescription({
     required ArcPeerConnection peer,
     required SdpType kind,
     required String sdp,
   });
 
-  Future<void> crateApiSetTrackEnabled({
+  Future<void> crateApiMediaStreamTrackSetTrackEnabled({
     required String trackId,
     int? peerId,
     required MediaType kind,
     required bool enabled,
   });
 
-  Future<void> crateApiSetTransceiverDirection({
+  Future<void> crateApiTransceiverSetTransceiverDirection({
     required ArcRtpTransceiver transceiver,
     required RtpTransceiverDirection direction,
   });
 
-  Future<void> crateApiSetTransceiverRecv({
+  Future<void> crateApiTransceiverSetTransceiverRecv({
     required ArcRtpTransceiver transceiver,
     required bool recv,
   });
 
-  Future<void> crateApiSetTransceiverSend({
+  Future<void> crateApiTransceiverSetTransceiverSend({
     required ArcRtpTransceiver transceiver,
     required bool send,
   });
 
-  Future<void> crateApiStopTransceiver({
+  Future<void> crateApiTransceiverStopTransceiver({
     required ArcRtpTransceiver transceiver,
   });
 
-  Future<int?> crateApiTrackHeight({
+  Future<int?> crateApiMediaStreamTrackTrackHeight({
     required String trackId,
     int? peerId,
     required MediaType kind,
   });
 
-  Future<TrackState> crateApiTrackState({
+  Future<TrackState> crateApiMediaStreamTrackTrackState({
     required String trackId,
     int? peerId,
     required MediaType kind,
   });
 
-  Future<int?> crateApiTrackWidth({
+  Future<int?> crateApiMediaStreamTrackTrackWidth({
     required String trackId,
     int? peerId,
     required MediaType kind,
   });
 
-  Future<void> crateApiUpdateAudioProcessing({
+  Future<void> crateApiMediaStreamTrackUpdateAudioProcessing({
     required String trackId,
     required AudioProcessingConstraints conf,
   });
 
-  Future<List<VideoCodecInfo>> crateApiVideoDecoders();
+  Future<List<VideoCodecInfo>> crateApiPeerVideoCodecInfoVideoDecoders();
 
-  Future<List<VideoCodecInfo>> crateApiVideoEncoders();
+  Future<List<VideoCodecInfo>> crateApiPeerVideoCodecInfoVideoEncoders();
 
   RustArcIncrementStrongCountFnType
   get rust_arc_increment_strong_count_ArcPeerConnection;
@@ -343,7 +386,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   });
 
   @override
-  Future<void> crateApiAddIceCandidate({
+  Future<void> crateApiPeerAddIceCandidate({
     required ArcPeerConnection peer,
     required String candidate,
     required String sdpMid,
@@ -368,20 +411,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: sse_decode_AnyhowException,
         ),
-        constMeta: kCrateApiAddIceCandidateConstMeta,
+        constMeta: kCrateApiPeerAddIceCandidateConstMeta,
         argValues: [peer, candidate, sdpMid, sdpMlineIndex],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiAddIceCandidateConstMeta => const TaskConstMeta(
-    debugName: "add_ice_candidate",
-    argNames: ["peer", "candidate", "sdpMid", "sdpMlineIndex"],
-  );
+  TaskConstMeta get kCrateApiPeerAddIceCandidateConstMeta =>
+      const TaskConstMeta(
+        debugName: "add_ice_candidate",
+        argNames: ["peer", "candidate", "sdpMid", "sdpMlineIndex"],
+      );
 
   @override
-  Future<RtcRtpTransceiver> crateApiAddTransceiver({
+  Future<RtcRtpTransceiver> crateApiTransceiverAddTransceiver({
     required ArcPeerConnection peer,
     required MediaType mediaType,
     required RtpTransceiverInit init,
@@ -404,17 +448,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_rtc_rtp_transceiver,
           decodeErrorData: sse_decode_AnyhowException,
         ),
-        constMeta: kCrateApiAddTransceiverConstMeta,
+        constMeta: kCrateApiTransceiverAddTransceiverConstMeta,
         argValues: [peer, mediaType, init],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiAddTransceiverConstMeta => const TaskConstMeta(
-    debugName: "add_transceiver",
-    argNames: ["peer", "mediaType", "init"],
-  );
+  TaskConstMeta get kCrateApiTransceiverAddTransceiverConstMeta =>
+      const TaskConstMeta(
+        debugName: "add_transceiver",
+        argNames: ["peer", "mediaType", "init"],
+      );
 
   @override
   Future<AudioProcessingConstraints>
@@ -450,7 +495,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<MediaStreamTrack?> crateApiCloneTrack({
+  Future<MediaStreamTrack?> crateApiMediaStreamTrackCloneTrack({
     required String trackId,
     int? peerId,
     required MediaType kind,
@@ -473,20 +518,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_opt_box_autoadd_media_stream_track,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiCloneTrackConstMeta,
+        constMeta: kCrateApiMediaStreamTrackCloneTrackConstMeta,
         argValues: [trackId, peerId, kind],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiCloneTrackConstMeta => const TaskConstMeta(
-    debugName: "clone_track",
-    argNames: ["trackId", "peerId", "kind"],
-  );
+  TaskConstMeta get kCrateApiMediaStreamTrackCloneTrackConstMeta =>
+      const TaskConstMeta(
+        debugName: "clone_track",
+        argNames: ["trackId", "peerId", "kind"],
+      );
 
   @override
-  Future<RtcSessionDescription> crateApiCreateAnswer({
+  Future<RtcSessionDescription> crateApiPeerCreateAnswer({
     required ArcPeerConnection peer,
     required bool voiceActivityDetection,
     required bool iceRestart,
@@ -511,20 +557,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_rtc_session_description,
           decodeErrorData: sse_decode_AnyhowException,
         ),
-        constMeta: kCrateApiCreateAnswerConstMeta,
+        constMeta: kCrateApiPeerCreateAnswerConstMeta,
         argValues: [peer, voiceActivityDetection, iceRestart, useRtpMux],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiCreateAnswerConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiPeerCreateAnswerConstMeta => const TaskConstMeta(
     debugName: "create_answer",
     argNames: ["peer", "voiceActivityDetection", "iceRestart", "useRtpMux"],
   );
 
   @override
-  Future<RtcSessionDescription> crateApiCreateOffer({
+  Future<RtcSessionDescription> crateApiPeerCreateOffer({
     required ArcPeerConnection peer,
     required bool voiceActivityDetection,
     required bool iceRestart,
@@ -549,20 +595,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_rtc_session_description,
           decodeErrorData: sse_decode_AnyhowException,
         ),
-        constMeta: kCrateApiCreateOfferConstMeta,
+        constMeta: kCrateApiPeerCreateOfferConstMeta,
         argValues: [peer, voiceActivityDetection, iceRestart, useRtpMux],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiCreateOfferConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiPeerCreateOfferConstMeta => const TaskConstMeta(
     debugName: "create_offer",
     argNames: ["peer", "voiceActivityDetection", "iceRestart", "useRtpMux"],
   );
 
   @override
-  Stream<PeerConnectionEvent> crateApiCreatePeerConnection({
+  Stream<PeerConnectionEvent> crateApiPeerCreatePeerConnection({
     required RtcConfiguration configuration,
   }) {
     final cb = RustStreamSink<PeerConnectionEvent>();
@@ -584,7 +630,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             decodeSuccessData: sse_decode_unit,
             decodeErrorData: sse_decode_AnyhowException,
           ),
-          constMeta: kCrateApiCreatePeerConnectionConstMeta,
+          constMeta: kCrateApiPeerCreatePeerConnectionConstMeta,
           argValues: [cb, configuration],
           apiImpl: this,
         ),
@@ -593,14 +639,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     return cb.stream;
   }
 
-  TaskConstMeta get kCrateApiCreatePeerConnectionConstMeta =>
+  TaskConstMeta get kCrateApiPeerCreatePeerConnectionConstMeta =>
       const TaskConstMeta(
         debugName: "create_peer_connection",
         argNames: ["cb", "configuration"],
       );
 
   @override
-  Stream<TextureEvent> crateApiCreateVideoSink({
+  Stream<TextureEvent> crateApiMediaStreamTrackCreateVideoSink({
     required PlatformInt64 sinkId,
     int? peerId,
     required String trackId,
@@ -630,7 +676,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             decodeSuccessData: sse_decode_unit,
             decodeErrorData: null,
           ),
-          constMeta: kCrateApiCreateVideoSinkConstMeta,
+          constMeta: kCrateApiMediaStreamTrackCreateVideoSinkConstMeta,
           argValues: [cb, sinkId, peerId, trackId, callbackPtr, textureId],
           apiImpl: this,
         ),
@@ -639,13 +685,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     return cb.stream;
   }
 
-  TaskConstMeta get kCrateApiCreateVideoSinkConstMeta => const TaskConstMeta(
-    debugName: "create_video_sink",
-    argNames: ["cb", "sinkId", "peerId", "trackId", "callbackPtr", "textureId"],
-  );
+  TaskConstMeta get kCrateApiMediaStreamTrackCreateVideoSinkConstMeta =>
+      const TaskConstMeta(
+        debugName: "create_video_sink",
+        argNames: [
+          "cb",
+          "sinkId",
+          "peerId",
+          "trackId",
+          "callbackPtr",
+          "textureId",
+        ],
+      );
 
   @override
-  Future<void> crateApiDisposePeerConnection({
+  Future<void> crateApiPeerDisposePeerConnection({
     required ArcPeerConnection peer,
   }) {
     return handler.executeNormal(
@@ -664,21 +718,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiDisposePeerConnectionConstMeta,
+        constMeta: kCrateApiPeerDisposePeerConnectionConstMeta,
         argValues: [peer],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiDisposePeerConnectionConstMeta =>
+  TaskConstMeta get kCrateApiPeerDisposePeerConnectionConstMeta =>
       const TaskConstMeta(
         debugName: "dispose_peer_connection",
         argNames: ["peer"],
       );
 
   @override
-  Future<void> crateApiDisposeTrack({
+  Future<void> crateApiMediaStreamTrackDisposeTrack({
     required String trackId,
     int? peerId,
     required MediaType kind,
@@ -701,20 +755,23 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiDisposeTrackConstMeta,
+        constMeta: kCrateApiMediaStreamTrackDisposeTrackConstMeta,
         argValues: [trackId, peerId, kind],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiDisposeTrackConstMeta => const TaskConstMeta(
-    debugName: "dispose_track",
-    argNames: ["trackId", "peerId", "kind"],
-  );
+  TaskConstMeta get kCrateApiMediaStreamTrackDisposeTrackConstMeta =>
+      const TaskConstMeta(
+        debugName: "dispose_track",
+        argNames: ["trackId", "peerId", "kind"],
+      );
 
   @override
-  Future<void> crateApiDisposeVideoSink({required PlatformInt64 sinkId}) {
+  Future<void> crateApiMediaStreamTrackDisposeVideoSink({
+    required PlatformInt64 sinkId,
+  }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
@@ -731,17 +788,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiDisposeVideoSinkConstMeta,
+        constMeta: kCrateApiMediaStreamTrackDisposeVideoSinkConstMeta,
         argValues: [sinkId],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiDisposeVideoSinkConstMeta => const TaskConstMeta(
-    debugName: "dispose_video_sink",
-    argNames: ["sinkId"],
-  );
+  TaskConstMeta get kCrateApiMediaStreamTrackDisposeVideoSinkConstMeta =>
+      const TaskConstMeta(
+        debugName: "dispose_video_sink",
+        argNames: ["sinkId"],
+      );
 
   @override
   Future<void> crateApiMediaEnableFakeMedia() {
@@ -825,7 +883,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       const TaskConstMeta(debugName: "enumerate_displays", argNames: []);
 
   @override
-  Future<AudioProcessingConfig> crateApiGetAudioProcessingConfig({
+  Future<AudioProcessingConfig>
+  crateApiMediaStreamTrackAudioProcessingConfigGetAudioProcessingConfig({
     required String trackId,
   }) {
     return handler.executeNormal(
@@ -844,21 +903,23 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_audio_processing_config,
           decodeErrorData: sse_decode_AnyhowException,
         ),
-        constMeta: kCrateApiGetAudioProcessingConfigConstMeta,
+        constMeta:
+            kCrateApiMediaStreamTrackAudioProcessingConfigGetAudioProcessingConfigConstMeta,
         argValues: [trackId],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiGetAudioProcessingConfigConstMeta =>
+  TaskConstMeta
+  get kCrateApiMediaStreamTrackAudioProcessingConfigGetAudioProcessingConfigConstMeta =>
       const TaskConstMeta(
         debugName: "get_audio_processing_config",
         argNames: ["trackId"],
       );
 
   @override
-  Future<GetMediaResult> crateApiGetMedia({
+  Future<GetMediaResult> crateApiMediaStreamTrackGetMedia({
     required MediaStreamConstraints constraints,
   }) {
     return handler.executeNormal(
@@ -880,14 +941,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_get_media_result,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiGetMediaConstMeta,
+        constMeta: kCrateApiMediaStreamTrackGetMediaConstMeta,
         argValues: [constraints],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiGetMediaConstMeta =>
+  TaskConstMeta get kCrateApiMediaStreamTrackGetMediaConstMeta =>
       const TaskConstMeta(debugName: "get_media", argNames: ["constraints"]);
 
   @override
@@ -921,7 +982,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       const TaskConstMeta(debugName: "get_peer_stats", argNames: ["peer"]);
 
   @override
-  Future<RtpCapabilities> crateApiGetRtpReceiverCapabilities({
+  Future<RtpCapabilities> crateApiCapabilityGetRtpReceiverCapabilities({
     required MediaType kind,
   }) {
     return handler.executeNormal(
@@ -940,21 +1001,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_rtp_capabilities,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiGetRtpReceiverCapabilitiesConstMeta,
+        constMeta: kCrateApiCapabilityGetRtpReceiverCapabilitiesConstMeta,
         argValues: [kind],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiGetRtpReceiverCapabilitiesConstMeta =>
+  TaskConstMeta get kCrateApiCapabilityGetRtpReceiverCapabilitiesConstMeta =>
       const TaskConstMeta(
         debugName: "get_rtp_receiver_capabilities",
         argNames: ["kind"],
       );
 
   @override
-  Future<RtpCapabilities> crateApiGetRtpSenderCapabilities({
+  Future<RtpCapabilities> crateApiCapabilityGetRtpSenderCapabilities({
     required MediaType kind,
   }) {
     return handler.executeNormal(
@@ -973,21 +1034,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_rtp_capabilities,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiGetRtpSenderCapabilitiesConstMeta,
+        constMeta: kCrateApiCapabilityGetRtpSenderCapabilitiesConstMeta,
         argValues: [kind],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiGetRtpSenderCapabilitiesConstMeta =>
+  TaskConstMeta get kCrateApiCapabilityGetRtpSenderCapabilitiesConstMeta =>
       const TaskConstMeta(
         debugName: "get_rtp_sender_capabilities",
         argNames: ["kind"],
       );
 
   @override
-  Future<RtpTransceiverDirection> crateApiGetTransceiverDirection({
+  Future<RtpTransceiverDirection> crateApiTransceiverGetTransceiverDirection({
     required ArcRtpTransceiver transceiver,
   }) {
     return handler.executeNormal(
@@ -1006,21 +1067,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_rtp_transceiver_direction,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiGetTransceiverDirectionConstMeta,
+        constMeta: kCrateApiTransceiverGetTransceiverDirectionConstMeta,
         argValues: [transceiver],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiGetTransceiverDirectionConstMeta =>
+  TaskConstMeta get kCrateApiTransceiverGetTransceiverDirectionConstMeta =>
       const TaskConstMeta(
         debugName: "get_transceiver_direction",
         argNames: ["transceiver"],
       );
 
   @override
-  Future<String?> crateApiGetTransceiverMid({
+  Future<String?> crateApiTransceiverGetTransceiverMid({
     required ArcRtpTransceiver transceiver,
   }) {
     return handler.executeNormal(
@@ -1039,20 +1100,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_opt_String,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiGetTransceiverMidConstMeta,
+        constMeta: kCrateApiTransceiverGetTransceiverMidConstMeta,
         argValues: [transceiver],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiGetTransceiverMidConstMeta => const TaskConstMeta(
-    debugName: "get_transceiver_mid",
-    argNames: ["transceiver"],
-  );
+  TaskConstMeta get kCrateApiTransceiverGetTransceiverMidConstMeta =>
+      const TaskConstMeta(
+        debugName: "get_transceiver_mid",
+        argNames: ["transceiver"],
+      );
 
   @override
-  Future<List<RtcRtpTransceiver>> crateApiGetTransceivers({
+  Future<List<RtcRtpTransceiver>> crateApiTransceiverGetTransceivers({
     required ArcPeerConnection peer,
   }) {
     return handler.executeNormal(
@@ -1071,14 +1133,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_list_rtc_rtp_transceiver,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiGetTransceiversConstMeta,
+        constMeta: kCrateApiTransceiverGetTransceiversConstMeta,
         argValues: [peer],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiGetTransceiversConstMeta =>
+  TaskConstMeta get kCrateApiTransceiverGetTransceiversConstMeta =>
       const TaskConstMeta(debugName: "get_transceivers", argNames: ["peer"]);
 
   @override
@@ -1109,7 +1171,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       const TaskConstMeta(debugName: "is_fake_media", argNames: []);
 
   @override
-  Future<int> crateApiMediaMicrophoneVolume() {
+  Future<int> crateApiMicrophoneVolume() {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
@@ -1118,6 +1180,33 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             generalizedFrbRustBinding,
             serializer,
             funcId: 24,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_u_32,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiMicrophoneVolumeConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMicrophoneVolumeConstMeta =>
+      const TaskConstMeta(debugName: "microphone_volume", argNames: []);
+
+  @override
+  Future<int> crateApiMediaMicrophoneVolume() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 25,
             port: port_,
           );
         },
@@ -1136,6 +1225,36 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       const TaskConstMeta(debugName: "microphone_volume", argNames: []);
 
   @override
+  Future<bool> crateApiMicrophoneVolumeIsAvailable() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 26,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_bool,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiMicrophoneVolumeIsAvailableConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMicrophoneVolumeIsAvailableConstMeta =>
+      const TaskConstMeta(
+        debugName: "microphone_volume_is_available",
+        argNames: [],
+      );
+
+  @override
   Future<bool> crateApiMediaMicrophoneVolumeIsAvailable() {
     return handler.executeNormal(
       NormalTask(
@@ -1144,7 +1263,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 25,
+            funcId: 27,
             port: port_,
           );
         },
@@ -1166,7 +1285,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Stream<TrackEvent> crateApiRegisterTrackObserver({
+  Stream<TrackEvent> crateApiMediaStreamTrackRegisterTrackObserver({
     int? peerId,
     required String trackId,
     required MediaType kind,
@@ -1184,7 +1303,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             pdeCallFfi(
               generalizedFrbRustBinding,
               serializer,
-              funcId: 26,
+              funcId: 28,
               port: port_,
             );
           },
@@ -1192,7 +1311,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             decodeSuccessData: sse_decode_unit,
             decodeErrorData: null,
           ),
-          constMeta: kCrateApiRegisterTrackObserverConstMeta,
+          constMeta: kCrateApiMediaStreamTrackRegisterTrackObserverConstMeta,
           argValues: [cb, peerId, trackId, kind],
           apiImpl: this,
         ),
@@ -1201,14 +1320,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     return cb.stream;
   }
 
-  TaskConstMeta get kCrateApiRegisterTrackObserverConstMeta =>
+  TaskConstMeta get kCrateApiMediaStreamTrackRegisterTrackObserverConstMeta =>
       const TaskConstMeta(
         debugName: "register_track_observer",
         argNames: ["cb", "peerId", "trackId", "kind"],
       );
 
   @override
-  Future<void> crateApiRestartIce({required ArcPeerConnection peer}) {
+  Future<void> crateApiPeerRestartIce({required ArcPeerConnection peer}) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
@@ -1217,7 +1336,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 27,
+            funcId: 29,
             port: port_,
           );
         },
@@ -1225,14 +1344,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiRestartIceConstMeta,
+        constMeta: kCrateApiPeerRestartIceConstMeta,
         argValues: [peer],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiRestartIceConstMeta =>
+  TaskConstMeta get kCrateApiPeerRestartIceConstMeta =>
       const TaskConstMeta(debugName: "restart_ice", argNames: ["peer"]);
 
   @override
@@ -1247,7 +1366,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 28,
+            funcId: 30,
             port: port_,
           );
         },
@@ -1284,7 +1403,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 29,
+            funcId: 31,
             port: port_,
           );
         },
@@ -1318,7 +1437,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 30,
+            funcId: 32,
             port: port_,
           );
         },
@@ -1340,7 +1459,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<void> crateApiSetAudioLevelObserverEnabled({
+  Future<void> crateApiMediaStreamTrackSetAudioLevelObserverEnabled({
     required String trackId,
     int? peerId,
     required bool enabled,
@@ -1355,7 +1474,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 31,
+            funcId: 33,
             port: port_,
           );
         },
@@ -1363,17 +1482,50 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiSetAudioLevelObserverEnabledConstMeta,
+        constMeta:
+            kCrateApiMediaStreamTrackSetAudioLevelObserverEnabledConstMeta,
         argValues: [trackId, peerId, enabled],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiSetAudioLevelObserverEnabledConstMeta =>
+  TaskConstMeta
+  get kCrateApiMediaStreamTrackSetAudioLevelObserverEnabledConstMeta =>
       const TaskConstMeta(
         debugName: "set_audio_level_observer_enabled",
         argNames: ["trackId", "peerId", "enabled"],
+      );
+
+  @override
+  Future<void> crateApiSetAudioPlayoutDevice({required String deviceId}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(deviceId, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 34,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_unit,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiSetAudioPlayoutDeviceConstMeta,
+        argValues: [deviceId],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiSetAudioPlayoutDeviceConstMeta =>
+      const TaskConstMeta(
+        debugName: "set_audio_playout_device",
+        argNames: ["deviceId"],
       );
 
   @override
@@ -1386,7 +1538,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 32,
+            funcId: 35,
             port: port_,
           );
         },
@@ -1408,7 +1560,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<void> crateApiSetCodecPreferences({
+  Future<void> crateApiCapabilityRtpCodecSetCodecPreferences({
     required ArcRtpTransceiver transceiver,
     required List<RtpCodecCapability> codecs,
   }) {
@@ -1421,7 +1573,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 33,
+            funcId: 36,
             port: port_,
           );
         },
@@ -1429,121 +1581,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiSetCodecPreferencesConstMeta,
+        constMeta: kCrateApiCapabilityRtpCodecSetCodecPreferencesConstMeta,
         argValues: [transceiver, codecs],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiSetCodecPreferencesConstMeta =>
+  TaskConstMeta get kCrateApiCapabilityRtpCodecSetCodecPreferencesConstMeta =>
       const TaskConstMeta(
         debugName: "set_codec_preferences",
         argNames: ["transceiver", "codecs"],
       );
 
   @override
-  Future<void> crateApiSetLocalDescription({
-    required ArcPeerConnection peer,
-    required SdpType kind,
-    required String sdp,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_RustOpaque_ArcPeerConnection(peer, serializer);
-          sse_encode_sdp_type(kind, serializer);
-          sse_encode_String(sdp, serializer);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 34,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_unit,
-          decodeErrorData: sse_decode_AnyhowException,
-        ),
-        constMeta: kCrateApiSetLocalDescriptionConstMeta,
-        argValues: [peer, kind, sdp],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiSetLocalDescriptionConstMeta =>
-      const TaskConstMeta(
-        debugName: "set_local_description",
-        argNames: ["peer", "kind", "sdp"],
-      );
-
-  @override
-  Future<void> crateApiMediaSetMicrophoneVolume({required int level}) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_u_8(level, serializer);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 35,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_unit,
-          decodeErrorData: sse_decode_AnyhowException,
-        ),
-        constMeta: kCrateApiMediaSetMicrophoneVolumeConstMeta,
-        argValues: [level],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiMediaSetMicrophoneVolumeConstMeta =>
-      const TaskConstMeta(
-        debugName: "set_microphone_volume",
-        argNames: ["level"],
-      );
-
-  @override
-  Stream<void> crateApiMediaSetOnDeviceChanged() {
-    final cb = RustStreamSink<void>();
-    unawaited(
-      handler.executeNormal(
-        NormalTask(
-          callFfi: (port_) {
-            final serializer = SseSerializer(generalizedFrbRustBinding);
-            sse_encode_StreamSink_unit_Sse(cb, serializer);
-            pdeCallFfi(
-              generalizedFrbRustBinding,
-              serializer,
-              funcId: 36,
-              port: port_,
-            );
-          },
-          codec: SseCodec(
-            decodeSuccessData: sse_decode_unit,
-            decodeErrorData: null,
-          ),
-          constMeta: kCrateApiMediaSetOnDeviceChangedConstMeta,
-          argValues: [cb],
-          apiImpl: this,
-        ),
-      ),
-    );
-    return cb.stream;
-  }
-
-  TaskConstMeta get kCrateApiMediaSetOnDeviceChangedConstMeta =>
-      const TaskConstMeta(debugName: "set_on_device_changed", argNames: ["cb"]);
-
-  @override
-  Future<void> crateApiSetRemoteDescription({
+  Future<void> crateApiPeerRtcSessionDescriptionSetLocalDescription({
     required ArcPeerConnection peer,
     required SdpType kind,
     required String sdp,
@@ -1566,21 +1618,188 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: sse_decode_AnyhowException,
         ),
-        constMeta: kCrateApiSetRemoteDescriptionConstMeta,
+        constMeta:
+            kCrateApiPeerRtcSessionDescriptionSetLocalDescriptionConstMeta,
         argValues: [peer, kind, sdp],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiSetRemoteDescriptionConstMeta =>
+  TaskConstMeta
+  get kCrateApiPeerRtcSessionDescriptionSetLocalDescriptionConstMeta =>
+      const TaskConstMeta(
+        debugName: "set_local_description",
+        argNames: ["peer", "kind", "sdp"],
+      );
+
+  @override
+  Future<void> crateApiSetMicrophoneVolume({required int level}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_u_8(level, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 38,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_unit,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiSetMicrophoneVolumeConstMeta,
+        argValues: [level],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiSetMicrophoneVolumeConstMeta =>
+      const TaskConstMeta(
+        debugName: "set_microphone_volume",
+        argNames: ["level"],
+      );
+
+  @override
+  Future<void> crateApiMediaSetMicrophoneVolume({required int level}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_u_8(level, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 39,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_unit,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiMediaSetMicrophoneVolumeConstMeta,
+        argValues: [level],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMediaSetMicrophoneVolumeConstMeta =>
+      const TaskConstMeta(
+        debugName: "set_microphone_volume",
+        argNames: ["level"],
+      );
+
+  @override
+  Stream<void> crateApiSetOnDeviceChanged() {
+    final cb = RustStreamSink<void>();
+    unawaited(
+      handler.executeNormal(
+        NormalTask(
+          callFfi: (port_) {
+            final serializer = SseSerializer(generalizedFrbRustBinding);
+            sse_encode_StreamSink_unit_Sse(cb, serializer);
+            pdeCallFfi(
+              generalizedFrbRustBinding,
+              serializer,
+              funcId: 40,
+              port: port_,
+            );
+          },
+          codec: SseCodec(
+            decodeSuccessData: sse_decode_unit,
+            decodeErrorData: null,
+          ),
+          constMeta: kCrateApiSetOnDeviceChangedConstMeta,
+          argValues: [cb],
+          apiImpl: this,
+        ),
+      ),
+    );
+    return cb.stream;
+  }
+
+  TaskConstMeta get kCrateApiSetOnDeviceChangedConstMeta =>
+      const TaskConstMeta(debugName: "set_on_device_changed", argNames: ["cb"]);
+
+  @override
+  Stream<void> crateApiMediaSetOnDeviceChanged() {
+    final cb = RustStreamSink<void>();
+    unawaited(
+      handler.executeNormal(
+        NormalTask(
+          callFfi: (port_) {
+            final serializer = SseSerializer(generalizedFrbRustBinding);
+            sse_encode_StreamSink_unit_Sse(cb, serializer);
+            pdeCallFfi(
+              generalizedFrbRustBinding,
+              serializer,
+              funcId: 41,
+              port: port_,
+            );
+          },
+          codec: SseCodec(
+            decodeSuccessData: sse_decode_unit,
+            decodeErrorData: null,
+          ),
+          constMeta: kCrateApiMediaSetOnDeviceChangedConstMeta,
+          argValues: [cb],
+          apiImpl: this,
+        ),
+      ),
+    );
+    return cb.stream;
+  }
+
+  TaskConstMeta get kCrateApiMediaSetOnDeviceChangedConstMeta =>
+      const TaskConstMeta(debugName: "set_on_device_changed", argNames: ["cb"]);
+
+  @override
+  Future<void> crateApiPeerRtcSessionDescriptionSetRemoteDescription({
+    required ArcPeerConnection peer,
+    required SdpType kind,
+    required String sdp,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_RustOpaque_ArcPeerConnection(peer, serializer);
+          sse_encode_sdp_type(kind, serializer);
+          sse_encode_String(sdp, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 42,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_unit,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta:
+            kCrateApiPeerRtcSessionDescriptionSetRemoteDescriptionConstMeta,
+        argValues: [peer, kind, sdp],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta
+  get kCrateApiPeerRtcSessionDescriptionSetRemoteDescriptionConstMeta =>
       const TaskConstMeta(
         debugName: "set_remote_description",
         argNames: ["peer", "kind", "sdp"],
       );
 
   @override
-  Future<void> crateApiSetTrackEnabled({
+  Future<void> crateApiMediaStreamTrackSetTrackEnabled({
     required String trackId,
     int? peerId,
     required MediaType kind,
@@ -1597,7 +1816,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 38,
+            funcId: 43,
             port: port_,
           );
         },
@@ -1605,20 +1824,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiSetTrackEnabledConstMeta,
+        constMeta: kCrateApiMediaStreamTrackSetTrackEnabledConstMeta,
         argValues: [trackId, peerId, kind, enabled],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiSetTrackEnabledConstMeta => const TaskConstMeta(
-    debugName: "set_track_enabled",
-    argNames: ["trackId", "peerId", "kind", "enabled"],
-  );
+  TaskConstMeta get kCrateApiMediaStreamTrackSetTrackEnabledConstMeta =>
+      const TaskConstMeta(
+        debugName: "set_track_enabled",
+        argNames: ["trackId", "peerId", "kind", "enabled"],
+      );
 
   @override
-  Future<void> crateApiSetTransceiverDirection({
+  Future<void> crateApiTransceiverSetTransceiverDirection({
     required ArcRtpTransceiver transceiver,
     required RtpTransceiverDirection direction,
   }) {
@@ -1631,7 +1851,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 39,
+            funcId: 44,
             port: port_,
           );
         },
@@ -1639,21 +1859,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: sse_decode_AnyhowException,
         ),
-        constMeta: kCrateApiSetTransceiverDirectionConstMeta,
+        constMeta: kCrateApiTransceiverSetTransceiverDirectionConstMeta,
         argValues: [transceiver, direction],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiSetTransceiverDirectionConstMeta =>
+  TaskConstMeta get kCrateApiTransceiverSetTransceiverDirectionConstMeta =>
       const TaskConstMeta(
         debugName: "set_transceiver_direction",
         argNames: ["transceiver", "direction"],
       );
 
   @override
-  Future<void> crateApiSetTransceiverRecv({
+  Future<void> crateApiTransceiverSetTransceiverRecv({
     required ArcRtpTransceiver transceiver,
     required bool recv,
   }) {
@@ -1666,7 +1886,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 40,
+            funcId: 45,
             port: port_,
           );
         },
@@ -1674,20 +1894,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: sse_decode_AnyhowException,
         ),
-        constMeta: kCrateApiSetTransceiverRecvConstMeta,
+        constMeta: kCrateApiTransceiverSetTransceiverRecvConstMeta,
         argValues: [transceiver, recv],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiSetTransceiverRecvConstMeta => const TaskConstMeta(
-    debugName: "set_transceiver_recv",
-    argNames: ["transceiver", "recv"],
-  );
+  TaskConstMeta get kCrateApiTransceiverSetTransceiverRecvConstMeta =>
+      const TaskConstMeta(
+        debugName: "set_transceiver_recv",
+        argNames: ["transceiver", "recv"],
+      );
 
   @override
-  Future<void> crateApiSetTransceiverSend({
+  Future<void> crateApiTransceiverSetTransceiverSend({
     required ArcRtpTransceiver transceiver,
     required bool send,
   }) {
@@ -1700,7 +1921,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 41,
+            funcId: 46,
             port: port_,
           );
         },
@@ -1708,20 +1929,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: sse_decode_AnyhowException,
         ),
-        constMeta: kCrateApiSetTransceiverSendConstMeta,
+        constMeta: kCrateApiTransceiverSetTransceiverSendConstMeta,
         argValues: [transceiver, send],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiSetTransceiverSendConstMeta => const TaskConstMeta(
-    debugName: "set_transceiver_send",
-    argNames: ["transceiver", "send"],
-  );
+  TaskConstMeta get kCrateApiTransceiverSetTransceiverSendConstMeta =>
+      const TaskConstMeta(
+        debugName: "set_transceiver_send",
+        argNames: ["transceiver", "send"],
+      );
 
   @override
-  Future<void> crateApiStopTransceiver({
+  Future<void> crateApiTransceiverStopTransceiver({
     required ArcRtpTransceiver transceiver,
   }) {
     return handler.executeNormal(
@@ -1732,7 +1954,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 42,
+            funcId: 47,
             port: port_,
           );
         },
@@ -1740,20 +1962,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: sse_decode_AnyhowException,
         ),
-        constMeta: kCrateApiStopTransceiverConstMeta,
+        constMeta: kCrateApiTransceiverStopTransceiverConstMeta,
         argValues: [transceiver],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiStopTransceiverConstMeta => const TaskConstMeta(
-    debugName: "stop_transceiver",
-    argNames: ["transceiver"],
-  );
+  TaskConstMeta get kCrateApiTransceiverStopTransceiverConstMeta =>
+      const TaskConstMeta(
+        debugName: "stop_transceiver",
+        argNames: ["transceiver"],
+      );
 
   @override
-  Future<int?> crateApiTrackHeight({
+  Future<int?> crateApiMediaStreamTrackTrackHeight({
     required String trackId,
     int? peerId,
     required MediaType kind,
@@ -1768,7 +1991,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 43,
+            funcId: 48,
             port: port_,
           );
         },
@@ -1776,20 +1999,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_opt_box_autoadd_i_32,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiTrackHeightConstMeta,
+        constMeta: kCrateApiMediaStreamTrackTrackHeightConstMeta,
         argValues: [trackId, peerId, kind],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiTrackHeightConstMeta => const TaskConstMeta(
-    debugName: "track_height",
-    argNames: ["trackId", "peerId", "kind"],
-  );
+  TaskConstMeta get kCrateApiMediaStreamTrackTrackHeightConstMeta =>
+      const TaskConstMeta(
+        debugName: "track_height",
+        argNames: ["trackId", "peerId", "kind"],
+      );
 
   @override
-  Future<TrackState> crateApiTrackState({
+  Future<TrackState> crateApiMediaStreamTrackTrackState({
     required String trackId,
     int? peerId,
     required MediaType kind,
@@ -1804,7 +2028,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 44,
+            funcId: 49,
             port: port_,
           );
         },
@@ -1812,20 +2036,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_track_state,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiTrackStateConstMeta,
+        constMeta: kCrateApiMediaStreamTrackTrackStateConstMeta,
         argValues: [trackId, peerId, kind],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiTrackStateConstMeta => const TaskConstMeta(
-    debugName: "track_state",
-    argNames: ["trackId", "peerId", "kind"],
-  );
+  TaskConstMeta get kCrateApiMediaStreamTrackTrackStateConstMeta =>
+      const TaskConstMeta(
+        debugName: "track_state",
+        argNames: ["trackId", "peerId", "kind"],
+      );
 
   @override
-  Future<int?> crateApiTrackWidth({
+  Future<int?> crateApiMediaStreamTrackTrackWidth({
     required String trackId,
     int? peerId,
     required MediaType kind,
@@ -1840,7 +2065,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 45,
+            funcId: 50,
             port: port_,
           );
         },
@@ -1848,20 +2073,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_opt_box_autoadd_i_32,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiTrackWidthConstMeta,
+        constMeta: kCrateApiMediaStreamTrackTrackWidthConstMeta,
         argValues: [trackId, peerId, kind],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiTrackWidthConstMeta => const TaskConstMeta(
-    debugName: "track_width",
-    argNames: ["trackId", "peerId", "kind"],
-  );
+  TaskConstMeta get kCrateApiMediaStreamTrackTrackWidthConstMeta =>
+      const TaskConstMeta(
+        debugName: "track_width",
+        argNames: ["trackId", "peerId", "kind"],
+      );
 
   @override
-  Future<void> crateApiUpdateAudioProcessing({
+  Future<void> crateApiMediaStreamTrackUpdateAudioProcessing({
     required String trackId,
     required AudioProcessingConstraints conf,
   }) {
@@ -1874,7 +2100,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 46,
+            funcId: 51,
             port: port_,
           );
         },
@@ -1882,21 +2108,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: sse_decode_AnyhowException,
         ),
-        constMeta: kCrateApiUpdateAudioProcessingConstMeta,
+        constMeta: kCrateApiMediaStreamTrackUpdateAudioProcessingConstMeta,
         argValues: [trackId, conf],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiUpdateAudioProcessingConstMeta =>
+  TaskConstMeta get kCrateApiMediaStreamTrackUpdateAudioProcessingConstMeta =>
       const TaskConstMeta(
         debugName: "update_audio_processing",
         argNames: ["trackId", "conf"],
       );
 
   @override
-  Future<List<VideoCodecInfo>> crateApiVideoDecoders() {
+  Future<List<VideoCodecInfo>> crateApiPeerVideoCodecInfoVideoDecoders() {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
@@ -1904,7 +2130,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 47,
+            funcId: 52,
             port: port_,
           );
         },
@@ -1912,18 +2138,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_list_video_codec_info,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiVideoDecodersConstMeta,
+        constMeta: kCrateApiPeerVideoCodecInfoVideoDecodersConstMeta,
         argValues: [],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiVideoDecodersConstMeta =>
+  TaskConstMeta get kCrateApiPeerVideoCodecInfoVideoDecodersConstMeta =>
       const TaskConstMeta(debugName: "video_decoders", argNames: []);
 
   @override
-  Future<List<VideoCodecInfo>> crateApiVideoEncoders() {
+  Future<List<VideoCodecInfo>> crateApiPeerVideoCodecInfoVideoEncoders() {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
@@ -1931,7 +2157,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 48,
+            funcId: 53,
             port: port_,
           );
         },
@@ -1939,14 +2165,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_list_video_codec_info,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiVideoEncodersConstMeta,
+        constMeta: kCrateApiPeerVideoCodecInfoVideoEncodersConstMeta,
         argValues: [],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiVideoEncodersConstMeta =>
+  TaskConstMeta get kCrateApiPeerVideoCodecInfoVideoEncodersConstMeta =>
       const TaskConstMeta(debugName: "video_encoders", argNames: []);
 
   RustArcIncrementStrongCountFnType
