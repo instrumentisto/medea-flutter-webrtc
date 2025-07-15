@@ -75,9 +75,7 @@ pub use crate::{
 use crate::{
     Webrtc,
     frb::{FrbHandler, new_frb_handler},
-    frb_generated::{
-        FLUTTER_RUST_BRIDGE_CODEGEN_VERSION, RustOpaque,
-    },
+    frb_generated::{FLUTTER_RUST_BRIDGE_CODEGEN_VERSION, RustOpaque},
 };
 
 /// Custom [`Handler`] for executing Rust code called from Dart.
