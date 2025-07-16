@@ -33,3 +33,4 @@ build/
 
 # Project related
 /.cache/
+/temp
