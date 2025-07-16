@@ -430,6 +430,7 @@ jobs:
       - build-rust
       - build-rust-linux
       - build-flutter
+      - changelog
       - clippy
       - dartanalyze
       - dartfmt
@@ -437,6 +438,7 @@ jobs:
       - rustdoc
       - rustfmt
       - swiftformat
+      - test-flutter
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
