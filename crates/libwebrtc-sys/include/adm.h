@@ -230,7 +230,7 @@ class OpenALAudioDeviceModule : public ExtendedADM {
   std::recursive_mutex _recording_mutex;
   bool _recordingInitialized = false;
   bool _microphoneInitialized = false;
-  std::unordered_map<std::string, std::unique_ptr<AudioDeviceRecorder>>
+  std::unordered_map<std::string, std::unique_ptr<AudioRecorder>>
       _recorders;
 
   std::recursive_mutex _playout_mutex;
