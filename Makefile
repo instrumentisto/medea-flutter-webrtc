@@ -307,7 +307,7 @@ endif
 		--no-web
 	dart run build_runner build --delete-conflicting-outputs
 ifeq ($(fmt),yes)
-    make flutter.fmt
+	make flutter.fmt
 endif
 
 
