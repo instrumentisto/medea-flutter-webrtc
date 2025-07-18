@@ -26,6 +26,7 @@ jobs:
       - build-rust
       - build-rust-linux
       - build-flutter
+      - check-codegen
       - clippy
       - dartanalyze
       - dartfmt
@@ -127,7 +128,7 @@ jobs:
 
       - run: make swift.fmt check=yes dockerized=no
 
-  codegen:
+  check-codegen:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -151,9 +152,7 @@ jobs:
 
       - run: cargo install cargo-expand
 
-      - run: make cargo.gen
-
-      - run: make flutter.fmt
+      - run: make cargo.gen fmt=yes
 
       - run: git status --short | (! read -t 1 -N 1)
 
