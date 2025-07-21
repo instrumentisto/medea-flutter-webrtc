@@ -119,6 +119,7 @@ jobs:
       - run: make cargo.gen fmt=yes
 
       - run: git status --short | (! read -t 1 -N 1)
+      - run: false  # test
 
   dartanalyze:
     runs-on: ubuntu-latest
