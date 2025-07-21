@@ -189,6 +189,7 @@ mod devices;
 pub mod frb;
 mod media;
 mod pc;
+mod platform;
 mod renderer;
 pub mod video_sink;
 
@@ -217,7 +218,9 @@ pub use crate::{
     },
     video_sink::VideoSink,
 };
-use crate::{media::TrackOrigin, video_sink::Id as VideoSinkId};
+use crate::{
+    media::TrackOrigin, platform::Platform, video_sink::Id as VideoSinkId,
+};
 
 /// Main [`ThreadPool`] used by [`flutter_rust_bridge`] when calling
 /// synchronous Rust code to avoid locking [`libwebrtc`] threads.
@@ -255,6 +258,8 @@ pub struct Webrtc {
 impl Webrtc {
     /// Creates a new [`Webrtc`] context.
     fn new() -> anyhow::Result<Self> {
+        let _ = Platform::new()?;
+
         let mut task_queue_factory =
             sys::TaskQueueFactory::create_default_task_queue_factory();
 

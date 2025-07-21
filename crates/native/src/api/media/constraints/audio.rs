@@ -21,6 +21,9 @@ pub struct AudioConstraints {
 
     /// Audio processing configuration constraints of the [`MediaStreamTrack`].
     pub processing: AudioProcessingConstraints,
+
+    /// Is used for system audio capture.
+    pub is_display: bool,
 }
 
 /// Constraints of an [`AudioProcessingConfig`].

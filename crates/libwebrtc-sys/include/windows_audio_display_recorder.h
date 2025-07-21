@@ -1,18 +1,20 @@
-#ifndef BRIDGE_AUDIO_DEVICE_RECORDER_H_
-#define BRIDGE_AUDIO_DEVICE_RECORDER_H_
+#ifdef WEBRTC_WIN
 
-#include <AL/al.h>
-#include <AL/alc.h>
+#ifndef AUDIO_DISPLAY_RECORDER_H
+#define AUDIO_DISPLAY_RECORDER_H
+
+#include <windows.h>
+#include <mmdeviceapi.h>
+#include <audioclient.h>
+#include <mmreg.h>
+#include <vector>
 #include <mutex>
 
 #include "libwebrtc-sys/include/audio_recorder.h"
 
-// Audio recording from an audio device and propagation of the recorded audio
-// data to a `bridge::LocalAudioSource`.
-class AudioDeviceRecorder final : public AudioRecorder {
+class AudioDisplayRecorder final : public AudioRecorder {
 public:
-    AudioDeviceRecorder(std::string deviceId,
-                        webrtc::scoped_refptr<webrtc::AudioProcessing> ap);
+    AudioDisplayRecorder();
 
     // Captures a new batch of audio samples and propagates it to the inner
     // `bridge::LocalAudioSource`.
@@ -28,28 +30,31 @@ public:
     // writes the recorded audio to.
     webrtc::scoped_refptr<bridge::LocalAudioSource> GetSource() override;
 
+    // Returns currently used deviceId for capturing system audio.
+    [[nodiscard]] std::string GetDeviceId() const;
+
 private:
-    void openRecordingDevice();
+    // Returns default rendering audio device.
+    IMMDevice *GetDefaultDevice();
 
-    bool checkDeviceFailed();
-
-    void closeRecordingDevice();
-
-    void restartRecording();
-
-    bool validateRecordingDeviceId();
+    WAVEFORMATEXTENSIBLE GetWaveFormat();
 
     webrtc::scoped_refptr<bridge::LocalAudioSource> _source;
-    webrtc::scoped_refptr<webrtc::AudioProcessing> _audio_processing;
-    ALCdevice *_device;
-    std::string _deviceId;
-    std::recursive_mutex _mutex;
-    bool _recordingFailed = false;
+    BYTE *_buffer = nullptr;
     bool _recording = false;
+    bool _recordingFailed = false;
+    IMMDevice *_device = nullptr;
+    IAudioClient *_audioClient = nullptr;
+    IAudioCaptureClient *_captureClient = nullptr;
+    double _hnsActualDuration = 0.0;
+
     int _recordBufferSize = kRecordingPart * sizeof(int16_t) * kRecordingChannels;
     std::vector<char> *_recordedSamples =
             new std::vector<char>(_recordBufferSize, 0);
-    int _emptyRecordingData = 0;
+
+    std::recursive_mutex _mutex;
 };
 
-#endif  // BRIDGE_AUDIO_DEVICE_RECORDER_H_
+#endif //AUDIO_DISPLAY_RECORDER_H
+
+#endif // WEBRTC_WIN

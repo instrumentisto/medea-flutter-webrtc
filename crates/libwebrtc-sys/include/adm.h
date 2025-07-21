@@ -42,6 +42,7 @@
 #include "api/task_queue/task_queue_factory.h"
 #include "delegating_apm.h"
 #include "libwebrtc-sys/include/audio_device_recorder.h"
+#include "libwebrtc-sys/include/windows_audio_display_recorder.h"
 #include "libwebrtc-sys/include/local_audio_source.h"
 #include "modules/audio_device/audio_device_buffer.h"
 #include "modules/audio_device/audio_device_generic.h"
@@ -66,6 +67,12 @@ class ExtendedADM : public webrtc::AudioDeviceModule {
   virtual webrtc::scoped_refptr<bridge::LocalAudioSource> CreateAudioSource(
       uint32_t device_index,
       webrtc::scoped_refptr<webrtc::AudioProcessing> audio_processing) = 0;
+
+  #ifdef WEBRTC_WIN
+  // Creates a new `bridge::LocalAudioSource` that will record audio from the
+  // system.
+  virtual webrtc::scoped_refptr<bridge::LocalAudioSource> CreateDisplayAudioSource() = 0;
+  #endif // WEBRTC_WIN
 
   // Stops the `bridge::LocalAudioSource` for the provided device ID.
   virtual void DisposeAudioSource(std::string device_id) = 0;
@@ -92,6 +99,12 @@ class OpenALAudioDeviceModule : public ExtendedADM {
   webrtc::scoped_refptr<bridge::LocalAudioSource> CreateAudioSource(
       uint32_t device_index,
       webrtc::scoped_refptr<webrtc::AudioProcessing> ap) override;
+
+  #ifdef WEBRTC_WIN
+  // Creates a new `bridge::LocalAudioSource` that will record audio from the
+  // system.
+  webrtc::scoped_refptr<bridge::LocalAudioSource> CreateDisplayAudioSource() override;
+  #endif // WEBRTC_WIN
 
   // Stops the `bridge::LocalAudioSource` for the provided device ID.
   void DisposeAudioSource(std::string device_id) override;

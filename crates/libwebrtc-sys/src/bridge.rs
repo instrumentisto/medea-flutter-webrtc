@@ -2756,6 +2756,12 @@ pub(crate) mod webrtc {
             ap: &UniquePtr<AudioProcessing>,
         ) -> UniquePtr<AudioSourceInterface>;
 
+        /// Creates a new [`AudioSourceInterface`] for `Display` audio.
+        #[cfg(target = "windows")]
+        pub fn create_display_audio_source(
+            audio_device_module: &AudioDeviceModule,
+        ) -> UniquePtr<AudioSourceInterface>;
+
         /// Disposes the [`AudioSourceInterface`] with the provided `device_id`.
         pub fn dispose_audio_source(
             audio_device_module: &AudioDeviceModule,

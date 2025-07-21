@@ -305,7 +305,7 @@ impl Webrtc {
             );
         };
 
-        let src = if let Some(src) = self.audio_sources.get(&device_id) {
+        let mut src = if let Some(src) = self.audio_sources.get(&device_id) {
             src.update_audio_processing(&caps.processing);
             Arc::clone(src)
         } else {
@@ -322,6 +322,16 @@ impl Webrtc {
 
             src
         };
+
+        // TODO: fix this
+        #[cfg(target = "windows")]
+        {
+            src = Arc::new(AudioSource::new(
+                AudioDeviceId("SYSTEM_DEVICE".to_string()),
+                self.audio_device_module.create_display_audio_source()?,
+                sys::AudioProcessing::new((&caps.processing).into())?,
+            ));
+        }
 
         Ok(src)
     }
