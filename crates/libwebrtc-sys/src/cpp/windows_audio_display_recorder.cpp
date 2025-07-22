@@ -1,3 +1,5 @@
+#ifdef WEBRTC_WIN
+
 #include "libwebrtc-sys/include/windows_audio_display_recorder.h"
 
 const CLSID CLSID_MMDeviceEnumerator = __uuidof(MMDeviceEnumerator);
@@ -241,3 +243,5 @@ void AudioDisplayRecorder::CleanupResources() {
         _captureClient = nullptr;
     }
 }
+
+#endif // WEBRTC_WIN
