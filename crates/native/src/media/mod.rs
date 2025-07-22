@@ -326,11 +326,13 @@ impl Webrtc {
         // TODO: fix this
         #[cfg(target_os = "windows")]
         {
-            src = Arc::new(AudioSource::new(
-                "SYSTEM_DEVICE".to_string().into(),
-                self.audio_device_module.create_display_audio_source()?,
-                sys::AudioProcessing::new((&caps.processing).into())?,
-            ));
+            if caps.is_display {
+                src = Arc::new(AudioSource::new(
+                    "SYSTEM_DEVICE".to_string().into(),
+                    self.audio_device_module.create_display_audio_source()?,
+                    sys::AudioProcessing::new((&caps.processing).into())?,
+                ));
+            }
         }
 
         Ok(src)

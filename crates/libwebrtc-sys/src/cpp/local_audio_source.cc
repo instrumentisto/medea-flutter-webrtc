@@ -62,13 +62,11 @@ namespace bridge {
       webrtc::AudioFrame::SpeechType::kNormalSpeech,
       webrtc::AudioFrame::VADActivity::kVadUnknown, number_of_channels);
 
-    if (audio_processing_.get() != nullptr) {
-      int ap_result = ProcessAudioFrame(audio_processing_.get(), &audio_frame_);
+    int ap_result = ProcessAudioFrame(audio_processing_.get(), &audio_frame_);
 
-      if (ap_result != webrtc::AudioProcessing::kNoError) {
-        RTC_LOG(LS_ERROR) << "`LocalAudioSource`: `AudioProcessing` error: "
-            << ap_result;
-      }
+    if (ap_result != webrtc::AudioProcessing::kNoError) {
+      RTC_LOG(LS_ERROR) << "`LocalAudioSource`: `AudioProcessing` error: "
+          << ap_result;
     }
 
     for (auto *sink: sinks_) {

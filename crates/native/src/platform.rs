@@ -11,7 +11,6 @@ impl Platform {
 
 impl Drop for Platform {
     fn drop(&mut self) {
-        println!("Dropping Platform");
         #[cfg(target_os = "windows")]
         windows::uninit();
     }

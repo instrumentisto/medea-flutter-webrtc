@@ -7,11 +7,16 @@ const IID IID_IMMDeviceEnumerator = __uuidof(IMMDeviceEnumerator);
 const IID IID_IAudioClient = __uuidof(IAudioClient);
 const IID IID_IAudioCaptureClient = __uuidof(IAudioCaptureClient);
 
+constexpr WORD stereoChannels = 2;
+constexpr WORD BITS_IN_FLOAT = 32;
+
 AudioDisplayRecorder::AudioDisplayRecorder() {
     _source = bridge::LocalAudioSource::Create(
         webrtc::AudioOptions(),
         webrtc::scoped_refptr<webrtc::AudioProcessing>(nullptr)
     );
+
+    _recordedSamples->reserve(kRecordingPart);
 }
 
 void AudioDisplayRecorder::StartCapture() {
@@ -30,7 +35,7 @@ void AudioDisplayRecorder::StartCapture() {
 
     IAudioClient *pAudioClient = nullptr;
 
-    HRESULT hr = _device->Activate(IID_IAudioCaptureClient, CLSCTX_ALL, nullptr,
+    HRESULT hr = _device->Activate(IID_IAudioClient, CLSCTX_ALL, nullptr,
                                    reinterpret_cast<void **>(&pAudioClient));
 
     if (FAILED(hr)) {
@@ -40,7 +45,13 @@ void AudioDisplayRecorder::StartCapture() {
 
     _audioClient = pAudioClient;
 
-    WAVEFORMATEXTENSIBLE wFormat = GetWaveFormat();
+    hr = _audioClient->GetMixFormat(&_wFormat);
+
+    if (FAILED(hr) || _wFormat->nChannels != stereoChannels || _wFormat->wBitsPerSample != BITS_IN_FLOAT) {
+        // Unknown wave format. Stereo 32 bit is used for loopbacks in Windows.
+        _recordingFailed = true;
+        return CleanupResources();
+    }
 
     REFERENCE_TIME defaultPeriod = 0;
     REFERENCE_TIME minPeriod = 0;
@@ -53,7 +64,7 @@ void AudioDisplayRecorder::StartCapture() {
     }
 
     hr = _audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_LOOPBACK, minPeriod, 0,
-                                  &wFormat.Format,
+                                  _wFormat,
                                   nullptr);
 
     if (FAILED(hr)) {
@@ -76,8 +87,6 @@ void AudioDisplayRecorder::StartCapture() {
         _recordingFailed = true;
         return CleanupResources();
     }
-
-    _hnsActualDuration = static_cast<double>(minPeriod) * bufferFrameCount / kRecordingFrequency;
 
     hr = _audioClient->Start();
 
@@ -129,11 +138,24 @@ bool AudioDisplayRecorder::ProcessRecordedPart(bool firstInCycle) {
     }
 
     if (flags & AUDCLNT_BUFFERFLAGS_SILENT) {
+        // No-op if buffer can't be released.
+        static_cast<void>(_captureClient->ReleaseBuffer(numFramesAvailable));
         return false;
     }
 
+    const auto stereoBuffer = reinterpret_cast<const float *>(_buffer);
+
     for (int i = 0; i < numFramesAvailable; ++i) {
-        _recordedSamples->push_back(_buffer[i]);
+        // Convert stereo 32 bit to mono 16 bit by averaging channels.
+        const float monoSample = (stereoBuffer[i * stereoChannels] + stereoBuffer[i * stereoChannels + 1]) * 0.5;
+
+        // Scale float to 16 bit int.
+        float min = std::numeric_limits<int16_t>::min();
+        float max = std::numeric_limits<int16_t>::max();
+        float scaled = monoSample * max;
+        scaled = std::max(min, std::min(max, scaled));
+
+        _recordedSamples->push_back(static_cast<int16_t>(scaled));
     }
 
     hr = _captureClient->ReleaseBuffer(numFramesAvailable);
@@ -152,8 +174,9 @@ bool AudioDisplayRecorder::ProcessRecordedPart(bool firstInCycle) {
         kBitsPerSample,
         kRecordingFrequency, // sample_rate
         kRecordingChannels,
-        kRecordingFrequency * 10 / 1000
+        _recordedSamples->size()
     );
+    _recordedSamples->clear();
 
     return true;
 }
@@ -209,25 +232,12 @@ IMMDevice *AudioDisplayRecorder::GetDefaultDevice() {
     return pDevice;
 }
 
-WAVEFORMATEXTENSIBLE AudioDisplayRecorder::GetWaveFormat() {
-    WAVEFORMATEXTENSIBLE wFormat;
-
-    wFormat.Format.wFormatTag = WAVE_FORMAT_EXTENSIBLE;
-    wFormat.Format.nChannels = kRecordingChannels;
-    wFormat.Format.nSamplesPerSec = kRecordingFrequency;
-    wFormat.Format.nAvgBytesPerSec = kRecordingFrequency * kRecordingChannels;
-    wFormat.Format.nBlockAlign = kBlockAlign;
-    wFormat.Format.wBitsPerSample = kBitsPerSample;
-    wFormat.Format.cbSize = 22;
-    // Setting a bit for each channel.
-    wFormat.dwChannelMask = (1 << kRecordingChannels) - 1;
-    wFormat.Samples.wValidBitsPerSample = kBitsPerSample;
-    wFormat.SubFormat = KSDATAFORMAT_SUBTYPE_IEEE_FLOAT;
-
-    return wFormat;
-}
-
 void AudioDisplayRecorder::CleanupResources() {
+    if (_wFormat != nullptr) {
+        CoTaskMemFree(_wFormat);
+        _wFormat = nullptr;
+    }
+
     if (_device != nullptr) {
         _device->Release();
         _device = nullptr;

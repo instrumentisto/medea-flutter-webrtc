@@ -246,6 +246,7 @@ pub struct Webrtc {
     audio_tracks: Arc<DashMap<(AudioTrackId, TrackOrigin), AudioTrack>>,
     video_sinks: HashMap<VideoSinkId, VideoSink>,
     devices_state: DevicesState,
+    _platform: Platform,
 
     /// `peer_connection_factory` must be dropped before [`Thread`]s.
     peer_connection_factory: sys::PeerConnectionFactoryInterface,
@@ -258,7 +259,7 @@ pub struct Webrtc {
 impl Webrtc {
     /// Creates a new [`Webrtc`] context.
     fn new() -> anyhow::Result<Self> {
-        let _ = Platform::new()?;
+        let platform = Platform::new()?;
 
         let mut task_queue_factory =
             sys::TaskQueueFactory::create_default_task_queue_factory();
@@ -296,6 +297,7 @@ impl Webrtc {
             audio_sources: HashMap::new(),
             audio_tracks: Arc::new(DashMap::new()),
             video_sinks: HashMap::new(),
+            _platform: platform,
         };
 
         this.devices_state.audio_inputs =

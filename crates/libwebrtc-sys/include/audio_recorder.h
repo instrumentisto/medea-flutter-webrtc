@@ -10,7 +10,6 @@ constexpr auto kPlayoutFrequency = 48000;
 constexpr auto kRecordingFrequency = 48000;
 constexpr auto kBitsPerSample = 16;
 constexpr auto kRecordingChannels = 1;
-constexpr auto kBlockAlign = kRecordingFrequency * kRecordingChannels / 8;
 constexpr std::int64_t kBufferSizeMs = 10;
 constexpr auto kProcessInterval = 10;
 constexpr auto kALMaxValues = 6;

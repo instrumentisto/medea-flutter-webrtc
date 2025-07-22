@@ -234,6 +234,7 @@ Future<List<NativeMediaStreamTrack>> _getUserMediaFFI(
       constraints.audio.mandatory != null || constraints.audio.optional != null
       ? ffi.AudioConstraints(
           deviceId: constraints.audio.mandatory?.deviceId,
+          isDisplay: false,
           processing: ffi.AudioProcessingConstraints(
             autoGainControl:
                 constraints.audio.mandatory?.autoGainControl ??
@@ -326,6 +327,7 @@ Future<List<NativeMediaStreamTrack>> _getDisplayMediaFFI(
       ? ffi.AudioConstraints(
           deviceId: constraints.audio.mandatory?.deviceId,
           processing: ffi.AudioProcessingConstraints(),
+          isDisplay: true,
         )
       : null;
 

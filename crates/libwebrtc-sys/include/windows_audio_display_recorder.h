@@ -36,11 +36,9 @@ public:
 private:
     // Returns default rendering audio device.
     static IMMDevice *GetDefaultDevice();
-
-    static WAVEFORMATEXTENSIBLE GetWaveFormat();
-
     void CleanupResources();
 
+    WAVEFORMATEX *_wFormat = nullptr;
     webrtc::scoped_refptr<bridge::LocalAudioSource> _source;
     BYTE *_buffer = nullptr;
     bool _recording = false;
@@ -48,11 +46,10 @@ private:
     IMMDevice *_device = nullptr;
     IAudioClient *_audioClient = nullptr;
     IAudioCaptureClient *_captureClient = nullptr;
-    double _hnsActualDuration = 0.0;
 
     int _recordBufferSize = kRecordingPart * sizeof(int16_t) * kRecordingChannels;
-    std::vector<unsigned char> *_recordedSamples =
-            new std::vector<unsigned char>(_recordBufferSize, 0);
+    std::vector<int16_t> *_recordedSamples =
+            new std::vector<int16_t>(_recordBufferSize, 0);
 
     std::recursive_mutex _mutex;
 };
