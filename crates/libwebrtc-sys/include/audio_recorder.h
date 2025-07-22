@@ -5,7 +5,6 @@
 
 #include "api/media_stream_interface.h"
 #include "libwebrtc-sys/include/local_audio_source.h"
-#include "rtc_base/thread.h"
 
 constexpr auto kPlayoutFrequency = 48000;
 constexpr auto kRecordingFrequency = 48000;

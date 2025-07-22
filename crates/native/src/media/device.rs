@@ -190,7 +190,7 @@ impl AudioDeviceModule {
     /// # Errors
     ///
     /// If [`sys::AudioDeviceModule::recording_devices()`] call fails.
-    #[cfg(target = "windows")]
+    #[cfg(target_os = "windows")]
     pub fn create_display_audio_source(
         &mut self,
     ) -> anyhow::Result<sys::AudioSourceInterface> {

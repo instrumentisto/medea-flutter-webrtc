@@ -1,6 +1,3 @@
-#include <windows.h>
-#include <audioclient.h>
-
 #include "libwebrtc-sys/include/windows_audio_display_recorder.h"
 
 const CLSID CLSID_MMDeviceEnumerator = __uuidof(MMDeviceEnumerator);
@@ -26,7 +23,7 @@ void AudioDisplayRecorder::StartCapture() {
 
     if (_device == nullptr) {
         _recordingFailed = true;
-        goto Cleanup;
+        return CleanupResources();
     }
 
     IAudioClient *pAudioClient = nullptr;
@@ -36,7 +33,7 @@ void AudioDisplayRecorder::StartCapture() {
 
     if (FAILED(hr)) {
         _recordingFailed = true;
-        goto Cleanup;
+        return CleanupResources();
     }
 
     _audioClient = pAudioClient;
@@ -50,7 +47,7 @@ void AudioDisplayRecorder::StartCapture() {
 
     if (FAILED(hr)) {
         _recordingFailed = true;
-        goto Cleanup;
+        return CleanupResources();
     }
 
     hr = _audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_LOOPBACK, minPeriod, 0,
@@ -59,7 +56,7 @@ void AudioDisplayRecorder::StartCapture() {
 
     if (FAILED(hr)) {
         _recordingFailed = true;
-        goto Cleanup;
+        return CleanupResources();
     }
 
     UINT32 bufferFrameCount = 0;
@@ -68,14 +65,14 @@ void AudioDisplayRecorder::StartCapture() {
 
     if (FAILED(hr)) {
         _recordingFailed = true;
-        goto Cleanup;
+        return CleanupResources();
     }
 
     hr = _audioClient->GetService(IID_IAudioCaptureClient, reinterpret_cast<void **>(&_captureClient));
 
     if (FAILED(hr)) {
         _recordingFailed = true;
-        goto Cleanup;
+        return CleanupResources();
     }
 
     _hnsActualDuration = static_cast<double>(minPeriod) * bufferFrameCount / kRecordingFrequency;
@@ -84,28 +81,10 @@ void AudioDisplayRecorder::StartCapture() {
 
     if (FAILED(hr)) {
         _recordingFailed = true;
-        goto Cleanup;
+        return CleanupResources();
     }
 
     _recording = true;
-
-    return;
-
-Cleanup:
-    if (_device != nullptr) {
-        _device->Release();
-        _device = nullptr;
-    }
-
-    if (_audioClient != nullptr) {
-        _audioClient->Release();
-        _audioClient = nullptr;
-    }
-
-    if (_captureClient != nullptr) {
-        _captureClient->Release();
-        _captureClient = nullptr;
-    }
 }
 
 void AudioDisplayRecorder::StopCapture() {
@@ -118,19 +97,9 @@ void AudioDisplayRecorder::StopCapture() {
     if (_audioClient != nullptr) {
         // We are already cleaning up here so just ignore result.
         static_cast<void>(_audioClient->Stop());
-        _audioClient->Release();
-        _audioClient = nullptr;
     }
 
-    if (_device != nullptr) {
-        _device->Release();
-        _device = nullptr;
-    }
-
-    if (_captureClient != nullptr) {
-        _captureClient->Release();
-        _captureClient = nullptr;
-    }
+    CleanupResources();
 }
 
 bool AudioDisplayRecorder::ProcessRecordedPart(bool firstInCycle) {
@@ -254,4 +223,21 @@ WAVEFORMATEXTENSIBLE AudioDisplayRecorder::GetWaveFormat() {
     wFormat.SubFormat = KSDATAFORMAT_SUBTYPE_IEEE_FLOAT;
 
     return wFormat;
+}
+
+void AudioDisplayRecorder::CleanupResources() {
+    if (_device != nullptr) {
+        _device->Release();
+        _device = nullptr;
+    }
+
+    if (_audioClient != nullptr) {
+        _audioClient->Release();
+        _audioClient = nullptr;
+    }
+
+    if (_captureClient != nullptr) {
+        _captureClient->Release();
+        _captureClient = nullptr;
+    }
 }

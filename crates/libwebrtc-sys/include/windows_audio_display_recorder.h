@@ -3,10 +3,10 @@
 #ifndef AUDIO_DISPLAY_RECORDER_H
 #define AUDIO_DISPLAY_RECORDER_H
 
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <mmdeviceapi.h>
 #include <audioclient.h>
-#include <mmreg.h>
 #include <vector>
 #include <mutex>
 
@@ -35,9 +35,11 @@ public:
 
 private:
     // Returns default rendering audio device.
-    IMMDevice *GetDefaultDevice();
+    static IMMDevice *GetDefaultDevice();
 
-    WAVEFORMATEXTENSIBLE GetWaveFormat();
+    static WAVEFORMATEXTENSIBLE GetWaveFormat();
+
+    void CleanupResources();
 
     webrtc::scoped_refptr<bridge::LocalAudioSource> _source;
     BYTE *_buffer = nullptr;
@@ -49,8 +51,8 @@ private:
     double _hnsActualDuration = 0.0;
 
     int _recordBufferSize = kRecordingPart * sizeof(int16_t) * kRecordingChannels;
-    std::vector<char> *_recordedSamples =
-            new std::vector<char>(_recordBufferSize, 0);
+    std::vector<unsigned char> *_recordedSamples =
+            new std::vector<unsigned char>(_recordBufferSize, 0);
 
     std::recursive_mutex _mutex;
 };

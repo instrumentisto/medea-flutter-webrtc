@@ -490,6 +490,7 @@ impl AudioDeviceModule {
     }
 
     /// Creates a new [`AudioSourceInterface`] for `Display` audio.
+    #[cfg(target_os = "windows")]
     pub fn create_display_audio_source(
         &self,
     ) -> anyhow::Result<AudioSourceInterface> {
