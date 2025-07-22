@@ -955,9 +955,11 @@ impl SseDecode for crate::api::media::constraints::audio::AudioConstraints {
     ) -> Self {
         let mut var_deviceId = <Option<String>>::sse_decode(deserializer);
         let mut var_processing = <crate::api::media::constraints::audio::AudioProcessingConstraints>::sse_decode(deserializer);
+        let mut var_isDisplay = <bool>::sse_decode(deserializer);
         return crate::api::media::constraints::audio::AudioConstraints {
             device_id: var_deviceId,
             processing: var_processing,
+            is_display: var_isDisplay,
         };
     }
 }
@@ -2708,6 +2710,7 @@ impl flutter_rust_bridge::IntoDart
         [
             self.device_id.into_into_dart().into_dart(),
             self.processing.into_into_dart().into_dart(),
+            self.is_display.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -4335,6 +4338,7 @@ impl SseEncode for crate::api::media::constraints::audio::AudioConstraints {
     ) {
         <Option<String>>::sse_encode(self.device_id, serializer);
         <crate::api::media::constraints::audio::AudioProcessingConstraints>::sse_encode(self.processing, serializer);
+        <bool>::sse_encode(self.is_display, serializer);
     }
 }
 

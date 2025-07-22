@@ -22,10 +22,18 @@ class AudioConstraints {
   /// Audio processing configuration constraints of the [`MediaStreamTrack`].
   final AudioProcessingConstraints processing;
 
-  const AudioConstraints({this.deviceId, required this.processing});
+  /// Is used for system audio capture.
+  final bool isDisplay;
+
+  const AudioConstraints({
+    this.deviceId,
+    required this.processing,
+    required this.isDisplay,
+  });
 
   @override
-  int get hashCode => deviceId.hashCode ^ processing.hashCode;
+  int get hashCode =>
+      deviceId.hashCode ^ processing.hashCode ^ isDisplay.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -33,7 +41,8 @@ class AudioConstraints {
       other is AudioConstraints &&
           runtimeType == other.runtimeType &&
           deviceId == other.deviceId &&
-          processing == other.processing;
+          processing == other.processing &&
+          isDisplay == other.isDisplay;
 }
 
 /// Constraints of an [`AudioProcessingConfig`].
