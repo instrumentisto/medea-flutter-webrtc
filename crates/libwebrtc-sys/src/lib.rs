@@ -494,8 +494,13 @@ impl AudioDeviceModule {
     pub fn create_display_audio_source(
         &self,
         device_id: String,
+        audio_processing: &AudioProcessing,
     ) -> anyhow::Result<AudioSourceInterface> {
-        let ptr = webrtc::create_display_audio_source(&self.0, device_id);
+        let ptr = webrtc::create_display_audio_source(
+            &self.0,
+            device_id,
+            &audio_processing.0,
+        );
 
         if ptr.is_null() {
             bail!(

@@ -10,11 +10,8 @@ const IID IID_IAudioCaptureClient = __uuidof(IAudioCaptureClient);
 constexpr WORD stereoChannels = 2;
 constexpr WORD BITS_IN_FLOAT = 32;
 
-AudioDisplayRecorder::AudioDisplayRecorder() {
-    _source = bridge::LocalAudioSource::Create(
-        webrtc::AudioOptions(),
-        webrtc::scoped_refptr<webrtc::AudioProcessing>(nullptr)
-    );
+AudioDisplayRecorder::AudioDisplayRecorder(webrtc::scoped_refptr<webrtc::AudioProcessing> ap) {
+    _source = bridge::LocalAudioSource::Create(webrtc::AudioOptions(), std::move(ap));
 
     _recordedSamples->reserve(kRecordingPart);
 }

@@ -300,8 +300,7 @@ impl Webrtc {
                 let src = Arc::new(AudioSource::new(
                     device_id.clone(),
                     self.audio_device_module
-                        .create_display_audio_source(&device_id)?,
-                    // Audio processing is ignored for display audio tracks.
+                        .create_display_audio_source(&device_id, &processing)?,
                     processing,
                 ));
                 self.audio_sources.insert(device_id, Arc::clone(&src));

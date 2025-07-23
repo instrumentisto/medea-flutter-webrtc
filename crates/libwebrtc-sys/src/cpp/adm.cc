@@ -745,10 +745,12 @@ void OpenALAudioDeviceModule::DisposeAudioSource(std::string device_id) {
 }
 
 #ifdef WEBRTC_WIN
-webrtc::scoped_refptr<bridge::LocalAudioSource> OpenALAudioDeviceModule::CreateDisplayAudioSource(const std::string device_id) {
+webrtc::scoped_refptr<bridge::LocalAudioSource> OpenALAudioDeviceModule::CreateDisplayAudioSource(
+    const std::string device_id,
+    webrtc::scoped_refptr<webrtc::AudioProcessing> ap) {
   std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
 
-  auto recorder = std::make_unique<AudioDisplayRecorder>();
+  auto recorder = std::make_unique<AudioDisplayRecorder>(ap);
   recorder->StartCapture();
   auto source = recorder->GetSource();
   _recorders[device_id] = std::move(recorder);

@@ -23,9 +23,10 @@ PROXY_METHOD2(webrtc::scoped_refptr<bridge::LocalAudioSource>,
               uint32_t,
               webrtc::scoped_refptr<webrtc::AudioProcessing>)
 #ifdef WEBRTC_WIN
-PROXY_METHOD1(webrtc::scoped_refptr<bridge::LocalAudioSource>,
+PROXY_METHOD2(webrtc::scoped_refptr<bridge::LocalAudioSource>,
               CreateDisplayAudioSource,
-              std::string)
+              std::string,
+              webrtc::scoped_refptr<webrtc::AudioProcessing>)
 #endif // WEBRTC_WIN
 PROXY_METHOD1(void, DisposeAudioSource, std::string)
 PROXY_METHOD0(webrtc::scoped_refptr<PlayoutDelegatingAPM>, AudioProcessing)
