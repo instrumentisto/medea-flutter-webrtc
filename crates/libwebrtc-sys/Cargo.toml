@@ -5,6 +5,7 @@ edition = "2024"
 rust-version = "1.88"
 publish = false
 links = "webrtc"
+build = "build/mod.rs"
 
 [features]
 fake-media = []

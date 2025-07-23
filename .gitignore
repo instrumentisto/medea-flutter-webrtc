@@ -30,6 +30,7 @@ build/
 
 # Rust
 /target/
+!crates/libwebrtc-sys/build/
 
 # Project related
 /.cache/
