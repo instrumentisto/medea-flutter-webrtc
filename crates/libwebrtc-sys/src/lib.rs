@@ -505,7 +505,8 @@ impl AudioDeviceModule {
         if ptr.is_null() {
             bail!(
                 "`null` pointer returned from \
-                 `webrtc::PeerConnectionFactoryInterface::CreateDisplayAudioSource()`",
+                 `webrtc::PeerConnectionFactoryInterface::\
+                 CreateDisplayAudioSource()`",
             );
         }
         Ok(AudioSourceInterface(ptr))

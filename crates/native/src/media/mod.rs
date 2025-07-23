@@ -292,29 +292,32 @@ impl Webrtc {
             #[cfg(not(target_os = "windows"))]
             bail!("Display audio tracks aren't supported on your platform.");
 
-            let device_id = SYSTEM_AUDIO_DEVICE_ID.to_string().into();
+            #[cfg(target_os = "windows")]
+            {
+                let device_id = SYSTEM_AUDIO_DEVICE_ID.to_owned().into();
 
-            let src = if let Some(src) = self.audio_sources.get(&device_id) {
-                Arc::clone(src)
-            } else {
-                let src = Arc::new(AudioSource::new(
-                    device_id.clone(),
-                    self.audio_device_module
-                        .create_display_audio_source(&device_id, &processing)?,
-                    processing,
-                ));
-                self.audio_sources.insert(device_id, Arc::clone(&src));
+                if let Some(src) = self.audio_sources.get(&device_id) {
+                    Arc::clone(src)
+                } else {
+                    let src = Arc::new(AudioSource::new(
+                        device_id.clone(),
+                        self.audio_device_module.create_display_audio_source(
+                            &device_id,
+                            &processing,
+                        )?,
+                        processing,
+                    ));
+                    self.audio_sources.insert(device_id, Arc::clone(&src));
 
-                src
-            };
-
-            src
+                    src
+                }
+            }
         } else {
             let device_id = if let Some(device_id) = caps.device_id.clone() {
                 device_id.into()
             } else {
-                // `AudioDeviceModule` is not capturing anything at the moment, so
-                // the first available device (with `0` index) will be used.
+                // `AudioDeviceModule` is not capturing anything at the moment,
+                // so the first available device (with `0` index) will be used.
                 if self.audio_device_module.recording_devices() < 1 {
                     bail!("Cannot find any available audio input device");
                 }
@@ -326,11 +329,12 @@ impl Webrtc {
                 self.get_index_of_audio_recording_device(&device_id)?
             else {
                 bail!(
-                    "Cannot find audio device with the specified ID: `{device_id}`",
+                    "Cannot find audio device with the specified ID: \
+                    `{device_id}`",
                 );
             };
 
-            let src = if let Some(src) = self.audio_sources.get(&device_id) {
+            if let Some(src) = self.audio_sources.get(&device_id) {
                 src.update_audio_processing(&caps.processing);
                 Arc::clone(src)
             } else {
@@ -343,9 +347,7 @@ impl Webrtc {
                 self.audio_sources.insert(device_id, Arc::clone(&src));
 
                 src
-            };
-
-            src
+            }
         };
 
         Ok(src)
