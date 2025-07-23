@@ -24,13 +24,12 @@ migrate_working_dir/
 **/doc/api/
 .dart_tool/
 .packages
-build/
+/build/
 # Libraries should not include pubspec.lock, per https://dart.dev/guides/libraries/private-files#pubspeclock.
 /pubspec.lock
 
 # Rust
 /target/
-!crates/libwebrtc-sys/build/
 
 # Project related
 /.cache/
