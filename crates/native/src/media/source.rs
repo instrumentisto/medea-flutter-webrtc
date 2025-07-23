@@ -39,6 +39,7 @@ pub enum MediaTrackSource<T> {
 pub struct AudioLevelObserverId(u64);
 
 /// [`AudioDeviceId`] of the default system audio capture device.
+#[cfg(target_os = "windows")]
 pub const SYSTEM_AUDIO_DEVICE_ID: &str = "__DISPLAY_AUDIO__";
 
 /// [`sys::AudioSourceInterface`] wrapper.

@@ -23,10 +23,11 @@ pub use self::{
         AudioTrack, AudioTrackId, Track, TrackOrigin, VideoTrack, VideoTrackId,
     },
 };
+#[cfg(target_os = "windows")]
+use crate::media::source::SYSTEM_AUDIO_DEVICE_ID;
 use crate::{
     Webrtc, api, api::NoiseSuppressionLevel, devices,
-    frb_generated::StreamSink, media::source::SYSTEM_AUDIO_DEVICE_ID,
-    pc::PeerConnectionId,
+    frb_generated::StreamSink, pc::PeerConnectionId,
 };
 
 impl Webrtc {

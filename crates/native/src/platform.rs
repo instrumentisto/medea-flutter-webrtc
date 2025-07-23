@@ -1,18 +1,18 @@
+#[cfg(target_os = "windows")]
+pub use windows::Platform;
+
+#[cfg(not(target_os = "windows"))]
 pub struct Platform;
 
+#[cfg(not(target_os = "windows"))]
+#[expect(
+    clippy::unnecessary_wraps,
+    clippy::missing_const_for_fn,
+    reason = "platform specific"
+)]
 impl Platform {
     pub fn new() -> anyhow::Result<Self> {
-        #[cfg(target_os = "windows")]
-        windows::init()?;
-
         Ok(Self)
-    }
-}
-
-impl Drop for Platform {
-    fn drop(&mut self) {
-        #[cfg(target_os = "windows")]
-        windows::uninit();
     }
 }
 
@@ -20,6 +20,22 @@ impl Drop for Platform {
 mod windows {
     use anyhow::anyhow;
     use windows::Win32::System::Com::{self, COINIT_MULTITHREADED};
+
+    pub struct Platform;
+
+    impl Platform {
+        pub fn new() -> anyhow::Result<Self> {
+            init()?;
+
+            Ok(Self)
+        }
+    }
+
+    impl Drop for Platform {
+        fn drop(&mut self) {
+            uninit();
+        }
+    }
 
     pub fn init() -> anyhow::Result<()> {
         unsafe {
