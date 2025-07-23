@@ -154,7 +154,7 @@ use std::ffi::OsString;
 #[cfg(target_os = "macos")]
 use std::process;
 use std::{
-    env, fs,
+    fs,
     path::{Path, PathBuf},
 };
 
@@ -174,7 +174,7 @@ fn main() -> anyhow::Result<()> {
     webrtc::download()?;
     openal::compile()?;
 
-    let path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
+    let path = PathBuf::from(dotenv::var("CARGO_MANIFEST_DIR")?);
     let libpath = libpath()?;
     let cpp_files = get_cpp_files()?;
 
@@ -194,7 +194,7 @@ fn main() -> anyhow::Result<()> {
     #[cfg(target_os = "windows")]
     build.flag("-DNDEBUG");
     #[cfg(not(target_os = "windows"))]
-    if env::var_os("PROFILE") == Some(OsString::from("release")) {
+    if dotenv::var_os("PROFILE") == Some(OsString::from("release")) {
         build.flag("-DNDEBUG");
     }
 
@@ -283,20 +283,21 @@ fn get_lld_version() -> anyhow::Result<(u8, u8, u8)> {
 
 /// Returns target architecture to build the library for.
 fn get_target() -> anyhow::Result<String> {
-    env::var("TARGET").map_err(Into::into)
+    dotenv::var("TARGET").map_err(Into::into)
 }
 
 /// Returns [`PathBuf`] to the directory containing the library.
 fn libpath() -> anyhow::Result<PathBuf> {
     let target = get_target()?;
-    let manifest_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
+    let manifest_path = PathBuf::from(dotenv::var("CARGO_MANIFEST_DIR")?);
     Ok(manifest_path.join("lib").join(target))
 }
 
 /// Returns a list of all C++ sources that should be compiled.
 fn get_cpp_files() -> anyhow::Result<Vec<PathBuf>> {
-    let dir =
-        PathBuf::from(env::var("CARGO_MANIFEST_DIR")?).join("src").join("cpp");
+    let dir = PathBuf::from(dotenv::var("CARGO_MANIFEST_DIR")?)
+        .join("src")
+        .join("cpp");
 
     #[cfg_attr(target_os = "macos", expect(unused_mut, reason = "cfg"))]
     let mut files = get_files_from_dir(dir);
@@ -309,7 +310,7 @@ fn get_cpp_files() -> anyhow::Result<Vec<PathBuf>> {
 
 /// Returns a list of all header files that should be included.
 fn get_header_files() -> anyhow::Result<Vec<PathBuf>> {
-    let dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?).join("include");
+    let dir = PathBuf::from(dotenv::var("CARGO_MANIFEST_DIR")?).join("include");
 
     Ok(get_files_from_dir(dir))
 }
@@ -334,7 +335,7 @@ fn link_libs() -> anyhow::Result<()> {
         {
             drop(pkg_config::Config::new().probe(dep)?);
         }
-        match env::var("PROFILE").unwrap_or_default().as_str() {
+        match dotenv::var("PROFILE").unwrap_or_default().as_str() {
             "debug" => {
                 println!(
                     "cargo:rustc-link-search=\
@@ -372,7 +373,7 @@ fn link_libs() -> anyhow::Result<()> {
             println!("cargo:rustc-link-lib=clang_rt.osx");
             println!("cargo:rustc-link-search={path}");
         }
-        match env::var("PROFILE").unwrap_or_default().as_str() {
+        match dotenv::var("PROFILE").unwrap_or_default().as_str() {
             "debug" => {
                 println!(
                     "cargo:rustc-link-search=\

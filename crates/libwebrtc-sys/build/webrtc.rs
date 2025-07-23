@@ -4,7 +4,7 @@
 
 use std::{
     borrow::Cow,
-    env, fs,
+    fs,
     fs::File,
     io::{BufReader, BufWriter, Read as _, Write as _},
     path::PathBuf,
@@ -37,7 +37,7 @@ static GITHUB_API_URL: &str =
 
 /// Downloads and unpacks compiled `libwebrtc` library.
 pub(super) fn download() -> anyhow::Result<()> {
-    let repository = WebrtcRepository::build()?;
+    let repository = WebrtcRepository::build();
     let artifact = repository.artifact()?;
 
     let lib_dir = libpath()?;
@@ -98,12 +98,12 @@ impl Artifact {
         lib_dir: &PathBuf,
         checksum: PathBuf,
     ) -> anyhow::Result<Option<DownloadedArtifact>> {
-        let manifest_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
+        let manifest_path = PathBuf::from(dotenv::var("CARGO_MANIFEST_DIR")?);
         let temp_dir = manifest_path.join("temp");
         let archive = temp_dir.join(&self.name);
 
         // Force download if `INSTALL_WEBRTC=1`.
-        if env::var("INSTALL_WEBRTC").as_deref().unwrap_or("0") == "0" {
+        if dotenv::var("INSTALL_WEBRTC").as_deref().unwrap_or("0") == "0" {
             // Skip download if already downloaded and checksum matches.
             if fs::metadata(lib_dir).is_ok_and(|m| m.is_dir())
                 && fs::read(&checksum).unwrap_or_default().as_slice()
@@ -215,24 +215,17 @@ enum WebrtcRepository {
     Branch {
         /// Name of the branch.
         name: String,
-        /// GitHub token to download the archive.
-        github_token: String,
     },
 }
 
 impl WebrtcRepository {
     /// Create a new `libwebrtc` GitHub repository representation.
-    fn build() -> anyhow::Result<Self> {
-        if let Ok(branch) = env::var("WEBRTC_BRANCH") {
-            return Ok(Self::Branch {
-                name: branch,
-                github_token: env::var("GH_TOKEN").context(
-                    "libwebrtc branch was selected but GH_TOKEN isn't set.",
-                )?,
-            });
+    fn build() -> Self {
+        if let Ok(branch) = dotenv::var("WEBRTC_BRANCH") {
+            return Self::Branch { name: branch };
         }
 
-        Ok(Self::Release)
+        Self::Release
     }
 
     /// Get an artifact from the repository.
@@ -252,8 +245,8 @@ impl WebrtcRepository {
                     is_wrapped: false,
                 })
             }
-            Self::Branch { name, github_token } => {
-                let client = Self::client(github_token)?;
+            Self::Branch { name } => {
+                let client = Self::client()?;
 
                 let workflow_run = Self::workflow_run(&client, name.as_str())?;
                 let metadata = Self::artifact_metadata(&client, &workflow_run)?;
@@ -296,12 +289,12 @@ impl WebrtcRepository {
     }
 
     /// Set up HTTP client.
-    fn client(github_token: &str) -> anyhow::Result<reqwest::blocking::Client> {
+    fn client() -> anyhow::Result<reqwest::blocking::Client> {
         let mut headers = reqwest::header::HeaderMap::new();
         headers.insert(reqwest::header::USER_AGENT, "instrumentisto".parse()?);
         headers.insert(
             reqwest::header::AUTHORIZATION,
-            format!("Bearer {github_token}").parse()?,
+            format!("Bearer {}", Self::github_token()?).parse()?,
         );
 
         Ok(reqwest::blocking::Client::builder()
@@ -358,6 +351,13 @@ impl WebrtcRepository {
             "x86_64-pc-windows-msvc" => "build-windows-x64",
             arch => return Err(anyhow::anyhow!("Unsupported target: {arch}")),
         })
+    }
+
+    /// Get GitHub API token from environment variables.
+    fn github_token() -> anyhow::Result<String> {
+        dotenv::var("GH_TOKEN")
+            .or_else(|_| dotenv::var("GITHUB_TOKEN"))
+            .context("libwebrtc branch was selected but GH_TOKEN and GITHUB_TOKEN aren't set.")
     }
 }
 

@@ -3,7 +3,7 @@
 //! [OpenAL]: https://github.com/kcat/openal-soft
 
 use std::{
-    env, fs,
+    fs,
     fs::File,
     io::{BufReader, BufWriter, Read as _, Write as _},
     path::{Path, PathBuf},
@@ -27,7 +27,7 @@ static OPENAL_URL: &str =
 #[expect(clippy::too_many_lines, reason = "not matters here")]
 pub(super) fn compile() -> anyhow::Result<()> {
     let openal_version = OPENAL_URL.split('/').next_back().unwrap_or_default();
-    let manifest_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
+    let manifest_path = PathBuf::from(dotenv::var("CARGO_MANIFEST_DIR")?);
     let temp_dir = manifest_path.join("temp");
     let openal_path = get_path_to_openal()?;
 
@@ -42,7 +42,7 @@ pub(super) fn compile() -> anyhow::Result<()> {
     )
     .is_ok();
     let is_install_openal =
-        env::var("INSTALL_OPENAL").as_deref().unwrap_or("0") == "0";
+        dotenv::var("INSTALL_OPENAL").as_deref().unwrap_or("0") == "0";
 
     if is_install_openal && is_already_installed {
         return Ok(());
@@ -150,7 +150,7 @@ pub(super) fn compile() -> anyhow::Result<()> {
 ///
 /// [OpenAL]: https://github.com/kcat/openal-soft
 fn get_path_to_openal() -> anyhow::Result<PathBuf> {
-    let mut workspace_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
+    let mut workspace_path = PathBuf::from(dotenv::var("CARGO_MANIFEST_DIR")?);
     workspace_path.pop();
     workspace_path.pop();
 
