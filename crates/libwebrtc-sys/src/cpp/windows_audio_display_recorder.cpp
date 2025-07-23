@@ -111,6 +111,8 @@ void AudioDisplayRecorder::StopCapture() {
     }
 
     CleanupResources();
+
+    _recording = false;
 }
 
 bool AudioDisplayRecorder::ProcessRecordedPart(bool firstInCycle) {
@@ -183,25 +185,6 @@ bool AudioDisplayRecorder::ProcessRecordedPart(bool firstInCycle) {
 
 webrtc::scoped_refptr<bridge::LocalAudioSource> AudioDisplayRecorder::GetSource() {
     return _source;
-}
-
-std::string AudioDisplayRecorder::GetDeviceId() const {
-    PWSTR pDeviceId = nullptr;
-
-    if (_device == nullptr) {
-        return "";
-    }
-
-    if (const HRESULT hr = _device->GetId(&pDeviceId); FAILED(hr)) {
-        return "";
-    }
-
-    std::wstring w(pDeviceId);
-    std::string deviceId(w.begin(), w.end());
-
-    CoTaskMemFree(pDeviceId);
-
-    return deviceId;
 }
 
 IMMDevice *AudioDisplayRecorder::GetDefaultDevice() {

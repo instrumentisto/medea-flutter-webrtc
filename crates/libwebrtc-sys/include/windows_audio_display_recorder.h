@@ -30,9 +30,6 @@ public:
     // writes the recorded audio to.
     webrtc::scoped_refptr<bridge::LocalAudioSource> GetSource() override;
 
-    // Returns currently used deviceId for capturing system audio.
-    [[nodiscard]] std::string GetDeviceId() const;
-
 private:
     // Returns default rendering audio device.
     static IMMDevice *GetDefaultDevice();

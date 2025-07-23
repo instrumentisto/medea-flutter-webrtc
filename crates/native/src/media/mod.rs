@@ -25,7 +25,8 @@ pub use self::{
 };
 use crate::{
     Webrtc, api, api::NoiseSuppressionLevel, devices,
-    frb_generated::StreamSink, pc::PeerConnectionId,
+    frb_generated::StreamSink, media::source::SYSTEM_AUDIO_DEVICE_ID,
+    pc::PeerConnectionId,
 };
 
 impl Webrtc {
@@ -285,55 +286,68 @@ impl Webrtc {
         &mut self,
         caps: &api::AudioConstraints,
     ) -> anyhow::Result<Arc<AudioSource>> {
-        let device_id = if let Some(device_id) = caps.device_id.clone() {
-            device_id.into()
+        let processing = sys::AudioProcessing::new((&caps.processing).into())?;
+
+        let src = if caps.is_display {
+            #[cfg(not(target_os = "windows"))]
+            bail!("Display audio tracks aren't supported on your platform.");
+
+            let device_id = SYSTEM_AUDIO_DEVICE_ID.to_string().into();
+
+            let src = if let Some(src) = self.audio_sources.get(&device_id) {
+                Arc::clone(src)
+            } else {
+                let src = Arc::new(AudioSource::new(
+                    device_id.clone(),
+                    self.audio_device_module
+                        .create_display_audio_source(&device_id)?,
+                    // Audio processing is ignored for display audio tracks.
+                    processing,
+                ));
+                self.audio_sources.insert(device_id, Arc::clone(&src));
+
+                src
+            };
+
+            src
         } else {
-            // `AudioDeviceModule` is not capturing anything at the moment, so
-            // the first available device (with `0` index) will be used.
-            if self.audio_device_module.recording_devices() < 1 {
-                bail!("Cannot find any available audio input device");
-            }
+            let device_id = if let Some(device_id) = caps.device_id.clone() {
+                device_id.into()
+            } else {
+                // `AudioDeviceModule` is not capturing anything at the moment, so
+                // the first available device (with `0` index) will be used.
+                if self.audio_device_module.recording_devices() < 1 {
+                    bail!("Cannot find any available audio input device");
+                }
 
-            self.audio_device_module.recording_device_name(0)?.1.into()
-        };
+                self.audio_device_module.recording_device_name(0)?.1.into()
+            };
 
-        let Some(device_index) =
-            self.get_index_of_audio_recording_device(&device_id)?
-        else {
-            bail!(
-                "Cannot find audio device with the specified ID: `{device_id}`",
-            );
-        };
+            let Some(device_index) =
+                self.get_index_of_audio_recording_device(&device_id)?
+            else {
+                bail!(
+                    "Cannot find audio device with the specified ID: `{device_id}`",
+                );
+            };
 
-        let mut src = if let Some(src) = self.audio_sources.get(&device_id) {
-            src.update_audio_processing(&caps.processing);
-            Arc::clone(src)
-        } else {
-            let processing =
-                sys::AudioProcessing::new((&caps.processing).into())?;
+            let src = if let Some(src) = self.audio_sources.get(&device_id) {
+                src.update_audio_processing(&caps.processing);
+                Arc::clone(src)
+            } else {
+                let src = Arc::new(AudioSource::new(
+                    device_id.clone(),
+                    self.audio_device_module
+                        .create_audio_source(device_index, &processing)?,
+                    processing,
+                ));
+                self.audio_sources.insert(device_id, Arc::clone(&src));
 
-            let src = Arc::new(AudioSource::new(
-                device_id.clone(),
-                self.audio_device_module
-                    .create_audio_source(device_index, &processing)?,
-                processing,
-            ));
-            self.audio_sources.insert(device_id, Arc::clone(&src));
+                src
+            };
 
             src
         };
-
-        // TODO: fix this
-        #[cfg(target_os = "windows")]
-        {
-            if caps.is_display {
-                src = Arc::new(AudioSource::new(
-                    "SYSTEM_DEVICE".to_string().into(),
-                    self.audio_device_module.create_display_audio_source()?,
-                    sys::AudioProcessing::new((&caps.processing).into())?,
-                ));
-            }
-        }
 
         Ok(src)
     }

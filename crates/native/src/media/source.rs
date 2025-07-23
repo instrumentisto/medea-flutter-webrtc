@@ -38,6 +38,9 @@ pub enum MediaTrackSource<T> {
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
 pub struct AudioLevelObserverId(u64);
 
+/// [`AudioDeviceId`] of the default system audio capture device.
+pub const SYSTEM_AUDIO_DEVICE_ID: &'static str = "__DISPLAY_AUDIO__";
+
 /// [`sys::AudioSourceInterface`] wrapper.
 #[derive(AsRef)]
 pub struct AudioSource {

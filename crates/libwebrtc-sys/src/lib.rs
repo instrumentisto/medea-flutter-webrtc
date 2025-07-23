@@ -493,8 +493,9 @@ impl AudioDeviceModule {
     #[cfg(target_os = "windows")]
     pub fn create_display_audio_source(
         &self,
+        device_id: String,
     ) -> anyhow::Result<AudioSourceInterface> {
-        let ptr = webrtc::create_display_audio_source(&self.0);
+        let ptr = webrtc::create_display_audio_source(&self.0, device_id);
 
         if ptr.is_null() {
             bail!(

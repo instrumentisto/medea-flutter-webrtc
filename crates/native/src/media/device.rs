@@ -193,11 +193,12 @@ impl AudioDeviceModule {
     #[cfg(target_os = "windows")]
     pub fn create_display_audio_source(
         &mut self,
+        device_id: &AudioDeviceId,
     ) -> anyhow::Result<sys::AudioSourceInterface> {
         if api::is_fake_media() {
             self.inner.create_fake_audio_source()
         } else {
-            self.inner.create_display_audio_source()
+            self.inner.create_display_audio_source(device_id.to_string())
         }
     }
 

@@ -269,7 +269,8 @@ std::unique_ptr<AudioSourceInterface> create_audio_source(
 #ifdef WEBRTC_WIN
 // Creates a new `AudioSourceInterface` for Display audio.
 std::unique_ptr<AudioSourceInterface> create_display_audio_source(
-    const AudioDeviceModule& audio_device_module);
+    const AudioDeviceModule& audio_device_module,
+    rust::String device_id);
 #endif // WEBRTC_WIN
 
 // Disposes the `AudioSourceInterface` with the provided device ID.
