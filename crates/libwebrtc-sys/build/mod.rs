@@ -150,9 +150,7 @@ mod openal;
 mod webrtc;
 
 #[cfg(not(target_os = "windows"))]
-use std::ffi::OsString;
-#[cfg(target_os = "macos")]
-use std::process;
+use std::{env, ffi::OsString, process::Command};
 use std::{
     fs,
     path::{Path, PathBuf},
@@ -194,7 +192,7 @@ fn main() -> anyhow::Result<()> {
     #[cfg(target_os = "windows")]
     build.flag("-DNDEBUG");
     #[cfg(not(target_os = "windows"))]
-    if dotenv::var_os("PROFILE") == Some(OsString::from("release")) {
+    if env::var_os("PROFILE") == Some(OsString::from("release")) {
         build.flag("-DNDEBUG");
     }
 
@@ -418,10 +416,8 @@ fn link_libs() -> anyhow::Result<()> {
 #[cfg(target_os = "macos")]
 /// Links macOS libraries needed for building.
 fn macos_link_search_path() -> Option<String> {
-    let output = process::Command::new("clang")
-        .arg("--print-search-dirs")
-        .output()
-        .ok()?;
+    let output =
+        Command::new("clang").arg("--print-search-dirs").output().ok()?;
     if !output.status.success() {
         return None;
     }

@@ -357,7 +357,9 @@ impl WebrtcRepository {
     fn github_token() -> anyhow::Result<String> {
         dotenv::var("GH_TOKEN")
             .or_else(|_| dotenv::var("GITHUB_TOKEN"))
-            .context("libwebrtc branch was selected but GH_TOKEN and GITHUB_TOKEN aren't set.")
+            .context(
+                "libwebrtc branch was selected but github token isn't set.",
+            )
     }
 }
 
