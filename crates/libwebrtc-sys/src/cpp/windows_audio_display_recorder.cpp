@@ -69,15 +69,6 @@ void AudioDisplayRecorder::StartCapture() {
         return CleanupResources();
     }
 
-    UINT32 bufferFrameCount = 0;
-
-    hr = _audioClient->GetBufferSize(&bufferFrameCount);
-
-    if (FAILED(hr)) {
-        _recordingFailed = true;
-        return CleanupResources();
-    }
-
     hr = _audioClient->GetService(IID_IAudioCaptureClient, reinterpret_cast<void **>(&_captureClient));
 
     if (FAILED(hr)) {
