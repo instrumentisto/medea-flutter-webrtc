@@ -12,6 +12,7 @@ use std::{
 
 use anyhow::Context as _;
 use flate2::read::GzDecoder;
+use reqwest::header::{AUTHORIZATION, HeaderMap, HeaderValue, USER_AGENT};
 use serde::Deserialize;
 use sha2::{Digest as _, Sha256};
 use tar::Archive;
@@ -290,12 +291,14 @@ impl WebrtcRepository {
 
     /// Set up HTTP client.
     fn client() -> anyhow::Result<reqwest::blocking::Client> {
-        let mut headers = reqwest::header::HeaderMap::new();
-        headers.insert(reqwest::header::USER_AGENT, "instrumentisto".parse()?);
-        headers.insert(
-            reqwest::header::AUTHORIZATION,
-            format!("Bearer {}", Self::github_token()?).parse()?,
-        );
+        let mut headers = HeaderMap::new();
+        headers.insert(USER_AGENT, "instrumentisto".parse()?);
+        let mut authorization = HeaderValue::from_str(&format!(
+            "Bearer {}",
+            Self::github_token()?
+        ))?;
+        authorization.set_sensitive(true);
+        headers.insert(AUTHORIZATION, authorization);
 
         Ok(reqwest::blocking::Client::builder()
             .default_headers(headers)
