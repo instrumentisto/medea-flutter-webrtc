@@ -59,7 +59,7 @@ android {
         def webrtc_branch = System.getenv('WEBRTC_BRANCH')
 
         if (webrtc_branch == null) {
-            implementation "com.github.instrumentisto:libwebrtc-bin:138.0.7204.100@aar"
+            implementation "com.github.instrumentisto:libwebrtc-bin:138.0.7204.157@aar"
         } else {
             implementation(name: "libwebrtc-bin-${webrtc_branch}", ext: 'aar')
         }
