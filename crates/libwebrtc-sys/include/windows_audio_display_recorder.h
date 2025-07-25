@@ -7,10 +7,28 @@
 #include <windows.h>
 #include <mmdeviceapi.h>
 #include <audioclient.h>
+#include <audioclientactivationparams.h>
+#include <mfapi.h>
+#include <wrl/implements.h>
+#include <wil/com.h>
+#include <wil/result.h>
 #include <vector>
 #include <mutex>
 
 #include "libwebrtc-sys/include/audio_recorder.h"
+
+using namespace Microsoft::WRL;
+
+class AudioClientActivationHandler final : public RuntimeClass<RuntimeClassFlags<ClassicCom>, FtmBase, IActivateAudioInterfaceCompletionHandler> {
+public:
+    HRESULT ActivateCompleted(IActivateAudioInterfaceAsyncOperation *activateOperation) override;
+
+    HRESULT activateResult = E_UNEXPECTED;
+    wil::unique_event_nothrow hActivateCompleted;
+    wil::com_ptr_nothrow<IAudioClient> audioClient;
+    wil::com_ptr_nothrow<IAudioCaptureClient> captureClient;
+    WAVEFORMATEX wFormat {};
+};
 
 class AudioDisplayRecorder final : public AudioRecorder {
 public:
@@ -31,24 +49,18 @@ public:
     webrtc::scoped_refptr<bridge::LocalAudioSource> GetSource() override;
 
 private:
-    // Returns default rendering audio device.
-    static IMMDevice *GetDefaultDevice();
-    void CleanupResources();
-
-    WAVEFORMATEX *_wFormat = nullptr;
     webrtc::scoped_refptr<bridge::LocalAudioSource> _source;
     BYTE *_buffer = nullptr;
     bool _recording = false;
     bool _recordingFailed = false;
-    IMMDevice *_device = nullptr;
-    IAudioClient *_audioClient = nullptr;
-    IAudioCaptureClient *_captureClient = nullptr;
 
     int _recordBufferSize = kRecordingPart * sizeof(int16_t) * kRecordingChannels;
     std::vector<int16_t> *_recordedSamples =
             new std::vector<int16_t>(_recordBufferSize, 0);
 
     std::recursive_mutex _mutex;
+
+    wil::com_ptr_nothrow<AudioClientActivationHandler> _audioClientActivationHandler;
 };
 
 #endif //AUDIO_DISPLAY_RECORDER_H

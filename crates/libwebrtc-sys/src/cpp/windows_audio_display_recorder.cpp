@@ -2,18 +2,75 @@
 
 #include "libwebrtc-sys/include/windows_audio_display_recorder.h"
 
-const CLSID CLSID_MMDeviceEnumerator = __uuidof(MMDeviceEnumerator);
-const IID IID_IMMDeviceEnumerator = __uuidof(IMMDeviceEnumerator);
-const IID IID_IAudioClient = __uuidof(IAudioClient);
-const IID IID_IAudioCaptureClient = __uuidof(IAudioCaptureClient);
+const auto CLSID_MMDeviceEnumerator = __uuidof(MMDeviceEnumerator);
+const auto IID_IMMDeviceEnumerator = __uuidof(IMMDeviceEnumerator);
+const auto IID_IAudioClient = __uuidof(IAudioClient);
+const auto IID_IAudioCaptureClient = __uuidof(IAudioCaptureClient);
 
-constexpr WORD stereoChannels = 2;
-constexpr WORD BITS_IN_FLOAT = 32;
+#define BITS_PER_BYTE 8
+
+HRESULT AudioClientActivationHandler::ActivateCompleted(IActivateAudioInterfaceAsyncOperation* activateOperation) {
+    HRESULT hrActivateResult = E_UNEXPECTED;
+    wil::com_ptr_nothrow<IUnknown> punkAudioInterface;
+
+    HRESULT hr = activateOperation->GetActivateResult(&hrActivateResult, &punkAudioInterface);
+
+    if (FAILED(hrActivateResult)) {
+        activateResult = hr;
+        hActivateCompleted.SetEvent();
+        return S_OK;
+    }
+
+    hr = punkAudioInterface.copy_to(&audioClient);
+
+    if (FAILED(hr)) {
+        activateResult = hr;
+        hActivateCompleted.SetEvent();
+        return S_OK;
+    }
+
+    wFormat.wFormatTag = WAVE_FORMAT_PCM;
+    wFormat.nChannels = kRecordingChannels;
+    wFormat.nSamplesPerSec = kRecordingFrequency;
+    wFormat.wBitsPerSample = kBitsPerSample;
+    wFormat.nBlockAlign = wFormat.nChannels * wFormat.wBitsPerSample / BITS_PER_BYTE;
+    wFormat.nAvgBytesPerSec = wFormat.nSamplesPerSec * wFormat.nBlockAlign;
+
+    hr = audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, (AUDCLNT_STREAMFLAGS_LOOPBACK | AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM), 100000, 0,
+                                  &wFormat,
+                                  nullptr);
+
+    if (FAILED(hr)) {
+        activateResult = hr;
+        hActivateCompleted.SetEvent();
+        return S_OK;
+    }
+
+    hr = audioClient->GetService(IID_IAudioCaptureClient, reinterpret_cast<void **>(&captureClient));
+
+    if (FAILED(hr)) {
+        activateResult = hr;
+        hActivateCompleted.SetEvent();
+        return S_OK;
+    }
+
+    hr = audioClient->Start();
+
+    if (FAILED(hr)) {
+        activateResult = hr;
+        hActivateCompleted.SetEvent();
+        return S_OK;
+    }
+
+    activateResult = S_OK;
+    hActivateCompleted.SetEvent();
+
+    return S_OK;
+}
 
 AudioDisplayRecorder::AudioDisplayRecorder(webrtc::scoped_refptr<webrtc::AudioProcessing> ap) {
     _source = bridge::LocalAudioSource::Create(webrtc::AudioOptions(), std::move(ap));
-
-    _recordedSamples->reserve(kRecordingPart);
+    _audioClientActivationHandler = Make<AudioClientActivationHandler>();
 }
 
 void AudioDisplayRecorder::StartCapture() {
@@ -23,67 +80,36 @@ void AudioDisplayRecorder::StartCapture() {
         return;
     }
 
-    _device = GetDefaultDevice();
-
-    if (_device == nullptr) {
-        _recordingFailed = true;
-        return CleanupResources();
-    }
-
-    IAudioClient *pAudioClient = nullptr;
-
-    HRESULT hr = _device->Activate(IID_IAudioClient, CLSCTX_ALL, nullptr,
-                                   reinterpret_cast<void **>(&pAudioClient));
+    HRESULT hr = _audioClientActivationHandler->hActivateCompleted.create(wil::EventOptions::None);
 
     if (FAILED(hr)) {
         _recordingFailed = true;
-        return CleanupResources();
+        return;
     }
 
-    _audioClient = pAudioClient;
+    AUDIOCLIENT_ACTIVATION_PARAMS audioclientActivationParams = {};
+    audioclientActivationParams.ActivationType = AUDIOCLIENT_ACTIVATION_TYPE_PROCESS_LOOPBACK;
+    audioclientActivationParams.ProcessLoopbackParams.ProcessLoopbackMode = PROCESS_LOOPBACK_MODE_EXCLUDE_TARGET_PROCESS_TREE;
+    audioclientActivationParams.ProcessLoopbackParams.TargetProcessId = GetCurrentProcessId();
 
-    hr = _audioClient->GetMixFormat(&_wFormat);
+    PROPVARIANT activateParams = {};
+    activateParams.vt = VT_BLOB;
+    activateParams.blob.cbSize = sizeof(audioclientActivationParams);
+    activateParams.blob.pBlobData = reinterpret_cast<BYTE *>(&audioclientActivationParams);
 
-    if (FAILED(hr) || _wFormat->nChannels != stereoChannels || _wFormat->wBitsPerSample != BITS_IN_FLOAT) {
-        // Unknown wave format. Stereo 32 bit is used for loopbacks in Windows.
-        _recordingFailed = true;
-        return CleanupResources();
-    }
+    wil::com_ptr_nothrow<IActivateAudioInterfaceAsyncOperation> asyncOp;
 
-    REFERENCE_TIME defaultPeriod = 0;
-    REFERENCE_TIME minPeriod = 0;
-
-    hr = _audioClient->GetDevicePeriod(&defaultPeriod, &minPeriod);
+    hr = ActivateAudioInterfaceAsync(VIRTUAL_AUDIO_DEVICE_PROCESS_LOOPBACK, __uuidof(IAudioClient), &activateParams, _audioClientActivationHandler.get(), &asyncOp);
 
     if (FAILED(hr)) {
         _recordingFailed = true;
-        return CleanupResources();
+        return;
     }
 
-    hr = _audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_LOOPBACK, minPeriod, 0,
-                                  _wFormat,
-                                  nullptr);
+    // Ignore result.
+    static_cast<void>(_audioClientActivationHandler->hActivateCompleted.wait());
 
-    if (FAILED(hr)) {
-        _recordingFailed = true;
-        return CleanupResources();
-    }
-
-    hr = _audioClient->GetService(IID_IAudioCaptureClient, reinterpret_cast<void **>(&_captureClient));
-
-    if (FAILED(hr)) {
-        _recordingFailed = true;
-        return CleanupResources();
-    }
-
-    hr = _audioClient->Start();
-
-    if (FAILED(hr)) {
-        _recordingFailed = true;
-        return CleanupResources();
-    }
-
-    _recording = true;
+    _recording = !FAILED(_audioClientActivationHandler->activateResult);
 }
 
 void AudioDisplayRecorder::StopCapture() {
@@ -93,12 +119,10 @@ void AudioDisplayRecorder::StopCapture() {
         return;
     }
 
-    if (_audioClient != nullptr) {
+    if (_audioClientActivationHandler->audioClient != nullptr) {
         // We are already cleaning up here so just ignore result.
-        static_cast<void>(_audioClient->Stop());
+        static_cast<void>(_audioClientActivationHandler->audioClient->Stop());
     }
-
-    CleanupResources();
 
     _recording = false;
 }
@@ -112,7 +136,7 @@ bool AudioDisplayRecorder::ProcessRecordedPart(bool firstInCycle) {
 
     UINT32 packetLength = 0;
 
-    HRESULT hr = _captureClient->GetNextPacketSize(&packetLength);
+    HRESULT hr = _audioClientActivationHandler->captureClient->GetNextPacketSize(&packetLength);
 
     if (FAILED(hr) || packetLength == 0) {
         return false;
@@ -121,7 +145,7 @@ bool AudioDisplayRecorder::ProcessRecordedPart(bool firstInCycle) {
     UINT32 numFramesAvailable = 0;
     DWORD flags = 0;
 
-    hr = _captureClient->GetBuffer(&_buffer, &numFramesAvailable, &flags, nullptr, nullptr);
+    hr = _audioClientActivationHandler->captureClient->GetBuffer(&_buffer, &numFramesAvailable, &flags, nullptr, nullptr);
 
     if (FAILED(hr)) {
         return false;
@@ -129,26 +153,17 @@ bool AudioDisplayRecorder::ProcessRecordedPart(bool firstInCycle) {
 
     if (flags & AUDCLNT_BUFFERFLAGS_SILENT) {
         // No-op if buffer can't be released.
-        static_cast<void>(_captureClient->ReleaseBuffer(numFramesAvailable));
+        static_cast<void>(_audioClientActivationHandler->captureClient->ReleaseBuffer(numFramesAvailable));
         return false;
     }
 
-    const auto stereoBuffer = reinterpret_cast<const float *>(_buffer);
+    const auto buffer = reinterpret_cast<const int16_t *>(_buffer);
 
     for (int i = 0; i < numFramesAvailable; ++i) {
-        // Convert stereo 32 bit to mono 16 bit by averaging channels.
-        const float monoSample = (stereoBuffer[i * stereoChannels] + stereoBuffer[i * stereoChannels + 1]) * 0.5;
-
-        // Scale float to 16 bit int.
-        float min = std::numeric_limits<int16_t>::min();
-        float max = std::numeric_limits<int16_t>::max();
-        float scaled = monoSample * max;
-        scaled = std::max(min, std::min(max, scaled));
-
-        _recordedSamples->push_back(static_cast<int16_t>(scaled));
+        _recordedSamples->push_back(buffer[i]);
     }
 
-    hr = _captureClient->ReleaseBuffer(numFramesAvailable);
+    hr = _audioClientActivationHandler->captureClient->ReleaseBuffer(numFramesAvailable);
 
     if (FAILED(hr)) {
         return false;
@@ -173,56 +188,6 @@ bool AudioDisplayRecorder::ProcessRecordedPart(bool firstInCycle) {
 
 webrtc::scoped_refptr<bridge::LocalAudioSource> AudioDisplayRecorder::GetSource() {
     return _source;
-}
-
-IMMDevice *AudioDisplayRecorder::GetDefaultDevice() {
-    IMMDeviceEnumerator *pEnumerator = nullptr;
-
-    HRESULT hr = CoCreateInstance(
-        CLSID_MMDeviceEnumerator,
-        nullptr,
-        CLSCTX_ALL,
-        IID_IMMDeviceEnumerator,
-        reinterpret_cast<void **>(&pEnumerator)
-    );
-
-    if (FAILED(hr)) {
-        return nullptr;
-    }
-
-    IMMDevice *pDevice = nullptr;
-
-    // Using eRender to capture data from audio rendering device.
-    hr = pEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &pDevice);
-    pEnumerator->Release();
-
-    if (FAILED(hr)) {
-        return nullptr;
-    }
-
-    return pDevice;
-}
-
-void AudioDisplayRecorder::CleanupResources() {
-    if (_wFormat != nullptr) {
-        CoTaskMemFree(_wFormat);
-        _wFormat = nullptr;
-    }
-
-    if (_device != nullptr) {
-        _device->Release();
-        _device = nullptr;
-    }
-
-    if (_audioClient != nullptr) {
-        _audioClient->Release();
-        _audioClient = nullptr;
-    }
-
-    if (_captureClient != nullptr) {
-        _captureClient->Release();
-        _captureClient = nullptr;
-    }
 }
 
 #endif // WEBRTC_WIN
