@@ -9,7 +9,7 @@ const auto IID_IAudioCaptureClient = __uuidof(IAudioCaptureClient);
 
 #define BITS_PER_BYTE 8
 
-HRESULT AudioClientActivationHandler::ActivateCompleted(IActivateAudioInterfaceAsyncOperation* activateOperation) {
+HRESULT AudioClientActivationHandler::ActivateCompleted(IActivateAudioInterfaceAsyncOperation *activateOperation) {
     HRESULT hrActivateResult = E_UNEXPECTED;
     wil::com_ptr_nothrow<IUnknown> punkAudioInterface;
 
@@ -36,9 +36,10 @@ HRESULT AudioClientActivationHandler::ActivateCompleted(IActivateAudioInterfaceA
     wFormat.nBlockAlign = wFormat.nChannels * wFormat.wBitsPerSample / BITS_PER_BYTE;
     wFormat.nAvgBytesPerSec = wFormat.nSamplesPerSec * wFormat.nBlockAlign;
 
-    hr = audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, (AUDCLNT_STREAMFLAGS_LOOPBACK | AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM), 100000, 0,
-                                  &wFormat,
-                                  nullptr);
+    hr = audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED,
+                                 (AUDCLNT_STREAMFLAGS_LOOPBACK | AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM), 100000, 0,
+                                 &wFormat,
+                                 nullptr);
 
     if (FAILED(hr)) {
         activateResult = hr;
@@ -89,7 +90,8 @@ void AudioDisplayRecorder::StartCapture() {
 
     AUDIOCLIENT_ACTIVATION_PARAMS audioclientActivationParams = {};
     audioclientActivationParams.ActivationType = AUDIOCLIENT_ACTIVATION_TYPE_PROCESS_LOOPBACK;
-    audioclientActivationParams.ProcessLoopbackParams.ProcessLoopbackMode = PROCESS_LOOPBACK_MODE_EXCLUDE_TARGET_PROCESS_TREE;
+    audioclientActivationParams.ProcessLoopbackParams.ProcessLoopbackMode =
+            PROCESS_LOOPBACK_MODE_EXCLUDE_TARGET_PROCESS_TREE;
     audioclientActivationParams.ProcessLoopbackParams.TargetProcessId = GetCurrentProcessId();
 
     PROPVARIANT activateParams = {};
@@ -99,7 +101,9 @@ void AudioDisplayRecorder::StartCapture() {
 
     wil::com_ptr_nothrow<IActivateAudioInterfaceAsyncOperation> asyncOp;
 
-    hr = ActivateAudioInterfaceAsync(VIRTUAL_AUDIO_DEVICE_PROCESS_LOOPBACK, __uuidof(IAudioClient), &activateParams, _audioClientActivationHandler.get(), &asyncOp);
+    hr = ActivateAudioInterfaceAsync(
+        VIRTUAL_AUDIO_DEVICE_PROCESS_LOOPBACK, __uuidof(IAudioClient), &activateParams,
+        _audioClientActivationHandler.get(), &asyncOp);
 
     if (FAILED(hr)) {
         _recordingFailed = true;
@@ -145,7 +149,8 @@ bool AudioDisplayRecorder::ProcessRecordedPart(bool firstInCycle) {
     UINT32 numFramesAvailable = 0;
     DWORD flags = 0;
 
-    hr = _audioClientActivationHandler->captureClient->GetBuffer(&_buffer, &numFramesAvailable, &flags, nullptr, nullptr);
+    hr = _audioClientActivationHandler->captureClient->GetBuffer(&_buffer, &numFramesAvailable, &flags, nullptr,
+                                                                 nullptr);
 
     if (FAILED(hr)) {
         return false;

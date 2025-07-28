@@ -19,7 +19,8 @@
 
 using namespace Microsoft::WRL;
 
-class AudioClientActivationHandler final : public RuntimeClass<RuntimeClassFlags<ClassicCom>, FtmBase, IActivateAudioInterfaceCompletionHandler> {
+class AudioClientActivationHandler final : public RuntimeClass<RuntimeClassFlags<ClassicCom>, FtmBase,
+            IActivateAudioInterfaceCompletionHandler> {
 public:
     HRESULT ActivateCompleted(IActivateAudioInterfaceAsyncOperation *activateOperation) override;
 
@@ -27,7 +28,7 @@ public:
     wil::unique_event_nothrow hActivateCompleted;
     wil::com_ptr_nothrow<IAudioClient> audioClient;
     wil::com_ptr_nothrow<IAudioCaptureClient> captureClient;
-    WAVEFORMATEX wFormat {};
+    WAVEFORMATEX wFormat{};
 };
 
 class AudioDisplayRecorder final : public AudioRecorder {
