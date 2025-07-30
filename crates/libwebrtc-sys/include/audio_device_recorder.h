@@ -10,46 +10,42 @@
 // Audio recording from an audio device and propagation of the recorded audio
 // data to a `bridge::LocalAudioSource`.
 class AudioDeviceRecorder final : public AudioRecorder {
-public:
-    AudioDeviceRecorder(std::string deviceId,
-                        webrtc::scoped_refptr<webrtc::AudioProcessing> ap);
+ public:
+  AudioDeviceRecorder(std::string deviceId,
+                      webrtc::scoped_refptr<webrtc::AudioProcessing> ap);
 
-    // Captures a new batch of audio samples and propagates it to the inner
-    // `bridge::LocalAudioSource`.
-    bool ProcessRecordedPart(bool firstInCycle) override;
+  // Captures a new batch of audio samples and propagates it to the inner
+  // `bridge::LocalAudioSource`.
+  bool ProcessRecordedPart(bool firstInCycle);
 
-    // Stops audio capture freeing the captured device.
-    void StopCapture() override;
+  // Stops audio capture freeing the captured device.
+  void StopCapture();
 
-    // Starts recording audio from the captured device.
-    void StartCapture() override;
+  // Starts recording audio from the captured device.
+  void StartCapture();
 
-    // Returns the `bridge::LocalAudioSource` that this `AudioDeviceRecorder`
-    // writes the recorded audio to.
-    webrtc::scoped_refptr<bridge::LocalAudioSource> GetSource() override;
+  // Returns the `bridge::LocalAudioSource` that this `AudioDeviceRecorder`
+  // writes the recorded audio to.
+  webrtc::scoped_refptr<bridge::LocalAudioSource> GetSource();
 
-private:
-    void openRecordingDevice();
+ private:
+  void openRecordingDevice();
+  bool checkDeviceFailed();
+  void closeRecordingDevice();
+  void restartRecording();
+  bool validateRecordingDeviceId();
 
-    bool checkDeviceFailed();
-
-    void closeRecordingDevice();
-
-    void restartRecording();
-
-    bool validateRecordingDeviceId();
-
-    webrtc::scoped_refptr<bridge::LocalAudioSource> _source;
-    webrtc::scoped_refptr<webrtc::AudioProcessing> _audio_processing;
-    ALCdevice *_device;
-    std::string _deviceId;
-    std::recursive_mutex _mutex;
-    bool _recordingFailed = false;
-    bool _recording = false;
-    int _recordBufferSize = kRecordingPart * sizeof(int16_t) * kRecordingChannels;
-    std::vector<char> *_recordedSamples =
-            new std::vector<char>(_recordBufferSize, 0);
-    int _emptyRecordingData = 0;
+  webrtc::scoped_refptr<bridge::LocalAudioSource> _source;
+  webrtc::scoped_refptr<webrtc::AudioProcessing> _audio_processing;
+  ALCdevice* _device;
+  std::string _deviceId;
+  std::recursive_mutex _mutex;
+  bool _recordingFailed = false;
+  bool _recording = false;
+  int _recordBufferSize = kRecordingPart * sizeof(int16_t) * kRecordingChannels;
+  std::vector<char>* _recordedSamples =
+      new std::vector<char>(_recordBufferSize, 0);
+  int _emptyRecordingData = 0;
 };
 
 #endif  // BRIDGE_AUDIO_DEVICE_RECORDER_H_

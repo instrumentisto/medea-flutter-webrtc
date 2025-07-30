@@ -24,9 +24,7 @@ std::string GetDefaultDeviceId(ALCenum specifier) {
 }
 
 bool CheckDeviceFailed(ALCdevice* device) {
-  auto code = alcGetError(device);
-
-  if (code != ALC_NO_ERROR) {
+  if (auto code = alcGetError(device); code != ALC_NO_ERROR) {
     RTC_LOG(LS_ERROR) << "OpenAL Error " << code << ": "
                       << (const char*)alcGetString(device, code);
     return true;
@@ -42,8 +40,8 @@ AudioDeviceRecorder::AudioDeviceRecorder(
   _device = alcCaptureOpenDevice(deviceId.empty() ? nullptr : deviceId.c_str(),
                                  kRecordingFrequency, AL_FORMAT_MONO16,
                                  kRecordingFrequency);
-  _source = bridge::LocalAudioSource::Create(webrtc::AudioOptions(), std::move(ap));
-  _deviceId = std::move(deviceId);
+  _source = bridge::LocalAudioSource::Create(webrtc::AudioOptions(), ap);
+  _deviceId = deviceId;
 }
 
 bool AudioDeviceRecorder::ProcessRecordedPart(bool isFirstInCycle) {
@@ -168,6 +166,8 @@ void AudioDeviceRecorder::restartRecording() {
   if (_device && !_recordingFailed) {
     StartCapture();
   }
+
+  return;
 }
 
 void AudioDeviceRecorder::closeRecordingDevice() {
