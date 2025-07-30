@@ -189,7 +189,6 @@ mod devices;
 pub mod frb;
 mod media;
 mod pc;
-mod platform;
 mod renderer;
 pub mod video_sink;
 
@@ -258,8 +257,6 @@ pub struct Webrtc {
 impl Webrtc {
     /// Creates a new [`Webrtc`] context.
     fn new() -> anyhow::Result<Self> {
-        platform::init()?;
-
         let mut task_queue_factory =
             sys::TaskQueueFactory::create_default_task_queue_factory();
 
@@ -308,12 +305,6 @@ impl Webrtc {
         devices::init_on_device_change();
 
         Ok(this)
-    }
-}
-
-impl Drop for Webrtc {
-    fn drop(&mut self) {
-        platform::uninit();
     }
 }
 
