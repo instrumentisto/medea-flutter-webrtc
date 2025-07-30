@@ -10,12 +10,17 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.15.1...main)
 
+### Added
+
+- Support for system audio capturing on Windows. ([#245])
+
 ### Changed
 
 - Upgraded [libwebrtc] to [138.0.7204.168] version. ([6d92e282])
 
 [todo]: https://github.com/instrumentisto/medea-flutter-webrtc/commit/todo
 [138.0.7204.168]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/138.0.7204.168
+[245]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/245
 
 
 
