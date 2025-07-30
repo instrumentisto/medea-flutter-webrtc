@@ -246,6 +246,7 @@ pub struct Webrtc {
     audio_tracks: Arc<DashMap<(AudioTrackId, TrackOrigin), AudioTrack>>,
     video_sinks: HashMap<VideoSinkId, VideoSink>,
     devices_state: DevicesState,
+    /// Handler for platform specific initialization and clean-up.
     _platform: Platform,
 
     /// `peer_connection_factory` must be dropped before [`Thread`]s.

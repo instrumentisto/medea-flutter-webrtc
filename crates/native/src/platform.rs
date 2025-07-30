@@ -1,3 +1,5 @@
+//! Platform initialization and clean-up handler.
+
 #[cfg(target_os = "windows")]
 pub use windows::Platform;
 
@@ -37,7 +39,7 @@ mod windows {
         }
     }
 
-    pub fn init() -> anyhow::Result<()> {
+    fn init() -> anyhow::Result<()> {
         unsafe {
             Com::CoInitializeEx(None, COINIT_MULTITHREADED)
                 .ok()
@@ -45,7 +47,7 @@ mod windows {
         }
     }
 
-    pub fn uninit() {
+    fn uninit() {
         unsafe {
             Com::CoUninitialize();
         }
