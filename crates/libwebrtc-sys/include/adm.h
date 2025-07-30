@@ -42,7 +42,7 @@
 #include "api/task_queue/task_queue_factory.h"
 #include "delegating_apm.h"
 #include "libwebrtc-sys/include/audio_device_recorder.h"
-#include "libwebrtc-sys/include/windows_audio_display_recorder.h"
+#include "libwebrtc-sys/include/win/audio_display_recorder.h"
 #include "libwebrtc-sys/include/local_audio_source.h"
 #include "modules/audio_device/audio_device_buffer.h"
 #include "modules/audio_device/audio_device_generic.h"

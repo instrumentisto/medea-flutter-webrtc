@@ -1,6 +1,6 @@
 #ifdef WEBRTC_WIN
 
-#include "libwebrtc-sys/include/windows_audio_display_recorder.h"
+#include "libwebrtc-sys/include/win/audio_display_recorder.h"
 
 const auto CLSID_MMDeviceEnumerator = __uuidof(MMDeviceEnumerator);
 const auto IID_IMMDeviceEnumerator = __uuidof(IMMDeviceEnumerator);
@@ -8,6 +8,7 @@ const auto IID_IAudioClient = __uuidof(IAudioClient);
 const auto IID_IAudioCaptureClient = __uuidof(IAudioCaptureClient);
 
 #define BITS_PER_BYTE 8
+#define TEN_MS 100000
 
 HRESULT AudioClientActivationHandler::ActivateCompleted(IActivateAudioInterfaceAsyncOperation *activateOperation) {
     HRESULT hrActivateResult = E_UNEXPECTED;
@@ -37,7 +38,7 @@ HRESULT AudioClientActivationHandler::ActivateCompleted(IActivateAudioInterfaceA
     wFormat.nAvgBytesPerSec = wFormat.nSamplesPerSec * wFormat.nBlockAlign;
 
     hr = audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED,
-                                 (AUDCLNT_STREAMFLAGS_LOOPBACK | AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM), 100000, 0,
+                                 (AUDCLNT_STREAMFLAGS_LOOPBACK | AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM), TEN_MS, 0,
                                  &wFormat,
                                  nullptr);
 
