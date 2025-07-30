@@ -217,9 +217,7 @@ pub use crate::{
     },
     video_sink::VideoSink,
 };
-use crate::{
-    media::TrackOrigin, video_sink::Id as VideoSinkId,
-};
+use crate::{media::TrackOrigin, video_sink::Id as VideoSinkId};
 
 /// Main [`ThreadPool`] used by [`flutter_rust_bridge`] when calling
 /// synchronous Rust code to avoid locking [`libwebrtc`] threads.
