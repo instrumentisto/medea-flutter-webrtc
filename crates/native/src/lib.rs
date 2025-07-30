@@ -219,7 +219,7 @@ pub use crate::{
     video_sink::VideoSink,
 };
 use crate::{
-    media::TrackOrigin, platform::Platform, video_sink::Id as VideoSinkId,
+    media::TrackOrigin, video_sink::Id as VideoSinkId,
 };
 
 /// Main [`ThreadPool`] used by [`flutter_rust_bridge`] when calling
@@ -246,8 +246,6 @@ pub struct Webrtc {
     audio_tracks: Arc<DashMap<(AudioTrackId, TrackOrigin), AudioTrack>>,
     video_sinks: HashMap<VideoSinkId, VideoSink>,
     devices_state: DevicesState,
-    /// Handler for platform specific initialization and clean-up.
-    _platform: Platform,
 
     /// `peer_connection_factory` must be dropped before [`Thread`]s.
     peer_connection_factory: sys::PeerConnectionFactoryInterface,
@@ -260,7 +258,7 @@ pub struct Webrtc {
 impl Webrtc {
     /// Creates a new [`Webrtc`] context.
     fn new() -> anyhow::Result<Self> {
-        let platform = Platform::new()?;
+        platform::init()?;
 
         let mut task_queue_factory =
             sys::TaskQueueFactory::create_default_task_queue_factory();
@@ -298,7 +296,6 @@ impl Webrtc {
             audio_sources: HashMap::new(),
             audio_tracks: Arc::new(DashMap::new()),
             video_sinks: HashMap::new(),
-            _platform: platform,
         };
 
         this.devices_state.audio_inputs =
@@ -311,6 +308,12 @@ impl Webrtc {
         devices::init_on_device_change();
 
         Ok(this)
+    }
+}
+
+impl Drop for Webrtc {
+    fn drop(&mut self) {
+        platform::uninit();
     }
 }
 

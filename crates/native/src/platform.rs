@@ -1,21 +1,18 @@
 //! Platform initialization and clean-up handler.
 
 #[cfg(target_os = "windows")]
-pub use windows::Platform;
+pub use windows::*;
 
 #[cfg(not(target_os = "windows"))]
-pub struct Platform;
+pub use default::*;
 
 #[cfg(not(target_os = "windows"))]
-#[expect(
-    clippy::unnecessary_wraps,
-    clippy::missing_const_for_fn,
-    reason = "platform specific"
-)]
-impl Platform {
-    pub fn new() -> anyhow::Result<Self> {
-        Ok(Self)
+mod default {
+    pub fn init() -> anyhow::Result<()> {
+        Ok(())
     }
+
+    pub fn uninit() {}
 }
 
 #[cfg(target_os = "windows")]
@@ -23,23 +20,7 @@ mod windows {
     use anyhow::anyhow;
     use windows::Win32::System::Com::{self, COINIT_MULTITHREADED};
 
-    pub struct Platform;
-
-    impl Platform {
-        pub fn new() -> anyhow::Result<Self> {
-            init()?;
-
-            Ok(Self)
-        }
-    }
-
-    impl Drop for Platform {
-        fn drop(&mut self) {
-            uninit();
-        }
-    }
-
-    fn init() -> anyhow::Result<()> {
+    pub fn init() -> anyhow::Result<()> {
         unsafe {
             Com::CoInitializeEx(None, COINIT_MULTITHREADED)
                 .ok()
@@ -47,7 +28,7 @@ mod windows {
         }
     }
 
-    fn uninit() {
+    pub fn uninit() {
         unsafe {
             Com::CoUninitialize();
         }
