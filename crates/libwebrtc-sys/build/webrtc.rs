@@ -4,9 +4,10 @@
 
 use std::{
     borrow::Cow,
-    fs,
+    env, fs,
     fs::File,
-    io::{BufReader, BufWriter, Read as _, Write as _},
+    io,
+    io::{BufReader, BufWriter, Read as _},
     path::PathBuf,
 };
 
@@ -99,12 +100,12 @@ impl Artifact {
         lib_dir: &PathBuf,
         checksum: PathBuf,
     ) -> anyhow::Result<Option<DownloadedArtifact>> {
-        let manifest_path = PathBuf::from(dotenv::var("CARGO_MANIFEST_DIR")?);
+        let manifest_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
         let temp_dir = manifest_path.join("temp");
         let archive = temp_dir.join(&self.name);
 
         // Force download if `INSTALL_WEBRTC=1`.
-        if dotenv::var("INSTALL_WEBRTC").as_deref().unwrap_or("0") == "0" {
+        if env::var("INSTALL_WEBRTC").as_deref().unwrap_or("0") == "0" {
             // Skip download if already downloaded and checksum matches.
             if fs::metadata(lib_dir).is_ok_and(|m| m.is_dir())
                 && fs::read(&checksum).unwrap_or_default().as_slice()
@@ -133,7 +134,11 @@ impl Artifact {
                     break;
                 }
                 hasher.update(&buffer[0..count]);
-                _ = out_file.write(&buffer[0..count])?;
+                io::copy(&mut &buffer[0..count], &mut out_file)?;
+            }
+
+            if format!("{:x}", hasher.finalize()).as_str() != self.digest {
+                anyhow::bail!("SHA-256 checksum doesn't match");
             }
         }
 
@@ -153,12 +158,16 @@ impl Artifact {
     fn archive_name() -> anyhow::Result<String> {
         let mut name = String::from("libwebrtc-");
 
-        #[cfg(target_os = "windows")]
-        name.push_str("windows-x64");
-        #[cfg(target_os = "linux")]
-        name.push_str("linux-x64");
-
         match get_target()?.as_str() {
+            "x86_64-pc-windows-msvc" => {
+                name.push_str("windows-x64");
+            }
+            "aarch64-unknown-linux-gnu" => {
+                name.push_str("linux-arm64");
+            }
+            "x86_64-unknown-linux-gnu" => {
+                name.push_str("linux-x64");
+            }
             "aarch64-apple-darwin" => {
                 name.push_str("macos-arm64");
             }
@@ -222,7 +231,7 @@ enum WebrtcRepository {
 impl WebrtcRepository {
     /// Create a new `libwebrtc` GitHub repository representation.
     fn build() -> Self {
-        if let Ok(branch) = dotenv::var("WEBRTC_BRANCH") {
+        if let Ok(branch) = env::var("WEBRTC_BRANCH") {
             return Self::Branch { name: branch };
         }
 
@@ -358,11 +367,9 @@ impl WebrtcRepository {
 
     /// Get GitHub API token from environment variables.
     fn github_token() -> anyhow::Result<String> {
-        dotenv::var("GH_TOKEN")
-            .or_else(|_| dotenv::var("GITHUB_TOKEN"))
-            .context(
-                "libwebrtc branch was selected but github token isn't set.",
-            )
+        env::var("GH_TOKEN").or_else(|_| env::var("GITHUB_TOKEN")).context(
+            "libwebrtc branch was selected but github token isn't set.",
+        )
     }
 }
 
