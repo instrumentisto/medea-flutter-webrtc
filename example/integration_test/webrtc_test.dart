@@ -1371,17 +1371,11 @@ void main() {
     var tracks = await getDisplayMedia(caps);
 
     expect(tracks.length, 2);
-    expect(
-        tracks.where((track) => track.kind() == MediaKind.video).length,
-        1
-    );
-    expect(
-        tracks.where((track) => track.kind() == MediaKind.audio).length,
-        1
-    );
+    expect(tracks.where((track) => track.kind() == MediaKind.video).length, 1);
+    expect(tracks.where((track) => track.kind() == MediaKind.audio).length, 1);
 
     var audioTrack = tracks.firstWhere(
-      (track) => track.kind() == MediaKind.audio
+      (track) => track.kind() == MediaKind.audio,
     );
 
     expect(audioTrack.deviceId(), "__DISPLAY_AUDIO__");
