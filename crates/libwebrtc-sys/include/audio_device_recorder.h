@@ -16,17 +16,17 @@ class AudioDeviceRecorder final : public AudioRecorder {
 
   // Captures a new batch of audio samples and propagates it to the inner
   // `bridge::LocalAudioSource`.
-  bool ProcessRecordedPart(bool firstInCycle);
+  bool ProcessRecordedPart(bool firstInCycle) override;
 
   // Stops audio capture freeing the captured device.
-  void StopCapture();
+  void StopCapture() override;
 
   // Starts recording audio from the captured device.
-  void StartCapture();
+  void StartCapture() override;
 
   // Returns the `bridge::LocalAudioSource` that this `AudioDeviceRecorder`
   // writes the recorded audio to.
-  webrtc::scoped_refptr<bridge::LocalAudioSource> GetSource();
+  webrtc::scoped_refptr<bridge::LocalAudioSource> GetSource() override;
 
  private:
   void openRecordingDevice();
