@@ -154,7 +154,7 @@ use std::process;
 use std::{
     env, fs,
     fs::File,
-    io::{BufReader, BufWriter, Read as _, Write as _},
+    io::{self, BufReader, BufWriter, Read as _, Write as _},
     path::{Path, PathBuf},
     process::Command,
 };
@@ -180,6 +180,15 @@ static LIBWEBRTC_URL: &str = "\
 static OPENAL_URL: &str =
     "https://github.com/kcat/openal-soft/archive/refs/tags/1.24.3";
 
+/// URL for downloading [`wil`] source code.
+///
+/// NOTE: `v1.0.250325.1` has [`compilation issues`] and should not
+/// be used.
+///
+/// [`wil`]: https://github.com/instrumentisto/libwebrtc-bin
+static WIL_URL: &str =
+    "https://github.com/microsoft/wil/archive/refs/tags/v1.0.240803.1";
+
 fn main() -> anyhow::Result<()> {
     let lib_dir = libpath()?;
     if lib_dir.exists() {
@@ -187,6 +196,7 @@ fn main() -> anyhow::Result<()> {
     }
     download_libwebrtc()?;
     compile_openal()?;
+    download_wil()?;
 
     let path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
     let libpath = libpath()?;
@@ -203,6 +213,7 @@ fn main() -> anyhow::Result<()> {
         .include(libpath.join("include"))
         .include(libpath.join("include/third_party/abseil-cpp"))
         .include(libpath.join("include/third_party/libyuv/include"))
+        .include(libpath.join("include/third_party/wil"))
         .flag("-DNOMINMAX");
 
     #[cfg(target_os = "windows")]
@@ -578,6 +589,65 @@ fn download_libwebrtc() -> anyhow::Result<()> {
 
     // Write the downloaded checksum.
     fs::write(&checksum, expected_hash).map_err(Into::into)
+}
+
+/// Download Windows `wil` header-only library.
+fn download_wil() -> anyhow::Result<()> {
+    let wil_version = WIL_URL.split('/').next_back().unwrap_or_default();
+    let manifest_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
+    let temp_dir = manifest_path.join("temp");
+
+    let archive = temp_dir.join(format!("{wil_version}.tar.gz"));
+
+    let is_already_installed = fs::metadata(
+        manifest_path.join("include").join("third_party").join("wil"),
+    )
+    .is_ok();
+    let is_force_install =
+        env::var("INSTALL_WIL").as_deref().unwrap_or("0") == "1";
+
+    if !is_force_install && is_already_installed {
+        return Ok(());
+    }
+
+    if temp_dir.exists() {
+        fs::remove_dir_all(&temp_dir)?;
+    }
+    fs::create_dir_all(&temp_dir)?;
+
+    {
+        let mut resp = BufReader::new(reqwest::blocking::get(format!(
+            "{WIL_URL}.tar.gz",
+        ))?);
+        let mut out_file = BufWriter::new(File::create(&archive)?);
+
+        let mut buffer = [0; 512];
+        loop {
+            let count = resp.read(&mut buffer)?;
+            if count == 0 {
+                break;
+            }
+
+            io::copy(&mut &buffer[0..count], &mut out_file)?;
+        }
+    }
+
+    let mut archive = Archive::new(GzDecoder::new(File::open(archive)?));
+    archive.unpack(&temp_dir)?;
+
+    let unprefixed_version: String = wil_version.chars().skip(1).collect();
+    let src_path = temp_dir.join(format!("wil-{unprefixed_version}"));
+
+    copy_dir_all(
+        src_path.join("include"),
+        manifest_path
+            .join("lib")
+            .join(get_target()?.as_str())
+            .join("include")
+            .join("third_party"),
+    )?;
+
+    Ok(())
 }
 
 /// Returns a list of all C++ sources that should be compiled.

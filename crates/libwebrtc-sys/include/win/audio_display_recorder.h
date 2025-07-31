@@ -10,8 +10,8 @@
 #include <audioclientactivationparams.h>
 #include <mfapi.h>
 #include <wrl/implements.h>
-#include <win/wil/com.h>
-#include <win/wil/result.h>
+#include <third_party/wil/com.h>
+#include <third_party/wil/result.h>
 #include <vector>
 #include <mutex>
 
