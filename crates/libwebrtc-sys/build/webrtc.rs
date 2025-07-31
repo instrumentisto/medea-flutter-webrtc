@@ -4,7 +4,9 @@
 
 use std::{
     borrow::Cow,
-    env, fs,
+    env,
+    fmt::{self, Display},
+    fs,
     fs::File,
     io,
     io::{BufReader, BufWriter, Read as _},
@@ -83,26 +85,24 @@ impl DownloadedArtifact {
 
 /// Build artifact from release or workflow run.
 struct Artifact {
-    /// Name of the artifact
-    name: String,
+    /// Archive metadata.
+    archive: ArchiveMetadata,
     /// Hash of archive's content.
     digest: Cow<'static, str>,
     /// Url for downloading the archive. It expires in 1 minute.
     download_url: String,
-    /// Is artifact wrapped in another archive.
-    is_wrapped: bool,
 }
 
 impl Artifact {
     /// Download the `libwebrtc` archive.
     fn download(
-        self,
+        mut self,
         lib_dir: &PathBuf,
         checksum: PathBuf,
     ) -> anyhow::Result<Option<DownloadedArtifact>> {
         let manifest_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
         let temp_dir = manifest_path.join("temp");
-        let archive = temp_dir.join(&self.name);
+        let archive = temp_dir.join(self.archive.to_string());
 
         // Force download if `INSTALL_WEBRTC=1`.
         if env::var("INSTALL_WEBRTC").as_deref().unwrap_or("0") == "0" {
@@ -142,44 +142,94 @@ impl Artifact {
             }
         }
 
-        if self.is_wrapped {
-            ZipArchive::new(File::open(&archive)?)?.extract(&temp_dir)?;
-        }
+        self.unpack(&archive, &temp_dir)?;
 
         Ok(Some(DownloadedArtifact {
-            path: temp_dir.join(Self::archive_name()?),
+            path: temp_dir.join(self.archive.to_string()),
             temp_dir,
             checksum,
             artifact: self,
         }))
     }
 
-    /// Get name of the libwebrtc archive.
-    fn archive_name() -> anyhow::Result<String> {
-        let mut name = String::from("libwebrtc-");
-
-        match get_target()?.as_str() {
-            "x86_64-pc-windows-msvc" => {
-                name.push_str("windows-x64");
+    /// Unpacks the [`Artifact`] from the wrapper archive.
+    fn unpack(
+        &mut self,
+        archive_path: &PathBuf,
+        temp_dir: &PathBuf,
+    ) -> anyhow::Result<()> {
+        match self.archive {
+            ArchiveMetadata::GZip(_) => (),
+            ArchiveMetadata::Zip(platform) => {
+                ZipArchive::new(File::open(archive_path)?)?
+                    .extract(temp_dir)?;
+                self.archive = ArchiveMetadata::GZip(platform);
             }
-            "aarch64-unknown-linux-gnu" => {
-                name.push_str("linux-arm64");
-            }
-            "x86_64-unknown-linux-gnu" => {
-                name.push_str("linux-x64");
-            }
-            "aarch64-apple-darwin" => {
-                name.push_str("macos-arm64");
-            }
-            "x86_64-apple-darwin" => {
-                name.push_str("macos-x64");
-            }
-            _ => (),
         }
 
-        name.push_str(".tar.gz");
+        Ok(())
+    }
+}
 
-        Ok(name)
+/// Metadata of archive where [`Artifact`] is stored.
+#[derive(Clone, Copy)]
+enum ArchiveMetadata {
+    /// `.tar.gz` archive.
+    GZip(Platform),
+    /// `.zip` archive.
+    Zip(Platform),
+}
+
+impl Display for ArchiveMetadata {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::GZip(platform) => write!(f, "libwebrtc-{platform}.tar.gz"),
+            Self::Zip(platform) => write!(f, "build-{platform}.zip"),
+        }
+    }
+}
+
+/// Supported platforms for building.
+#[derive(Clone, Copy)]
+enum Platform {
+    /// `Linux` ARM64.
+    LinuxArm64,
+    /// `Linux` x64.
+    LinuxX64,
+    /// `MacOS` ARM64.
+    MacOSArm64,
+    /// `MacOS` x64.
+    MacOSX64,
+    /// `Windows` x64.
+    WindowsX64,
+}
+
+impl Display for Platform {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let name = match self {
+            Self::LinuxArm64 => "linux-arm64",
+            Self::LinuxX64 => "linux-x64",
+            Self::MacOSArm64 => "macos-arm64",
+            Self::MacOSX64 => "macos-x64",
+            Self::WindowsX64 => "windows-x64",
+        };
+
+        write!(f, "{name}")
+    }
+}
+
+impl TryFrom<&str> for Platform {
+    type Error = anyhow::Error;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        Ok(match value {
+            "aarch64-unknown-linux-gnu" => Self::LinuxArm64,
+            "x86_64-unknown-linux-gnu" => Self::LinuxX64,
+            "aarch64-apple-darwin" => Self::MacOSArm64,
+            "x86_64-apple-darwin" => Self::MacOSX64,
+            "x86_64-pc-windows-msvc" => Self::WindowsX64,
+            arch => return Err(anyhow::anyhow!("Unsupported target: {arch}")),
+        })
     }
 }
 
@@ -240,37 +290,37 @@ impl WebrtcRepository {
 
     /// Get an artifact from the repository.
     fn artifact(&self) -> anyhow::Result<Artifact> {
+        let platform = get_target()?.as_str().try_into()?;
+
         match self {
             Self::Release => {
-                let name = Artifact::archive_name()?;
+                let archive = ArchiveMetadata::GZip(platform);
                 let download_url = format!(
                     "{LIBWEBRTC_URL}/releases/download\
-                                    /{LIBWEBRTC_RELEASE}/{name}",
+                                    /{LIBWEBRTC_RELEASE}/{archive}",
                 );
 
                 Ok(Artifact {
+                    archive,
                     download_url,
-                    name,
                     digest: get_expected_libwebrtc_hash()?.into(),
-                    is_wrapped: false,
                 })
             }
             Self::Branch { name } => {
+                let archive = ArchiveMetadata::Zip(platform);
                 let client = Self::client()?;
 
                 let workflow_run = Self::workflow_run(&client, name.as_str())?;
-                let metadata = Self::artifact_metadata(&client, &workflow_run)?;
+                let metadata =
+                    Self::artifact_metadata(&client, &workflow_run, platform)?;
 
                 let response = client
                     .get(metadata.archive_download_url)
                     .query(&[("archive_format", "zip")])
                     .send()?;
 
-                let mut artifact_name = Self::artifact_name()?.to_owned();
-                artifact_name.push_str(".zip");
-
                 Ok(Artifact {
-                    name: artifact_name,
+                    archive,
                     digest: metadata
                         .digest
                         .split(':')
@@ -292,7 +342,6 @@ impl WebrtcRepository {
                         })?
                         .to_str()?
                         .into(),
-                    is_wrapped: true,
                 })
             }
         }
@@ -336,32 +385,24 @@ impl WebrtcRepository {
         ))
     }
 
-    /// Get libwebrtc build artifact from wokflow run.
+    /// Get libwebrtc build artifact from workflow run.
     fn artifact_metadata(
         client: &reqwest::blocking::Client,
         workflow_run: &WorkflowRun,
+        platform: Platform,
     ) -> anyhow::Result<ArtifactMetadata> {
         let response = client
             .get(workflow_run.artifacts_url.as_str())
-            .query(&[("name", Self::artifact_name()?), ("per_page", "1")])
+            .query(&[
+                ("name", format!("build-{platform}").as_str()),
+                ("per_page", "1"),
+            ])
             .send()?;
 
         let mut response: ArtifactsResponse = response.json()?;
 
         response.artifacts.pop().ok_or_else(|| {
             anyhow::anyhow!("Artifact was not found in GitHub API.")
-        })
-    }
-
-    /// Get name of the branch artifact.
-    fn artifact_name() -> anyhow::Result<&'static str> {
-        Ok(match get_target()?.as_str() {
-            "aarch64-unknown-linux-gnu" => "build-linux-arm64",
-            "x86_64-unknown-linux-gnu" => "build-linux-x64",
-            "aarch64-apple-darwin" => "build-macos-arm64",
-            "x86_64-apple-darwin" => "build-macos-x64",
-            "x86_64-pc-windows-msvc" => "build-windows-x64",
-            arch => return Err(anyhow::anyhow!("Unsupported target: {arch}")),
         })
     }
 
