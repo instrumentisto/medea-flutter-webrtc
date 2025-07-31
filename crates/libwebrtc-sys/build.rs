@@ -186,6 +186,7 @@ static OPENAL_URL: &str =
 /// be used.
 ///
 /// [`wil`]: https://github.com/instrumentisto/libwebrtc-bin
+/// [`compilation issues`]: https://github.com/microsoft/wil/issues/512
 static WIL_URL: &str =
     "https://github.com/microsoft/wil/archive/refs/tags/v1.0.240803.1";
 
