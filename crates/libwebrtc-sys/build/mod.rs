@@ -166,7 +166,7 @@ use regex_lite::Regex;
 use walkdir::{DirEntry, WalkDir};
 
 fn main() -> anyhow::Result<()> {
-    dotenv()?;
+    dotenv().ok();
 
     let lib_dir = libpath()?;
     if lib_dir.exists() {
