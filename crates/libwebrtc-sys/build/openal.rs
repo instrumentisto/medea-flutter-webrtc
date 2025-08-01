@@ -5,7 +5,7 @@
 use std::{
     env, fs,
     fs::File,
-    io::{self, BufReader, BufWriter, Read as _},
+    io::{self, Write as _},
     path::{Path, PathBuf},
     process::Command,
 };
@@ -24,7 +24,6 @@ static OPENAL_URL: &str =
 /// Copies [OpenAL] headers and compiled library to the required locations.
 ///
 /// [OpenAL]: https://github.com/kcat/openal-soft
-#[expect(clippy::too_many_lines, reason = "not matters here")]
 pub(super) fn compile() -> anyhow::Result<()> {
     let openal_version = OPENAL_URL.split('/').next_back().unwrap_or_default();
     let manifest_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
@@ -54,19 +53,13 @@ pub(super) fn compile() -> anyhow::Result<()> {
     fs::create_dir_all(&temp_dir)?;
 
     {
-        let mut resp = BufReader::new(reqwest::blocking::get(format!(
+        let mut resp = reqwest::blocking::get(format!(
             "{OPENAL_URL}/{openal_version}.tar.gz",
-        ))?);
-        let mut out_file = BufWriter::new(File::create(&archive)?);
+        ))?;
+        let mut out_file = File::create(&archive)?;
 
-        let mut buffer = [0; 512];
-        loop {
-            let count = resp.read(&mut buffer)?;
-            if count == 0 {
-                break;
-            }
-            io::copy(&mut &buffer[0..count], &mut out_file)?;
-        }
+        io::copy(&mut resp, &mut out_file)?;
+        out_file.flush()?;
     }
 
     let mut archive = Archive::new(GzDecoder::new(File::open(archive)?));

@@ -3,17 +3,14 @@
 //! [`libwebrtc-bin`]: https://github.com/instrumentisto/libwebrtc-bin
 
 use std::{
-    borrow::Cow,
-    env,
-    fmt::{self, Display},
-    fs,
+    env, fs,
     fs::File,
-    io,
-    io::{BufReader, BufWriter, Read as _},
+    io::{BufReader, BufWriter, Read as _, Write as _},
     path::PathBuf,
 };
 
 use anyhow::Context as _;
+use derive_more::Display;
 use flate2::read::GzDecoder;
 use reqwest::header::{AUTHORIZATION, HeaderMap, HeaderValue, USER_AGENT};
 use serde::Deserialize;
@@ -21,7 +18,7 @@ use sha2::{Digest as _, Sha256};
 use tar::Archive;
 use zip::ZipArchive;
 
-use crate::{get_target, libpath};
+use crate::libpath;
 
 /// Base URL for the [`libwebrtc-bin`] GitHub.
 ///
@@ -39,15 +36,39 @@ static LIBWEBRTC_RELEASE: &str = "138.0.7204.168";
 static GITHUB_API_URL: &str =
     "https://api.github.com/repos/instrumentisto/libwebrtc-bin";
 
+/// Returns expected `libwebrtc` archives SHA-256 hashes.
+fn get_expected_libwebrtc_hash() -> anyhow::Result<&'static str> {
+    Ok(match get_target()? {
+        Platform::LinuxArm64 => {
+            "85993256ee37f27e26efa80594be19eb02c60d345f7e676c9f56a53aa5857ea7"
+        }
+        Platform::LinuxX64 => {
+            "7c5ec76c2f54bf6d44f8c2f84cf35b36b30f421afc349983de4f04cb5c2f1674"
+        }
+        Platform::MacOSArm64 => {
+            "4cd38564031f502ac4e3b26d2b4cb0e7bd4e0846e328865dce5990da12d34ce0"
+        }
+        Platform::MacOSX64 => {
+            "72ddd24898cd8695e6ea187e6d6a27926bc67d0c613bcda70b27224ae0131fa4"
+        }
+        Platform::WindowsX64 => {
+            "d2962737109ec7415747a878d6193c5ef9a14c9b163b7ffe9e17aed90a953987"
+        }
+    })
+}
+
 /// Downloads and unpacks compiled `libwebrtc` library.
 pub(super) fn download() -> anyhow::Result<()> {
-    let repository = WebrtcRepository::build();
-    let artifact = repository.artifact()?;
+    let platform = get_target()?;
+
+    let repository = WebrtcRepository::new();
+    let artifact = repository.artifact(platform)?;
 
     let lib_dir = libpath()?;
 
+    println!("Using artifact from `{}`", artifact.download_url);
     if let Some(artifact) =
-        artifact.download(&lib_dir, lib_dir.join("CHECKSUM"))?
+        artifact.maybe_download(&lib_dir, lib_dir.join("CHECKSUM"))?
     {
         artifact.unpack(&lib_dir)?;
     }
@@ -59,10 +80,13 @@ pub(super) fn download() -> anyhow::Result<()> {
 struct DownloadedArtifact {
     /// Inner artifact.
     artifact: Artifact,
+
     /// Path to the archive.
     path: PathBuf,
+
     /// Path to temp directory where downloaded archive is stored.
     temp_dir: PathBuf,
+
     /// Path to checksum of the archive.
     checksum: PathBuf,
 }
@@ -87,15 +111,17 @@ impl DownloadedArtifact {
 struct Artifact {
     /// Archive metadata.
     archive: ArchiveMetadata,
+
     /// Hash of archive's content.
-    digest: Cow<'static, str>,
+    digest: String,
+
     /// Url for downloading the archive. It expires in 1 minute.
     download_url: String,
 }
 
 impl Artifact {
     /// Download the `libwebrtc` archive.
-    fn download(
+    fn maybe_download(
         mut self,
         lib_dir: &PathBuf,
         checksum: PathBuf,
@@ -134,8 +160,9 @@ impl Artifact {
                     break;
                 }
                 hasher.update(&buffer[0..count]);
-                io::copy(&mut &buffer[0..count], &mut out_file)?;
+                _ = out_file.write(&buffer[0..count])?;
             }
+            out_file.flush()?;
 
             if format!("{:x}", hasher.finalize()).as_str() != self.digest {
                 anyhow::bail!("SHA-256 checksum doesn't match");
@@ -172,50 +199,39 @@ impl Artifact {
 }
 
 /// Metadata of archive where [`Artifact`] is stored.
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Display)]
 enum ArchiveMetadata {
     /// `.tar.gz` archive.
+    #[display("libwebrtc-{}.tar.gz", _0)]
     GZip(Platform),
+
     /// `.zip` archive.
+    #[display("build-{}.zip", _0)]
     Zip(Platform),
 }
 
-impl Display for ArchiveMetadata {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::GZip(platform) => write!(f, "libwebrtc-{platform}.tar.gz"),
-            Self::Zip(platform) => write!(f, "build-{platform}.zip"),
-        }
-    }
-}
-
 /// Supported platforms for building.
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Display)]
 enum Platform {
     /// `Linux` ARM64.
+    #[display("linux-arm64")]
     LinuxArm64,
+
     /// `Linux` x64.
+    #[display("linux-x64")]
     LinuxX64,
+
     /// `MacOS` ARM64.
+    #[display("macos-arm64")]
     MacOSArm64,
+
     /// `MacOS` x64.
+    #[display("macos-x64")]
     MacOSX64,
+
     /// `Windows` x64.
+    #[display("windows-x64")]
     WindowsX64,
-}
-
-impl Display for Platform {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let name = match self {
-            Self::LinuxArm64 => "linux-arm64",
-            Self::LinuxX64 => "linux-x64",
-            Self::MacOSArm64 => "macos-arm64",
-            Self::MacOSX64 => "macos-x64",
-            Self::WindowsX64 => "windows-x64",
-        };
-
-        write!(f, "{name}")
-    }
 }
 
 impl TryFrom<&str> for Platform {
@@ -223,11 +239,11 @@ impl TryFrom<&str> for Platform {
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         Ok(match value {
-            "aarch64-unknown-linux-gnu" => Self::LinuxArm64,
-            "x86_64-unknown-linux-gnu" => Self::LinuxX64,
-            "aarch64-apple-darwin" => Self::MacOSArm64,
-            "x86_64-apple-darwin" => Self::MacOSX64,
-            "x86_64-pc-windows-msvc" => Self::WindowsX64,
+            "aarch64-unknown-linux-gnu" | "linux-arm64" => Self::LinuxArm64,
+            "x86_64-unknown-linux-gnu" | "linux-x64" => Self::LinuxX64,
+            "aarch64-apple-darwin" | "macos-arm64" => Self::MacOSArm64,
+            "x86_64-apple-darwin" | "macos-x64" => Self::MacOSX64,
+            "x86_64-pc-windows-msvc" | "windows-x64" => Self::WindowsX64,
             arch => return Err(anyhow::anyhow!("Unsupported target: {arch}")),
         })
     }
@@ -237,7 +253,8 @@ impl TryFrom<&str> for Platform {
 #[derive(Deserialize)]
 struct ArtifactMetadata {
     /// Hash of artifact's archive content.
-    digest: Cow<'static, str>,
+    digest: String,
+
     /// Url to REST API for getting artifact's download link.
     archive_download_url: String,
 }
@@ -254,7 +271,10 @@ struct ArtifactsResponse {
 /// Representation of a workflow run from GitHub API.
 #[derive(Deserialize)]
 struct WorkflowRun {
-    /// Url of REST API for getting list of artifacts.
+    /// Workflow run ID.
+    id: u64,
+
+    /// REST API URL to list all artifacts in this [`WorkflowRun`].
     artifacts_url: String,
 }
 
@@ -269,31 +289,30 @@ struct WorkflowRunsResponse {
 
 /// Representation of GitHub repository with build artifacts.
 enum WebrtcRepository {
-    /// Release representation.
+    /// Artifact will be fetched from the release assets.
     Release,
-    /// Branch representation.
-    Branch {
-        /// Name of the branch.
-        name: String,
-    },
+
+    /// Artifact will be fetched from the latest workflow run on a specified
+    /// branch.
+    Branch(String),
 }
 
 impl WebrtcRepository {
-    /// Create a new `libwebrtc` GitHub repository representation.
-    fn build() -> Self {
+    /// Create a new [`WebrtcRepository`] based on the environment.
+    fn new() -> Self {
         if let Ok(branch) = env::var("WEBRTC_BRANCH") {
-            return Self::Branch { name: branch };
+            return Self::Branch(branch);
         }
 
         Self::Release
     }
 
-    /// Get an artifact from the repository.
-    fn artifact(&self) -> anyhow::Result<Artifact> {
-        let platform = get_target()?.as_str().try_into()?;
-
+    /// Returns an [`Artifact`] for the specified [`Platform`].
+    fn artifact(&self, platform: Platform) -> anyhow::Result<Artifact> {
         match self {
             Self::Release => {
+                println!("Using artifacts from release `{LIBWEBRTC_RELEASE}`");
+
                 let archive = ArchiveMetadata::GZip(platform);
                 let download_url = format!(
                     "{LIBWEBRTC_URL}/releases/download\
@@ -306,11 +325,14 @@ impl WebrtcRepository {
                     digest: get_expected_libwebrtc_hash()?.into(),
                 })
             }
-            Self::Branch { name } => {
+            Self::Branch(branch) => {
+                println!("Using artifacts from branch `{branch}`.");
+
                 let archive = ArchiveMetadata::Zip(platform);
                 let client = Self::client()?;
 
-                let workflow_run = Self::workflow_run(&client, name.as_str())?;
+                let workflow_run =
+                    Self::workflow_run(&client, branch.as_str())?;
                 let metadata =
                     Self::artifact_metadata(&client, &workflow_run, platform)?;
 
@@ -319,19 +341,30 @@ impl WebrtcRepository {
                     .query(&[("archive_format", "zip")])
                     .send()?;
 
-                Ok(Artifact {
-                    archive,
-                    digest: metadata
-                        .digest
-                        .split(':')
-                        .next_back()
+                let digest = {
+                    let mut split = metadata.digest.split(':');
+
+                    if split.next() != Some("sha256") {
+                        return Err(anyhow::anyhow!(
+                            "Expected SHA-256 digest, got {}",
+                            metadata.digest
+                        ));
+                    }
+
+                    split
+                        .next()
                         .ok_or_else(|| {
                             anyhow::anyhow!(
-                                "Got invalid artifact digest from Github API."
+                                "Expected SHA-256 digest, got {}",
+                                metadata.digest
                             )
                         })?
                         .to_owned()
-                        .into(),
+                };
+
+                Ok(Artifact {
+                    archive,
+                    digest,
                     download_url: response
                         .headers()
                         .get("Location")
@@ -364,7 +397,7 @@ impl WebrtcRepository {
             .build()?)
     }
 
-    /// Get latest workflow run from branch of the `libwebrtc` repository.
+    /// Get latest [`WorkflowRun`] for the specified `branch`.
     fn workflow_run(
         client: &reqwest::blocking::Client,
         branch: &str,
@@ -380,23 +413,31 @@ impl WebrtcRepository {
 
         let mut response: WorkflowRunsResponse = response.json()?;
 
-        response.workflow_runs.pop().ok_or_else(|| anyhow::anyhow!(
+        let run = response.workflow_runs.pop().ok_or_else(|| anyhow::anyhow!(
             "No successful workflow runs found for selected libwebrtc branch."
-        ))
+        ))?;
+
+        println!("Using artifacts from workflow run `{}`", run.id);
+
+        Ok(run)
     }
 
-    /// Get libwebrtc build artifact from workflow run.
+    /// Finds [`ArtifactMetadata`] for the given [`Platform`] in the specified
+    /// [`WorkflowRun`].
     fn artifact_metadata(
         client: &reqwest::blocking::Client,
         workflow_run: &WorkflowRun,
         platform: Platform,
     ) -> anyhow::Result<ArtifactMetadata> {
+        let artifact_name = format!("build-{platform}");
+        println!(
+            "Trying to find artifact `{artifact_name}` in \
+                the workflow run `{}`.",
+            workflow_run.id
+        );
         let response = client
             .get(workflow_run.artifacts_url.as_str())
-            .query(&[
-                ("name", format!("build-{platform}").as_str()),
-                ("per_page", "1"),
-            ])
+            .query(&[("name", artifact_name.as_str()), ("per_page", "1")])
             .send()?;
 
         let mut response: ArtifactsResponse = response.json()?;
@@ -409,29 +450,14 @@ impl WebrtcRepository {
     /// Get GitHub API token from environment variables.
     fn github_token() -> anyhow::Result<String> {
         env::var("GH_TOKEN").or_else(|_| env::var("GITHUB_TOKEN")).context(
-            "libwebrtc branch was selected but github token isn't set.",
+            "WEBRTC_BRANCH is set but not GitHub token is found: \
+                set `GH_TOKEN` env variable.",
         )
     }
 }
 
-/// Returns expected `libwebrtc` archives SHA-256 hashes.
-fn get_expected_libwebrtc_hash() -> anyhow::Result<&'static str> {
-    Ok(match get_target()?.as_str() {
-        "aarch64-unknown-linux-gnu" => {
-            "85993256ee37f27e26efa80594be19eb02c60d345f7e676c9f56a53aa5857ea7"
-        }
-        "x86_64-unknown-linux-gnu" => {
-            "7c5ec76c2f54bf6d44f8c2f84cf35b36b30f421afc349983de4f04cb5c2f1674"
-        }
-        "aarch64-apple-darwin" => {
-            "4cd38564031f502ac4e3b26d2b4cb0e7bd4e0846e328865dce5990da12d34ce0"
-        }
-        "x86_64-apple-darwin" => {
-            "72ddd24898cd8695e6ea187e6d6a27926bc67d0c613bcda70b27224ae0131fa4"
-        }
-        "x86_64-pc-windows-msvc" => {
-            "d2962737109ec7415747a878d6193c5ef9a14c9b163b7ffe9e17aed90a953987"
-        }
-        arch => return Err(anyhow::anyhow!("Unsupported target: {arch}")),
-    })
+/// Returns [`Platform`] to build the library for based on the currently
+/// set `target`.
+fn get_target() -> anyhow::Result<Platform> {
+    super::get_target()?.as_str().try_into()
 }
