@@ -73,6 +73,7 @@
     clippy::pedantic,
     clippy::precedence_bits,
     clippy::print_stderr,
+    clippy::print_stdout,
     clippy::pub_without_shorthand,
     clippy::rc_buffer,
     clippy::rc_mutex,
@@ -145,6 +146,7 @@
     unused,
     variant_size_differences
 )]
+#![expect(clippy::print_stdout, reason = "build script")]
 
 mod openal;
 mod webrtc;
@@ -259,8 +261,8 @@ fn main() -> anyhow::Result<()> {
     println!("cargo:rerun-if-changed=src/bridge.rs");
     println!("cargo:rerun-if-changed=./lib");
     println!("cargo:rerun-if-env-changed=INSTALL_WEBRTC");
-    println!("cargo:rerun-if-env-changed=WEBRTC_BRANCH");
     println!("cargo:rerun-if-env-changed=INSTALL_OPENAL");
+    println!("cargo:rerun-if-env-changed=WEBRTC_BRANCH");
 
     Ok(())
 }

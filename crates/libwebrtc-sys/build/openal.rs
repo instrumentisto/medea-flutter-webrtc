@@ -1,4 +1,4 @@
-//! Downloads and compiles [OpenAL] library.
+//! Downloading and compiling [OpenAL] library.
 //!
 //! [OpenAL]: https://github.com/kcat/openal-soft
 
@@ -21,7 +21,8 @@ static OPENAL_URL: &str =
 
 /// Downloads and compiles [OpenAL] dynamic library.
 ///
-/// Copies [OpenAL] headers and compiled library to the required locations.
+/// Copies [OpenAL] headers and moves the compiled library to the required
+/// locations.
 ///
 /// [OpenAL]: https://github.com/kcat/openal-soft
 pub(super) fn compile() -> anyhow::Result<()> {
