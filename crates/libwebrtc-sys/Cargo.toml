@@ -5,6 +5,7 @@ edition = "2024"
 rust-version = "1.88"
 publish = false
 links = "webrtc"
+build = "build/mod.rs"
 
 [features]
 fake-media = []
@@ -17,11 +18,15 @@ derive_more = { version = "2.0", features = ["deref", "deref_mut", "from"] }
 [build-dependencies]
 anyhow = "1.0"
 cxx-build = "1.0"
+derive_more = { version = "2.0", features = ["deref", "deref_mut", "from"] }
+dotenvy = "0.15"
 flate2 = "1.0"
-reqwest = { version = "0.12", features = ["blocking"] }
+reqwest = { version = "0.12", features = ["blocking", "json"] }
+serde = { version = "1.0.219", features = ["derive"] }
 sha2 = "0.10"
 tar = "0.4"
 walkdir = "2.5"
+zip = "4.2.0"
 
 [target.'cfg(target_os = "linux")'.build-dependencies]
 pkg-config = "0.3"
