@@ -2121,11 +2121,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   AudioConstraints dco_decode_audio_constraints(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 2)
-      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
     return AudioConstraints(
       deviceId: dco_decode_opt_String(arr[0]),
       processing: dco_decode_audio_processing_constraints(arr[1]),
+      isDisplay: dco_decode_bool(arr[2]),
     );
   }
 
@@ -3392,7 +3393,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_deviceId = sse_decode_opt_String(deserializer);
     var var_processing = sse_decode_audio_processing_constraints(deserializer);
-    return AudioConstraints(deviceId: var_deviceId, processing: var_processing);
+    var var_isDisplay = sse_decode_bool(deserializer);
+    return AudioConstraints(
+      deviceId: var_deviceId,
+      processing: var_processing,
+      isDisplay: var_isDisplay,
+    );
   }
 
   @protected
@@ -5105,6 +5111,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_opt_String(self.deviceId, serializer);
     sse_encode_audio_processing_constraints(self.processing, serializer);
+    sse_encode_bool(self.isDisplay, serializer);
   }
 
   @protected

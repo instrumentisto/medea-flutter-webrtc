@@ -489,6 +489,29 @@ impl AudioDeviceModule {
         Ok(AudioSourceInterface(ptr))
     }
 
+    /// Creates a new [`AudioSourceInterface`] for `Display` audio.
+    #[cfg(target_os = "windows")]
+    pub fn create_display_audio_source(
+        &self,
+        device_id: String,
+        audio_processing: &AudioProcessing,
+    ) -> anyhow::Result<AudioSourceInterface> {
+        let ptr = webrtc::create_display_audio_source(
+            &self.0,
+            device_id,
+            &audio_processing.0,
+        );
+
+        if ptr.is_null() {
+            bail!(
+                "`null` pointer returned from \
+                 `webrtc::PeerConnectionFactoryInterface::\
+                 CreateDisplayAudioSource()`",
+            );
+        }
+        Ok(AudioSourceInterface(ptr))
+    }
+
     /// Disposes the [`AudioSourceInterface`] with the provided `device_id`.
     pub fn dispose_audio_source(&self, device_id: String) {
         webrtc::dispose_audio_source(&self.0, device_id);
