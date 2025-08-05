@@ -20,7 +20,7 @@ if [[ "$WEBRTC_BRANCH" != "" ]] ; then
     curl -A instrumentisto \
          -H "Authorization: Bearer $GH_TOKEN" \
          -s "https://api.github.com/repos/instrumentisto/libwebrtc-bin/actions/runs?branch=$WEBRTC_BRANCH&status=success&per_page=1" |
-    jq -r '.workflow_runs.[0].artifacts_url'
+    jq -r '.workflow_runs[0].artifacts_url'
   )
 
   if [[ "$ARTIFACTS_URL" == "null" ]] ; then
@@ -32,13 +32,15 @@ if [[ "$WEBRTC_BRANCH" != "" ]] ; then
     curl -A instrumentisto \
          -H "Authorization: Bearer $GH_TOKEN" \
          -s "$ARTIFACTS_URL?name=build-$PLATFORM&per_page=1" |
-    jq -r '.artifacts.[0].archive_download_url'
+    jq -r '.artifacts[0].archive_download_url'
   )
 
   if [[ "$DOWNLOAD_URL" == "null" ]] ; then
-    echo "Artifact wasn't found for libwebrtc-bin branch: '$WEBRTC_BRANCH'"
+    echo "No artifacts in '$ARTIFACTS_URL'"
     exit 1
   fi
+
+  echo "Downloading artifact: '$DOWNLOAD_URL'"
 
   mkdir -p ./temp
 
