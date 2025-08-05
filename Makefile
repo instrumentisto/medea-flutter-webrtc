@@ -449,7 +449,7 @@ webrtc-aar-name := "libwebrtc-bin-$(WEBRTC_BRANCH)"
 artifacts.download.mobile:
 ifneq ($(WEBRTC_BRANCH),)
 ifeq ($(platform),)
-	$(error "`platform` argument is missing: $(platform)")
+	$(error "`platform` argument is missing.")
 endif
 	$(eval github-token := $(or $(GH_TOKEN),$(GITHUB_TOKEN)))
 	$(if $(call eq,$(github-token),),$(error "libwebrtc branch was selected but github token wasn't set."),)
