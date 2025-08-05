@@ -487,7 +487,7 @@ ifeq ($(platform),android)
 	@mkdir -p ./android/lib
 	cp "./tmp/$(webrtc-aar-name)/aar/libwebrtc.aar" \
 	   "./android/lib/$(webrtc-aar-name).aar"
-else
+else ifeq ($(platform),ios)
 	unzip ./tmp/libwebrtc-bin/libwebrtc-ios.zip -d ./tmp/libwebrtc-bin
 	cp -r ./tmp/libwebrtc-bin/WebRTC.xcframework ./ios
 	cd ./example/ios && flutter pub get && pod update
