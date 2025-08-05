@@ -8,7 +8,7 @@
 /build/
 /captures/
 
-# For local dependencies
-libs/
+# Local dependencies.
+/lib/
 
 .cxx

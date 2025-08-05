@@ -144,7 +144,8 @@ flutter.test.desktop:
 # Run Flutter plugin integration tests on an attached mobile device.
 #
 # Usage:
-#	make flutter.test.mobile platform=(android|ios) [device=<device-id>] [debug=(no|yes)]
+#	make flutter.test.mobile platform=(android|ios) [device=<device-id>]
+#	                         [debug=(no|yes)]
 
 flutter.test.mobile:
 	bash ./download_mobile.sh $(platform) && \
@@ -429,6 +430,15 @@ docs.rust: cargo.doc
 test.cargo: cargo.test
 
 test.flutter: flutter.test.desktop flutter.test.mobile
+
+
+
+
+######################
+# Artifacts commands #
+######################
+
+artifacts.download.mobile:
 
 
 

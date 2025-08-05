@@ -22,9 +22,11 @@ rootProject.allprojects {
         mavenCentral()
 
         if (webrtcBranch == null) {
-            maven { url 'https://instrumentisto.github.io/libwebrtc-bin/android' }
+            maven {
+                url 'https://instrumentisto.github.io/libwebrtc-bin/android'
+            }
         } else {
-            flatDir { dirs "libs" }
+            flatDir { dirs "lib" }
         }
     }
 }

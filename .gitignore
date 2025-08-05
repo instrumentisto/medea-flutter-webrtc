@@ -33,4 +33,4 @@ migrate_working_dir/
 
 # Project related
 /.cache/
-/temp
+/tmp/

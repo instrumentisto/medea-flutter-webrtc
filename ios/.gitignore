@@ -36,5 +36,5 @@ Icon?
 /Flutter/ephemeral/
 /Flutter/flutter_export_environment.sh
 
-# Local libwebrtc-bin dependency
-WebRTC.xcframework
+# Local `libwebrtc-bin` dependency.
+/WebRTC.xcframework/
