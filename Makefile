@@ -452,19 +452,23 @@ ifeq ($(platform),)
 	$(error "`platform` argument is missing.")
 endif
 	$(eval github-token := $(or $(GH_TOKEN),$(GITHUB_TOKEN)))
-	$(if $(call eq,$(github-token),),$(error "libwebrtc branch was selected but github token wasn't set."),)
+	$(if $(call eq,$(github-token),),\
+	    $(error "libwebrtc branch was selected but github token wasn't set."),)
 	$(eval artifacts-url := $(shell \
 	    curl -A instrumentisto \
 	         -H "Authorization: Bearer $(github-token)" \
 	         -s "https://api.github.com/repos/instrumentisto/libwebrtc-bin/actions/runs?branch=$(WEBRTC_BRANCH)&status=success&per_page=1" \
 	    | jq -r '.workflow_runs[0].artifacts_url'))
-	$(if $(call eq,$(artifacts-url),null),$(error "Workflow run wasn't found for libwebrtc-bin branch: '$(WEBRTC_BRANCH)'"),)
+	$(if $(call eq,$(artifacts-url),null),\
+	    $(error "Workflow run wasn't found for libwebrtc-bin branch: \
+	        '$(WEBRTC_BRANCH)'"),)
 	$(eval download-url := $(shell \
 	    curl -A instrumentisto \
     	     -H "Authorization: Bearer $(github-token)" \
     	     -s "$(artifacts-url)?name=build-$(platform)&per_page=1" \
         | jq -r '.artifacts[0].archive_download_url'))
-	$(if $(call eq,$(download-url),null),$(error "No artifacts in '$(artifacts-url)'"),)
+	$(if $(call eq,$(download-url),null),\
+	    $(error "No artifacts in '$(artifacts-url)'"),)
 	$(info "Downloading artifact: '$(download-url)'")
 	$(shell \
 		mkdir -p ./tmp && \
