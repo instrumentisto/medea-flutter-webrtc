@@ -362,7 +362,8 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: Nexus 6
-          script: make flutter.test.mobile
+          script: make flutter.test.mobile platform=${{ matrix.platform }}
+                       GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
         if: ${{ matrix.platform == 'android' }}
 
       - name: Add TCC permissions on macOS
@@ -386,10 +387,13 @@ jobs:
             "'kTCCServiceCamera','/usr/local/opt/runner/provisioner/provisioner',1,2,4,1,NULL,NULL,0,'UNUSED',NULL,0,1687786159"
             "'kTCCServiceBluetoothAlways','/usr/local/opt/runner/provisioner/provisioner',1,2,4,1,NULL,NULL,0,'UNUSED',NULL,0,1687786159"
           )
+
+          darwin_version="${OSTYPE//[!0-9]/}"
+
           for values in "${userValuesArray[@]}"; do
             # Sonoma and higher have a few extra values:
             # https://github.com/actions/runner-images/blob/main/images/macos/scripts/build/configure-tccdb-macos.sh
-            if [ "$OSTYPE" = "darwin23" ]; then
+            if [ "$darwin_version" -ge 23 ]; then
               configure_user_tccdb "$values,NULL,NULL,'UNUSED',${values##*,}"
               configure_sys_tccdb "$values,NULL,NULL,'UNUSED',${values##*,}"
             else
@@ -407,8 +411,11 @@ jobs:
           os: iOS
         if: ${{ matrix.platform == 'ios' }}
       - name: Test on `${{ matrix.platform }}` platform with simulator
-        run: make flutter.test.mobile device=${{ steps.simulator.outputs.udid }}
+        run: make flutter.test.mobile platform=${{ matrix.platform }}
+                                      device=${{ steps.simulator.outputs.udid }}
                                       debug=yes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: ${{ matrix.platform == 'ios' }}
 
       - name: Test on `${{ matrix.platform }}` platform with Xvfb
