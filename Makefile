@@ -144,11 +144,13 @@ flutter.test.desktop:
 # Run Flutter plugin integration tests on an attached mobile device.
 #
 # Usage:
-#	make flutter.test.mobile platform=(android|ios) [device=<device-id>]
-#	                         [debug=(no|yes)]
+#	make flutter.test.mobile [device=<device-id>] [debug=(no|yes)]
+#	                         [WEBRTC_BRANCH=<branch> platform=(android|ios)]
 
 flutter.test.mobile:
-	make artifacts.download.mobile platform=$(platform) && \
+ifneq ($(WEBRTC_BRANCH),)
+	make artifacts.download,mobile platform=$(platform)
+endif
 	cd example/ && \
 	flutter drive --driver=test_driver/integration_driver.dart \
 	              --target=integration_test/webrtc_test.dart \
@@ -438,69 +440,77 @@ test.flutter: flutter.test.desktop flutter.test.mobile
 # Artifacts commands #
 ######################
 
-# Download artifacts for building for mobile platform from a `libwebrtc-bin`
-# branch.
+# Download artifacts from a `libwebrtc-bin` branch for building on mobile
+# platforms.
 #
 # Usage:
 #	make artifacts.download.mobile platform=(android|ios)
 
+github-api-token := $(or $(GH_TOKEN),$(GITHUB_TOKEN)))
 webrtc-aar-name := "libwebrtc-bin-$(WEBRTC_BRANCH)"
 
 artifacts.download.mobile:
-ifneq ($(WEBRTC_BRANCH),)
+ifeq ($(WEBRTC_BRANCH),)
+	$(error "`WEBRTC_BRANCH` env var is missing")
+endif
+ifeq ($(github-api-token),)
+	$(error "`GITHUB_TOKEN` env var is missing")
+endif
 ifeq ($(platform),)
-	$(error "`platform` argument is missing.")
+	$(error "`platform` argument is missing")
 endif
-	$(eval github-token := $(or $(GH_TOKEN),$(GITHUB_TOKEN)))
-	$(if $(call eq,$(github-token),),\
-	    $(error "libwebrtc branch was selected but github token wasn't set."),)
 	$(eval artifacts-url := $(shell \
-	    curl -A instrumentisto \
-	         -H "Authorization: Bearer $(github-token)" \
-	         -s "https://api.github.com/repos/instrumentisto/libwebrtc-bin/actions/runs?branch=$(WEBRTC_BRANCH)&status=success&per_page=1" \
-	    | jq -r '.workflow_runs[0].artifacts_url'))
+		curl -A instrumentisto \
+		     -H "Authorization: Bearer $(github-api-token)" \
+		     -s "https://api.github.com/repos/instrumentisto/libwebrtc-bin/actions/runs?branch=$(WEBRTC_BRANCH)&status=success&per_page=1" \
+		| jq -r ".workflow_runs[0].artifacts_url"))
 	$(if $(call eq,$(artifacts-url),null),\
-	    $(error "Workflow run wasn't found for libwebrtc-bin branch: \
-	        '$(WEBRTC_BRANCH)'"),)
+		$(error "No workflow run found for `instrumentisto/libwebrtc-bin` branch: `$(WEBRTC_BRANCH)`"),)
 	$(eval download-url := $(shell \
-	    curl -A instrumentisto \
-    	     -H "Authorization: Bearer $(github-token)" \
-    	     -s "$(artifacts-url)?name=build-$(platform)&per_page=1" \
-        | jq -r '.artifacts[0].archive_download_url'))
+		curl -A instrumentisto \
+		     -H "Authorization: Bearer $(github-api-token)" \
+		     -s "$(artifacts-url)?name=build-$(platform)&per_page=1" \
+		| jq -r ".artifacts[0].archive_download_url"))
 	$(if $(call eq,$(download-url),null),\
-	    $(error "No artifacts in '$(artifacts-url)'"),)
-	$(info "Downloading artifact: '$(download-url)'")
-	$(shell \
-		mkdir -p ./tmp && \
-	    curl -A instrumentisto \
-             -H "Authorization: Bearer $(github-token)" \
-             -Lo ./tmp/libwebrtc-bin.zip "$(download-url)")
-	unzip ./tmp/libwebrtc-bin.zip -d ./tmp/libwebrtc-bin
+	    $(error "No artifacts found by URL: $(artifacts-url)"),)
+	@rm -rf tmp/
+	@mkdir -p tmp/
+	curl -A instrumentisto \
+	     -H "Authorization: Bearer $(github-api-token)" \
+	     -Lo ./tmp/libwebrtc-bin.zip \
+	     "$(download-url)"
+	unzip tmp/libwebrtc-bin.zip -d tmp/libwebrtc-bin
 ifeq ($(platform),android)
-	@mkdir -p "./tmp/$(webrtc-aar-name)"
-	tar -C "./tmp/$(webrtc-aar-name)" -xzf \
-	    ./tmp/libwebrtc-bin/libwebrtc-android.tar.gz \
-	    aar/libwebrtc.aar
-	@mkdir -p ./example/android/app/lib
-	cp "./tmp/$(webrtc-aar-name)/aar/libwebrtc.aar" \
-	   "./example/android/app/lib/$(webrtc-aar-name).aar"
-	@mkdir -p ./android/lib
-	cp "./tmp/$(webrtc-aar-name)/aar/libwebrtc.aar" \
-	   "./android/lib/$(webrtc-aar-name).aar"
-else ifeq ($(platform),ios)
-	unzip ./tmp/libwebrtc-bin/libwebrtc-ios.zip -d ./tmp/libwebrtc-bin
-	cp -r ./tmp/libwebrtc-bin/WebRTC.xcframework ./ios
-	cd ./example/ios && flutter pub get && pod update
+	@mkdir -p "tmp/$(webrtc-aar-name)/"
+	tar -C "tmp/$(webrtc-aar-name)/" \
+	    -xzf tmp/libwebrtc-bin/libwebrtc-android.tar.gz \
+		aar/libwebrtc.aar
+	@mkdir -p example/android/app/lib/
+	cp -f "tmp/$(webrtc-aar-name)/aar/libwebrtc.aar" \
+		"example/android/app/lib/$(webrtc-aar-name).aar"
+	@mkdir -p android/lib/
+	cp -f "tmp/$(webrtc-aar-name)/aar/libwebrtc.aar" \
+		"android/lib/$(webrtc-aar-name).aar"
 endif
-	rm -rf ./tmp
-	@echo "Done"
+ifeq ($(platform),ios)
+	unzip tmp/libwebrtc-bin/libwebrtc-ios.zip -d tmp/libwebrtc-bin/
+	cp -fr tmp/libwebrtc-bin/WebRTC.xcframework ios/
+	cd example/ios/ && \
+	flutter pub get
+	cd example/ios/ && \
+	pod update
 endif
+	@rm -rf tmp/
+
+
+
 
 ##################
 # .PHONY section #
 ##################
 
 .PHONY: build clean codegen deps docs fmt lint run test \
+        artifacts.download.mobile \
         cargo.clean cargo.build cargo.doc cargo.fmt cargo.gen cargo.lint \
         	cargo.test \
         docs.rust \

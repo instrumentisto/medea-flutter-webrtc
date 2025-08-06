@@ -1,7 +1,7 @@
 group = "com.instrumentisto.medea_flutter_webrtc"
 version = "0.15.1"
 
-def webrtcBranch = System.getenv('WEBRTC_BRANCH')
+def webrtcBranch = System.getenv("WEBRTC_BRANCH")
 
 buildscript {
     ext.kotlin_version = "1.8.22"
@@ -23,7 +23,7 @@ rootProject.allprojects {
 
         if (webrtcBranch == null) {
             maven {
-                url 'https://instrumentisto.github.io/libwebrtc-bin/android'
+                url "https://instrumentisto.github.io/libwebrtc-bin/android"
             }
         } else {
             flatDir { dirs "lib" }

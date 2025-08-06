@@ -13,7 +13,6 @@ concurrency:
 
 env:
   RUST_BACKTRACE: 1
-  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
 
@@ -364,6 +363,7 @@ jobs:
           arch: x86_64
           profile: Nexus 6
           script: make flutter.test.mobile platform=${{ matrix.platform }}
+                       GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
         if: ${{ matrix.platform == 'android' }}
 
       - name: Add TCC permissions on macOS
@@ -387,7 +387,7 @@ jobs:
             "'kTCCServiceCamera','/usr/local/opt/runner/provisioner/provisioner',1,2,4,1,NULL,NULL,0,'UNUSED',NULL,0,1687786159"
             "'kTCCServiceBluetoothAlways','/usr/local/opt/runner/provisioner/provisioner',1,2,4,1,NULL,NULL,0,'UNUSED',NULL,0,1687786159"
           )
-          
+
           darwin_version="${OSTYPE//[!0-9]/}"
 
           for values in "${userValuesArray[@]}"; do
@@ -414,6 +414,8 @@ jobs:
         run: make flutter.test.mobile platform=${{ matrix.platform }}
                                       device=${{ steps.simulator.outputs.udid }}
                                       debug=yes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: ${{ matrix.platform == 'ios' }}
 
       - name: Test on `${{ matrix.platform }}` platform with Xvfb
