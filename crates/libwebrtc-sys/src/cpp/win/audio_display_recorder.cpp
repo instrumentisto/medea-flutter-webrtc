@@ -100,7 +100,7 @@ void AudioDisplayRecorder::StartCapture() {
 
     if (FAILED(hr)) {
         RTC_LOG(LS_ERROR) << "AudioDisplayRecorder: Failed to create audio"
-                          << " client activation event handler. OS error:
+                          << " client activation event handler. OS error: "
                           << hr << ".";
         _recordingFailed = true;
         return;
@@ -124,7 +124,7 @@ void AudioDisplayRecorder::StartCapture() {
         _audioClientActivationHandler.get(), &asyncOp);
 
     if (FAILED(hr)) {
-        RTC_LOG(LS_ERROR) << "AudioDisplayRecorder: Failed to start
+        RTC_LOG(LS_ERROR) << "AudioDisplayRecorder: Failed to start"
                           << " AudioClient activation. OS error: "
                           << hr << ".";
         _recordingFailed = true;
