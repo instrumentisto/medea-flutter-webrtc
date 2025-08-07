@@ -99,8 +99,9 @@ class _LoopbackState extends State<Loopback> {
 
       if (Platform.isWindows) {
         var displayCaps = DisplayConstraints();
-        caps.audio.mandatory = AudioConstraints();
-        caps.video.mandatory = DeviceVideoConstraints();
+        // Capturing only display audio track is valid on Windows but
+        // not allowed in Web.
+        displayCaps.audio.mandatory = AudioConstraints();
 
         _displayTracks = await getDisplayMedia(displayCaps);
       }
