@@ -490,17 +490,14 @@ impl AudioDeviceModule {
     }
 
     /// Creates a new [`AudioSourceInterface`] for `Display` audio.
-    #[cfg(target_os = "windows")]
+    ///
+    /// __NOTE__: implemented only on Windows and will return nullptr error on
+    ///           other platforms.
     pub fn create_display_audio_source(
         &self,
         device_id: String,
-        audio_processing: &AudioProcessing,
     ) -> anyhow::Result<AudioSourceInterface> {
-        let ptr = webrtc::create_display_audio_source(
-            &self.0,
-            device_id,
-            &audio_processing.0,
-        );
+        let ptr = webrtc::create_display_audio_source(&self.0, device_id);
 
         if ptr.is_null() {
             bail!(

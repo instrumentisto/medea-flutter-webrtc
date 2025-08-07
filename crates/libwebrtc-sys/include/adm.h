@@ -68,13 +68,10 @@ class ExtendedADM : public webrtc::AudioDeviceModule {
       uint32_t device_index,
       webrtc::scoped_refptr<webrtc::AudioProcessing> audio_processing) = 0;
 
-  #ifdef WEBRTC_WIN
   // Creates a new `bridge::LocalAudioSource` that will record audio from the
   // system.
   virtual webrtc::scoped_refptr<bridge::LocalAudioSource> CreateDisplayAudioSource(
-      std::string device_id,
-      webrtc::scoped_refptr<webrtc::AudioProcessing> audio_processing) = 0;
-  #endif // WEBRTC_WIN
+      std::string device_id) = 0;
 
   // Stops the `bridge::LocalAudioSource` for the provided device ID.
   virtual void DisposeAudioSource(std::string device_id) = 0;
@@ -102,13 +99,10 @@ class OpenALAudioDeviceModule : public ExtendedADM {
       uint32_t device_index,
       webrtc::scoped_refptr<webrtc::AudioProcessing> ap) override;
 
-  #ifdef WEBRTC_WIN
   // Creates a new `bridge::LocalAudioSource` that will record audio from the
   // system.
   webrtc::scoped_refptr<bridge::LocalAudioSource> CreateDisplayAudioSource(
-      std::string device_id,
-      webrtc::scoped_refptr<webrtc::AudioProcessing> ap) override;
-  #endif // WEBRTC_WIN
+      std::string device_id) override;
 
   // Stops the `bridge::LocalAudioSource` for the provided device ID.
   void DisposeAudioSource(std::string device_id) override;

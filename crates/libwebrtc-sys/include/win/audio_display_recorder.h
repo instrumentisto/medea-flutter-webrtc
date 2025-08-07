@@ -33,7 +33,7 @@ public:
 
 class AudioDisplayRecorder final : public AudioRecorder {
 public:
-    explicit AudioDisplayRecorder(webrtc::scoped_refptr<webrtc::AudioProcessing> ap);
+    AudioDisplayRecorder();
 
     // Captures a new batch of audio samples and propagates it to the inner
     // `bridge::LocalAudioSource`.

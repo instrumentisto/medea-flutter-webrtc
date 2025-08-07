@@ -150,6 +150,7 @@
 
 mod openal;
 mod webrtc;
+#[cfg(target_os = "windows")]
 mod wil;
 
 use std::{
@@ -176,6 +177,7 @@ fn main() -> anyhow::Result<()> {
         fs::create_dir_all(&lib_dir)?;
     }
     webrtc::download()?;
+    #[cfg(target_os = "windows")]
     wil::download()?;
     openal::compile()?;
 

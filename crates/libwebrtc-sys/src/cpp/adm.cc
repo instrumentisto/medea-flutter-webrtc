@@ -744,22 +744,29 @@ void OpenALAudioDeviceModule::DisposeAudioSource(std::string device_id) {
   }
 }
 
-#ifdef WEBRTC_WIN
 webrtc::scoped_refptr<bridge::LocalAudioSource> OpenALAudioDeviceModule::CreateDisplayAudioSource(
-    const std::string device_id,
-    webrtc::scoped_refptr<webrtc::AudioProcessing> ap) {
+    const std::string device_id) {
   std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
 
-  auto recorder = std::make_unique<AudioDisplayRecorder>(ap);
-  recorder->StartCapture();
-  auto source = recorder->GetSource();
-  _recorders[device_id] = std::move(recorder);
-  ensureThreadStarted();
-  startCaptureOnThread();
+  #if defined(WEBRTC_WIN)
+    auto recorder = std::make_unique<AudioDisplayRecorder>();
+    recorder->StartCapture();
+    auto source = recorder->GetSource();
+    _recorders[device_id] = std::move(recorder);
+    ensureThreadStarted();
+    startCaptureOnThread();
 
-  return source;
+    return source;
+  #elif defined(WEBRTC_LINUX)
+    // TODO: Implement for Linux.
+    return nullptr;
+  #elif defined(WEBRTC_MAC)
+    // TODO: Implement for MacOS.
+    return nullptr;
+  #else
+    static_assert(false, "Unknown platform");
+  #endif
 }
-#endif // WEBRTC_WIN
 
 webrtc::scoped_refptr<PlayoutDelegatingAPM> OpenALAudioDeviceModule::AudioProcessing() {
   return apm_;
