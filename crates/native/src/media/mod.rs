@@ -101,12 +101,12 @@ impl Webrtc {
                     .audio_tracks
                     .remove(&(AudioTrackId::from(track_id), track_origin))
                 {
-                    if let MediaTrackSource::Local(src) = track.source() {
-                        if Arc::strong_count(src) <= 2 {
-                            self.audio_sources.remove(src.device_id());
-                            self.audio_device_module
-                                .dispose_audio_source(src.device_id());
-                        }
+                    if let MediaTrackSource::Local(src) = track.source()
+                        && Arc::strong_count(src) <= 2
+                    {
+                        self.audio_sources.remove(src.device_id());
+                        self.audio_device_module
+                            .dispose_audio_source(src.device_id());
                     }
                     if notify_on_ended {
                         track.notify_on_ended();
@@ -126,10 +126,10 @@ impl Webrtc {
                             track.remove_video_sink(sink);
                         }
                     }
-                    if let MediaTrackSource::Local(src) = track.source() {
-                        if Arc::strong_count(src) == 2 {
-                            self.video_sources.remove(src.device_id());
-                        }
+                    if let MediaTrackSource::Local(src) = track.source()
+                        && Arc::strong_count(src) == 2
+                    {
+                        self.video_sources.remove(src.device_id());
                     }
                     if notify_on_ended {
                         track.notify_on_ended();
