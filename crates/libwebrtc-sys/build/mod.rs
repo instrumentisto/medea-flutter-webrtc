@@ -151,6 +151,8 @@
 
 mod openal;
 mod webrtc;
+#[cfg(target_os = "windows")]
+mod wil;
 
 use std::{
     env, fs,
@@ -176,6 +178,8 @@ fn main() -> anyhow::Result<()> {
         fs::create_dir_all(&lib_dir)?;
     }
     webrtc::download()?;
+    #[cfg(target_os = "windows")]
+    wil::download()?;
     openal::compile()?;
 
     let path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
@@ -432,4 +436,22 @@ fn macos_link_search_path() -> Option<String> {
         let path = l.split('=').nth(1)?;
         (!path.is_empty()).then(|| format!("{path}/lib/darwin"))
     })
+}
+
+/// Recursively copies `src` directory to the provided `dst` [`Path`].
+fn copy_dir_all(
+    src: impl AsRef<Path>,
+    dst: impl AsRef<Path>,
+) -> anyhow::Result<()> {
+    fs::create_dir_all(&dst)?;
+    for entry in fs::read_dir(src)? {
+        let entry = entry?;
+        let ty = entry.file_type()?;
+        if ty.is_dir() {
+            copy_dir_all(entry.path(), dst.as_ref().join(entry.file_name()))?;
+        } else {
+            fs::copy(entry.path(), dst.as_ref().join(entry.file_name()))?;
+        }
+    }
+    Ok(())
 }

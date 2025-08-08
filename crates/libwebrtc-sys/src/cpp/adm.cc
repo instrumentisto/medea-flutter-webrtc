@@ -30,6 +30,7 @@
 #include <thread>
 #include <vector>
 #include "adm.h"
+
 #include "api/make_ref_counted.h"
 #include "common_audio/wav_file.h"
 #include "modules/audio_device/include/test_audio_device.h"
@@ -741,6 +742,30 @@ void OpenALAudioDeviceModule::DisposeAudioSource(std::string device_id) {
     recorder->StopCapture();
     _recorders.erase(it);
   }
+}
+
+webrtc::scoped_refptr<bridge::LocalAudioSource> OpenALAudioDeviceModule::CreateDisplayAudioSource(
+    const std::string device_id) {
+  std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
+
+  #if defined(WEBRTC_WIN)
+    auto recorder = std::make_unique<AudioDisplayRecorder>();
+    recorder->StartCapture();
+    auto source = recorder->GetSource();
+    _recorders[device_id] = std::move(recorder);
+    ensureThreadStarted();
+    startCaptureOnThread();
+
+    return source;
+  #elif defined(WEBRTC_LINUX)
+    // TODO: Implement for Linux.
+    return nullptr;
+  #elif defined(WEBRTC_MAC)
+    // TODO: Implement for MacOS.
+    return nullptr;
+  #else
+    static_assert(false, "Unknown platform");
+  #endif
 }
 
 webrtc::scoped_refptr<PlayoutDelegatingAPM> OpenALAudioDeviceModule::AudioProcessing() {

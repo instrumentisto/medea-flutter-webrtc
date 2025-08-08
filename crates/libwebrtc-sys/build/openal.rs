@@ -6,14 +6,14 @@ use std::{
     env, fs,
     fs::File,
     io::{self, Write as _},
-    path::{Path, PathBuf},
+    path::PathBuf,
     process::Command,
 };
 
 use flate2::read::GzDecoder;
 use tar::Archive;
 
-use crate::get_target;
+use crate::{copy_dir_all, get_target};
 
 /// URL for downloading `openal-soft` source code.
 static OPENAL_URL: &str =
@@ -164,22 +164,4 @@ fn get_path_to_openal() -> anyhow::Result<PathBuf> {
             .join(get_target()?.as_str()),
         _ => return Err(anyhow::anyhow!("Platform isn't supported")),
     })
-}
-
-/// Recursively copies `src` directory to the provided `dst` [`Path`].
-fn copy_dir_all(
-    src: impl AsRef<Path>,
-    dst: impl AsRef<Path>,
-) -> anyhow::Result<()> {
-    fs::create_dir_all(&dst)?;
-    for entry in fs::read_dir(src)? {
-        let entry = entry?;
-        let ty = entry.file_type()?;
-        if ty.is_dir() {
-            copy_dir_all(entry.path(), dst.as_ref().join(entry.file_name()))?;
-        } else {
-            fs::copy(entry.path(), dst.as_ref().join(entry.file_name()))?;
-        }
-    }
-    Ok(())
 }
