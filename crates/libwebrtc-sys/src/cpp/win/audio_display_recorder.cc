@@ -101,8 +101,7 @@ HRESULT AudioClientActivationHandler::ActivateCompleted(
 }
 
 AudioDisplayRecorder::AudioDisplayRecorder() {
-    recorded_samples_.reserve(
-        kRecordingPart * sizeof(int16_t) * kRecordingChannels * 2);
+    recorded_samples_.reserve(kRecordingPart * kRecordingChannels);
     source_ = bridge::LocalAudioSource::Create(
         webrtc::AudioOptions(),
         webrtc::scoped_refptr<webrtc::AudioProcessing>(nullptr)
