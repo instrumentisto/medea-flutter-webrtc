@@ -34,7 +34,7 @@ public:
     virtual void StopCapture() = 0;
 
     // Starts recording audio from the captured device.
-    virtual void StartCapture() = 0;
+    virtual bool StartCapture() = 0;
 
     // Returns the `bridge::LocalAudioSource` that this `AudioDeviceRecorder`
     // writes the recorded audio to.

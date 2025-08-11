@@ -2,6 +2,7 @@
 
 #include "libwebrtc-sys/include/win/audio_display_recorder.h"
 #include "rtc_base/logging.h"
+#include <algorithm>
 
 const auto CLSID_MMDeviceEnumerator = __uuidof(MMDeviceEnumerator);
 const auto IID_IMMDeviceEnumerator = __uuidof(IMMDeviceEnumerator);
@@ -10,19 +11,30 @@ const auto IID_IAudioCaptureClient = __uuidof(IAudioCaptureClient);
 
 #define BITS_PER_BYTE 8
 #define TEN_MS 100000
+#define WAIT_SECOND 1000
 
-HRESULT AudioClientActivationHandler::ActivateCompleted(IActivateAudioInterfaceAsyncOperation *activateOperation) {
-    HRESULT hrActivateResult = E_UNEXPECTED;
+HRESULT AudioClientActivationHandler::ActivateCompleted(
+    IActivateAudioInterfaceAsyncOperation *activateOperation) {
     wil::com_ptr_nothrow<IUnknown> punkAudioInterface;
 
-    HRESULT hr = activateOperation->GetActivateResult(&hrActivateResult, &punkAudioInterface);
+    HRESULT hr = activateOperation->GetActivateResult(
+        &activateResult,
+        &punkAudioInterface
+    );
 
-    if (FAILED(hrActivateResult)) {
+    if (FAILED(hr)) {
         activateResult = hr;
         hActivateCompleted.SetEvent();
+        RTC_LOG(LS_ERROR) << "AudioDisplayRecorder: Failed to get activation"
+                                 << " result. OS error: " << hr << ".";
+        return hr;
+    }
+
+    if (FAILED(activateResult)) {
+        hActivateCompleted.SetEvent();
         RTC_LOG(LS_ERROR) << "AudioDisplayRecorder: Failed to activate audio"
-                          << " interface. OS error: " << hr << ".";
-        return S_OK;
+                          << " interface. OS error: " << activateResult << ".";
+        return activateResult;
     }
 
     hr = punkAudioInterface.copy_to(&audioClient);
@@ -32,7 +44,7 @@ HRESULT AudioClientActivationHandler::ActivateCompleted(IActivateAudioInterfaceA
         hActivateCompleted.SetEvent();
         RTC_LOG(LS_ERROR) << "AudioDisplayRecorder: Failed to copy audio"
                           << " client. OS error: " << hr << ".";
-        return S_OK;
+        return hr;
     }
 
     wFormat.wFormatTag = WAVE_FORMAT_PCM;
@@ -42,27 +54,34 @@ HRESULT AudioClientActivationHandler::ActivateCompleted(IActivateAudioInterfaceA
     wFormat.nBlockAlign = wFormat.nChannels * wFormat.wBitsPerSample / BITS_PER_BYTE;
     wFormat.nAvgBytesPerSec = wFormat.nSamplesPerSec * wFormat.nBlockAlign;
 
-    hr = audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED,
-                                 (AUDCLNT_STREAMFLAGS_LOOPBACK | AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM), TEN_MS, 0,
-                                 &wFormat,
-                                 nullptr);
+    hr = audioClient->Initialize(
+        AUDCLNT_SHAREMODE_SHARED,
+        (AUDCLNT_STREAMFLAGS_LOOPBACK | AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM),
+        TEN_MS,
+        0,
+        &wFormat,
+        nullptr
+    );
 
     if (FAILED(hr)) {
         activateResult = hr;
         hActivateCompleted.SetEvent();
         RTC_LOG(LS_ERROR) << "AudioDisplayRecorder: Failed to initialize audio"
                           << " client. OS error: " << hr << ".";
-        return S_OK;
+        return hr;
     }
 
-    hr = audioClient->GetService(IID_IAudioCaptureClient, reinterpret_cast<void **>(&captureClient));
+    hr = audioClient->GetService(
+        IID_IAudioCaptureClient,
+        reinterpret_cast<void **>(&captureClient)
+    );
 
     if (FAILED(hr)) {
         activateResult = hr;
         hActivateCompleted.SetEvent();
         RTC_LOG(LS_ERROR) << "AudioDisplayRecorder: Failed to get"
                           << " IAudioCaptureClient. OS error: " << hr << ".";
-        return S_OK;
+        return hr;
     }
 
     hr = audioClient->Start();
@@ -72,7 +91,7 @@ HRESULT AudioClientActivationHandler::ActivateCompleted(IActivateAudioInterfaceA
         hActivateCompleted.SetEvent();
         RTC_LOG(LS_ERROR) << "AudioDisplayRecorder: Failed to start audio"
                           << " client. OS error: " << hr << ".";
-        return S_OK;
+        return hr;
     }
 
     activateResult = S_OK;
@@ -82,28 +101,31 @@ HRESULT AudioClientActivationHandler::ActivateCompleted(IActivateAudioInterfaceA
 }
 
 AudioDisplayRecorder::AudioDisplayRecorder() {
-    _source = bridge::LocalAudioSource::Create(
+    recorded_samples_.reserve(
+        kRecordingPart * sizeof(int16_t) * kRecordingChannels * 2);
+    source_ = bridge::LocalAudioSource::Create(
         webrtc::AudioOptions(),
         webrtc::scoped_refptr<webrtc::AudioProcessing>(nullptr)
     );
-    _audioClientActivationHandler = Make<AudioClientActivationHandler>();
+    audio_client_activation_handler_ = Make<AudioClientActivationHandler>();
 }
 
-void AudioDisplayRecorder::StartCapture() {
-    std::lock_guard<std::recursive_mutex> lock(_mutex);
+bool AudioDisplayRecorder::StartCapture() {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
 
-    if (_recording || _recordingFailed) {
-        return;
+    if (recording_ || recording_failed_) {
+        return false;
     }
 
-    HRESULT hr = _audioClientActivationHandler->hActivateCompleted.create(wil::EventOptions::None);
+    HRESULT hr = audio_client_activation_handler_
+        ->hActivateCompleted.create(wil::EventOptions::None);
 
     if (FAILED(hr)) {
         RTC_LOG(LS_ERROR) << "AudioDisplayRecorder: Failed to create audio"
                           << " client activation event handler. OS error: "
                           << hr << ".";
-        _recordingFailed = true;
-        return;
+        recording_failed_ = true;
+        return false;
     }
 
     AUDIOCLIENT_ACTIVATION_PARAMS audioclientActivationParams = {};
@@ -120,48 +142,66 @@ void AudioDisplayRecorder::StartCapture() {
     wil::com_ptr_nothrow<IActivateAudioInterfaceAsyncOperation> asyncOp;
 
     hr = ActivateAudioInterfaceAsync(
-        VIRTUAL_AUDIO_DEVICE_PROCESS_LOOPBACK, __uuidof(IAudioClient), &activateParams,
-        _audioClientActivationHandler.get(), &asyncOp);
+        VIRTUAL_AUDIO_DEVICE_PROCESS_LOOPBACK,
+        __uuidof(IAudioClient),
+        &activateParams,
+        audio_client_activation_handler_.get(),
+        &asyncOp
+    );
 
     if (FAILED(hr)) {
         RTC_LOG(LS_ERROR) << "AudioDisplayRecorder: Failed to start"
                           << " AudioClient activation. OS error: "
                           << hr << ".";
-        _recordingFailed = true;
-        return;
+        recording_failed_ = true;
+        return false;
     }
 
     // Ignore result.
-    static_cast<void>(_audioClientActivationHandler->hActivateCompleted.wait());
+    static_cast<void>(
+        audio_client_activation_handler_
+            ->hActivateCompleted.wait(WAIT_SECOND)
+    );
 
-    _recording = !FAILED(_audioClientActivationHandler->activateResult);
+    recording_ = !FAILED(audio_client_activation_handler_->activateResult);
+
+    return true;
 }
 
 void AudioDisplayRecorder::StopCapture() {
-    std::lock_guard<std::recursive_mutex> lock(_mutex);
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
 
-    if (!_recording) {
+    if (!recording_) {
         return;
     }
 
-    if (_audioClientActivationHandler->audioClient != nullptr) {
+    if (audio_client_activation_handler_->audioClient != nullptr) {
         // We are already cleaning up here so just ignore result.
-        static_cast<void>(_audioClientActivationHandler->audioClient->Stop());
+        static_cast<void>(
+            audio_client_activation_handler_->audioClient->Stop()
+        );
+        audio_client_activation_handler_->audioClient.reset();
     }
 
-    _recording = false;
+    if (audio_client_activation_handler_->captureClient != nullptr) {
+        audio_client_activation_handler_->captureClient.reset();
+    }
+
+    recording_ = false;
 }
 
 bool AudioDisplayRecorder::ProcessRecordedPart(bool firstInCycle) {
-    std::lock_guard<std::recursive_mutex> lock(_mutex);
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
 
-    if (!_recording) {
+    if (!recording_) {
         return false;
     }
 
     UINT32 packetLength = 0;
 
-    HRESULT hr = _audioClientActivationHandler->captureClient->GetNextPacketSize(&packetLength);
+    HRESULT hr = audio_client_activation_handler_
+        ->captureClient
+        ->GetNextPacketSize(&packetLength);
 
     if (FAILED(hr)) {
         RTC_LOG(LS_ERROR) << "AudioDisplayRecorder: Failed to get next audio"
@@ -175,9 +215,15 @@ bool AudioDisplayRecorder::ProcessRecordedPart(bool firstInCycle) {
 
     UINT32 numFramesAvailable = 0;
     DWORD flags = 0;
+    BYTE *buffer = nullptr;
 
-    hr = _audioClientActivationHandler->captureClient->GetBuffer(&_buffer, &numFramesAvailable, &flags, nullptr,
-                                                                 nullptr);
+    hr = audio_client_activation_handler_->captureClient->GetBuffer(
+        &buffer,
+        &numFramesAvailable,
+        &flags,
+        nullptr,
+        nullptr
+    );
 
     if (FAILED(hr)) {
         RTC_LOG(LS_ERROR) << "AudioDisplayRecorder: Failed to get audio"
@@ -185,19 +231,44 @@ bool AudioDisplayRecorder::ProcessRecordedPart(bool firstInCycle) {
         return false;
     }
 
+    if (flags & AUDCLNT_BUFFERFLAGS_DATA_DISCONTINUITY) {
+        RTC_LOG(LS_WARNING) << "AudioDisplayRecorder: "
+                            << "AUDCLNT_BUFFERFLAGS_DATA_DISCONTINUITY.";
+    }
+
+    if (flags & AUDCLNT_BUFFERFLAGS_TIMESTAMP_ERROR) {
+        RTC_LOG(LS_WARNING) << "AudioDisplayRecorder: "
+                            << "AUDCLNT_BUFFERFLAGS_TIMESTAMP_ERROR.";
+    }
+
+    const auto audioData = reinterpret_cast<const int16_t *>(buffer);
+    const auto remainingSamples = std::max<UINT32>(
+        kRecordingPart - recorded_samples_.size(),
+        0
+    );
+
     if (flags & AUDCLNT_BUFFERFLAGS_SILENT) {
-        // No-op if buffer can't be released.
-        static_cast<void>(_audioClientActivationHandler->captureClient->ReleaseBuffer(numFramesAvailable));
-        return false;
+        recorded_samples_.insert(
+            recorded_samples_.end(),
+            remainingSamples,
+            0
+        );
+    } else {
+        if (numFramesAvailable > remainingSamples) {
+            RTC_LOG(LS_WARNING) << "AudioDisplayRecorder: Cropping data. "
+                    << "Too many data for 10 milliseconds.";
+        }
+
+        recorded_samples_.insert(
+           recorded_samples_.end(),
+           audioData,
+           audioData + std::min<UINT32>(remainingSamples, numFramesAvailable)
+        );
     }
 
-    const auto buffer = reinterpret_cast<const int16_t *>(_buffer);
-
-    for (int i = 0; i < numFramesAvailable; ++i) {
-        _recordedSamples->push_back(buffer[i]);
-    }
-
-    hr = _audioClientActivationHandler->captureClient->ReleaseBuffer(numFramesAvailable);
+    hr = audio_client_activation_handler_
+        ->captureClient
+        ->ReleaseBuffer(numFramesAvailable);
 
     if (FAILED(hr)) {
         RTC_LOG(LS_ERROR) << "AudioDisplayRecorder: Failed to release audio"
@@ -205,25 +276,26 @@ bool AudioDisplayRecorder::ProcessRecordedPart(bool firstInCycle) {
         return false;
     }
 
-    if (_recordedSamples->size() < kRecordingPart) {
-        // Not enough data for 10 milliseconds.
+    if (recorded_samples_.size() < kRecordingPart) {
+        RTC_LOG(LS_WARNING) << "AudioDisplayRecorder: "
+                            << "Not enough data for 10 milliseconds.";
         return false;
     }
 
-    _source->OnData(
-        _recordedSamples->data(), // audio_data
+    source_->OnData(
+        recorded_samples_.data(), // audio_data
         kBitsPerSample,
         kRecordingFrequency, // sample_rate
         kRecordingChannels,
-        _recordedSamples->size()
+        kRecordingPart
     );
-    _recordedSamples->clear();
+    recorded_samples_.clear();
 
     return true;
 }
 
 webrtc::scoped_refptr<bridge::LocalAudioSource> AudioDisplayRecorder::GetSource() {
-    return _source;
+    return source_;
 }
 
 #endif // WEBRTC_WIN

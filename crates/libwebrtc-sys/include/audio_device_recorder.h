@@ -22,7 +22,7 @@ class AudioDeviceRecorder final : public AudioRecorder {
   void StopCapture() override;
 
   // Starts recording audio from the captured device.
-  void StartCapture() override;
+  bool StartCapture() override;
 
   // Returns the `bridge::LocalAudioSource` that this `AudioDeviceRecorder`
   // writes the recorded audio to.
@@ -43,8 +43,7 @@ class AudioDeviceRecorder final : public AudioRecorder {
   bool _recordingFailed = false;
   bool _recording = false;
   int _recordBufferSize = kRecordingPart * sizeof(int16_t) * kRecordingChannels;
-  std::vector<char>* _recordedSamples =
-      new std::vector<char>(_recordBufferSize, 0);
+  std::vector<char> _recordedSamples;
   int _emptyRecordingData = 0;
 };
 

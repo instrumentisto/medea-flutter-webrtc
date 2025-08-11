@@ -750,7 +750,11 @@ webrtc::scoped_refptr<bridge::LocalAudioSource> OpenALAudioDeviceModule::CreateD
 
   #if defined(WEBRTC_WIN)
     auto recorder = std::make_unique<AudioDisplayRecorder>();
-    recorder->StartCapture();
+
+    if (const auto recording = recorder->StartCapture(); !recording) {
+      return nullptr;
+    }
+
     auto source = recorder->GetSource();
     _recorders[device_id] = std::move(recorder);
     ensureThreadStarted();

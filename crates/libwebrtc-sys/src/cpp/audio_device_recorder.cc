@@ -37,6 +37,7 @@ bool CheckDeviceFailed(ALCdevice* device) {
 AudioDeviceRecorder::AudioDeviceRecorder(
     std::string deviceId,
     webrtc::scoped_refptr<webrtc::AudioProcessing> ap) {
+  _recordedSamples.reserve(_recordBufferSize);
   _device = alcCaptureOpenDevice(deviceId.empty() ? nullptr : deviceId.c_str(),
                                  kRecordingFrequency, AL_FORMAT_MONO16,
                                  kRecordingFrequency);
@@ -69,14 +70,14 @@ bool AudioDeviceRecorder::ProcessRecordedPart(bool isFirstInCycle) {
   }
 
   _emptyRecordingData = 0;
-  alcCaptureSamples(_device, _recordedSamples->data(), kRecordingPart);
+  alcCaptureSamples(_device, _recordedSamples.data(), kRecordingPart);
 
   if (recorder::CheckDeviceFailed(_device)) {
     restartRecording();
     return false;
   }
 
-  _source->OnData(_recordedSamples->data(),  // audio_data
+  _source->OnData(_recordedSamples.data(),  // audio_data
                   16,
                   kRecordingFrequency,  // sample_rate
                   kRecordingChannels, kRecordingFrequency * 10 / 1000);
@@ -100,27 +101,29 @@ void AudioDeviceRecorder::StopCapture() {
   }
 }
 
-void AudioDeviceRecorder::StartCapture() {
+bool AudioDeviceRecorder::StartCapture() {
   std::lock_guard<std::recursive_mutex> lk(_mutex);
 
   if (_recording) {
-    return;
+    return false;
   }
 
   _recording = true;
   if (_recordingFailed) {
-    return;
+    return false;
   }
 
   alcCaptureStart(_device);
   if (recorder::CheckDeviceFailed(_device)) {
     _recordingFailed = true;
-    return;
+    return false;
   }
 
   if (_recordingFailed) {
     closeRecordingDevice();
   }
+
+  return true;
 }
 
 webrtc::scoped_refptr<bridge::LocalAudioSource> AudioDeviceRecorder::GetSource() {

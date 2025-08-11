@@ -43,25 +43,22 @@ public:
     void StopCapture() override;
 
     // Starts recording audio from the captured device.
-    void StartCapture() override;
+    bool StartCapture() override;
 
     // Returns the `bridge::LocalAudioSource` that this `AudioDeviceRecorder`
     // writes the recorded audio to.
     webrtc::scoped_refptr<bridge::LocalAudioSource> GetSource() override;
 
 private:
-    webrtc::scoped_refptr<bridge::LocalAudioSource> _source;
-    BYTE *_buffer = nullptr;
-    bool _recording = false;
-    bool _recordingFailed = false;
+    webrtc::scoped_refptr<bridge::LocalAudioSource> source_;
+    bool recording_ = false;
+    bool recording_failed_ = false;
 
-    int _recordBufferSize = kRecordingPart * sizeof(int16_t) * kRecordingChannels;
-    std::vector<int16_t> *_recordedSamples =
-            new std::vector<int16_t>(_recordBufferSize, 0);
+    std::vector<int16_t> recorded_samples_;
 
-    std::recursive_mutex _mutex;
+    std::recursive_mutex mutex_;
 
-    wil::com_ptr_nothrow<AudioClientActivationHandler> _audioClientActivationHandler;
+    wil::com_ptr_nothrow<AudioClientActivationHandler> audio_client_activation_handler_;
 };
 
 #endif //AUDIO_DISPLAY_RECORDER_H
