@@ -100,7 +100,8 @@ HRESULT AudioClientActivationHandler::ActivateCompleted(
     return S_OK;
 }
 
-AudioDisplayRecorder::AudioDisplayRecorder() {
+AudioDisplayRecorder::AudioDisplayRecorder() : com_initializer_(
+    webrtc::ScopedCOMInitializer(webrtc::ScopedCOMInitializer::kMTA)) {
     recorded_samples_.reserve(kRecordingPart * kRecordingChannels);
     source_ = bridge::LocalAudioSource::Create(
         webrtc::AudioOptions(),

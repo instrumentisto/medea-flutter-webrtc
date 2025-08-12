@@ -12,6 +12,7 @@
 #include <wrl/implements.h>
 #include <third_party/wil/com.h>
 #include <third_party/wil/result.h>
+#include <rtc_base/win/scoped_com_initializer.h>
 #include <vector>
 #include <mutex>
 
@@ -59,6 +60,8 @@ private:
     std::recursive_mutex mutex_;
 
     wil::com_ptr_nothrow<AudioClientActivationHandler> audio_client_activation_handler_;
+
+    webrtc::ScopedCOMInitializer com_initializer_;
 };
 
 #endif //AUDIO_DISPLAY_RECORDER_H
