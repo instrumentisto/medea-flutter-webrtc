@@ -149,7 +149,7 @@ flutter.test.desktop:
 
 flutter.test.mobile:
 ifneq ($(WEBRTC_BRANCH),)
-	make artifacts.download,mobile platform=$(platform)
+	make artifacts.download.mobile platform=$(platform)
 endif
 	cd example/ && \
 	flutter drive --driver=test_driver/integration_driver.dart \
