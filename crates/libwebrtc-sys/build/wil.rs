@@ -14,17 +14,17 @@ use tar::Archive;
 
 use crate::{copy_dir_all, get_target};
 
-/// URL for downloading [`wil`] source code.
+// TODO: Skip `v1.0.250325.1` cause https://github.com/microsoft/wil/issues/512
+//       Wait for https://github.com/microsoft/wil/pull/516 release.
+/// URL for downloading [`wil`] third party library.
 ///
-/// NOTE: `v1.0.250325.1` has [`compilation issues`] and should not
-/// be used.
-///
-/// [`wil`]: https://github.com/instrumentisto/libwebrtc-bin
-/// [`compilation issues`]: https://github.com/microsoft/wil/issues/512
+/// [`wil`]: https://github.com/microsoft/wil
 static WIL_URL: &str =
     "https://github.com/microsoft/wil/archive/refs/tags/v1.0.240803.1";
 
-/// Download Windows `wil` header-only library.
+/// Download Windows [`wil`] header-only library.
+///
+/// [`wil`]: https://github.com/microsoft/wil
 pub(super) fn download() -> anyhow::Result<()> {
     let wil_version = WIL_URL.split('/').next_back().unwrap_or_default();
     let manifest_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);

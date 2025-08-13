@@ -39,8 +39,12 @@ pub enum MediaTrackSource<T> {
 pub struct AudioLevelObserverId(u64);
 
 /// [`AudioDeviceId`] of the default system audio capture device.
-#[cfg(target_os = "windows")]
-pub const SYSTEM_AUDIO_DEVICE_ID: &str = "__DISPLAY_AUDIO__";
+// TODO: We only support a whole system audio capture atm, so a single
+//       hardcoded AudioSource is ok. Should revisit this once we add
+//       support for capturing specific window or a set of windows or
+//       something like that.
+/// [`AudioDeviceId`] of the default system audio capture device.
+pub const SYSTEM_AUDIO_DEVICE_ID: &str = "system_audio_capture";
 
 /// [`sys::AudioSourceInterface`] wrapper.
 #[derive(AsRef)]

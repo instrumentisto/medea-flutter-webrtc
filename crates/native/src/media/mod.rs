@@ -23,11 +23,10 @@ pub use self::{
         AudioTrack, AudioTrackId, Track, TrackOrigin, VideoTrack, VideoTrackId,
     },
 };
-#[cfg(target_os = "windows")]
-use crate::media::source::SYSTEM_AUDIO_DEVICE_ID;
 use crate::{
     Webrtc, api, api::NoiseSuppressionLevel, devices,
-    frb_generated::StreamSink, pc::PeerConnectionId,
+    frb_generated::StreamSink, media::source::SYSTEM_AUDIO_DEVICE_ID,
+    pc::PeerConnectionId,
 };
 
 impl Webrtc {
@@ -290,26 +289,20 @@ impl Webrtc {
         let processing = sys::AudioProcessing::new((&caps.processing).into())?;
 
         let src = if caps.is_display {
-            #[cfg(not(target_os = "windows"))]
-            bail!("Display audio tracks aren't supported on your platform.");
+            let device_id = SYSTEM_AUDIO_DEVICE_ID.to_owned().into();
 
-            #[cfg(target_os = "windows")]
-            {
-                let device_id = SYSTEM_AUDIO_DEVICE_ID.to_owned().into();
+            if let Some(src) = self.audio_sources.get(&device_id) {
+                Arc::clone(src)
+            } else {
+                let src = Arc::new(AudioSource::new(
+                    device_id.clone(),
+                    self.audio_device_module
+                        .create_display_audio_source(&device_id)?,
+                    processing,
+                ));
+                self.audio_sources.insert(device_id, Arc::clone(&src));
 
-                if let Some(src) = self.audio_sources.get(&device_id) {
-                    Arc::clone(src)
-                } else {
-                    let src = Arc::new(AudioSource::new(
-                        device_id.clone(),
-                        self.audio_device_module
-                            .create_display_audio_source(&device_id)?,
-                        processing,
-                    ));
-                    self.audio_sources.insert(device_id, Arc::clone(&src));
-
-                    src
-                }
+                src
             }
         } else {
             let device_id = if let Some(device_id) = caps.device_id.clone() {

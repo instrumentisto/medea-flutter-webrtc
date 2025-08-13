@@ -21,16 +21,15 @@
  * Full license: https://github.com/desktop-app/legal/blob/master/LICENSE
  */
 
-#include <iostream>
-
 #include <algorithm>
 #include <cfenv>
 #include <chrono>
 #include <cmath>
+#include <iostream>
 #include <thread>
 #include <vector>
-#include "adm.h"
 
+#include "adm.h"
 #include "api/make_ref_counted.h"
 #include "common_audio/wav_file.h"
 #include "modules/audio_device/include/test_audio_device.h"
@@ -709,7 +708,8 @@ void OpenALAudioDeviceModule::stopPlayingOnThread() {
   _data->_playoutThread->Stop();
 }
 
-webrtc::scoped_refptr<bridge::LocalAudioSource> OpenALAudioDeviceModule::CreateAudioSource(
+webrtc::scoped_refptr<bridge::LocalAudioSource>
+OpenALAudioDeviceModule::CreateMicAudioSource(
     uint32_t device_index,
     webrtc::scoped_refptr<webrtc::AudioProcessing> ap) {
   std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
@@ -744,35 +744,26 @@ void OpenALAudioDeviceModule::DisposeAudioSource(std::string device_id) {
   }
 }
 
-webrtc::scoped_refptr<bridge::LocalAudioSource> OpenALAudioDeviceModule::CreateDisplayAudioSource(
-    const std::string device_id) {
+webrtc::scoped_refptr<bridge::LocalAudioSource>
+OpenALAudioDeviceModule::CreateSysAudioSource(const std::string device_id) {
   std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
 
-  #if defined(WEBRTC_WIN)
-    auto recorder = std::make_unique<AudioDisplayRecorder>();
+  auto recorder = CreateDefaultSysAudioSource();
 
-    if (const auto recording = recorder->StartCapture(); !recording) {
-      return nullptr;
-    }
-
-    auto source = recorder->GetSource();
-    _recorders[device_id] = std::move(recorder);
-    ensureThreadStarted();
-    startCaptureOnThread();
-
-    return source;
-  #elif defined(WEBRTC_LINUX)
-    // TODO: Implement for Linux.
+  if (!recorder) {
     return nullptr;
-  #elif defined(WEBRTC_MAC)
-    // TODO: Implement for MacOS.
-    return nullptr;
-  #else
-    static_assert(false, "Unknown platform");
-  #endif
+  }
+
+  auto source = recorder->GetSource();
+  _recorders[device_id] = std::move(recorder);
+  ensureThreadStarted();
+  startCaptureOnThread();
+
+  return source;
 }
 
-webrtc::scoped_refptr<PlayoutDelegatingAPM> OpenALAudioDeviceModule::AudioProcessing() {
+webrtc::scoped_refptr<PlayoutDelegatingAPM>
+OpenALAudioDeviceModule::AudioProcessing() {
   return apm_;
 };
 
@@ -829,14 +820,14 @@ int16_t OpenALAudioDeviceModule::RecordingDevices() {
 
 int32_t OpenALAudioDeviceModule::SetRecordingDevice(uint16_t index) {
   RTC_LOG(LS_ERROR)
-    << "Use `CreateAudioSource` instead of `SetRecordingDevice`";
+      << "Use `CreateMicAudioSource` instead of `SetRecordingDevice`";
   return -1;
 }
 
 int32_t OpenALAudioDeviceModule::SetRecordingDevice(
     WindowsDeviceType /*device*/) {
   RTC_LOG(LS_ERROR)
-    << "Use `CreateAudioSource` instead of `SetRecordingDevice`";
+      << "Use `CreateMicAudioSource` instead of `SetRecordingDevice`";
   return -1;
 }
 

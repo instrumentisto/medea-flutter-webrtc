@@ -504,7 +504,7 @@ impl AudioDeviceModule {
             bail!(
                 "`null` pointer returned from \
                  `webrtc::PeerConnectionFactoryInterface::\
-                 CreateDisplayAudioSource()`",
+                 CreateSysAudioSource()`",
             );
         }
         Ok(AudioSourceInterface(ptr))

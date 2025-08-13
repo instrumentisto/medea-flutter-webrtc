@@ -80,7 +80,8 @@ bool AudioDeviceRecorder::ProcessRecordedPart(bool isFirstInCycle) {
   _source->OnData(_recordedSamples.data(),  // audio_data
                   16,
                   kRecordingFrequency,  // sample_rate
-                  kRecordingChannels, kRecordingFrequency * 10 / 1000);
+                  kRecordingChannels,
+                  kRecordingPart);
 
   return true;
 }
@@ -126,7 +127,8 @@ bool AudioDeviceRecorder::StartCapture() {
   return true;
 }
 
-webrtc::scoped_refptr<bridge::LocalAudioSource> AudioDeviceRecorder::GetSource() {
+webrtc::scoped_refptr<bridge::LocalAudioSource>
+AudioDeviceRecorder::GetSource() {
   return _source;
 }
 

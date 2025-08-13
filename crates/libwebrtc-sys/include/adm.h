@@ -32,18 +32,11 @@
 #include <mutex>
 #include <unordered_map>
 
-#include <AL/al.h>
-#include <AL/alc.h>
-
 #include "api/audio/audio_frame.h"
 #include "api/audio/audio_mixer.h"
 #include "api/media_stream_interface.h"
 #include "api/sequence_checker.h"
 #include "api/task_queue/task_queue_factory.h"
-#include "delegating_apm.h"
-#include "libwebrtc-sys/include/audio_device_recorder.h"
-#include "libwebrtc-sys/include/win/audio_display_recorder.h"
-#include "libwebrtc-sys/include/local_audio_source.h"
 #include "modules/audio_device/audio_device_buffer.h"
 #include "modules/audio_device/audio_device_generic.h"
 #include "modules/audio_device/audio_device_impl.h"
@@ -56,6 +49,14 @@
 #include "rtc_base/thread.h"
 #include "rtc_base/thread_annotations.h"
 
+#include <AL/al.h>
+#include <AL/alc.h>
+
+#include "libwebrtc-sys/include/audio_device_recorder.h"
+#include "libwebrtc-sys/include/delegating_apm.h"
+#include "libwebrtc-sys/include/local_audio_source.h"
+#include "libwebrtc-sys/include/sys_audio_capture/capture.h"
+
 #if defined(WEBRTC_USE_X11)
 #include <X11/Xlib.h>
 #endif
@@ -64,13 +65,13 @@ class ExtendedADM : public webrtc::AudioDeviceModule {
  public:
   // Creates a new `bridge::LocalAudioSource` that will record audio from the
   // device with the provided ID.
-  virtual webrtc::scoped_refptr<bridge::LocalAudioSource> CreateAudioSource(
+  virtual webrtc::scoped_refptr<bridge::LocalAudioSource> CreateMicAudioSource(
       uint32_t device_index,
       webrtc::scoped_refptr<webrtc::AudioProcessing> audio_processing) = 0;
 
   // Creates a new `bridge::LocalAudioSource` that will record audio from the
   // system.
-  virtual webrtc::scoped_refptr<bridge::LocalAudioSource> CreateDisplayAudioSource(
+  virtual webrtc::scoped_refptr<bridge::LocalAudioSource> CreateSysAudioSource(
       std::string device_id) = 0;
 
   // Stops the `bridge::LocalAudioSource` for the provided device ID.
@@ -95,13 +96,13 @@ class OpenALAudioDeviceModule : public ExtendedADM {
 
   // Creates a new `bridge::LocalAudioSource` that will record audio from the
   // device with the provided ID.
-  webrtc::scoped_refptr<bridge::LocalAudioSource> CreateAudioSource(
+  webrtc::scoped_refptr<bridge::LocalAudioSource> CreateMicAudioSource(
       uint32_t device_index,
       webrtc::scoped_refptr<webrtc::AudioProcessing> ap) override;
 
   // Creates a new `bridge::LocalAudioSource` that will record audio from the
   // system.
-  webrtc::scoped_refptr<bridge::LocalAudioSource> CreateDisplayAudioSource(
+  webrtc::scoped_refptr<bridge::LocalAudioSource> CreateSysAudioSource(
       std::string device_id) override;
 
   // Stops the `bridge::LocalAudioSource` for the provided device ID.
@@ -241,8 +242,7 @@ class OpenALAudioDeviceModule : public ExtendedADM {
   std::recursive_mutex _recording_mutex;
   bool _recordingInitialized = false;
   bool _microphoneInitialized = false;
-  std::unordered_map<std::string, std::unique_ptr<AudioRecorder>>
-      _recorders;
+  std::unordered_map<std::string, std::unique_ptr<AudioRecorder>> _recorders;
 
   std::recursive_mutex _playout_mutex;
   std::string _playoutDeviceId;
