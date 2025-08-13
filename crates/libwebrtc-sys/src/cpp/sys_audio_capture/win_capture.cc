@@ -1,5 +1,3 @@
-#include <algorithm>
-
 #include "rtc_base/logging.h"
 
 #include "libwebrtc-sys/include/sys_audio_capture/win_capture.h"
@@ -221,15 +219,10 @@ bool SysAudioSource::ProcessRecordedPart(bool firstInCycle) {
                         << "AUDCLNT_BUFFERFLAGS_TIMESTAMP_ERROR.";
   }
 
-  const auto remainingSamples =
-      std::max<int64_t>(static_cast<int64_t>(kRecordingPart) -
-                            static_cast<int64_t>(recorded_samples_.size()),
-                        0);
-
   const int16_t* res_data = nullptr;
   if (flags & AUDCLNT_BUFFERFLAGS_SILENT) {
-    // Fill the rest of the vec with silence.
-    recorded_samples_.insert(recorded_samples_.end(), remainingSamples, 0);
+    // Fill the provided number of frames in the vec with silence.
+    recorded_samples_.insert(recorded_samples_.end(), numFramesAvailable, 0);
     res_data = recorded_samples_.data();
   } else {
     const auto audioData = reinterpret_cast<const int16_t*>(buffer);
@@ -239,19 +232,14 @@ bool SysAudioSource::ProcessRecordedPart(bool firstInCycle) {
       // result.
       res_data = audioData;
     } else {
-      if (numFramesAvailable > remainingSamples) {
-        // TODO: dont crop
-        RTC_LOG(LS_INFO) << "SysAudioSource: Too much data for"
-                         << "10 milliseconds, cropping.";
-      }
-
       recorded_samples_.insert(
           recorded_samples_.end(), audioData,
-          audioData + std::min<UINT32>(remainingSamples, numFramesAvailable));
+          audioData + numFramesAvailable);
 
       if (recorded_samples_.size() < kRecordingPart) {
-        audio_client_activation_handler_->capture_client->ReleaseBuffer(
-            numFramesAvailable);
+        static_cast<void>(
+          audio_client_activation_handler_->capture_client->ReleaseBuffer(
+            numFramesAvailable));
 
         // Not enough data for 10 milliseconds.
         return false;
@@ -263,7 +251,12 @@ bool SysAudioSource::ProcessRecordedPart(bool firstInCycle) {
 
   source_->OnData(res_data, kBitsPerSample, kRecordingFrequency,
                   kRecordingChannels, kRecordingPart);
-  recorded_samples_.clear();
+
+  if (!recorded_samples_.empty()) {
+    recorded_samples_.erase(
+      recorded_samples_.begin(),
+      recorded_samples_.begin() + kRecordingPart);
+  }
 
   hr = audio_client_activation_handler_->capture_client->ReleaseBuffer(
       numFramesAvailable);
