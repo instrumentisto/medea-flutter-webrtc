@@ -184,7 +184,7 @@ bool SysAudioSource::ProcessRecordedPart(bool firstInCycle) {
 
   if (recorded_samples_.size() >= kRecordingPart) {
     source_->OnData(recorded_samples_.data(), kBitsPerSample,
-                kRecordingFrequency, kRecordingChannels,kRecordingPart);
+                kRecordingFrequency, kRecordingChannels, kRecordingPart);
 
     recorded_samples_.erase(
       recorded_samples_.begin(),
