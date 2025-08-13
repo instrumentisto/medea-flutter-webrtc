@@ -182,6 +182,17 @@ bool SysAudioSource::ProcessRecordedPart(bool firstInCycle) {
     return false;
   }
 
+  if (recorded_samples_.size() >= kRecordingPart) {
+    source_->OnData(recorded_samples_.data(), kBitsPerSample,
+                kRecordingFrequency, kRecordingChannels,kRecordingPart);
+
+    recorded_samples_.erase(
+      recorded_samples_.begin(),
+      recorded_samples_.begin() + kRecordingPart);
+
+    return true;
+  }
+
   UINT32 packetLength = 0;
   HRESULT hr =
       audio_client_activation_handler_->capture_client->GetNextPacketSize(
