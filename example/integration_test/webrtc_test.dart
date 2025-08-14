@@ -1378,7 +1378,7 @@ void main() {
       (track) => track.kind() == MediaKind.audio,
     );
 
-    expect(audioTrack.deviceId(), "__DISPLAY_AUDIO__");
+    expect(audioTrack.deviceId(), "system_audio_capture");
 
     for (var track in tracks) {
       track.dispose();
