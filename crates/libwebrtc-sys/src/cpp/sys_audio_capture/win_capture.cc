@@ -9,6 +9,8 @@ const auto IID_IMMDeviceEnumerator = __uuidof(IMMDeviceEnumerator);
 const auto IID_IAudioClient = __uuidof(IAudioClient);
 const auto IID_IAudioCaptureClient = __uuidof(IAudioCaptureClient);
 
+
+// TODO: make consts
 #define BITS_PER_BYTE 8
 
 // 10ms in 100ns units.

@@ -288,7 +288,6 @@ impl Webrtc {
         caps: &api::AudioConstraints,
     ) -> anyhow::Result<Arc<AudioSource>> {
         let src = if caps.is_display {
-            // asdasdasdasdasd
             let device_id = SYSTEM_AUDIO_DEVICE_ID.to_owned().into();
 
             if let Some(src) = self.audio_sources.get(&device_id) {
