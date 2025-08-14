@@ -17,7 +17,6 @@ Flutter WebRTC plugin based on Google WebRTC.
   s.dependency 'Flutter'
 
   if ENV['WEBRTC_BRANCH'] == nil
-      s.dependency 'instrumentisto-libwebrtc-bin', '138.0.7204.183'
   else
       s.vendored_frameworks = 'WebRTC.xcframework'
   end
