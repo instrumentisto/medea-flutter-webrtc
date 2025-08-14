@@ -8,7 +8,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import '../../../frb_generated.dart';
 import '../../media_stream_track/audio_processing_config.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `fmt`, `fmt`
 
 /// Nature and settings of the audio [`MediaStreamTrack`] returned by
 /// [`Webrtc::get_media()`].
@@ -20,14 +20,17 @@ class AudioConstraints {
   final String? deviceId;
 
   /// Audio processing configuration constraints of the [`MediaStreamTrack`].
-  final AudioProcessingConstraints processing;
+  final AudioProcessingConstraints? processing;
 
-  /// Is used for system audio capture.
+  /// Indicates whether the audio source is a display (loopback) capture.
+  ///
+  /// When `true`, the capture will target system audio playback
+  /// rather than a microphone or other input device.
   final bool isDisplay;
 
   const AudioConstraints({
     this.deviceId,
-    required this.processing,
+    this.processing,
     required this.isDisplay,
   });
 
