@@ -403,6 +403,14 @@ jobs:
           done
         if: ${{ matrix.platform == 'ios' }}
 
+      # Github runner image doesn't support default Xcode version.
+      # https://github.com/actions/runner-images/issues/12758
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+        if: ${{ matrix.platform == 'ios' }}
+
       - name: Start iOS simulator
         id: simulator
         uses: futureware-tech/simulator-action@v4
