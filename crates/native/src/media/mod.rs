@@ -10,6 +10,7 @@ use std::{
 use anyhow::{anyhow, bail};
 use derive_more::with_trait::{Display, From, Into as _};
 use libwebrtc_sys as sys;
+use libwebrtc_sys::AudioProcessingConfig;
 
 use self::track::TrackEventHandler;
 pub use self::{
@@ -286,9 +287,8 @@ impl Webrtc {
         &mut self,
         caps: &api::AudioConstraints,
     ) -> anyhow::Result<Arc<AudioSource>> {
-        let processing = sys::AudioProcessing::new((&caps.processing).into())?;
-
         let src = if caps.is_display {
+            // asdasdasdasdasd
             let device_id = SYSTEM_AUDIO_DEVICE_ID.to_owned().into();
 
             if let Some(src) = self.audio_sources.get(&device_id) {
@@ -298,7 +298,7 @@ impl Webrtc {
                     device_id.clone(),
                     self.audio_device_module
                         .create_display_audio_source(&device_id)?,
-                    processing,
+                    None,
                 ));
                 self.audio_sources.insert(device_id, Arc::clone(&src));
 
@@ -327,14 +327,23 @@ impl Webrtc {
             };
 
             if let Some(src) = self.audio_sources.get(&device_id) {
-                src.update_audio_processing(&caps.processing);
+                src.update_audio_processing(
+                    caps.processing.as_ref().unwrap_or(&Default::default()),
+                );
                 Arc::clone(src)
             } else {
+                let processing = sys::AudioProcessing::new(
+                    caps.processing
+                        .as_ref()
+                        .map(AudioProcessingConfig::from)
+                        .unwrap_or_default(),
+                )?;
+
                 let src = Arc::new(AudioSource::new(
                     device_id.clone(),
                     self.audio_device_module
                         .create_audio_source(device_index, &processing)?,
-                    processing,
+                    Some(processing),
                 ));
                 self.audio_sources.insert(device_id, Arc::clone(&src));
 
@@ -652,7 +661,9 @@ impl Webrtc {
             bail!("Cannot get audio processing of remote `AudioTrack`");
         };
 
-        let mut conf = src.ap_config();
+        let Some(mut conf) = src.ap_config() else {
+            bail!("`AudioTrack` has no audio processing attached");
+        };
 
         Ok(api::AudioProcessingConfig {
             auto_gain_control: conf.get_gain_controller_enabled(),

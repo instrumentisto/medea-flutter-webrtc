@@ -20,14 +20,17 @@ pub struct AudioConstraints {
     pub device_id: Option<String>,
 
     /// Audio processing configuration constraints of the [`MediaStreamTrack`].
-    pub processing: AudioProcessingConstraints,
+    pub processing: Option<AudioProcessingConstraints>,
 
-    /// Is used for system audio capture.
+    /// Indicates whether the audio source is a display (loopback) capture.
+    ///
+    /// When `true`, the capture will target system audio playback
+    /// rather than a microphone or other input device.
     pub is_display: bool,
 }
 
 /// Constraints of an [`AudioProcessingConfig`].
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default)]
 pub struct AudioProcessingConstraints {
     /// Indicator whether the audio volume level should be automatically tuned
     /// to maintain a steady overall volume level.

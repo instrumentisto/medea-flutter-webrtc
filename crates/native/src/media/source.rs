@@ -38,11 +38,10 @@ pub enum MediaTrackSource<T> {
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
 pub struct AudioLevelObserverId(u64);
 
-/// [`AudioDeviceId`] of the default system audio capture device.
 // TODO: We only support a whole system audio capture atm, so a single
-//       hardcoded AudioSource is ok. Should revisit this once we add
-//       support for capturing specific window or a set of windows or
-//       something like that.
+//       hardcoded ID is ok. Should revisit this once we add support
+//       for capturing specific window or a set of windows or a specific
+//       playout device or something like that like that.
 /// [`AudioDeviceId`] of the default system audio capture device.
 pub const SYSTEM_AUDIO_DEVICE_ID: &str = "system_audio_capture";
 
@@ -68,7 +67,7 @@ pub struct AudioSource {
     src: sys::AudioSourceInterface,
 
     /// [`sys::AudioProcessing`] used by this [`AudioSource`].
-    ap: sys::AudioProcessing,
+    ap: Option<sys::AudioProcessing>,
 }
 
 impl AudioSource {
@@ -77,7 +76,7 @@ impl AudioSource {
     pub fn new(
         device_id: AudioDeviceId,
         src: sys::AudioSourceInterface,
-        ap: sys::AudioProcessing,
+        ap: Option<sys::AudioProcessing>,
     ) -> Self {
         Self {
             device_id,
@@ -156,7 +155,10 @@ impl AudioSource {
         &self,
         new_conf: &api::AudioProcessingConstraints,
     ) {
-        let mut conf = self.ap.config();
+        let Some(ap) = &self.ap else {
+            return;
+        };
+        let mut conf = ap.config();
         if let Some(aec) = new_conf.echo_cancellation {
             conf.set_echo_cancellation_enabled(aec);
         }
@@ -172,12 +174,12 @@ impl AudioSource {
         if let Some(nsl) = new_conf.noise_suppression_level {
             conf.set_noise_suppression_level(nsl.into());
         }
-        self.ap.apply_config(&conf);
+        ap.apply_config(&conf);
     }
 
     /// [`sys::AudioProcessingConfig`] used by this [`AudioSource`].
-    pub(super) fn ap_config(&self) -> sys::AudioProcessingConfig {
-        self.ap.config()
+    pub(super) fn ap_config(&self) -> Option<sys::AudioProcessingConfig> {
+        self.ap.as_ref().map(|ap| ap.config())
     }
 }
 

@@ -12,7 +12,7 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Added
 
-- Support for system audio capturing on Windows. ([#245])
+- Support for system audio capturing on Windows (via `getDisplayMedia`). ([#245])
 
 ### Changed
 
@@ -20,7 +20,7 @@ All user visible changes to this project will be documented in this file. This p
 
 [todo]: https://github.com/instrumentisto/medea-flutter-webrtc/commit/todo
 [138.0.7204.183]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/138.0.7204.183
-[245]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/245
+[#245]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/245
 
 
 

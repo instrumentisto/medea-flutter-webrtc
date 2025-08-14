@@ -799,7 +799,7 @@ void OpenALAudioDeviceModule::processRecordingQueued() {
         }
         processRecordingQueued();
       },
-      webrtc::TimeDelta::Millis(kProcessInterval));
+      webrtc::TimeDelta::Millis(kBufferSizeMs));
 }
 
 void OpenALAudioDeviceModule::startCaptureOnThread() {

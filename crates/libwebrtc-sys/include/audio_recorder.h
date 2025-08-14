@@ -11,9 +11,6 @@ constexpr auto kRecordingFrequency = 48000;
 constexpr auto kBitsPerSample = 16;
 constexpr auto kRecordingChannels = 1;
 constexpr std::int64_t kBufferSizeMs = 10;
-// We want this to be slightly lower then `kBufferSizeMs` so recording loop
-// would spin little bit faster.
-constexpr auto kProcessInterval = 8;
 constexpr auto kALMaxValues = 6;
 constexpr auto kQueryExactTimeEach = 20;
 constexpr auto kDefaultPlayoutLatency = std::chrono::duration<double>(20.0);

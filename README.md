@@ -18,7 +18,7 @@ Initially, represented a fork of the [Flutter-WebRTC] plugin, but at the moment,
 
 - [macOS] 10.15+
 - [Linux] (with [PulseAudio] and [X11] for screen sharing)
-- [Windows] 7+
+- [Windows] Starting from Windows 10 Build 20348
 - [Android] 24+
 - [iOS] 13+
 - Web (partially, because [Medea Jason WebRTC client] supports browsers aside [Flutter])

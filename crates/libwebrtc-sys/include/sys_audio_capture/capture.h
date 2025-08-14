@@ -1,5 +1,3 @@
-#pragma once
-
 #ifndef SYS_AUDIO_CAPTURE_CAPTURE_H
 #define SYS_AUDIO_CAPTURE_CAPTURE_H
 
@@ -10,7 +8,7 @@
 #if defined(WEBRTC_LINUX)
 #endif
 
-inline std::unique_ptr<SysAudioSource> CreateDefaultSysAudioSource() {
+inline std::unique_ptr<AudioRecorder> CreateDefaultSysAudioSource() {
 #if defined(WEBRTC_WIN)
   auto recorder = std::make_unique<SysAudioSource>();
 
