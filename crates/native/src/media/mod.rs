@@ -25,8 +25,11 @@ pub use self::{
     },
 };
 use crate::{
-    Webrtc, api, api::NoiseSuppressionLevel, devices,
-    frb_generated::StreamSink, media::source::SYSTEM_AUDIO_DEVICE_ID,
+    Webrtc, api,
+    api::{AudioProcessingConstraints, NoiseSuppressionLevel},
+    devices,
+    frb_generated::StreamSink,
+    media::source::SYSTEM_AUDIO_DEVICE_ID,
     pc::PeerConnectionId,
 };
 
@@ -327,7 +330,9 @@ impl Webrtc {
 
             if let Some(src) = self.audio_sources.get(&device_id) {
                 src.update_audio_processing(
-                    caps.processing.as_ref().unwrap_or(&Default::default()),
+                    &caps.processing.clone().unwrap_or_else(|| {
+                        AudioProcessingConstraints::default()
+                    }),
                 );
                 Arc::clone(src)
             } else {

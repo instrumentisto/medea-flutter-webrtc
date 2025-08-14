@@ -9,15 +9,13 @@ const auto IID_IMMDeviceEnumerator = __uuidof(IMMDeviceEnumerator);
 const auto IID_IAudioClient = __uuidof(IAudioClient);
 const auto IID_IAudioCaptureClient = __uuidof(IAudioCaptureClient);
 
-
-// TODO: make consts
-#define BITS_PER_BYTE 8
+constexpr WORD BITS_PER_BYTE = 8;
 
 // 10ms in 100ns units.
-#define TEN_MS 100000
+constexpr REFERENCE_TIME TEN_MS = 100000;
 
 // 1s in ms.
-#define ONE_SECOND 1000
+constexpr DWORD ONE_SECOND = 1000;
 
 HRESULT AudioClientActivationHandler::ActivateCompleted(
     IActivateAudioInterfaceAsyncOperation* activateOperation) {

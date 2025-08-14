@@ -179,7 +179,7 @@ impl AudioSource {
 
     /// [`sys::AudioProcessingConfig`] used by this [`AudioSource`].
     pub(super) fn ap_config(&self) -> Option<sys::AudioProcessingConfig> {
-        self.ap.as_ref().map(|ap| ap.config())
+        self.ap.as_ref().map(sys::AudioProcessing::config)
     }
 }
 
