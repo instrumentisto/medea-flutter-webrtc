@@ -505,7 +505,6 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     const std::unique_ptr<Thread>& worker_thread,
     const std::unique_ptr<Thread>& signaling_thread,
     const std::unique_ptr<AudioDeviceModule>& default_adm) {
-  webrtc::LogMessage::LogToDebug(webrtc::LS_INFO);
 
   std::unique_ptr<webrtc::VideoEncoderFactory> video_encoder_factory =
       std::make_unique<webrtc::VideoEncoderFactoryTemplate<
