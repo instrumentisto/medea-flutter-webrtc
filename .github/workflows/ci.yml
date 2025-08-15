@@ -403,7 +403,7 @@ jobs:
           done
         if: ${{ matrix.platform == 'ios' }}
 
-      # TODO: Workaround until github runner is fixed:
+      # TODO: Workaround until actions/runner-images#12758 is fixed:
       #       https://github.com/actions/runner-images/issues/12758
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
