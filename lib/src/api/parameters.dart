@@ -9,12 +9,12 @@ import 'send_encoding_parameters.dart';
 /// [0]: https://w3.org/TR/webrtc#dom-rtcrtpparameters
 abstract class RtpParameters {
   /// Creates new [RtpParameters] from the provided [ffi.RtcRtpSendParameters].
-  static fromFFI(ffi.RtcRtpSendParameters params) {
+  static RtpParameters fromFFI(ffi.RtcRtpSendParameters params) {
     return _RtpParametersFFI(params);
   }
 
   /// Creates new [RtpParameters] from the provided [MethodChannel].
-  static fromMap(dynamic map) {
+  static RtpParameters fromMap(dynamic map) {
     return _RtpParametersChannel.fromMap(map);
   }
 

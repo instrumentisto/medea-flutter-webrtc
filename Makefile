@@ -149,7 +149,7 @@ flutter.test.desktop:
 
 flutter.test.mobile:
 ifneq ($(WEBRTC_BRANCH),)
-	make artifacts.download,mobile platform=$(platform)
+	make artifacts.download.mobile platform=$(platform)
 endif
 	cd example/ && \
 	flutter drive --driver=test_driver/integration_driver.dart \
@@ -446,7 +446,7 @@ test.flutter: flutter.test.desktop flutter.test.mobile
 # Usage:
 #	make artifacts.download.mobile platform=(android|ios)
 
-github-api-token := $(or $(GH_TOKEN),$(GITHUB_TOKEN)))
+github-api-token := $(or $(GH_TOKEN),$(GITHUB_TOKEN))
 webrtc-aar-name := "libwebrtc-bin-$(WEBRTC_BRANCH)"
 
 artifacts.download.mobile:

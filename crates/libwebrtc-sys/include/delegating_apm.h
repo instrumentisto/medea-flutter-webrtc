@@ -83,11 +83,11 @@ class PlayoutDelegatingAPM : public webrtc::AudioProcessing {
   bool CreateAndAttachAecDump(
       absl::string_view file_name,
       int64_t max_log_size_bytes,
-      absl::Nonnull<webrtc::TaskQueueBase*> worker_queue) override;
+      webrtc::TaskQueueBase* absl_nonnull worker_queue) override;
   bool CreateAndAttachAecDump(
       FILE* handle,
       int64_t max_log_size_bytes,
-      absl::Nonnull<webrtc::TaskQueueBase*> worker_queue) override;
+      webrtc::TaskQueueBase* absl_nonnull worker_queue) override;
   void AttachAecDump(std::unique_ptr<webrtc::AecDump> aec_dump) override;
   void DetachAecDump() override;
 
