@@ -78,10 +78,9 @@ bool AudioDeviceRecorder::ProcessRecordedPart(bool isFirstInCycle) {
   }
 
   _source->OnData(_recordedSamples.data(),  // audio_data
-                  16,
+                  kBitsPerSample,
                   kRecordingFrequency,  // sample_rate
-                  kRecordingChannels,
-                  kRecordingPart);
+                  kRecordingChannels, kRecordingPart);
 
   return true;
 }

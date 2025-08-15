@@ -10,7 +10,6 @@ use std::{
 use anyhow::{anyhow, bail};
 use derive_more::with_trait::{Display, From, Into as _};
 use libwebrtc_sys as sys;
-use libwebrtc_sys::AudioProcessingConfig;
 
 use self::track::TrackEventHandler;
 pub use self::{
@@ -25,12 +24,8 @@ pub use self::{
     },
 };
 use crate::{
-    Webrtc, api,
-    api::{AudioProcessingConstraints, NoiseSuppressionLevel},
-    devices,
-    frb_generated::StreamSink,
-    media::source::SYSTEM_AUDIO_DEVICE_ID,
-    pc::PeerConnectionId,
+    Webrtc, api, devices, frb_generated::StreamSink,
+    media::source::SYSTEM_AUDIO_DEVICE_ID, pc::PeerConnectionId,
 };
 
 impl Webrtc {
@@ -331,7 +326,7 @@ impl Webrtc {
             if let Some(src) = self.audio_sources.get(&device_id) {
                 src.update_audio_processing(
                     &caps.processing.clone().unwrap_or_else(|| {
-                        AudioProcessingConstraints::default()
+                        api::AudioProcessingConstraints::default()
                     }),
                 );
                 Arc::clone(src)
@@ -339,7 +334,7 @@ impl Webrtc {
                 let processing = sys::AudioProcessing::new(
                     caps.processing
                         .as_ref()
-                        .map(AudioProcessingConfig::from)
+                        .map(sys::AudioProcessingConfig::from)
                         .unwrap_or_default(),
                 )?;
 
@@ -656,7 +651,7 @@ impl Webrtc {
                 auto_gain_control: true,
                 high_pass_filter: true,
                 noise_suppression: true,
-                noise_suppression_level: NoiseSuppressionLevel::VeryHigh,
+                noise_suppression_level: api::NoiseSuppressionLevel::VeryHigh,
                 echo_cancellation: true,
             });
         };
