@@ -231,7 +231,7 @@ void PlayoutDelegatingAPM::set_stream_key_pressed(bool key_pressed) {
 bool PlayoutDelegatingAPM::CreateAndAttachAecDump(
     absl::string_view file_name,
     int64_t max_log_size_bytes,
-    absl::Nonnull<webrtc::TaskQueueBase*> worker_queue) {
+    webrtc::TaskQueueBase* absl_nonnull worker_queue) {
   // Not used.
   RTC_LOG(LS_ERROR)
       << "`PlayoutDelegatingAPM::CreateAndAttachAecDump()` is unsupported";
@@ -240,7 +240,7 @@ bool PlayoutDelegatingAPM::CreateAndAttachAecDump(
 bool PlayoutDelegatingAPM::CreateAndAttachAecDump(
     FILE* handle,
     int64_t max_log_size_bytes,
-    absl::Nonnull<webrtc::TaskQueueBase*> worker_queue) {
+    webrtc::TaskQueueBase* absl_nonnull worker_queue) {
   RTC_LOG(LS_ERROR)
       << "`PlayoutDelegatingAPM::CreateAndAttachAecDump()` is unsupported";
   return false;
