@@ -38,10 +38,10 @@ pub enum MediaTrackSource<T> {
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
 pub struct AudioLevelObserverId(u64);
 
-// TODO: We only support a whole system audio capture atm, so a single
-//       hardcoded ID is ok. Should revisit this once we add support
-//       for capturing specific window or a set of windows or a specific
-//       playout device or something like that like that.
+// TODO: Only a whole system audio capturing is supported at the moment, so a
+//       single hardcoded ID is OK. Should be revisited once support for
+//       capturing a specific window is added (or a set of windows, or a
+//       specific playout device or something like that like that).
 /// [`AudioDeviceId`] of the default system audio capture device.
 pub const SYSTEM_AUDIO_DEVICE_ID: &str = "system_audio_capture";
 

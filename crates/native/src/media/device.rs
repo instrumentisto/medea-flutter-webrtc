@@ -185,12 +185,12 @@ impl AudioDeviceModule {
         }
     }
 
-    /// Creates a new [`sys::AudioSourceInterface`] for `Display` audio.
+    /// Creates a new [`sys::AudioSourceInterface`] for display audio.
     ///
     /// # Errors
     ///
-    /// If [`sys::AudioDeviceModule::recording_devices()`] call fails or
-    /// if called not on Windows.
+    /// If [`sys::AudioDeviceModule::recording_devices()`] call fails or if
+    /// called not on Windows.
     pub fn create_display_audio_source(
         &mut self,
         device_id: &AudioDeviceId,

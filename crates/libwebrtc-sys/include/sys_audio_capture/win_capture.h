@@ -28,8 +28,8 @@ class AudioClientActivationHandler final
   HRESULT ActivateCompleted(
       IActivateAudioInterfaceAsyncOperation* activateOperation) override;
 
-  // Result of the activation attempt. Set by ActivateCompleted().
-  // Defaults to E_UNEXPECTED until activation completes.
+  // Result of the activation attempt. Set by `ActivateCompleted()`.
+  // Defaults to `E_UNEXPECTED` until activation completes.
   HRESULT activate_result = E_UNEXPECTED;
 
   // Event that is signaled when activation completes.

@@ -319,7 +319,7 @@ impl Webrtc {
             else {
                 bail!(
                     "Cannot find audio device with the specified ID: \
-                    `{device_id}`",
+                     `{device_id}`",
                 );
             };
 

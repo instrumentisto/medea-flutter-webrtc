@@ -1,6 +1,6 @@
-//! Downloading [wil] library.
+//! Downloading [WIL] library.
 //!
-//! [wil]: https://github.com/instrumentisto/libwebrtc-bin
+//! [WIL]: https://github.com/microsoft/wil
 
 use std::{
     env, fs,
@@ -15,16 +15,16 @@ use tar::Archive;
 use crate::{copy_dir_all, get_target};
 
 // TODO: Skip `v1.0.250325.1` cause https://github.com/microsoft/wil/issues/512
-//       Wait for https://github.com/microsoft/wil/pull/516 release.
-/// URL for downloading [`wil`] third party library.
+//       Wait for https://github.com/microsoft/wil/pull/516 being released.
+/// URL for downloading [WIL] library.
 ///
-/// [`wil`]: https://github.com/microsoft/wil
+/// [WIL]: https://github.com/microsoft/wil
 static WIL_URL: &str =
     "https://github.com/microsoft/wil/archive/refs/tags/v1.0.240803.1";
 
-/// Download Windows [`wil`] header-only library.
+/// Downloads [WIL] header-only library.
 ///
-/// [`wil`]: https://github.com/microsoft/wil
+/// [WIL]: https://github.com/microsoft/wil
 pub(super) fn download() -> anyhow::Result<()> {
     let wil_version = WIL_URL.split('/').next_back().unwrap_or_default();
     let manifest_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
@@ -38,7 +38,6 @@ pub(super) fn download() -> anyhow::Result<()> {
     .is_ok();
     let is_force_install =
         env::var("INSTALL_WIL").as_deref().unwrap_or("0") == "1";
-
     if !is_force_install && is_already_installed {
         return Ok(());
     }

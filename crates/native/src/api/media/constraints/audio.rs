@@ -24,8 +24,8 @@ pub struct AudioConstraints {
 
     /// Indicates whether the audio source is a display (loopback) capture.
     ///
-    /// When `true`, the capture will target system audio playback
-    /// rather than a microphone or other input device.
+    /// If yes, then the capture will target system audio playback rather than a
+    /// microphone or other input device.
     pub is_display: bool,
 }
 

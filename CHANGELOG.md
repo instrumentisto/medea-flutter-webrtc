@@ -14,10 +14,11 @@ All user visible changes to this project will be documented in this file. This p
 
 - Bumped up minimum supported [Flutter] version to 3.35. ([#250])
 - Bumped up minimum supported [Dart] version to 3.9. ([#250])
+- Bumped up minimum supported [Windows] deployment target to 10 (build 20348). ([#245])
 
 ### Added
 
-- Support for system audio capturing on Windows (via `getDisplayMedia`). ([#245])
+- Support for system audio capturing on [Windows] via `getDisplayMedia()`. ([#245])
 
 ### Changed
 

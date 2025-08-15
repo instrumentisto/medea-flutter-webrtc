@@ -24,7 +24,7 @@ inline std::unique_ptr<AudioRecorder> CreateDefaultSysAudioSource() {
   // TODO: Implement for MacOS.
   return nullptr;
 #else
-  static_assert(false, "Unknown platform");
+  static_assert(false, "unknown platform");
 #endif
 }
 

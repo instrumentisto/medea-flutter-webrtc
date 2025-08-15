@@ -490,9 +490,9 @@ impl AudioDeviceModule {
         Ok(AudioSourceInterface(ptr))
     }
 
-    /// Creates a new [`AudioSourceInterface`] for `Display` audio.
+    /// Creates a new [`AudioSourceInterface`] for display audio.
     ///
-    /// __NOTE__: implemented only on Windows and will return nullptr error on
+    /// **NOTE**: Implemented only on Windows and will return `nullptr` error on
     ///           other platforms.
     pub fn create_display_audio_source(
         &self,

@@ -270,7 +270,7 @@ std::unique_ptr<AudioSourceInterface> create_audio_source(
     uint16_t device_index,
     const std::unique_ptr<AudioProcessing>& ap);
 
-// Creates a new `AudioSourceInterface` for Display audio.
+// Creates a new `AudioSourceInterface` for display audio.
 std::unique_ptr<AudioSourceInterface> create_display_audio_source(
     const AudioDeviceModule& audio_device_module,
     rust::String device_id);
