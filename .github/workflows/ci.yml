@@ -403,6 +403,14 @@ jobs:
           done
         if: ${{ matrix.platform == 'ios' }}
 
+      # TODO: Workaround until github runner is fixed:
+      #       https://github.com/actions/runner-images/issues/12758
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+        if: ${{ matrix.platform == 'ios' }}
+
       - name: Start iOS simulator
         id: simulator
         uses: futureware-tech/simulator-action@v4
