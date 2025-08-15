@@ -10,11 +10,17 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.15.1...main)
 
+### BC Breaks
+
+- Bumped up minimum supported [Flutter] version to 3.35. ([#250])
+- Bumped up minimum supported [Dart] version to 3.9. ([#250])
+
 ### Changed
 
-- Upgraded [libwebrtc] to [138.0.7204.183] version. ([todo])
+- Upgraded [libwebrtc] to [138.0.7204.183] version. ([ccb79078])
 
-[todo]: https://github.com/instrumentisto/medea-flutter-webrtc/commit/todo
+[#250]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/250
+[ccb79078]: https://github.com/instrumentisto/medea-flutter-webrtc/commit/ccb7907885f39ad8b4a588b86ef15c9f4ce4b00e
 [138.0.7204.183]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/138.0.7204.183
 
 

@@ -231,119 +231,125 @@ class _LoopbackState extends State<Loopback> {
                           builder: (context, setStatePopup) {
                             return Column(
                               mainAxisSize: MainAxisSize.min,
-                              children:
-                                  [
-                                    CheckboxListTile(
-                                          dense: true,
-                                          title: Text("Noise Suppression"),
-                                          value: _noiseSuppressionEnabled,
-                                          onChanged: (bool? value) async {
-                                            for (var track in _tracks!) {
-                                              if (track.kind() ==
-                                                  MediaKind.audio) {
-                                                await track
-                                                    .setNoiseSuppressionEnabled(
-                                                      value!,
-                                                    );
-                                              }
-                                            }
-
-                                            setState(() {
-                                              _noiseSuppressionEnabled = value!;
-                                            });
-                                            setStatePopup(() {});
-                                          },
-                                        )
-                                        as StatelessWidget,
-                                    CheckboxListTile(
+                              children: [
+                                CheckboxListTile(
                                       dense: true,
-                                      title: Text("High Pass Filter"),
-                                      value: _highPassFilterEnabled,
+                                      title: Text("Noise Suppression"),
+                                      value: _noiseSuppressionEnabled,
                                       onChanged: (bool? value) async {
                                         for (var track in _tracks!) {
                                           if (track.kind() == MediaKind.audio) {
                                             await track
-                                                .setHighPassFilterEnabled(
+                                                .setNoiseSuppressionEnabled(
                                                   value!,
                                                 );
                                           }
                                         }
 
                                         setState(() {
-                                          _highPassFilterEnabled = value!;
+                                          _noiseSuppressionEnabled = value!;
                                         });
                                         setStatePopup(() {});
                                       },
-                                    ),
-                                    CheckboxListTile(
-                                      dense: true,
-                                      title: Text("Echo cancellation"),
-                                      value: _echoCancellationEnabled,
-                                      onChanged: (bool? value) async {
+                                    )
+                                    as StatelessWidget,
+                                CheckboxListTile(
+                                  dense: true,
+                                  title: Text("High Pass Filter"),
+                                  value: _highPassFilterEnabled,
+                                  onChanged: (bool? value) async {
+                                    for (var track in _tracks!) {
+                                      if (track.kind() == MediaKind.audio) {
+                                        await track.setHighPassFilterEnabled(
+                                          value!,
+                                        );
+                                      }
+                                    }
+
+                                    setState(() {
+                                      _highPassFilterEnabled = value!;
+                                    });
+                                    setStatePopup(() {});
+                                  },
+                                ),
+                                CheckboxListTile(
+                                  dense: true,
+                                  title: Text("Echo cancellation"),
+                                  value: _echoCancellationEnabled,
+                                  onChanged: (bool? value) async {
+                                    for (var track in _tracks!) {
+                                      if (track.kind() == MediaKind.audio) {
+                                        await track.setEchoCancellationEnabled(
+                                          value!,
+                                        );
+                                      }
+                                    }
+
+                                    setState(() {
+                                      _echoCancellationEnabled = value!;
+                                    });
+                                    setStatePopup(() {});
+                                  },
+                                ),
+                                CheckboxListTile(
+                                  dense: true,
+                                  title: Text("Auto gain control"),
+                                  value: _autoGainControlEnabled,
+                                  onChanged: (bool? value) async {
+                                    for (var track in _tracks!) {
+                                      if (track.kind() == MediaKind.audio) {
+                                        await track.setAutoGainControlEnabled(
+                                          value!,
+                                        );
+                                      }
+                                    }
+
+                                    setState(() {
+                                      _autoGainControlEnabled = value!;
+                                    });
+                                    setStatePopup(() {});
+                                  },
+                                ),
+                                Text('Noise suppression level'),
+                                RadioGroup<NoiseSuppressionLevel>(
+                                  groupValue: _noiseSuppressionLevel,
+                                  onChanged:
+                                      (NoiseSuppressionLevel? value) async {
                                         for (var track in _tracks!) {
                                           if (track.kind() == MediaKind.audio) {
                                             await track
-                                                .setEchoCancellationEnabled(
+                                                .setNoiseSuppressionLevel(
                                                   value!,
                                                 );
                                           }
                                         }
 
                                         setState(() {
-                                          _echoCancellationEnabled = value!;
-                                        });
-                                        setStatePopup(() {});
-                                      },
-                                    ),
-                                    CheckboxListTile(
-                                      dense: true,
-                                      title: Text("Auto gain control"),
-                                      value: _autoGainControlEnabled,
-                                      onChanged: (bool? value) async {
-                                        for (var track in _tracks!) {
-                                          if (track.kind() == MediaKind.audio) {
-                                            await track
-                                                .setAutoGainControlEnabled(
-                                                  value!,
-                                                );
+                                          if (value != null) {
+                                            _noiseSuppressionLevel = value;
                                           }
-                                        }
-
-                                        setState(() {
-                                          _autoGainControlEnabled = value!;
                                         });
                                         setStatePopup(() {});
                                       },
-                                    ),
-                                    Text('Noise suppression level'),
-                                  ] +
-                                  NoiseSuppressionLevel.values.map((level) {
-                                    return RadioListTile<NoiseSuppressionLevel>(
-                                      title: Text(level.name),
-                                      value: level,
-                                      groupValue: _noiseSuppressionLevel,
-                                      dense: true,
-                                      onChanged:
-                                          (NoiseSuppressionLevel? value) async {
-                                            for (var track in _tracks!) {
-                                              if (track.kind() ==
-                                                  MediaKind.audio) {
-                                                await track
-                                                    .setNoiseSuppressionLevel(
-                                                      value!,
-                                                    );
-                                              }
-                                            }
-
-                                            setState(() {
-                                              if (value != null) {
-                                                _noiseSuppressionLevel = value;
-                                              }
-                                            });
-                                            setStatePopup(() {});
-                                          },
-                                    );
-                                  }).toList(),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Text("Auto gain control"),
+                                      ...NoiseSuppressionLevel.values.map((
+                                        level,
+                                      ) {
+                                        return ListTile(
+                                          title: Text(level.name),
+                                          leading: Radio<NoiseSuppressionLevel>(
+                                            value: level,
+                                          ),
+                                        );
+                                      }),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             );
                           },
                         ),
