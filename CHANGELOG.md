@@ -14,11 +14,18 @@ All user visible changes to this project will be documented in this file. This p
 
 - Bumped up minimum supported [Flutter] version to 3.35. ([#250])
 - Bumped up minimum supported [Dart] version to 3.9. ([#250])
+- Bumped up minimum supported [Windows] deployment target to 10 (build 20348). ([#245])
+
+### Added
+
+- Support for system audio capturing on [Windows] via `getDisplayMedia()`. ([#245], [#244])
 
 ### Changed
 
 - Upgraded [libwebrtc] to [139.0.7258.66] version. ([#248])
 
+[#244]: https://github.com/instrumentisto/medea-flutter-webrtc/issues/244
+[#245]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/245
 [#248]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/248
 [#250]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/250
 [139.0.7258.66]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/139.0.7258.66

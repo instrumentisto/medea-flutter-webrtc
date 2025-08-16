@@ -50,11 +50,13 @@ class TrackEventObserver : public webrtc::ObserverInterface {
   void OnChanged();
 
   // Sets the inner `MediaStreamTrackInterface`.
-  void set_track(webrtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track);
+  void set_track(
+      webrtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track);
 
  private:
   // `MediaStreamTrackInterface` to determine the event.
-  std::optional<webrtc::scoped_refptr<webrtc::MediaStreamTrackInterface>> track_;
+  std::optional<webrtc::scoped_refptr<webrtc::MediaStreamTrackInterface>>
+      track_;
 
   // Rust side callback.
   rust::Box<bridge::DynTrackEventCallback> cb_;
@@ -104,14 +106,16 @@ using AudioDeviceModule = webrtc::scoped_refptr<ExtendedADM>;
 using AudioProcessing = webrtc::scoped_refptr<webrtc::AudioProcessing>;
 using AudioSourceInterface = webrtc::scoped_refptr<LocalAudioSource>;
 using AudioTrackInterface = webrtc::scoped_refptr<webrtc::AudioTrackInterface>;
-using MediaStreamInterface = webrtc::scoped_refptr<webrtc::MediaStreamInterface>;
+using MediaStreamInterface =
+    webrtc::scoped_refptr<webrtc::MediaStreamInterface>;
 using PeerConnectionFactoryInterface =
     webrtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface>;
 using RtpSenderInterface = webrtc::scoped_refptr<webrtc::RtpSenderInterface>;
 using VideoTrackInterface = webrtc::scoped_refptr<webrtc::VideoTrackInterface>;
 using VideoTrackSourceInterface =
     webrtc::scoped_refptr<webrtc::VideoTrackSourceInterface>;
-using RtpReceiverInterface = webrtc::scoped_refptr<webrtc::RtpReceiverInterface>;
+using RtpReceiverInterface =
+    webrtc::scoped_refptr<webrtc::RtpReceiverInterface>;
 using MediaStreamTrackInterface =
     webrtc::scoped_refptr<webrtc::MediaStreamTrackInterface>;
 
@@ -265,6 +269,11 @@ std::unique_ptr<AudioSourceInterface> create_audio_source(
     const AudioDeviceModule& audio_device_module,
     uint16_t device_index,
     const std::unique_ptr<AudioProcessing>& ap);
+
+// Creates a new `AudioSourceInterface` for display audio.
+std::unique_ptr<AudioSourceInterface> create_display_audio_source(
+    const AudioDeviceModule& audio_device_module,
+    rust::String device_id);
 
 // Disposes the `AudioSourceInterface` with the provided device ID.
 void dispose_audio_source(const AudioDeviceModule& audio_device_module,

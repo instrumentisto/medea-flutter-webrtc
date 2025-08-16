@@ -24,8 +24,8 @@ pub use self::{
     },
 };
 use crate::{
-    Webrtc, api, api::NoiseSuppressionLevel, devices,
-    frb_generated::StreamSink, pc::PeerConnectionId,
+    Webrtc, api, devices, frb_generated::StreamSink,
+    media::source::SYSTEM_AUDIO_DEVICE_ID, pc::PeerConnectionId,
 };
 
 impl Webrtc {
@@ -285,42 +285,69 @@ impl Webrtc {
         &mut self,
         caps: &api::AudioConstraints,
     ) -> anyhow::Result<Arc<AudioSource>> {
-        let device_id = if let Some(device_id) = caps.device_id.clone() {
-            device_id.into()
-        } else {
-            // `AudioDeviceModule` is not capturing anything at the moment, so
-            // the first available device (with `0` index) will be used.
-            if self.audio_device_module.recording_devices() < 1 {
-                bail!("Cannot find any available audio input device");
+        let src = if caps.is_display {
+            let device_id = SYSTEM_AUDIO_DEVICE_ID.to_owned().into();
+
+            if let Some(src) = self.audio_sources.get(&device_id) {
+                Arc::clone(src)
+            } else {
+                let src = Arc::new(AudioSource::new(
+                    device_id.clone(),
+                    self.audio_device_module
+                        .create_display_audio_source(&device_id)?,
+                    None,
+                ));
+                self.audio_sources.insert(device_id, Arc::clone(&src));
+
+                src
             }
-
-            self.audio_device_module.recording_device_name(0)?.1.into()
-        };
-
-        let Some(device_index) =
-            self.get_index_of_audio_recording_device(&device_id)?
-        else {
-            bail!(
-                "Cannot find audio device with the specified ID: `{device_id}`",
-            );
-        };
-
-        let src = if let Some(src) = self.audio_sources.get(&device_id) {
-            src.update_audio_processing(&caps.processing);
-            Arc::clone(src)
         } else {
-            let processing =
-                sys::AudioProcessing::new((&caps.processing).into())?;
+            let device_id = if let Some(device_id) = caps.device_id.clone() {
+                device_id.into()
+            } else {
+                // `AudioDeviceModule` is not capturing anything at the moment,
+                // so the first available device (with `0` index) will be used.
+                if self.audio_device_module.recording_devices() < 1 {
+                    bail!("Cannot find any available audio input device");
+                }
 
-            let src = Arc::new(AudioSource::new(
-                device_id.clone(),
-                self.audio_device_module
-                    .create_audio_source(device_index, &processing)?,
-                processing,
-            ));
-            self.audio_sources.insert(device_id, Arc::clone(&src));
+                self.audio_device_module.recording_device_name(0)?.1.into()
+            };
 
-            src
+            let Some(device_index) =
+                self.get_index_of_audio_recording_device(&device_id)?
+            else {
+                bail!(
+                    "Cannot find audio device with the specified ID: \
+                     `{device_id}`",
+                );
+            };
+
+            if let Some(src) = self.audio_sources.get(&device_id) {
+                src.update_audio_processing(
+                    &caps.processing.clone().unwrap_or_else(|| {
+                        api::AudioProcessingConstraints::default()
+                    }),
+                );
+                Arc::clone(src)
+            } else {
+                let processing = sys::AudioProcessing::new(
+                    caps.processing
+                        .as_ref()
+                        .map(sys::AudioProcessingConfig::from)
+                        .unwrap_or_default(),
+                )?;
+
+                let src = Arc::new(AudioSource::new(
+                    device_id.clone(),
+                    self.audio_device_module
+                        .create_audio_source(device_index, &processing)?,
+                    Some(processing),
+                ));
+                self.audio_sources.insert(device_id, Arc::clone(&src));
+
+                src
+            }
         };
 
         Ok(src)
@@ -624,7 +651,7 @@ impl Webrtc {
                 auto_gain_control: true,
                 high_pass_filter: true,
                 noise_suppression: true,
-                noise_suppression_level: NoiseSuppressionLevel::VeryHigh,
+                noise_suppression_level: api::NoiseSuppressionLevel::VeryHigh,
                 echo_cancellation: true,
             });
         };
@@ -633,7 +660,9 @@ impl Webrtc {
             bail!("Cannot get audio processing of remote `AudioTrack`");
         };
 
-        let mut conf = src.ap_config();
+        let Some(mut conf) = src.ap_config() else {
+            bail!("`AudioTrack` has no audio processing attached");
+        };
 
         Ok(api::AudioProcessingConfig {
             auto_gain_control: conf.get_gain_controller_enabled(),

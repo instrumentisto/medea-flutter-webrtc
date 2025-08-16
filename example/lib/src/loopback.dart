@@ -1,5 +1,7 @@
 // ignore_for_file: avoid_print
 import 'dart:core';
+import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';
@@ -15,10 +17,15 @@ class Loopback extends StatefulWidget {
 
 class _LoopbackState extends State<Loopback> {
   List<MediaDeviceInfo>? _mediaDevicesList;
-  List<MediaStreamTrack>? _tracks;
+
+  MediaStreamTrack? _videoTrack;
+  MediaStreamTrack? _micAudioTrack;
+  MediaStreamTrack? _systemAudioTrack;
 
   PeerConnection? _pc1;
-  RtpTransceiver? _audioTxTr;
+  RtpTransceiver? _videoTxTr;
+  RtpTransceiver? _deviceAudioTxTr;
+  RtpTransceiver? _systemAudioTxTr;
 
   PeerConnection? _pc2;
 
@@ -27,9 +34,12 @@ class _LoopbackState extends State<Loopback> {
   bool _inCalling = false;
   bool _mic = true;
   bool _cam = true;
+  bool _displayAudio = Platform.isWindows;
   int _volume = -1;
   bool _microIsAvailable = false;
   double currentAudioLevel = 0.0;
+  double lastDeviceAudioLevel = 0.0;
+  double lastDisplayAudioLevel = 0.0;
 
   bool _noiseSuppressionEnabled = true;
   bool _highPassFilterEnabled = true;
@@ -85,10 +95,23 @@ class _LoopbackState extends State<Loopback> {
       );
 
       _mediaDevicesList = await enumerateDevices();
-      _tracks = await getUserMedia(caps);
-      await _localRenderer.setSrcObject(
-        _tracks!.firstWhere((track) => track.kind() == MediaKind.video),
+      var gumTracks = await getUserMedia(caps);
+      _videoTrack = gumTracks.firstWhere(
+        (track) => track.kind() == MediaKind.video,
       );
+      _micAudioTrack = gumTracks.firstWhere(
+        (track) => track.kind() == MediaKind.audio,
+      );
+      await _localRenderer.setSrcObject(_videoTrack!);
+
+      try {
+        var displayCaps = DisplayConstraints();
+        displayCaps.audio.mandatory = AudioConstraints();
+
+        _systemAudioTrack = (await getDisplayMedia(displayCaps))[0];
+      } catch (e) {
+        print("Could not capture system audio: $e");
+      }
 
       var server = IceServer(['stun:stun.l.google.com:19302']);
       _pc1 = await PeerConnection.create(IceTransportType.all, [server]);
@@ -107,12 +130,15 @@ class _LoopbackState extends State<Loopback> {
         }
       });
 
-      var vtrans = await _pc1?.addTransceiver(
+      _videoTxTr = await _pc1?.addTransceiver(
         MediaKind.video,
         RtpTransceiverInit(TransceiverDirection.sendOnly),
       );
-
-      _audioTxTr = await _pc1?.addTransceiver(
+      _deviceAudioTxTr = await _pc1?.addTransceiver(
+        MediaKind.audio,
+        RtpTransceiverInit(TransceiverDirection.sendOnly),
+      );
+      _systemAudioTxTr = await _pc1?.addTransceiver(
         MediaKind.audio,
         RtpTransceiverInit(TransceiverDirection.sendOnly),
       );
@@ -135,22 +161,41 @@ class _LoopbackState extends State<Loopback> {
         await _pc1?.addIceCandidate(candidate);
       });
 
-      var audioTrack = _tracks!.firstWhere(
-        (track) => track.kind() == MediaKind.audio,
-      );
-      if (audioTrack.isOnAudioLevelAvailable()) {
-        audioTrack.onAudioLevelChanged((volume) {
+      if (_micAudioTrack!.isOnAudioLevelAvailable()) {
+        _micAudioTrack!.onAudioLevelChanged((volume) {
           setState(() {
-            currentAudioLevel = volume / 100;
+            lastDeviceAudioLevel = volume / 100;
+
+            if (Platform.isWindows) {
+              currentAudioLevel = max(
+                lastDeviceAudioLevel,
+                lastDisplayAudioLevel,
+              );
+            } else {
+              currentAudioLevel = lastDeviceAudioLevel;
+            }
           });
         });
       }
 
-      await vtrans?.sender.replaceTrack(
-        _tracks!.firstWhere((track) => track.kind() == MediaKind.video),
-      );
+      await _videoTxTr?.sender.replaceTrack(_videoTrack!);
+      await _deviceAudioTxTr?.sender.replaceTrack(_micAudioTrack!);
+      if (_systemAudioTrack != null) {
+        if (_systemAudioTrack!.isOnAudioLevelAvailable()) {
+          _systemAudioTrack!.onAudioLevelChanged((volume) {
+            setState(() {
+              lastDisplayAudioLevel = volume / 100;
 
-      await _audioTxTr?.sender.replaceTrack(audioTrack);
+              currentAudioLevel = max(
+                lastDeviceAudioLevel,
+                lastDisplayAudioLevel,
+              );
+            });
+          });
+        }
+
+        await _systemAudioTxTr?.sender.replaceTrack(_systemAudioTrack);
+      }
     } catch (e) {
       print(e.toString());
     }
@@ -169,9 +214,9 @@ class _LoopbackState extends State<Loopback> {
       await _localRenderer.setSrcObject(null);
       await _remoteRenderer.setSrcObject(null);
 
-      for (var track in _tracks!) {
-        await track.stop();
-        await track.dispose();
+      for (var track in [_videoTrack, _micAudioTrack, _systemAudioTrack]) {
+        await track?.stop();
+        await track?.dispose();
       }
 
       await _pc1?.close();
@@ -181,6 +226,7 @@ class _LoopbackState extends State<Loopback> {
         _inCalling = false;
         _mic = true;
         _cam = true;
+        _displayAudio = Platform.isWindows;
       });
     } catch (e) {
       print(e.toString());
@@ -188,13 +234,9 @@ class _LoopbackState extends State<Loopback> {
   }
 
   void _setInputAudioId(String id) async {
-    for (var track in _tracks!) {
-      if (track.kind() == MediaKind.audio) {
-        await track.stop();
-        await track.dispose();
-      }
-    }
-    _tracks!.removeWhere((item) => item.kind() == MediaKind.audio);
+    await _micAudioTrack?.stop();
+    await _micAudioTrack?.dispose();
+    _micAudioTrack = null;
 
     var caps = DeviceConstraints();
     caps.audio.mandatory = AudioConstraints();
@@ -208,9 +250,9 @@ class _LoopbackState extends State<Loopback> {
         });
       });
     }
-    await _audioTxTr!.sender.replaceTrack(newTrack);
+    await _deviceAudioTxTr!.sender.replaceTrack(newTrack);
 
-    _tracks!.add(newTrack);
+    _micAudioTrack = newTrack;
   }
 
   @override
@@ -237,14 +279,10 @@ class _LoopbackState extends State<Loopback> {
                                       title: Text("Noise Suppression"),
                                       value: _noiseSuppressionEnabled,
                                       onChanged: (bool? value) async {
-                                        for (var track in _tracks!) {
-                                          if (track.kind() == MediaKind.audio) {
-                                            await track
-                                                .setNoiseSuppressionEnabled(
-                                                  value!,
-                                                );
-                                          }
-                                        }
+                                        await _micAudioTrack
+                                            ?.setNoiseSuppressionEnabled(
+                                              value!,
+                                            );
 
                                         setState(() {
                                           _noiseSuppressionEnabled = value!;
@@ -258,13 +296,8 @@ class _LoopbackState extends State<Loopback> {
                                   title: Text("High Pass Filter"),
                                   value: _highPassFilterEnabled,
                                   onChanged: (bool? value) async {
-                                    for (var track in _tracks!) {
-                                      if (track.kind() == MediaKind.audio) {
-                                        await track.setHighPassFilterEnabled(
-                                          value!,
-                                        );
-                                      }
-                                    }
+                                    await _micAudioTrack
+                                        ?.setHighPassFilterEnabled(value!);
 
                                     setState(() {
                                       _highPassFilterEnabled = value!;
@@ -277,13 +310,8 @@ class _LoopbackState extends State<Loopback> {
                                   title: Text("Echo cancellation"),
                                   value: _echoCancellationEnabled,
                                   onChanged: (bool? value) async {
-                                    for (var track in _tracks!) {
-                                      if (track.kind() == MediaKind.audio) {
-                                        await track.setEchoCancellationEnabled(
-                                          value!,
-                                        );
-                                      }
-                                    }
+                                    await _micAudioTrack
+                                        ?.setEchoCancellationEnabled(value!);
 
                                     setState(() {
                                       _echoCancellationEnabled = value!;
@@ -296,13 +324,8 @@ class _LoopbackState extends State<Loopback> {
                                   title: Text("Auto gain control"),
                                   value: _autoGainControlEnabled,
                                   onChanged: (bool? value) async {
-                                    for (var track in _tracks!) {
-                                      if (track.kind() == MediaKind.audio) {
-                                        await track.setAutoGainControlEnabled(
-                                          value!,
-                                        );
-                                      }
-                                    }
+                                    await _micAudioTrack
+                                        ?.setAutoGainControlEnabled(value!);
 
                                     setState(() {
                                       _autoGainControlEnabled = value!;
@@ -315,14 +338,8 @@ class _LoopbackState extends State<Loopback> {
                                   groupValue: _noiseSuppressionLevel,
                                   onChanged:
                                       (NoiseSuppressionLevel? value) async {
-                                        for (var track in _tracks!) {
-                                          if (track.kind() == MediaKind.audio) {
-                                            await track
-                                                .setNoiseSuppressionLevel(
-                                                  value!,
-                                                );
-                                          }
-                                        }
+                                        await _micAudioTrack
+                                            ?.setNoiseSuppressionLevel(value!);
 
                                         setState(() {
                                           if (value != null) {
@@ -386,15 +403,32 @@ class _LoopbackState extends State<Loopback> {
                   icon: _mic
                       ? const Icon(Icons.mic_off)
                       : const Icon(Icons.mic),
-                  tooltip: _mic ? 'Disable audio rec' : 'Enable audio rec',
+                  tooltip: _mic
+                      ? 'Disable device audio rec'
+                      : 'Enable device audio rec',
                   onPressed: () {
                     setState(() {
                       _mic = !_mic;
                     });
-                    _tracks!
-                        .firstWhere((track) => track.kind() == MediaKind.audio)
-                        .setEnabled(_mic);
+                    _micAudioTrack?.setEnabled(_mic);
                   },
+                ),
+                Visibility(
+                  visible: Platform.isWindows,
+                  child: IconButton(
+                    icon: _displayAudio
+                        ? const Icon(Icons.volume_off)
+                        : const Icon(Icons.volume_up),
+                    tooltip: _displayAudio
+                        ? 'Disable display audio rec'
+                        : 'Enable display audio rec',
+                    onPressed: () async {
+                      setState(() {
+                        _displayAudio = !_displayAudio;
+                      });
+                      _systemAudioTrack?.setEnabled(_displayAudio);
+                    },
+                  ),
                 ),
                 IconButton(
                   icon: _cam
@@ -405,12 +439,12 @@ class _LoopbackState extends State<Loopback> {
                     setState(() {
                       _cam = !_cam;
                     });
-                    _tracks!
-                        .firstWhere((track) => track.kind() == MediaKind.video)
-                        .setEnabled(_cam);
+                    _videoTrack?.setEnabled(_cam);
                   },
                 ),
                 PopupMenuButton<String>(
+                  tooltip: "Choose audio input device",
+                  icon: const Icon(Icons.mic),
                   onSelected: (id) {
                     _setInputAudioId(id);
                   },
@@ -431,9 +465,10 @@ class _LoopbackState extends State<Loopback> {
                     }
                     return [];
                   },
-                  icon: const Icon(Icons.mic),
                 ),
                 PopupMenuButton<String>(
+                  tooltip: "Choose audio output device",
+                  icon: const Icon(Icons.volume_down),
                   onSelected: (id) {
                     setOutputAudioId(id);
                   },
@@ -454,7 +489,6 @@ class _LoopbackState extends State<Loopback> {
                     }
                     return [];
                   },
-                  icon: const Icon(Icons.volume_down),
                 ),
               ]
             : null,

@@ -185,6 +185,23 @@ impl AudioDeviceModule {
         }
     }
 
+    /// Creates a new [`sys::AudioSourceInterface`] for display audio.
+    ///
+    /// # Errors
+    ///
+    /// If [`sys::AudioDeviceModule::recording_devices()`] call fails or if
+    /// called not on Windows.
+    pub fn create_display_audio_source(
+        &mut self,
+        device_id: &AudioDeviceId,
+    ) -> anyhow::Result<sys::AudioSourceInterface> {
+        if api::is_fake_media() {
+            self.inner.create_fake_audio_source()
+        } else {
+            self.inner.create_display_audio_source(device_id.to_string())
+        }
+    }
+
     /// Disposes a [`sys::AudioSourceInterface`] by the provided
     /// [`AudioDeviceId`].
     pub fn dispose_audio_source(&mut self, device_id: &AudioDeviceId) {

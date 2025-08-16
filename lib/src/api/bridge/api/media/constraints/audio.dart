@@ -8,7 +8,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import '../../../frb_generated.dart';
 import '../../media_stream_track/audio_processing_config.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `fmt`, `fmt`
 
 /// Nature and settings of the audio [`MediaStreamTrack`] returned by
 /// [`Webrtc::get_media()`].
@@ -20,12 +20,23 @@ class AudioConstraints {
   final String? deviceId;
 
   /// Audio processing configuration constraints of the [`MediaStreamTrack`].
-  final AudioProcessingConstraints processing;
+  final AudioProcessingConstraints? processing;
 
-  const AudioConstraints({this.deviceId, required this.processing});
+  /// Indicates whether the audio source is a display (loopback) capture.
+  ///
+  /// If yes, then the capture will target system audio playback rather than a
+  /// microphone or other input device.
+  final bool isDisplay;
+
+  const AudioConstraints({
+    this.deviceId,
+    this.processing,
+    required this.isDisplay,
+  });
 
   @override
-  int get hashCode => deviceId.hashCode ^ processing.hashCode;
+  int get hashCode =>
+      deviceId.hashCode ^ processing.hashCode ^ isDisplay.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -33,7 +44,8 @@ class AudioConstraints {
       other is AudioConstraints &&
           runtimeType == other.runtimeType &&
           deviceId == other.deviceId &&
-          processing == other.processing;
+          processing == other.processing &&
+          isDisplay == other.isDisplay;
 }
 
 /// Constraints of an [`AudioProcessingConfig`].

@@ -30,7 +30,7 @@ namespace bridge {
 // Creates a new `TrackEventObserver`.
 TrackEventObserver::TrackEventObserver(
     rust::Box<bridge::DynTrackEventCallback> cb)
-    : cb_(std::move(cb)){};
+    : cb_(std::move(cb)) {};
 
 // Called when the `MediaStreamTrackInterface`, that this `TrackEventObserver`
 // is attached to, has its state changed.
@@ -251,9 +251,8 @@ int32_t set_audio_playout_device(const AudioDeviceModule& audio_device_module,
 // Calls `BuiltinAudioProcessingBuilder().Create()`.
 std::unique_ptr<AudioProcessing> create_audio_processing(
     std::unique_ptr<AudioProcessingConfig> config) {
-  auto apm = webrtc::BuiltinAudioProcessingBuilder()
-                 .SetConfig(*config)
-                 .Build(webrtc::CreateEnvironment());
+  auto apm = webrtc::BuiltinAudioProcessingBuilder().SetConfig(*config).Build(
+      webrtc::CreateEnvironment());
   return std::make_unique<AudioProcessing>(apm);
 }
 
@@ -316,7 +315,8 @@ std::unique_ptr<VideoTrackSourceInterface> create_display_video_source(
     size_t height,
     size_t fps) {
   webrtc::scoped_refptr<ScreenVideoCapturer> capturer(
-      new webrtc::RefCountedObject<ScreenVideoCapturer>(id, width, height, fps));
+      new webrtc::RefCountedObject<ScreenVideoCapturer>(id, width, height,
+                                                        fps));
 
   auto src = webrtc::CreateVideoTrackSourceProxy(
       &signaling_thread, &worker_thread, capturer.get());
@@ -333,7 +333,20 @@ std::unique_ptr<AudioSourceInterface> create_audio_source(
     const AudioDeviceModule& audio_device_module,
     uint16_t device_index,
     const std::unique_ptr<AudioProcessing>& ap) {
-  auto src = audio_device_module->CreateAudioSource(device_index, *ap);
+  auto src = audio_device_module->CreateMicAudioSource(device_index, *ap);
+  if (src == nullptr) {
+    return nullptr;
+  }
+
+  return std::make_unique<AudioSourceInterface>(src);
+}
+
+// Creates a new `AudioSource` for Display audio with the provided
+// `AudioDeviceModule`.
+std::unique_ptr<AudioSourceInterface> create_display_audio_source(
+    const AudioDeviceModule& audio_device_module,
+    rust::String device_id) {
+  auto src = audio_device_module->CreateSysAudioSource(std::string(device_id));
   if (src == nullptr) {
     return nullptr;
   }
@@ -492,7 +505,6 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     const std::unique_ptr<Thread>& worker_thread,
     const std::unique_ptr<Thread>& signaling_thread,
     const std::unique_ptr<AudioDeviceModule>& default_adm) {
-
   std::unique_ptr<webrtc::VideoEncoderFactory> video_encoder_factory =
       std::make_unique<webrtc::VideoEncoderFactoryTemplate<
           webrtc::LibvpxVp8EncoderTemplateAdapter,

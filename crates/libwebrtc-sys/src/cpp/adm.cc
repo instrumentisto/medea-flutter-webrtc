@@ -21,14 +21,14 @@
  * Full license: https://github.com/desktop-app/legal/blob/master/LICENSE
  */
 
-#include <iostream>
-
 #include <algorithm>
 #include <cfenv>
 #include <chrono>
 #include <cmath>
+#include <iostream>
 #include <thread>
 #include <vector>
+
 #include "adm.h"
 #include "api/make_ref_counted.h"
 #include "common_audio/wav_file.h"
@@ -708,7 +708,8 @@ void OpenALAudioDeviceModule::stopPlayingOnThread() {
   _data->_playoutThread->Stop();
 }
 
-webrtc::scoped_refptr<bridge::LocalAudioSource> OpenALAudioDeviceModule::CreateAudioSource(
+webrtc::scoped_refptr<bridge::LocalAudioSource>
+OpenALAudioDeviceModule::CreateMicAudioSource(
     uint32_t device_index,
     webrtc::scoped_refptr<webrtc::AudioProcessing> ap) {
   std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
@@ -743,7 +744,26 @@ void OpenALAudioDeviceModule::DisposeAudioSource(std::string device_id) {
   }
 }
 
-webrtc::scoped_refptr<PlayoutDelegatingAPM> OpenALAudioDeviceModule::AudioProcessing() {
+webrtc::scoped_refptr<bridge::LocalAudioSource>
+OpenALAudioDeviceModule::CreateSysAudioSource(const std::string device_id) {
+  std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
+
+  auto recorder = CreateDefaultSysAudioSource();
+
+  if (!recorder) {
+    return nullptr;
+  }
+
+  auto source = recorder->GetSource();
+  _recorders[device_id] = std::move(recorder);
+  ensureThreadStarted();
+  startCaptureOnThread();
+
+  return source;
+}
+
+webrtc::scoped_refptr<PlayoutDelegatingAPM>
+OpenALAudioDeviceModule::AudioProcessing() {
   return apm_;
 };
 
@@ -779,7 +799,7 @@ void OpenALAudioDeviceModule::processRecordingQueued() {
         }
         processRecordingQueued();
       },
-      webrtc::TimeDelta::Millis(kProcessInterval));
+      webrtc::TimeDelta::Millis(kBufferSizeMs));
 }
 
 void OpenALAudioDeviceModule::startCaptureOnThread() {
@@ -800,14 +820,14 @@ int16_t OpenALAudioDeviceModule::RecordingDevices() {
 
 int32_t OpenALAudioDeviceModule::SetRecordingDevice(uint16_t index) {
   RTC_LOG(LS_ERROR)
-    << "Use `CreateAudioSource` instead of `SetRecordingDevice`";
+      << "Use `CreateMicAudioSource` instead of `SetRecordingDevice`";
   return -1;
 }
 
 int32_t OpenALAudioDeviceModule::SetRecordingDevice(
     WindowsDeviceType /*device*/) {
   RTC_LOG(LS_ERROR)
-    << "Use `CreateAudioSource` instead of `SetRecordingDevice`";
+      << "Use `CreateMicAudioSource` instead of `SetRecordingDevice`";
   return -1;
 }
 
