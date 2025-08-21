@@ -1,5 +1,7 @@
 package com.instrumentisto.medea_flutter_webrtc.controller
 
+import com.instrumentisto.medea_flutter_webrtc.model.CodecCapability
+import com.instrumentisto.medea_flutter_webrtc.model.MediaType
 import com.instrumentisto.medea_flutter_webrtc.model.RtpTransceiverDirection
 import com.instrumentisto.medea_flutter_webrtc.proxy.RtpTransceiverProxy
 import io.flutter.plugin.common.BinaryMessenger
@@ -15,7 +17,7 @@ import io.flutter.plugin.common.MethodChannel
 class RtpTransceiverController(
     private val messenger: BinaryMessenger,
     private val transceiver: RtpTransceiverProxy
-) : MethodChannel.MethodCallHandler, IdentifiableController {
+) : Controller {
   /** Unique ID of the [MethodChannel] of this controller. */
   private val channelId = nextChannelId()
 
@@ -25,6 +27,7 @@ class RtpTransceiverController(
 
   init {
     chan.setMethodCallHandler(this)
+    ControllerRegistry.register(this)
   }
 
   override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
@@ -32,6 +35,22 @@ class RtpTransceiverController(
       "setDirection" -> {
         val direction = RtpTransceiverDirection.fromInt(call.argument("direction")!!)
         transceiver.setDirection(direction)
+        result.success(null)
+      }
+      "setCodecPreferences" -> {
+        val args: List<Map<String, Any>> = call.argument("codecs") ?: listOf()
+        val codecs =
+            args.map {
+              CodecCapability(
+                  it["preferredPayloadType"] as Int,
+                  it["name"] as String,
+                  MediaType.fromInt(it["kind"] as Int),
+                  it["clockRate"] as Int,
+                  it["numChannels"] as Int?,
+                  it["parameters"] as Map<String, String>,
+                  it["mimeType"] as String)
+            }
+        transceiver.setCodecPreferences(codecs)
         result.success(null)
       }
       "setRecv" -> {
@@ -55,9 +74,22 @@ class RtpTransceiverController(
         result.success(null)
       }
       "dispose" -> {
-        chan.setMethodCallHandler(null)
+        disposeInternal(false)
         result.success(null)
       }
+    }
+  }
+
+  override fun dispose() {
+    disposeInternal(true)
+  }
+
+  /** Releases all the allocated resources. */
+  fun disposeInternal(stop: Boolean) {
+    ControllerRegistry.unregister(this)
+    chan.setMethodCallHandler(null)
+    if (stop) {
+      transceiver.stop()
     }
   }
 

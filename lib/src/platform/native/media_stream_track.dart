@@ -3,16 +3,22 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 
 import '/medea_flutter_webrtc.dart';
-import '/src/api/bridge.g.dart' as ffi;
+import '/src/api/bridge/api/media/constraints/audio.dart' as ffi;
+import '/src/api/bridge/api/media_stream_track.dart' as ffi;
+import '/src/api/bridge/api/media_stream_track/media_type.dart' as ffi;
+import '/src/api/bridge/api/media_stream_track/track_event.dart' as ffi;
 import '/src/api/channel.dart';
+
+import '/src/api/bridge/api/media_stream_track/audio_processing_config.dart'
+    as ffi;
 
 /// Representation of a single media unit.
 abstract class NativeMediaStreamTrack extends MediaStreamTrack {
   /// Creates a [NativeMediaStreamTrack] basing on the [Map] received from the
   /// native side.
-  static NativeMediaStreamTrack from(dynamic map) {
+  static Future<NativeMediaStreamTrack> from(dynamic map) async {
     if (isDesktop) {
-      return _NativeMediaStreamTrackFFI(map);
+      return await _NativeMediaStreamTrackFFI.create(map);
     } else {
       return _NativeMediaStreamTrackChannel.fromMap(map);
     }
@@ -67,11 +73,13 @@ abstract class NativeMediaStreamTrack extends MediaStreamTrack {
 
   /// Listener for all the [MediaStreamTrack] events received from the native
   /// side.
-  void eventListener(dynamic event) {
+  void eventListener(dynamic event) async {
     final dynamic e = event;
     switch (e['event']) {
       case 'onEnded':
         _onEnded?.call();
+        await _eventSub?.cancel();
+        _eventSub = null;
         break;
     }
   }
@@ -151,13 +159,11 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
   Future<void> dispose() async {
     if (!_disposed) {
       _disposed = true;
+      _stopped = true;
       _onEnded = null;
-      if (!_stopped) {
-        _stopped = true;
-        await _chan.invokeMethod('stop');
-      }
       await _chan.invokeMethod('dispose');
       await _eventSub?.cancel();
+      _eventSub = null;
     }
   }
 
@@ -184,6 +190,22 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
 
 /// FFI-based implementation of a [NativeMediaStreamTrack].
 class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
+  /// Subscriber for audio level updates of this track.
+  OnAudioLevelChangedCallback? _onAudioLevelChanged;
+
+  /// [Completer] used to await for the [ffi.TrackCreated] event after creating
+  /// a new [MediaStreamTrack].
+  final Completer _initialized = Completer();
+
+  /// Creates a new [MediaStreamTrack] from the provided [ffi.MediaStreamTrack].
+  static Future<_NativeMediaStreamTrackFFI> create(
+    ffi.MediaStreamTrack track,
+  ) async {
+    var ffiTrack = _NativeMediaStreamTrackFFI(track);
+    await ffiTrack._initialized.future;
+    return ffiTrack;
+  }
+
   /// Creates a [NativeMediaStreamTrack] basing on the provided
   /// [ffi.MediaStreamTrack].
   _NativeMediaStreamTrackFFI(ffi.MediaStreamTrack track) {
@@ -191,48 +213,80 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
     _deviceId = track.deviceId;
     _peerId = track.peerId;
     _kind = MediaKind.values[track.kind.index];
-    _eventSub = api!
+    _eventSub = ffi
         .registerTrackObserver(
-            peerId: _peerId,
-            trackId: track.id,
-            kind: ffi.MediaType.values[_kind.index])
+          peerId: _peerId,
+          trackId: track.id,
+          kind: ffi.MediaType.values[_kind.index],
+        )
         .listen((event) {
-      if (_onEnded != null) {
-        _onEnded!();
-      }
-    });
+          if (event is ffi.TrackEvent_AudioLevelUpdated) {
+            _onAudioLevelChanged?.call(event.field0);
+          } else if (event is ffi.TrackEvent_Ended) {
+            _onEnded?.call();
+          } else if (event is ffi.TrackEvent_TrackCreated) {
+            _initialized.complete();
+          }
+        });
+  }
+
+  @override
+  void onAudioLevelChanged(OnAudioLevelChangedCallback? cb) {
+    if (!isOnAudioLevelAvailable()) {
+      return;
+    }
+    ffi.setAudioLevelObserverEnabled(
+      peerId: _peerId,
+      trackId: _id,
+      enabled: cb != null,
+    );
+    _onAudioLevelChanged = cb;
+  }
+
+  @override
+  bool isOnAudioLevelAvailable() {
+    return !_stopped && _kind == MediaKind.audio && _deviceId != 'remote';
   }
 
   @override
   Future<MediaStreamTrack> clone() async {
-    if (!_stopped) {
-      return NativeMediaStreamTrack.from(await api!.cloneTrack(
-          trackId: _id,
-          peerId: _peerId,
-          kind: ffi.MediaType.values[_kind.index]));
+    var ffiTrack = _stopped
+        ? null
+        : await ffi.cloneTrack(
+            trackId: _id,
+            peerId: _peerId,
+            kind: ffi.MediaType.values[_kind.index],
+          );
+
+    if (ffiTrack != null) {
+      return NativeMediaStreamTrack.from(ffiTrack);
     } else {
-      return NativeMediaStreamTrack.from(ffi.MediaStreamTrack(
+      return NativeMediaStreamTrack.from(
+        ffi.MediaStreamTrack(
           deviceId: _deviceId,
           enabled: _enabled,
           peerId: _peerId,
           id: _id,
-          kind: ffi.MediaType.values[_kind.index]));
+          kind: ffi.MediaType.values[_kind.index],
+        ),
+      );
     }
   }
 
   @override
   Future<void> dispose() async {
-    // no-op for FFI implementation
+    await stop();
   }
 
   @override
   Future<void> setEnabled(bool enabled) async {
     if (!_stopped) {
-      await api!.setTrackEnabled(
-          peerId: _peerId,
-          trackId: _id,
-          enabled: enabled,
-          kind: ffi.MediaType.values[_kind.index]);
+      await ffi.setTrackEnabled(
+        peerId: _peerId,
+        trackId: _id,
+        enabled: enabled,
+        kind: ffi.MediaType.values[_kind.index],
+      );
     }
 
     _enabled = enabled;
@@ -241,11 +295,11 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
   @override
   Future<MediaStreamTrackState> state() async {
     return !_stopped
-        ? MediaStreamTrackState.values[(await api!.trackState(
-                peerId: _peerId,
-                trackId: _id,
-                kind: ffi.MediaType.values[_kind.index]))
-            .index]
+        ? MediaStreamTrackState.values[(await ffi.trackState(
+            peerId: _peerId,
+            trackId: _id,
+            kind: ffi.MediaType.values[_kind.index],
+          )).index]
         : MediaStreamTrackState.ended;
   }
 
@@ -256,26 +310,158 @@ class _NativeMediaStreamTrackFFI extends NativeMediaStreamTrack {
 
   @override
   Future<int?> height() async {
-    return await api!.trackHeight(
-        trackId: _id, peerId: _peerId, kind: ffi.MediaType.values[_kind.index]);
+    if (_stopped) {
+      return null;
+    }
+
+    return await ffi.trackHeight(
+      trackId: _id,
+      peerId: _peerId,
+      kind: ffi.MediaType.values[_kind.index],
+    );
   }
 
   @override
   Future<int?> width() async {
-    return await api!.trackWidth(
-        trackId: _id, peerId: _peerId, kind: ffi.MediaType.values[_kind.index]);
+    if (_stopped) {
+      return null;
+    }
+
+    return await ffi.trackWidth(
+      trackId: _id,
+      peerId: _peerId,
+      kind: ffi.MediaType.values[_kind.index],
+    );
   }
 
   @override
   Future<void> stop() async {
     if (!_stopped) {
       _onEnded = null;
+      _onAudioLevelChanged = null;
 
-      await api!.disposeTrack(
-          trackId: _id,
-          peerId: _peerId,
-          kind: ffi.MediaType.values[_kind.index]);
+      await ffi.disposeTrack(
+        trackId: _id,
+        peerId: _peerId,
+        kind: ffi.MediaType.values[_kind.index],
+      );
     }
     _stopped = true;
+  }
+
+  @override
+  bool isAudioProcessingAvailable() {
+    return !_stopped && _kind == MediaKind.audio && _deviceId != 'remote';
+  }
+
+  @override
+  Future<void> setAutoGainControlEnabled(bool enabled) async {
+    if (!isAudioProcessingAvailable()) {
+      super.setAutoGainControlEnabled(enabled);
+    }
+
+    await ffi.updateAudioProcessing(
+      trackId: _id,
+      conf: ffi.AudioProcessingConstraints(autoGainControl: enabled),
+    );
+  }
+
+  @override
+  Future<void> setEchoCancellationEnabled(bool enabled) async {
+    if (!isAudioProcessingAvailable()) {
+      super.setEchoCancellationEnabled(enabled);
+    }
+
+    await ffi.updateAudioProcessing(
+      trackId: _id,
+      conf: ffi.AudioProcessingConstraints(echoCancellation: enabled),
+    );
+  }
+
+  @override
+  Future<void> setHighPassFilterEnabled(bool enabled) async {
+    if (!isAudioProcessingAvailable()) {
+      super.setHighPassFilterEnabled(enabled);
+    }
+
+    await ffi.updateAudioProcessing(
+      trackId: _id,
+      conf: ffi.AudioProcessingConstraints(highPassFilter: enabled),
+    );
+  }
+
+  @override
+  Future<void> setNoiseSuppressionEnabled(bool enabled) async {
+    if (!isAudioProcessingAvailable()) {
+      super.setNoiseSuppressionEnabled(enabled);
+    }
+
+    await ffi.updateAudioProcessing(
+      trackId: _id,
+      conf: ffi.AudioProcessingConstraints(noiseSuppression: enabled),
+    );
+  }
+
+  @override
+  Future<void> setNoiseSuppressionLevel(NoiseSuppressionLevel level) async {
+    if (!isAudioProcessingAvailable()) {
+      super.setNoiseSuppressionLevel(level);
+    }
+
+    await ffi.updateAudioProcessing(
+      trackId: _id,
+      conf: ffi.AudioProcessingConstraints(
+        noiseSuppressionLevel: ffi.NoiseSuppressionLevel.values[level.index],
+      ),
+    );
+  }
+
+  @override
+  Future<bool> isNoiseSuppressionEnabled() async {
+    if (!isAudioProcessingAvailable()) {
+      super.isNoiseSuppressionEnabled();
+    }
+
+    return (await ffi.getAudioProcessingConfig(trackId: _id)).noiseSuppression;
+  }
+
+  @override
+  Future<NoiseSuppressionLevel> getNoiseSuppressionLevel() async {
+    if (!isAudioProcessingAvailable()) {
+      super.getNoiseSuppressionLevel();
+    }
+
+    var level = (await ffi.getAudioProcessingConfig(
+      trackId: _id,
+    )).noiseSuppressionLevel;
+
+    return NoiseSuppressionLevel.values[level.index];
+  }
+
+  @override
+  Future<bool> isHighPassFilterEnabled() async {
+    if (!isAudioProcessingAvailable()) {
+      super.isHighPassFilterEnabled();
+    }
+
+    return (await ffi.getAudioProcessingConfig(trackId: _id)).highPassFilter;
+  }
+
+  @override
+  Future<bool> isEchoCancellationEnabled() async {
+    if (!isAudioProcessingAvailable()) {
+      super.isEchoCancellationEnabled();
+    }
+
+    return (await ffi.getAudioProcessingConfig(trackId: _id)).echoCancellation;
+  }
+
+  @override
+  Future<bool> isAutoGainControlEnabled() async {
+    if (!isAudioProcessingAvailable()) {
+      super.isAutoGainControlEnabled();
+    }
+
+    return (await ffi.getAudioProcessingConfig(trackId: _id)).autoGainControl;
   }
 }

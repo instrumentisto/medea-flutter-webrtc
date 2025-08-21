@@ -27,8 +27,9 @@ class VideoView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) =>
-            _buildVideoView(constraints));
+      builder: (BuildContext context, BoxConstraints constraints) =>
+          _buildVideoView(constraints),
+    );
   }
 
   Widget _buildVideoView(BoxConstraints constraints) {
@@ -46,23 +47,26 @@ class VideoView extends StatelessWidget {
               valueListenable: videoRenderer,
               builder:
                   (BuildContext context, RTCVideoValue value, Widget? child) {
-                Widget result = SizedBox(
-                  width: constraints.maxHeight * value.aspectRatio,
-                  height: constraints.maxHeight,
-                  child: child,
-                );
-                if (_autoRotate) {
-                  result = RotatedBox(
-                    quarterTurns: (value.rotation / 90).round(),
-                    child: result,
-                  );
-                }
-                return Transform(
-                    transform: Matrix4.identity()..rotateY(mirror ? -pi : 0.0),
-                    alignment: FractionalOffset.center,
-                    child: result);
-              },
-              child: videoRenderer.textureId != null &&
+                    Widget result = SizedBox(
+                      width: constraints.maxHeight * value.aspectRatio,
+                      height: constraints.maxHeight,
+                      child: child,
+                    );
+                    if (_autoRotate) {
+                      result = RotatedBox(
+                        quarterTurns: (value.rotation / 90).round(),
+                        child: result,
+                      );
+                    }
+                    return Transform(
+                      transform: Matrix4.identity()
+                        ..rotateY(mirror ? -pi : 0.0),
+                      alignment: FractionalOffset.center,
+                      child: result,
+                    );
+                  },
+              child:
+                  videoRenderer.textureId != null &&
                       videoRenderer.srcObject != null
                   ? Texture(
                       textureId: videoRenderer.textureId!,

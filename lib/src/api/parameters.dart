@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 
-import 'package:medea_flutter_webrtc/src/api/bridge.g.dart';
-import 'bridge.g.dart' as ffi;
+import 'bridge/api/rtc_rtp_send_parameters.dart' as ffi;
+import 'bridge/lib.dart' as ffi_ty;
 import 'send_encoding_parameters.dart';
 
 /// [RTCRtpParameters][0] implementation.
@@ -9,12 +9,12 @@ import 'send_encoding_parameters.dart';
 /// [0]: https://w3.org/TR/webrtc#dom-rtcrtpparameters
 abstract class RtpParameters {
   /// Creates new [RtpParameters] from the provided [ffi.RtcRtpSendParameters].
-  static fromFFI(ffi.RtcRtpSendParameters params) {
+  static RtpParameters fromFFI(ffi.RtcRtpSendParameters params) {
     return _RtpParametersFFI(params);
   }
 
   /// Creates new [RtpParameters] from the provided [MethodChannel].
-  static fromMap(dynamic map) {
+  static RtpParameters fromMap(dynamic map) {
     return _RtpParametersChannel.fromMap(map);
   }
 
@@ -31,16 +31,14 @@ abstract class RtpParameters {
 /// [MethodChannel]-based implementation of [RtpParameters].
 class _RtpParametersChannel extends RtpParameters {
   _RtpParametersChannel.fromMap(dynamic map) {
-    encodings = List.unmodifiable(map!['encodings']
-        .map((e) => SendEncodingParameters.fromMap(e))
-        .toList());
+    encodings = List.unmodifiable(
+      map!['encodings'].map((e) => SendEncodingParameters.fromMap(e)).toList(),
+    );
   }
 
   @override
   Map<String, dynamic> toMap() {
-    return {
-      'encodings': encodings.map((e) => e.toMap()).toList(),
-    };
+    return {'encodings': encodings.map((e) => e.toMap()).toList()};
   }
 
   @override
@@ -53,22 +51,25 @@ class _RtpParametersChannel extends RtpParameters {
 class _RtpParametersFFI extends RtpParameters {
   _RtpParametersFFI(ffi.RtcRtpSendParameters params) {
     _inner = params.inner;
-    encodings = List.unmodifiable(params.encodings
-        .map((e) => SendEncodingParameters.fromFFI(e.$1, e.$2))
-        .toList());
+    encodings = List.unmodifiable(
+      params.encodings
+          .map((e) => SendEncodingParameters.fromFFI(e.$1, e.$2))
+          .toList(),
+    );
   }
 
   /// Reference to the Rust side [RtpParameters].
-  late ArcRtpParameters _inner;
+  late ffi_ty.ArcRtpParameters _inner;
 
   @override
   ffi.RtcRtpSendParameters toFFI() {
     return ffi.RtcRtpSendParameters(
-        encodings: encodings.map((e) {
-          var r = e.toFFI();
-          return (r.$1, r.$2!);
-        }).toList(),
-        inner: _inner);
+      encodings: encodings.map((e) {
+        var r = e.toFFI();
+        return (r.$1, r.$2!);
+      }).toList(),
+      inner: _inner,
+    );
   }
 
   @override

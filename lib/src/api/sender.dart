@@ -1,10 +1,21 @@
 import 'package:flutter/services.dart';
 
+import 'package:medea_flutter_webrtc/src/model/track.dart';
+import '../model/capability.dart';
 import '/src/api/parameters.dart';
 import '/src/platform/track.dart';
-import 'bridge.g.dart' as ffi;
+import 'bridge/api.dart' as ffi;
+import 'bridge/api/capability.dart' as ffi;
+import 'bridge/api/media_stream_track/media_type.dart' as ffi;
+import 'bridge/lib.dart';
 import 'channel.dart';
 import 'peer.dart';
+
+/// [MethodChannel] used for the messaging with a native side.
+final _peerConnectionFactoryMethodChannel = methodChannel(
+  'PeerConnectionFactory',
+  0,
+);
 
 /// [RTCSender][1] implementation.
 ///
@@ -17,7 +28,9 @@ abstract class RtpSender {
 
   /// Create a new [RtpSender] from the provided [peerId] and [transceiverId].
   static RtpSender fromFFI(
-      ffi.ArcPeerConnection peer, ffi.ArcRtpTransceiver transceiver) {
+    ArcPeerConnection peer,
+    ArcRtpTransceiver transceiver,
+  ) {
     return _RtpSenderFFI(peer, transceiver);
   }
 
@@ -38,10 +51,30 @@ abstract class RtpSender {
 
   /// Sets the provided [RtpParameters].
   Future<void> setParameters(RtpParameters parameters);
+
+  /// [RtpCapabilities] of an RTP sender of the specified [MediaKind].
+  static Future<RtpCapabilities> getCapabilities(MediaKind kind) {
+    if (isDesktop) {
+      return _RtpSenderFFI.getCapabilities(kind);
+    } else {
+      return _RtpSenderChannel.getCapabilities(kind);
+    }
+  }
 }
 
-/// [MethodChannel]-based implementation of a [RtpSender].
+/// [MethodChannel]-based implementation of an [RtpSender].
 class _RtpSenderChannel extends RtpSender {
+  /// [RtpCapabilities] of an [RTP] sender of the provided [MediaKind].
+  ///
+  /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
+  static Future<RtpCapabilities> getCapabilities(MediaKind kind) async {
+    var map = await _peerConnectionFactoryMethodChannel.invokeMethod(
+      'getRtpSenderCapabilities',
+      {'kind': kind.index},
+    );
+    return RtpCapabilities.fromMap(map);
+  }
+
   /// Creates an [RtpSender] basing on the [Map] received from the native side.
   _RtpSenderChannel.fromMap(dynamic map) {
     _chan = methodChannel('RtpSender', map['channelId']);
@@ -74,20 +107,34 @@ class _RtpSenderChannel extends RtpSender {
   }
 }
 
-/// FFI-based implementation of a [RtpSender].
+/// FFI-based implementation of an [RtpSender].
 class _RtpSenderFFI extends RtpSender {
+  /// [RtpCapabilities] of an [RTP] sender of the provided [MediaKind].
+  ///
+  /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
+  static Future<RtpCapabilities> getCapabilities(MediaKind kind) async {
+    return RtpCapabilities.fromFFI(
+      await ffi.getRtpSenderCapabilities(
+        kind: ffi.MediaType.values[kind.index],
+      ),
+    );
+  }
+
   /// Native side peer connection.
-  final ffi.ArcPeerConnection _peer;
+  final ArcPeerConnection _peer;
 
   /// Native side transceiver.
-  final ffi.ArcRtpTransceiver _transceiver;
+  final ArcRtpTransceiver _transceiver;
 
   _RtpSenderFFI(this._peer, this._transceiver);
 
   @override
   Future<void> replaceTrack(MediaStreamTrack? t) async {
-    await api!.senderReplaceTrack(
-        peer: _peer, transceiver: _transceiver, trackId: t?.id());
+    await ffi.senderReplaceTrack(
+      peer: _peer,
+      transceiver: _transceiver,
+      trackId: t?.id(),
+    );
   }
 
   @override
@@ -98,12 +145,15 @@ class _RtpSenderFFI extends RtpSender {
   @override
   Future<RtpParameters> getParameters() async {
     return RtpParameters.fromFFI(
-        await api!.senderGetParameters(transceiver: _transceiver));
+      await ffi.senderGetParameters(transceiver: _transceiver),
+    );
   }
 
   @override
   Future<void> setParameters(RtpParameters parameters) async {
-    await api!.senderSetParameters(
-        transceiver: _transceiver, params: parameters.toFFI());
+    await ffi.senderSetParameters(
+      transceiver: _transceiver,
+      params: parameters.toFFI(),
+    );
   }
 }

@@ -54,6 +54,24 @@ class PeerConnectionFactoryController {
         messenger: self.messenger, peer: self.peerFactory.create(conf: conf)
       )
       result(peer.asFlutterResult())
+    case "getRtpSenderCapabilities":
+      let kind = argsMap!["kind"] as? Int
+      let mediaKind = MediaType(rawValue: kind!)!
+
+      let capabilities = self
+        .peerFactory
+        .rtpSenderCapabilities(kind: mediaKind.intoWebRtc())
+
+      result(capabilities.asFlutterResult())
+    case "getRtpReceiverCapabilities":
+      let kind = argsMap!["kind"] as? Int
+      let mediaKind = MediaType(rawValue: kind!)!
+
+      let capabilities = self
+        .peerFactory
+        .rtpReceiverCapabilities(kind: mediaKind.intoWebRtc())
+
+      result(capabilities.asFlutterResult())
     case "videoEncoders":
       let res = self.peerFactory.videoEncoders().map { $0.asFlutterResult() }
       result(res)

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';
 
 class OnDeviceChangeNotifierSample extends StatefulWidget {
-  const OnDeviceChangeNotifierSample({Key? key}) : super(key: key);
+  const OnDeviceChangeNotifierSample({super.key});
 
   @override
   State<OnDeviceChangeNotifierSample> createState() => _State();
@@ -53,9 +53,7 @@ class _State extends State<OnDeviceChangeNotifierSample> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(counterText),
-      ),
+      appBar: AppBar(title: Text(counterText)),
       body: Center(child: Text(text)),
     );
   }

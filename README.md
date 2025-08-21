@@ -2,8 +2,9 @@ Medea Flutter-WebRTC
 ====================
 
 [![pub](https://img.shields.io/pub/v/medea_flutter_webrtc "pub")](https://pub.dev/packages/medea_flutter_webrtc)
-[![libwebrtc](https://img.shields.io/badge/libwebrtc-118.0.5993.88-blue "libwebrtc")](https://github.com/instrumentisto/libwebrtc-bin/releases/tag/118.0.5993.88)
-[![OpenAL](https://img.shields.io/badge/OpenAL-1.23.1-blue "OpenAL")](https://github.com/kcat/openal-soft/releases/tag/1.23.1)
+[![libwebrtc](https://img.shields.io/badge/libwebrtc-139.0.7258.127-blue "libwebrtc")](https://github.com/instrumentisto/libwebrtc-bin/releases/tag/139.0.7258.127)
+[![OpenAL](https://img.shields.io/badge/OpenAL-1.24.3-blue "OpenAL")](https://github.com/kcat/openal-soft/releases/tag/1.24.3)
+[![WIL](https://img.shields.io/badge/WIL-1.0.240803.1-blue "WIL")](https://github.com/microsoft/wil/releases/tag/v1.0.240803.1)
 
 [Changelog](https://github.com/instrumentisto/medea-flutter-webrtc/blob/main/CHANGELOG.md)
 
@@ -16,9 +17,9 @@ Initially, represented a fork of the [Flutter-WebRTC] plugin, but at the moment,
 
 ## Supported platforms
 
-- [macOS] 10.11+
+- [macOS] 10.15+
 - [Linux] (with [PulseAudio] and [X11] for screen sharing)
-- [Windows] 7+
+- [Windows] 10+ (build 20348)
 - [Android] 24+
 - [iOS] 13+
 - Web (partially, because [Medea Jason WebRTC client] supports browsers aside [Flutter])
@@ -57,6 +58,15 @@ If you need to use a [Bluetooth] device (like headphones), then also add:
 <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
 <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
 <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+```
+
+It also comes with an optional foreground service that keeps audio/video recording/playout active, it requires the following permission to work, if used:
+```xml
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 ```
 
 The [Flutter] project template usually adds them, so they may already be there.
@@ -99,11 +109,11 @@ For more details, please see the [`medea_flutter_webrtc_example` example][6].
 
 ## License
 
-Copyright © 2021-2024  Instrumentisto Team <https://github.com/instrumentisto>
+Copyright © 2021-2025  Instrumentisto Team <https://github.com/instrumentisto>
 
 This Source Code Form is subject to the terms of the [Mozilla Public License, v. 2.0](https://github.com/instrumentisto/medea-flutter-webrtc/blob/main/LICENSE). If a copy of the MPL was not distributed with this file, You can obtain one at <http://mozilla.org/MPL/2.0/>.
 
-The [original upstream source code][0] is licensed under [MIT license][1] with modifications following [Apache License 2.0][2]. 
+The [original upstream source code][0] is licensed under [MIT license][1] with modifications following [Apache License 2.0][2].
 
 
 

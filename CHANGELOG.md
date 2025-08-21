@@ -6,15 +6,341 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.10.0] · 2023-??-??
+## main
+
+[Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.15.1...main)
+
+### BC Breaks
+
+- Bumped up minimum supported [Flutter] version to 3.35. ([#250])
+- Bumped up minimum supported [Dart] version to 3.9. ([#250])
+- Bumped up minimum supported [Windows] deployment target to 10 (build 20348). ([#245])
+
+### Added
+
+- Support `PeerConnection.videoDecoders()` and `PeerConnection.videoEncoders()` on iOS. ([#148])
+- Support for system audio capturing on [Windows] via `getDisplayMedia()`. ([#245], [#244])
+
+### Changed
+
+- Upgraded [libwebrtc] to [139.0.7258.127] version. ([#248], [todo])
+
+[#148]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/148
+[#244]: https://github.com/instrumentisto/medea-flutter-webrtc/issues/244
+[#245]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/245
+[#248]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/248
+[#250]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/250
+[139.0.7258.127]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/139.0.7258.127
+
+
+
+
+## [0.15.1] · 2025-07-16
+[0.15.1]: https://github.com/instrumentisto/medea-flutter-webrtc/tree/0.15.1
+
+[Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.15.0...0.15.1)
+
+### Changed
+
+- Upgraded [libwebrtc] to [138.0.7204.100] version. ([#233], [a8382e48])
+- Upgraded [`flutter_rust_bridge`] crate to [2.11.1][frb-2.11.1] version. ([#237])
+
+### Fixed
+
+- [Android]:
+    - Unhandled exception due to race when new remote track is discovered. ([#237])
+
+[#233]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/233
+[#237]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/237
+[a8382e48]: https://github.com/instrumentisto/medea-flutter-webrtc/commit/a8382e482550892d262c5bd00d3a29898a739777
+[138.0.7204.100]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/138.0.7204.100
+[frb-2.11.1]: https://github.com/fzyzcjy/flutter_rust_bridge/releases/tag/v2.11.1
+
+
+
+
+## [0.15.0] · 2025-06-24
+[0.15.0]: https://github.com/instrumentisto/medea-flutter-webrtc/tree/0.15.0
+
+[Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.14.0...0.15.0)
+
+## BC Breaks
+
+- Bumped up [macOS] deployment target to 10.15. ([#203])
+
+### Added
+
+- `setupForegroundService()` function for maintaining camera/microphone/audio when application is in background on [Android]. ([#204])
+
+### Changed
+
+- Upgraded [libwebrtc] to [137.0.7151.119] version. ([#203], [bd017e9a])
+- Upgraded [`flutter_rust_bridge`] crate to [2.10.0][frb-2.10.0] version. ([#201])
+
+### Fixed
+
+- Resources cleanup when `medea_flutter_webrtc` Flutter plugin is detached on [Android]. ([#202])
+
+[#201]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/201
+[#202]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/202
+[#203]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/203
+[#204]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/204
+[bd017e9a]: https://github.com/instrumentisto/medea-flutter-webrtc/commit/bd017e9a9e18fea6723cd61cb2ac8042232c6c7e
+[137.0.7151.119]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/137.0.7151.119
+[frb-2.10.0]: https://github.com/fzyzcjy/flutter_rust_bridge/releases/tag/v2.10.0
+
+
+
+
+## [0.14.0] · 2025-05-15
+[0.14.0]: https://github.com/instrumentisto/medea-flutter-webrtc/tree/0.14.0
+
+[Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.13.3...0.14.0)
+
+### Added
+
+- Support for changing audio processing settings for local audio `MediaStreamTrack`s on desktop: ([#197])
+    - `MediaStreamTrack.isAudioProcessingAvailable` method checking whether audio processing controls are available for local audio `MediaStreamTrack`.
+    - `MediaStreamTrack.setNoiseSuppressionEnabled` method enabling/disabling noise suppression for local audio `MediaStreamTrack`.
+    - `MediaStreamTrack.setNoiseSuppressionLevel` method configuring noise suppression aggressiveness for local audio `MediaStreamTrack`.
+    - `MediaStreamTrack.setHighPassFilterEnabled` method enabling/disabling high-pass filter for local audio `MediaStreamTrack`.
+    - `MediaStreamTrack.setEchoCancellationEnabled` method enabling/disabling acoustic echo cancellation for local audio `MediaStreamTrack`.
+    - `MediaStreamTrack.setAutoGainControlEnabled` method enabling/disabling auto gain control for local audio `MediaStreamTrack`.
+    - `AudioConstraints.noiseSuppression`, `AudioConstraints.noiseSuppressionLevel`, `AudioConstraints.highPassFilter`, `AudioConstraints.echoCancellation` fields to control audio processing when creating local audio `MediaStreamTrack`.
+- Support for getting audio processing settings for local audio `MediaStreamTrack`s on desktop: ([#199])
+    - `MediaStreamTrack.isNoiseSuppressionEnabled` method checking whether noise suppression is enabled for local audio `MediaStreamTrack`.
+    - `MediaStreamTrack.getNoiseSuppressionLevel` method returning noise suppression level of local audio `MediaStreamTrack`.
+    - `MediaStreamTrack.isHighPassFilterEnabled` method checking whether high pass filter is enabled for local audio `MediaStreamTrack`.
+    - `MediaStreamTrack.isEchoCancellationEnabled` method checking whether acoustic echo cancellation is enabled for local audio `MediaStreamTrack`.
+    - `MediaStreamTrack.isAutoGainControlEnabled` method checking whether automatic gain control is enabled for local audio `MediaStreamTrack`.
+
+### Changed
+
+- Upgraded [OpenAL] library to [1.24.3][openal-1.24.3] version. ([#193])
+- Upgraded [libwebrtc] to [136.0.7103.92] version. ([#196], [170d6d8c])
+- Increased default noise suppression level for local audio `MediaStreamTrack`s on desktop from `moderate` to `veryHigh`. ([#197])
+
+### Fixed
+
+- Audio processing not working properly on multiple local audio sources. ([#195])
+- Default device video resolution to 640x480. ([#198])
+
+[#193]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/193
+[#195]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/195
+[#196]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/196
+[#197]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/197
+[#198]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/198
+[#199]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/199
+[170d6d8c]: https://github.com/instrumentisto/medea-flutter-webrtc/commit/170d6d8c73a72e0012a3c0c578c4b259021ca1fb
+[136.0.7103.92]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/136.0.7103.92
+[openal-1.24.3]: https://github.com/kcat/openal-soft/releases/tag/1.24.3
+
+
+
+
+## [0.13.3] · 2025-03-27
+[0.13.3]: https://github.com/instrumentisto/medea-flutter-webrtc/tree/0.13.3
+
+[Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.13.2...0.13.3)
+
+### Changed
+
+- Made number of utilized threads not depending on CPUs count. ([#192])
+- Upgraded [`flutter_rust_bridge`] crate to [2.9.0][frb-2.9.0] version. ([#192])
+
+[#192]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/192
+[frb-2.9.0]: https://github.com/fzyzcjy/flutter_rust_bridge/releases/tag/v2.9.0
+
+
+
+
+## [0.13.2] · 2025-03-18
+[0.13.2]: https://github.com/instrumentisto/medea-flutter-webrtc/tree/0.13.2
+
+[Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.13.1...0.13.2)
+
+### Changed
+
+- Upgraded [libwebrtc] to [134.0.6998.165] version. ([24750229])
+
+[24750229]: https://github.com/instrumentisto/medea-flutter-webrtc/commit/24750229034753705cfc6f5e240f4cabd8bfbd04
+[134.0.6998.165]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/134.0.6998.165
+
+
+
+
+## [0.13.1] · 2025-03-18
+[0.13.1]: https://github.com/instrumentisto/medea-flutter-webrtc/tree/0.13.1
+
+[Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.13.0...0.13.1)
+
+### Changed
+
+- Upgraded [libwebrtc] to [134.0.6998.88] version. ([#190], [bb9df198])
+
+[#190]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/190
+[bb9df198]: https://github.com/instrumentisto/medea-flutter-webrtc/commit/bb9df198a7d77a24e477684368bef58bb40c0d0f
+[134.0.6998.88]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/134.0.6998.88
+
+
+
+
+## [0.13.0] · 2025-03-07
+[0.13.0]: https://github.com/instrumentisto/medea-flutter-webrtc/tree/0.13.0
+
+[Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.12.2...0.13.0)
+
+### Fixed
+
+- `MediaStreamTrack.onEnded` callback not firing for local tracks when corresponding media input device is disconnected on desktop platforms. ([#189])
+
+### Changed
+
+- Upgraded [`flutter_rust_bridge`] crate to [2.8.0][frb-2.8.0] version. ([#185])
+- Upgraded [libwebrtc] to [133.0.6943.141] version. ([#186])
+
+[#185]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/185
+[#186]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/186
+[#189]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/189
+[133.0.6943.141]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/133.0.6943.141
+[frb-2.8.0]: https://github.com/fzyzcjy/flutter_rust_bridge/releases/tag/v2.8.0
+
+
+
+
+## [0.12.2] · 2025-02-03
+[0.12.2]: https://github.com/instrumentisto/medea-flutter-webrtc/tree/0.12.2
+
+[Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.12.1...0.12.2)
+
+### Changed
+
+- Upgraded [libwebrtc] to [132.0.6834.159] version. ([0708b1fc])
+
+[0708b1fc]: https://github.com/instrumentisto/medea-flutter-webrtc/commit/0708b1fc075643a94e6e63eb0e17842e587e8aa6
+[132.0.6834.159]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/132.0.6834.159
+
+
+
+
+## [0.12.1] · 2025-01-23
+[0.12.1]: https://github.com/instrumentisto/medea-flutter-webrtc/tree/0.12.1
+
+[Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.12.0...0.12.1)
+
+### Changed
+
+- Upgraded [OpenAL] library to [1.24.2][openal-1.24.2] version. ([494eb2fa])
+- Upgraded [libwebrtc] to [132.0.6834.83] version. ([#184])
+
+[#184]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/184
+[494eb2fa]: https://github.com/instrumentisto/medea-flutter-webrtc/commit/494eb2fae899f26b4f65d8dae74adda55dc5f7d2
+[132.0.6834.83]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/132.0.6834.83
+[openal-1.24.2]: https://github.com/kcat/openal-soft/releases/tag/1.24.2
+
+
+
+
+## [0.12.0] · 2024-12-16
+[0.12.0]: https://github.com/instrumentisto/medea-flutter-webrtc/tree/0.12.0
+
+[Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.11.2...0.12.0)
+
+### Changed
+
+- Upgraded [OpenAL] library to [1.24.1][openal-1.24.1] version. ([#182], [#181])
+- Upgraded [libwebrtc] to [131.0.6778.139] version. ([#180], [cec4e41e])
+- Upgraded [`flutter_rust_bridge`] crate to [2.7.0][frb-2.7.0] version. ([#183])
+
+[#180]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/180
+[#181]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/181
+[#182]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/182
+[#183]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/183
+[cec4e41e]: https://github.com/instrumentisto/medea-flutter-webrtc/commit/cec4e41e4b345340e1a7e7749a5d1ca106946e63
+[131.0.6778.139]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/131.0.6778.139
+[openal-1.24.1]: https://github.com/kcat/openal-soft/releases/tag/1.24.1
+[frb-2.7.0]: https://github.com/fzyzcjy/flutter_rust_bridge/releases/tag/v2.7.0
+
+
+
+
+## [0.11.2] · 2024-10-28
+[0.11.2]: https://github.com/instrumentisto/medea-flutter-webrtc/tree/0.11.2
+
+[Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.11.1...0.11.2)
+
+### Added
+
+- `RtpReceiver.getCapabilities()` method. ([#173])
+
+### Changed
+
+- Upgraded [`flutter_rust_bridge`] crate to [2.4.0][frb-2.4.0] version. ([#172])
+- Upgraded [libwebrtc] to [130.0.6723.69] version. ([#176], [#177])
+
+### Fixed
+
+- `AVAudioSession` activation in push notification context on [iOS]. ([#175])
+
+[#172]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/172
+[#173]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/173
+[#175]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/175
+[#176]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/176
+[#177]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/177
+[130.0.6723.69]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/130.0.6723.69
+[frb-2.4.0]: https://github.com/fzyzcjy/flutter_rust_bridge/releases/tag/v2.4.0
+
+
+
+
+## [0.11.1] · 2024-09-11
+[0.11.1]: https://github.com/instrumentisto/medea-flutter-webrtc/tree/0.11.1
+
+[Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.11.0...0.11.1)
+
+### Changed
+
+- Upgraded [libwebrtc] to [128.0.6613.119] version. ([#170])
+
+[#170]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/170
+[128.0.6613.119]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/128.0.6613.119
+
+
+
+
+## [0.11.0] · 2024-08-26
+[0.11.0]: https://github.com/instrumentisto/medea-flutter-webrtc/tree/0.11.0
+
+[Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.10.0...0.11.0)
+
+### Changed
+
+- Upgraded [`flutter_rust_bridge`] crate to [2.2.0][frb-2.2.0] version. ([#167])
+
+[#167]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/167
+[frb-2.2.0]: https://github.com/fzyzcjy/flutter_rust_bridge/releases/tag/v2.2.0
+
+
+
+
+## [0.10.0] · 2024-08-01
 [0.10.0]: https://github.com/instrumentisto/medea-flutter-webrtc/tree/0.10.0
 
 [Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.9.0...0.10.0)
 
 ### Added
 
-- `PeerConnection.videoDecoders()` and `PeerConnection.videoEncoders()` methods enumerating available video codecs and their capability of hardware acceleration. ([#144], [#148])
+- `PeerConnection.videoDecoders()` and `PeerConnection.videoEncoders()` methods enumerating available video codecs and their capability of hardware acceleration. ([#144])
 - Support for multiple input audio devices usage at one time on desktop platforms. ([#145])
+- `MediaStreamTrack.isAudioLevelAvailable` function and `MediaStreamTrack.onAudioLevelChanged` callback for detecting input audio level changes of local `MediaStreamTrack`. ([#149])
+- `RtpSender.getCapabilities()` and `RtpTransceiver.setCodecPreferences()` operating by `RtpCapabilities`, `RtpHeaderExtensionCapability` and `RtpCodecCapability`. ([#137])
+- `AudioConstraints.autoGainControl` field. ([#156])
+
+### Changed
+
+- Upgraded [libwebrtc] to [127.0.6533.72] version. ([#155], [#162], [#166])
+- Disable [H264] software encoders and decoders. ([#153])
+- Migrated from [`dart:html`] to [`package:web`]. ([#164])
 
 ### Fixed
 
@@ -23,13 +349,27 @@ All user visible changes to this project will be documented in this file. This p
 - Segfault when switching to external camera on [macOS]. ([#142])
 - Unexpected audio category on `setOutputAudioId` call on [iOS]. ([#146])
 - Race condition bug on `setOutputAudioId` call on [Android]. ([#146])
+- Race condition bug on input/output device switch on desktop platforms. ([#151])
+- `RtpReceiver` use after free on [Android]. ([#165])
 
+[#137]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/137
 [#139]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/139
 [#142]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/142
 [#144]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/144
 [#145]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/145
 [#146]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/146
-[#148]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/148
+[#149]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/149
+[#151]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/151
+[#153]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/153
+[#155]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/155
+[#156]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/156
+[#162]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/162
+[#164]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/164
+[#165]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/165
+[#166]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/166
+[`dart:html`]: https://dart.dev/libraries/dart-html
+[`package:web`]: https://pub.dev/packages/web
+[127.0.6533.72]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/127.0.6533.72
 
 
 
@@ -125,7 +465,7 @@ All user visible changes to this project will be documented in this file. This p
 - `enableFakeMedia` method. ([#65], [#71], [#82])
 - Atomic `RtpTransceiver.setRecv` and `RtpTransceiver.setSend` methods. ([#73])
 - Way to disable context menu over `RTCVideoView` on Web platform. ([#9])
-  
+
 ### Fixed
 
 - `WebVideoRenderer` not applying `mirror` and `enableContextMenu` values. ([#62])
@@ -198,14 +538,16 @@ See [changelog in upstream repository](https://github.com/flutter-webrtc/flutter
 
 
 
+[`flutter_rust_bridge`]: https://docs.rs/flutter_rust_bridge
 [Android]: https://www.android.com
 [Dart]: https://dart.dev
 [Flutter]: https://www.flutter.dev
-[iOS]: https://www.apple.com/ios
-[libwebrtc]: https://github.com/instrumentisto/libwebrtc-bin
+[H264]: https://bloggeek.me/webrtcglossary/h-264/
 [Linux]: https://www.linux.org
-[macOS]: https://www.apple.com/macos
 [OpenAL]: https://github.com/kcat/openal-soft
 [Semantic Versioning 2.0.0]: https://semver.org
 [Swift]: https://developer.apple.com/swift
 [Windows]: https://www.microsoft.com/windows
+[iOS]: https://www.apple.com/ios
+[libwebrtc]: https://github.com/instrumentisto/libwebrtc-bin
+[macOS]: https://www.apple.com/macos

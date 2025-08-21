@@ -1,12 +1,15 @@
+#![expect(clippy::allow_attributes, reason = "`cxx` fails on `#[expect]`")]
+
 use std::fmt;
 
 use anyhow::anyhow;
 use cxx::{CxxString, CxxVector, UniquePtr};
-use derive_more::{Deref, DerefMut};
+use derive_more::with_trait::{Deref, DerefMut};
 
 use crate::{
-    AddIceCandidateCallback, CreateSdpCallback, IceCandidateInterface,
-    OnFrameCallback, PeerConnectionEventsHandler, RTCStatsCollectorCallback,
+    AddIceCandidateCallback, AudioSourceOnAudioLevelChangeCallback,
+    CreateSdpCallback, IceCandidateInterface, OnFrameCallback,
+    PeerConnectionEventsHandler, RTCStatsCollectorCallback,
     RtpReceiverInterface, RtpTransceiverInterface, SetDescriptionCallback,
     TrackEventCallback,
 };
@@ -32,21 +35,46 @@ type DynRTCStatsCollectorCallback = Box<dyn RTCStatsCollectorCallback>;
 /// [`TrackEventCallback`] transferable to the C++ side.
 type DynTrackEventCallback = Box<dyn TrackEventCallback>;
 
+/// [`AudioSourceOnAudioLevelChangeCallback`] transferable to the C++ side.
+type DynAudioSourceOnAudioLevelChangeCallback =
+    Box<dyn AudioSourceOnAudioLevelChangeCallback>;
+
 /// [`Option`]`<`[`i32`]`>` transferable to the C++ side.
 #[derive(Deref, DerefMut)]
 pub struct OptionI32(Option<i32>);
 
 impl OptionI32 {
     /// Sets this [`Option`]`<`[`i32`]`>` to [`Some`]`(value)`.
-    fn set_value(&mut self, value: i32) {
+    const fn set_value(&mut self, value: i32) {
         self.0 = Some(value);
     }
 }
 
 /// Creates an empty Rust [`Option`]`<`[`i32`]`>`.
-#[allow(clippy::unnecessary_box_returns)]
+#[expect(clippy::unnecessary_box_returns, reason = "FFI")]
 pub fn init_option_i32() -> Box<OptionI32> {
     Box::new(OptionI32(None))
+}
+
+/// [`Option`]`<`[`RtcpFeedbackMessageType`]`>` transferable to the C++ side.
+#[derive(Deref, DerefMut)]
+pub struct OptionRtcpFeedbackMessageType(
+    Option<crate::RtcpFeedbackMessageType>,
+);
+
+impl OptionRtcpFeedbackMessageType {
+    /// Sets this [`Option`]`<`[`RtcpFeedbackMessageType`]`>` to
+    /// [`Some`]`(value)`.
+    const fn set_value(&mut self, value: crate::RtcpFeedbackMessageType) {
+        self.0 = Some(value);
+    }
+}
+
+/// Creates an empty Rust [`Option`]`<`[`RtcpFeedbackMessageType`]`>` value.
+#[expect(clippy::unnecessary_box_returns, reason = "FFI")]
+pub fn init_option_rtcp_feedback_message_type()
+-> Box<OptionRtcpFeedbackMessageType> {
+    Box::new(OptionRtcpFeedbackMessageType(None))
 }
 
 /// [`Option`]`<`[`String`]`>` transferable to the C++ side.
@@ -61,7 +89,7 @@ impl OptionString {
 }
 
 /// Creates an empty Rust [`Option`]`<`[`String`]`>`.
-#[allow(clippy::unnecessary_box_returns)]
+#[expect(clippy::unnecessary_box_returns, reason = "FFI")]
 pub fn init_option_string() -> Box<OptionString> {
     Box::new(OptionString(None))
 }
@@ -72,13 +100,13 @@ pub struct OptionF64(Option<f64>);
 
 impl OptionF64 {
     /// Sets this [`Option`]`<`[`f64`]`>` to [`Some`]`(value)`.
-    fn set_value(&mut self, value: f64) {
+    const fn set_value(&mut self, value: f64) {
         self.0 = Some(value);
     }
 }
 
 /// Creates an empty Rust [`Option`]`<`[`f64`]`>`.
-#[allow(clippy::unnecessary_box_returns)]
+#[expect(clippy::unnecessary_box_returns, reason = "FFI")]
 pub fn init_option_f64() -> Box<OptionF64> {
     Box::new(OptionF64(None))
 }
@@ -89,13 +117,13 @@ pub struct OptionU32(Option<u32>);
 
 impl OptionU32 {
     /// Sets this [`Option`]`<`[`u32`]`>` to [`Some`]`(value)`.
-    fn set_value(&mut self, value: u32) {
+    const fn set_value(&mut self, value: u32) {
         self.0 = Some(value);
     }
 }
 
 /// Creates an empty Rust [`Option`]`<`[`u32`]`>`.
-#[allow(clippy::unnecessary_box_returns)]
+#[expect(clippy::unnecessary_box_returns, reason = "FFI")]
 pub fn init_option_u32() -> Box<OptionU32> {
     Box::new(OptionU32(None))
 }
@@ -106,13 +134,13 @@ pub struct OptionU64(Option<u64>);
 
 impl OptionU64 {
     /// Sets this [`Option`]`<`[`u64`]`>` to [`Some`]`(value)`.
-    fn set_value(&mut self, value: u64) {
+    const fn set_value(&mut self, value: u64) {
         self.0 = Some(value);
     }
 }
 
 /// Creates an empty Rust [`Option`]`<`[`u64`]`>`.
-#[allow(clippy::unnecessary_box_returns)]
+#[expect(clippy::unnecessary_box_returns, reason = "FFI")]
 pub fn init_option_u64() -> Box<OptionU64> {
     Box::new(OptionU64(None))
 }
@@ -123,18 +151,29 @@ pub struct OptionBool(Option<bool>);
 
 impl OptionBool {
     /// Sets this [`Option`]`<`[`bool`]`>` to [`Some`]`(value)`.
-    fn set_value(&mut self, value: bool) {
+    const fn set_value(&mut self, value: bool) {
         self.0 = Some(value);
     }
 }
 
 /// Creates an empty Rust [`Option`]`<`[`bool`]`>`.
-#[allow(clippy::unnecessary_box_returns)]
+#[expect(clippy::unnecessary_box_returns, reason = "FFI")]
 pub fn init_option_bool() -> Box<OptionBool> {
     Box::new(OptionBool(None))
 }
 
-#[allow(clippy::unnecessary_box_returns)]
+#[allow(clippy::unnecessary_box_returns, reason = "FFI")]
+#[allow( // `cxx::bridge` macro expansion
+    clippy::absolute_paths,
+    clippy::as_conversions,
+    clippy::multiple_inherent_impl,
+    clippy::multiple_unsafe_ops_per_block,
+    clippy::renamed_function_params,
+    let_underscore_drop,
+    trivial_casts,
+    reason = "`cxx::bridge` macro expansion"
+)]
+#[allow(missing_docs, reason = "needs refactoring")] // TODO: Fill up.
 #[cxx::bridge(namespace = "bridge")]
 pub(crate) mod webrtc {
     /// Wrapper for a `(String, String)` tuple transferable via FFI boundaries.
@@ -648,6 +687,220 @@ pub(crate) mod webrtc {
         stats: UniquePtr<RTCStats>,
     }
 
+    /// [ScalabilityMode][0] representation.
+    ///
+    /// [0]: https://tinyurl.com/35ae3mbe
+    #[derive(Debug, Eq, Hash, PartialEq)]
+    #[repr(u8)]
+    pub enum ScalabilityMode {
+        /// [ScalabilityMode.L1T1][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#L1T1*
+        kL1T1 = 0,
+
+        /// [ScalabilityMode.L1T2][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#L1T2*
+        kL1T2,
+
+        /// [ScalabilityMode.L1T3][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#L1T3*
+        kL1T3,
+
+        /// [ScalabilityMode.L2T1][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#L2T1*
+        kL2T1,
+
+        /// [ScalabilityMode.L2T1h][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#L2T1*
+        kL2T1h,
+
+        /// [ScalabilityMode.L2T1_KEY][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#L2T1_KEY*
+        kL2T1_KEY,
+
+        /// [ScalabilityMode.L2T2][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#L2T2h*
+        kL2T2,
+
+        /// [ScalabilityMode.L2T2h][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#L2T2*
+        kL2T2h,
+
+        /// [ScalabilityMode.L2T2_KEY][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#L2T2_KEY*
+        kL2T2_KEY,
+
+        /// [ScalabilityMode.L2T2_KEY_SHIFT][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#L2T2_KEY_SHIFT*
+        kL2T2_KEY_SHIFT,
+
+        /// [ScalabilityMode.L2T3][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#L2T3*
+        kL2T3,
+
+        /// [ScalabilityMode.L2T3h][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#L2T3*
+        kL2T3h,
+
+        /// [ScalabilityMode.L2T3_KEY][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#L2T3_KEY*
+        kL2T3_KEY,
+
+        /// [ScalabilityMode.L3T1][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#L3T1*
+        kL3T1,
+
+        /// [ScalabilityMode.L3T1h][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#L3T1*
+        kL3T1h,
+
+        /// [ScalabilityMode.L3T1_KEY][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#L3T1_KEY*
+        kL3T1_KEY,
+
+        /// [ScalabilityMode.L3T2][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#L3T2h*
+        kL3T2,
+
+        /// [ScalabilityMode.L3T2h][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#L3T2*
+        kL3T2h,
+
+        /// [ScalabilityMode.L3T2_KEY][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#L3T2_KEY*
+        kL3T2_KEY,
+
+        /// [ScalabilityMode.kL3T3][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#kL3T3*
+        kL3T3,
+
+        /// [ScalabilityMode.kL3T3h][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#kL3T3*
+        kL3T3h,
+
+        /// [ScalabilityMode.kL3T3_KEY][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#L3T3_KEY*
+        kL3T3_KEY,
+
+        /// [ScalabilityMode.kS2T1][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#kS2T1*
+        kS2T1,
+
+        /// [ScalabilityMode.kS2T1h][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#kS2T1*
+        kS2T1h,
+
+        /// [ScalabilityMode.kS2T2][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#kS2T2*
+        kS2T2,
+
+        /// [ScalabilityMode.kS2T2h][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#kS2T2*
+        kS2T2h,
+
+        /// [ScalabilityMode.S2T3][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#S2T3h*
+        kS2T3,
+
+        /// [ScalabilityMode.S2T3h][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#S2T3*
+        kS2T3h,
+
+        /// [ScalabilityMode.S3T1h][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#S3T1*
+        kS3T1,
+
+        /// [ScalabilityMode.S3T1h][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#S3T1*
+        kS3T1h,
+
+        /// [ScalabilityMode.S3T2][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#S3T2*
+        kS3T2,
+
+        /// [ScalabilityMode.S3T2h][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#S3T2*
+        kS3T2h,
+
+        /// [ScalabilityMode.S3T3][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#S3T3*
+        kS3T3,
+
+        /// [ScalabilityMode.S3T3h][0] mode.
+        ///
+        /// [0]: https://w3.org/TR/webrtc-svc#S3T3*
+        kS3T3h,
+    }
+
+    /// Possible types of an [`RtcpFeedback`].
+    #[derive(Debug, Eq, Hash, PartialEq)]
+    #[repr(i32)]
+    pub enum RtcpFeedbackType {
+        /// Codec control messages.
+        CCM,
+
+        /// Loss notification feedback.
+        LNTF,
+
+        /// Negative acknowledgemen.
+        NACK,
+
+        /// Receiver estimated maximum bitrate.
+        REMB,
+
+        /// Transport wide congestion control.
+        TRANSPORT_CC,
+    }
+
+    /// Possible message types of an [`RtcpFeedback`].
+    ///
+    /// This enum is used only when an [`RtcpFeedback`] type is
+    /// [`RtcpFeedbackType::NACK`] or [`RtcpFeedbackType::CCM`].
+    #[derive(Debug, Eq, Hash, PartialEq)]
+    #[repr(i32)]
+    pub enum RtcpFeedbackMessageType {
+        /// Equivalent to `{ type: "nack", parameter: undefined }` in ORTC.
+        GENERIC_NACK,
+
+        /// Usable with [`RtcpFeedbackType::NACK`].
+        PLI,
+
+        /// Usable with [`RtcpFeedbackType::CCM`].
+        FIR,
+    }
+
     /// [MediaStreamTrackState][0] representation.
     ///
     /// [0]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrackstate
@@ -973,6 +1226,30 @@ pub(crate) mod webrtc {
 
     // TODO: Remove once `cxx` crate allows using pointers to opaque types in
     //       vectors: https://github.com/dtolnay/cxx/issues/741
+    /// Wrapper for an [`RtpCodecCapability`] that can be used in Rust/C++
+    /// vectors.
+    struct RtpCodecCapabilityContainer {
+        pub ptr: UniquePtr<RtpCodecCapability>,
+    }
+
+    // TODO: Remove once `cxx` crate allows using pointers to opaque types in
+    //       vectors: https://github.com/dtolnay/cxx/issues/741
+    /// Wrapper for an [`RtcpFeedback`] that can be used in Rust/C++
+    /// vectors.
+    struct RtcpFeedbackContainer {
+        pub ptr: UniquePtr<RtcpFeedback>,
+    }
+
+    // TODO: Remove once `cxx` crate allows using pointers to opaque types in
+    //       vectors: https://github.com/dtolnay/cxx/issues/741
+    /// Wrapper for an [`RtpHeaderExtensionCapability`]
+    /// that can be used in Rust/C++ vectors.
+    struct RtpHeaderExtensionCapabilityContainer {
+        pub ptr: UniquePtr<RtpHeaderExtensionCapability>,
+    }
+
+    // TODO: Remove once `cxx` crate allows using pointers to opaque types in
+    //       vectors: https://github.com/dtolnay/cxx/issues/741
     /// Wrapper for a [`DisplaySource`] usable in Rust/C++ vectors.
     struct DisplaySourceContainer {
         /// Wrapped [`DisplaySource`].
@@ -1182,6 +1459,23 @@ pub(crate) mod webrtc {
         kBundlePolicyMaxCompat,
     }
 
+    /// Possible noise suppression levels.
+    #[derive(Debug, Eq, Hash, PartialEq)]
+    #[repr(i32)]
+    pub enum NoiseSuppressionLevel {
+        /// Minimal noise suppression.
+        kLow,
+
+        /// Moderate level of suppression.
+        kModerate,
+
+        /// Aggressive noise suppression.
+        kHigh,
+
+        /// Maximum suppression.
+        kVeryHigh,
+    }
+
     #[rustfmt::skip]
     unsafe extern "C++" {
         include!("libwebrtc-sys/include/bridge.h");
@@ -1211,7 +1505,6 @@ pub(crate) mod webrtc {
             worker_thread: &UniquePtr<Thread>,
             signaling_thread: &UniquePtr<Thread>,
             default_adm: &UniquePtr<AudioDeviceModule>,
-            ap: &UniquePtr<AudioProcessing>,
         ) -> UniquePtr<PeerConnectionFactoryInterface>;
     }
 
@@ -1302,7 +1595,7 @@ pub(crate) mod webrtc {
         /// Sets stereo availability of the given playout device.
         pub fn stereo_playout_is_available(
             audio_device_module: &AudioDeviceModule,
-            available: bool,
+            is_available: &mut bool,
         ) -> i32;
 
         /// Initializes the given audio playout device.
@@ -1322,9 +1615,13 @@ pub(crate) mod webrtc {
 
     unsafe extern "C++" {
         pub type AudioProcessing;
+        pub type AudioProcessingConfig;
+        pub type NoiseSuppressionLevel;
 
         /// Creates a new [`AudioProcessing`].
-        pub fn create_audio_processing() -> UniquePtr<AudioProcessing>;
+        pub fn create_audio_processing(
+            conf: UniquePtr<AudioProcessingConfig>,
+        ) -> UniquePtr<AudioProcessing>;
 
         /// Indicates intent to mute the output of the provided
         /// [`AudioProcessing`].
@@ -1333,6 +1630,88 @@ pub(crate) mod webrtc {
         /// will be muted or in some other way not used. This hints the
         /// underlying AGC, AEC, NS processors to halt.
         pub fn set_output_will_be_muted(ap: &AudioProcessing, muted: bool);
+
+        /// Creates a new [`AudioProcessingConfig`].
+        pub fn create_audio_processing_config()
+        -> UniquePtr<AudioProcessingConfig>;
+
+        /// Enables/disables AGC (auto gain control) in the provided
+        /// [`AudioProcessingConfig`].
+        pub fn config_gain_controller1_set_enabled(
+            config: Pin<&mut AudioProcessingConfig>,
+            enabled: bool,
+        );
+
+        /// Enables/disables noise suppression in the provided
+        /// [`AudioProcessingConfig`].
+        pub fn config_noise_suppression_set_enabled(
+            config: Pin<&mut AudioProcessingConfig>,
+            enabled: bool,
+        );
+
+        /// Configures [`NoiseSuppressionLevel`] in the provided
+        /// [`AudioProcessingConfig`].
+        pub fn config_noise_suppression_set_level(
+            config: Pin<&mut AudioProcessingConfig>,
+            level: NoiseSuppressionLevel,
+        );
+
+        /// Enables/disables high pass filter in the provided
+        /// [`AudioProcessingConfig`].
+        pub fn config_high_pass_filter_set_enabled(
+            config: Pin<&mut AudioProcessingConfig>,
+            enabled: bool,
+        );
+
+        /// Enables/disables acoustic echo cancellation in the provided
+        /// [`AudioProcessingConfig`].
+        pub fn config_echo_cancellation_set_enabled(
+            config: Pin<&mut AudioProcessingConfig>,
+            enabled: bool,
+        );
+
+        /// Returns [`AudioProcessingConfig`] of the provided
+        /// [`AudioProcessing`].
+        pub fn audio_processing_get_config(
+            ap: &AudioProcessing,
+        ) -> UniquePtr<AudioProcessingConfig>;
+
+        /// Indicates whether AGC (auto gain control) is enabled in the provided
+        /// [`AudioProcessingConfig`].
+        pub fn config_gain_controller1_get_enabled(
+            config: Pin<&mut AudioProcessingConfig>,
+        ) -> bool;
+
+        /// Indicates whether noise suppression is enabled in the provided
+        /// [`AudioProcessingConfig`].
+        pub fn config_noise_suppression_get_enabled(
+            config: Pin<&mut AudioProcessingConfig>,
+        ) -> bool;
+
+        /// Returns [`NoiseSuppressionLevel`] in the provided
+        /// [`AudioProcessingConfig`].
+        pub fn config_noise_suppression_get_level(
+            config: Pin<&mut AudioProcessingConfig>,
+        ) -> NoiseSuppressionLevel;
+
+        /// Indicates whether high pass filter is enabled in the provided
+        /// [`AudioProcessingConfig`].
+        pub fn config_high_pass_filter_get_enabled(
+            config: Pin<&mut AudioProcessingConfig>,
+        ) -> bool;
+
+        /// Indicates whether echo cancellation is enabled in the provided
+        /// [`AudioProcessingConfig`].
+        pub fn config_echo_cancellation_get_enabled(
+            config: Pin<&mut AudioProcessingConfig>,
+        ) -> bool;
+
+        /// Applies the provided [`AudioProcessingConfig`] to the provided
+        /// [`AudioProcessing`].
+        pub fn audio_processing_apply_config(
+            ap: &AudioProcessing,
+            config: &AudioProcessingConfig,
+        );
     }
 
     unsafe extern "C++" {
@@ -1690,14 +2069,14 @@ pub(crate) mod webrtc {
 
     #[rustfmt::skip]
     unsafe extern "C++" {
-        #[namespace = "cricket"]
+        #[namespace = "webrtc"]
         pub type Candidate;
-        #[namespace = "cricket"]
+        #[namespace = "webrtc"]
         pub type CandidatePairChangeEvent;
         pub type IceCandidateInterface;
         pub type MediaType;
         pub type TrackState;
-        #[namespace = "cricket"]
+        #[namespace = "webrtc"]
         pub type CandidatePair;
         pub type CreateSessionDescriptionObserver;
         pub type IceConnectionState;
@@ -1713,6 +2092,13 @@ pub(crate) mod webrtc {
         pub type RTCOfferAnswerOptions;
         pub type RtpTransceiverDirection;
         pub type RtpTransceiverInterface;
+        pub type RtpCodecCapability;
+        pub type RtcpFeedback;
+        pub type RtcpFeedbackType;
+        pub type RtcpFeedbackMessageType;
+        pub type ScalabilityMode;
+        pub type RtpCapabilities;
+        pub type RtpHeaderExtensionCapability;
         pub type SdpType;
         pub type SessionDescriptionInterface;
         pub type SetLocalDescriptionObserver;
@@ -1896,6 +2282,7 @@ pub(crate) mod webrtc {
         pub type OptionF64;
         pub type OptionI32;
         pub type OptionBool;
+        pub type OptionRtcpFeedbackMessageType;
         pub type OptionU32;
         pub type OptionString;
 
@@ -1934,8 +2321,21 @@ pub(crate) mod webrtc {
 
         /// Sets the provided [`Option`]`<`[`String`]`>` to [`Some`]`(value)`.
         pub fn set_value(self: &mut OptionString, value: String);
+
+        /// Creates an empty Rust [`Option`]`<`[`RtcpFeedbackMessageType`]`>`
+        /// value.
+        pub fn init_option_rtcp_feedback_message_type()
+        -> Box<OptionRtcpFeedbackMessageType>;
+
+        /// Sets the specified [`Option`]`<`[`RtcpFeedbackMessageType`]`>`
+        /// to [`Some`]`(value)`.
+        pub fn set_value(
+            self: &mut OptionRtcpFeedbackMessageType,
+            value: RtcpFeedbackMessageType,
+        );
     }
 
+    #[allow(dead_code, reason = "FFI")]
     #[rustfmt::skip]
     unsafe extern "C++" {
         pub type RTCMediaSourceStats;
@@ -2155,12 +2555,151 @@ pub(crate) mod webrtc {
             transceiver: &RtpTransceiverInterface
         ) -> UniquePtr<RtpSenderInterface>;
 
+        /// Creates a new [`RtpCodecCapability`].
+        pub fn create_codec_capability(
+            preferred_payload_type: i32,
+            name: String,
+            kind: MediaType,
+            clock_rate: i32,
+            num_channels: i32,
+            parameters: Vec<StringPair>,
+        ) -> UniquePtr<RtpCodecCapability>;
+
+        /// Changes the preferred [`RtpTransceiverInterface`] codecs to the
+        /// provided [`Vec`]`<`[`RtpCodecCapability`]`>`.
+        pub fn set_codec_preferences(
+            transceiver: &RtpTransceiverInterface,
+            codecs: Vec<RtpCodecCapabilityContainer>,
+        );
+
         /// Returns the [`RtpReceiverInterface`] of the provided
         /// [`RtpTransceiverInterface`].
         #[must_use]
         pub fn transceiver_receiver(
             transceiver: &RtpTransceiverInterface,
         ) -> UniquePtr<RtpReceiverInterface>;
+
+        /// Returns the sender [`RtpCapabilities`] of the provided
+        /// [`PeerConnectionFactoryInterface`].
+        #[must_use]
+        pub fn get_rtp_sender_capabilities(
+            peer_connection_factory: &PeerConnectionFactoryInterface,
+            kind: MediaType,
+        ) -> UniquePtr<RtpCapabilities>;
+
+        /// Returns the receiver [`RtpCapabilities`] of the provided
+        /// [`PeerConnectionFactoryInterface`].
+        #[must_use]
+        pub fn get_rtp_receiver_capabilities(
+            peer_connection_factory: &PeerConnectionFactoryInterface,
+            kind: MediaType,
+        ) -> UniquePtr<RtpCapabilities>;
+
+        /// Returns the [`RtpCodecCapabilityContainer`] of the provided
+        /// [`RtpCapabilities`].
+        #[must_use]
+        pub fn rtp_capabilities_codecs(
+            capability: &RtpCapabilities,
+        ) -> Vec<RtpCodecCapabilityContainer>;
+
+        /// Returns the [`RtpHeaderExtensionCapability`] of the provided
+        /// [`RtpCapabilities`].
+        #[must_use]
+        pub fn rtp_capabilities_header_extensions(
+            capability: &RtpCapabilities,
+        ) -> Vec<RtpHeaderExtensionCapabilityContainer>;
+
+        /// Returns the `payload_type` of the provided [`RtpCodecCapability`].
+        #[must_use]
+        pub fn preferred_payload_type(
+            capability: &RtpCodecCapability,
+        ) -> Box<OptionI32>;
+
+        /// Returns the [`ScalabilityMode`]'s of the provided
+        /// [`RtpCodecCapability`].
+        #[must_use]
+        pub fn scalability_modes(
+            capability: &RtpCodecCapability,
+        ) -> Vec<ScalabilityMode>;
+
+        /// Returns the `mime_type` of the provided [`RtpCodecCapability`].
+        #[must_use]
+        pub fn rtc_codec_mime_type(
+            capability: &RtpCodecCapability,
+        ) -> UniquePtr<CxxString>;
+
+        /// Returns the `name` of the provided [`RtpCodecCapability`].
+        #[must_use]
+        pub fn rtc_codec_name(
+            capability: &RtpCodecCapability,
+        ) -> UniquePtr<CxxString>;
+
+        /// Returns the `kind` of the provided [`RtpCodecCapability`].
+        #[must_use]
+        pub fn rtc_codec_kind(capability: &RtpCodecCapability) -> MediaType;
+
+        /// Returns the `clock_rate` of the provided [`RtpCodecCapability`].
+        #[must_use]
+        pub fn rtc_codec_clock_rate(
+            capability: &RtpCodecCapability,
+        ) -> Box<OptionI32>;
+
+        /// Returns the `num_channels` of the provided [`RtpCodecCapability`].
+        #[must_use]
+        pub fn rtc_codec_num_channels(
+            capability: &RtpCodecCapability,
+        ) -> Box<OptionI32>;
+
+        /// Returns the `parameters` of the provided [`RtpCodecCapability`].
+        #[must_use]
+        pub fn rtc_codec_parameters(
+            capability: &RtpCodecCapability,
+        ) -> UniquePtr<CxxVector<StringPair>>;
+
+        /// Returns the [`RtcpFeedback`]'s of the provided
+        /// [`RtpCodecCapability`].
+        #[must_use]
+        pub fn rtc_codec_rtcp_feedback(
+            capability: &RtpCodecCapability,
+        ) -> Vec<RtcpFeedbackContainer>;
+
+        /// Returns the [`RtcpFeedbackType`] of the provided [`RtcpFeedback`].
+        #[must_use]
+        pub fn rtcp_feedback_type(feedback: &RtcpFeedback) -> RtcpFeedbackType;
+
+        /// Returns the `message_type` as [`Option<RtcpFeedbackMessageType>`] of
+        /// the provided [`RtcpFeedback`].
+        #[must_use]
+        pub fn rtcp_feedback_message_type(
+            feedback: &RtcpFeedback,
+        ) -> Box<OptionRtcpFeedbackMessageType>;
+
+        /// Returns the `uri` of the provided [`RtpHeaderExtensionCapability`].
+        #[must_use]
+        pub fn header_extensions_uri(
+            header_extensions: &RtpHeaderExtensionCapability,
+        ) -> UniquePtr<CxxString>;
+
+        /// Returns the `preferred_id` of the provided
+        /// [`RtpHeaderExtensionCapability`].
+        #[must_use]
+        pub fn header_extensions_preferred_id(
+            header_extensions: &RtpHeaderExtensionCapability,
+        ) -> Box<OptionI32>;
+
+        /// Returns the `preferred_encrypted` of the provided
+        /// [`RtpHeaderExtensionCapability`].
+        #[must_use]
+        pub fn header_extensions_preferred_encrypted(
+            header_extensions: &RtpHeaderExtensionCapability,
+        ) -> bool;
+
+        /// Returns the [`RtpTransceiverDirection`] of the provided
+        /// [`RtpHeaderExtensionCapability`].
+        #[must_use]
+        pub fn header_extensions_direction(
+            header_extensions: &RtpHeaderExtensionCapability,
+        ) -> RtpTransceiverDirection;
     }
 
     unsafe extern "C++" {
@@ -2214,12 +2753,39 @@ pub(crate) mod webrtc {
         pub fn create_audio_source(
             audio_device_module: &AudioDeviceModule,
             device_index: u16,
+            ap: &UniquePtr<AudioProcessing>,
+        ) -> UniquePtr<AudioSourceInterface>;
+
+        /// Creates a new [`AudioSourceInterface`] for display audio.
+        pub fn create_display_audio_source(
+            audio_device_module: &AudioDeviceModule,
+            device_id: String,
         ) -> UniquePtr<AudioSourceInterface>;
 
         /// Disposes the [`AudioSourceInterface`] with the provided `device_id`.
         pub fn dispose_audio_source(
             audio_device_module: &AudioDeviceModule,
             device_id: String,
+        );
+
+        /// Registers the provided observer in the provided
+        /// [`AudioSourceInterface`], so any audio level updates will be passes
+        /// to this observer.
+        ///
+        /// Previous observer will be disposed. Only one observer at a time is
+        /// supported.
+        pub fn audio_source_register_audio_level_observer(
+            obs: Box<DynAudioSourceOnAudioLevelChangeCallback>,
+            audio_source: &AudioSourceInterface,
+        );
+
+        /// Unregisters audio level observer from the provided
+        /// [`AudioSourceInterface`].
+        ///
+        /// [`AudioSourceInterface`] will not calculate audio level after
+        /// calling this function.
+        pub fn audio_source_unregister_audio_level_observer(
+            audio_source: &AudioSourceInterface,
         );
 
         /// Creates a new fake [`AudioSourceInterface`].
@@ -2349,6 +2915,7 @@ pub(crate) mod webrtc {
         /// # Safety
         ///
         /// Caller must ensure that the provided `buffer` is large enough.
+        #[allow(clippy::missing_safety_doc, reason = "false positive")]
         pub unsafe fn video_frame_to_abgr(frame: &VideoFrame, buffer: *mut u8);
 
         /// Converts the provided [`webrtc::VideoFrame`] pixels to the `ARGB`
@@ -2357,6 +2924,7 @@ pub(crate) mod webrtc {
         /// # Safety
         ///
         /// Caller must ensure that the provided `buffer` is large enough.
+        #[allow(clippy::missing_safety_doc, reason = "false positive")]
         pub unsafe fn video_frame_to_argb(
             frame: &VideoFrame,
             argb_stride: i32,
@@ -2517,6 +3085,17 @@ pub(crate) mod webrtc {
     }
 
     extern "Rust" {
+        pub type DynAudioSourceOnAudioLevelChangeCallback;
+
+        /// Called once the `LocalAudioSource` produces a new audio level
+        /// update.
+        fn on_audio_level_change(
+            cb: &DynAudioSourceOnAudioLevelChangeCallback,
+            volume: f32,
+        );
+    }
+
+    extern "Rust" {
         pub type DynSetDescriptionCallback;
         pub type DynCreateSdpCallback;
         pub type DynPeerConnectionEventsHandler;
@@ -2673,7 +3252,7 @@ pub(crate) mod webrtc {
 }
 
 /// Successfully completes the provided [`DynSetDescriptionCallback`].
-#[allow(clippy::boxed_local)]
+#[expect(clippy::boxed_local, reason = "FFI")]
 pub fn create_sdp_success(
     mut cb: Box<DynCreateSdpCallback>,
     sdp: &CxxString,
@@ -2683,19 +3262,19 @@ pub fn create_sdp_success(
 }
 
 /// Completes the provided [`DynCreateSdpCallback`] with an error.
-#[allow(clippy::boxed_local)]
+#[expect(clippy::boxed_local, reason = "FFI")]
 pub fn create_sdp_fail(mut cb: Box<DynCreateSdpCallback>, error: &CxxString) {
     cb.fail(error);
 }
 
 /// Successfully completes the provided [`DynSetDescriptionCallback`].
-#[allow(clippy::boxed_local)]
+#[expect(clippy::boxed_local, reason = "FFI")]
 pub fn set_description_success(mut cb: Box<DynSetDescriptionCallback>) {
     cb.success();
 }
 
 /// Completes the provided [`DynSetDescriptionCallback`] with the given `error`.
-#[allow(clippy::boxed_local)]
+#[expect(clippy::boxed_local, reason = "FFI")]
 pub fn set_description_fail(
     mut cb: Box<DynSetDescriptionCallback>,
     error: &CxxString,
@@ -2885,22 +3464,28 @@ pub fn on_ended(cb: &mut DynTrackEventCallback) {
     cb.on_ended();
 }
 
+/// Notifies the provided [`DynAudioSourceOnAudioLevelChangeCallback`] about an
+/// audio level update.
+pub fn on_audio_level_change(
+    cb: &DynAudioSourceOnAudioLevelChangeCallback,
+    volume: f32,
+) {
+    cb.on_audio_level_change(volume);
+}
+
 /// Creates a new [`StringPair`].
 fn new_string_pair(f: &CxxString, s: &CxxString) -> webrtc::StringPair {
-    webrtc::StringPair {
-        first: f.to_string(),
-        second: s.to_string(),
-    }
+    webrtc::StringPair { first: f.to_string(), second: s.to_string() }
 }
 
 /// Calls the success [`DynAddIceCandidateCallback`].
-#[allow(clippy::boxed_local)]
+#[expect(clippy::boxed_local, reason = "FFI")]
 pub fn add_ice_candidate_success(mut cb: Box<DynAddIceCandidateCallback>) {
     cb.on_success();
 }
 
 /// Calls the fail [`DynAddIceCandidateCallback`].
-#[allow(clippy::boxed_local)]
+#[expect(clippy::boxed_local, reason = "FFI")]
 pub fn add_ice_candidate_fail(
     mut cb: Box<DynAddIceCandidateCallback>,
     error: &CxxString,
@@ -2910,7 +3495,7 @@ pub fn add_ice_candidate_fail(
 
 /// Forwards the specified [`RTCStatsReport`] to the provided
 /// [`DynRTCStatsCollectorCallback`] when stats are delivered.
-#[allow(clippy::boxed_local)]
+#[expect(clippy::boxed_local, reason = "FFI")]
 pub fn on_stats_delivered(
     mut cb: Box<DynRTCStatsCollectorCallback>,
     report: UniquePtr<webrtc::RTCStatsReport>,

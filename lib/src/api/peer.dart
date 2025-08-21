@@ -1,8 +1,9 @@
 import 'dart:async';
-import 'dart:ffi';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
+
+import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import '../model/stats.dart';
 import '/src/model/ice.dart';
@@ -11,25 +12,43 @@ import '/src/model/sdp.dart';
 import '/src/model/track.dart';
 import '/src/model/transceiver.dart';
 import '/src/platform/native/media_stream_track.dart';
-import 'bridge.g.dart' as ffi;
+import 'bridge/api/media_stream_track/media_type.dart' as ffi;
+import 'bridge/api/peer.dart' as ffi;
+import 'bridge/api/peer/events.dart' as ffi;
+import 'bridge/api/peer/rtc_configuration.dart' as ffi;
+import 'bridge/api/peer/rtc_configuration/bundle_policy.dart' as ffi;
+import 'bridge/api/peer/rtc_configuration/ice_transports_type.dart' as ffi;
+import 'bridge/api/peer/rtc_configuration/rtc_ice_server.dart' as ffi;
+import 'bridge/api/peer/rtc_session_description.dart' as ffi;
+import 'bridge/api/peer/video_codec_info.dart' as ffi;
+import 'bridge/api/stats.dart' as ffi;
+import 'bridge/api/transceiver.dart' as ffi;
+import 'bridge/api/transceiver/direction.dart' as ffi;
+import 'bridge/api/transceiver/init.dart' as ffi;
+import 'bridge/frb_generated.dart';
+import 'bridge/lib.dart';
 import 'channel.dart';
 import 'transceiver.dart';
 
 /// Checks whether the running platform is a desktop.
 bool isDesktop = Platform.isWindows || Platform.isLinux || Platform.isMacOS;
 
-/// Bindings to the Rust side API.
-final ffi.MedeaFlutterWebrtcNative? api = isDesktop ? buildBridge() : null;
+/// Opens the dynamic library and instantiates FFI bridge to Rust side.
+Future<void> initFfiBridge() async {
+  if (!isDesktop) {
+    return;
+  }
+  if (RustLib.instance.initialized) {
+    return;
+  }
 
-/// Opens the dynamic library and instantiates [ffi.MedeaFlutterWebrtcNative].
-ffi.MedeaFlutterWebrtcNative? buildBridge() {
   const base = 'medea_flutter_webrtc_native';
   final path = Platform.isWindows ? '$base.dll' : 'lib$base.so';
-  late final dylib = Platform.isMacOS
-      ? DynamicLibrary.executable()
-      : DynamicLibrary.open(path);
+  late final lib = Platform.isMacOS
+      ? ExternalLibrary.process(iKnowHowToUseIt: true)
+      : ExternalLibrary.open(path);
 
-  return ffi.MedeaFlutterWebrtcNativeImpl(dylib);
+  await RustLib.init(externalLibrary: lib);
 }
 
 /// Shortcut for the `on_track` callback.
@@ -63,7 +82,9 @@ abstract class PeerConnection {
   /// Creates a new [PeerConnection] with the provided [IceTransportType] and
   /// [IceServer]s.
   static Future<PeerConnection> create(
-      IceTransportType iceTransportType, List<IceServer> iceServers) async {
+    IceTransportType iceTransportType,
+    List<IceServer> iceServers,
+  ) async {
     if (isDesktop) {
       return await _PeerConnectionFFI.create(iceTransportType, iceServers);
     } else {
@@ -197,7 +218,9 @@ abstract class PeerConnection {
 
   /// Adds a new [RtpTransceiver] to this [PeerConnection].
   Future<RtpTransceiver> addTransceiver(
-      MediaKind mediaType, RtpTransceiverInit init);
+    MediaKind mediaType,
+    RtpTransceiverInit init,
+  );
 
   /// Returns all the [RtpTransceiver]s owned by this [PeerConnection].
   Future<List<RtpTransceiver>> getTransceivers();
@@ -243,28 +266,33 @@ abstract class PeerConnection {
 }
 
 /// [MethodChannel] used for the messaging with a native side.
-final _peerConnectionFactoryMethodChannel =
-    methodChannel('PeerConnectionFactory', 0);
+final _peerConnectionFactoryMethodChannel = methodChannel(
+  'PeerConnectionFactory',
+  0,
+);
 
 /// [MethodChannel]-based implementation of a [PeerConnection].
 class _PeerConnectionChannel extends PeerConnection {
   /// Creates a new [PeerConnection] with the provided [IceTransportType] and
   /// [IceServer]s.
   static Future<PeerConnection> create(
-      IceTransportType iceTransportType, List<IceServer> iceServers) async {
-    dynamic res =
-        await _peerConnectionFactoryMethodChannel.invokeMethod('create', {
-      'iceTransportType': iceTransportType.index,
-      'iceServers': iceServers.map((s) => s.toMap()).toList(),
-    });
+    IceTransportType iceTransportType,
+    List<IceServer> iceServers,
+  ) async {
+    dynamic res = await _peerConnectionFactoryMethodChannel
+        .invokeMethod('create', {
+          'iceTransportType': iceTransportType.index,
+          'iceServers': iceServers.map((s) => s.toMap()).toList(),
+        });
 
     return _PeerConnectionChannel._fromMap(res);
   }
 
   /// Returns all [VideoCodecInfo]s of the supported video encoders.
   static Future<List<VideoCodecInfo>> videoEncoders() async {
-    dynamic res =
-        await _peerConnectionFactoryMethodChannel.invokeMethod('videoEncoders');
+    dynamic res = await _peerConnectionFactoryMethodChannel.invokeMethod(
+      'videoEncoders',
+    );
     res as List<dynamic>;
 
     return res.map((info) => VideoCodecInfo.fromMap(info)).toList();
@@ -272,8 +300,9 @@ class _PeerConnectionChannel extends PeerConnection {
 
   /// Returns all [VideoCodecInfo]s of the supported video decoders.
   static Future<List<VideoCodecInfo>> videoDecoders() async {
-    dynamic res =
-        await _peerConnectionFactoryMethodChannel.invokeMethod('videoDecoders');
+    dynamic res = await _peerConnectionFactoryMethodChannel.invokeMethod(
+      'videoDecoders',
+    );
     res as List<dynamic>;
 
     return res.map((info) => VideoCodecInfo.fromMap(info)).toList();
@@ -281,7 +310,7 @@ class _PeerConnectionChannel extends PeerConnection {
 
   /// Listener for the all [PeerConnection] events received from the native
   /// side.
-  void eventListener(dynamic event) {
+  Future<void> eventListener(dynamic event) async {
     dynamic e = event;
 
     switch (e['event']) {
@@ -320,8 +349,10 @@ class _PeerConnectionChannel extends PeerConnection {
       case 'onTrack':
         dynamic track = e['track'];
         dynamic transceiver = e['transceiver'];
-        _onTrack?.call(NativeMediaStreamTrack.from(track),
-            RtpTransceiver.fromMap(transceiver));
+        _onTrack?.call(
+          await NativeMediaStreamTrack.from(track),
+          RtpTransceiver.fromMap(transceiver),
+        );
         break;
     }
   }
@@ -361,11 +392,15 @@ class _PeerConnectionChannel extends PeerConnection {
 
   @override
   Future<RtpTransceiver> addTransceiver(
-      MediaKind mediaType, RtpTransceiverInit init) async {
+    MediaKind mediaType,
+    RtpTransceiverInit init,
+  ) async {
     _checkNotClosed();
 
-    dynamic res = await _chan.invokeMethod(
-        'addTransceiver', {'mediaType': mediaType.index, 'init': init.toMap()});
+    dynamic res = await _chan.invokeMethod('addTransceiver', {
+      'mediaType': mediaType.index,
+      'init': init.toMap(),
+    });
     var transceiver = RtpTransceiver.fromMap(res);
     _transceivers.add(transceiver);
 
@@ -387,8 +422,9 @@ class _PeerConnectionChannel extends PeerConnection {
   Future<void> setRemoteDescription(SessionDescription description) async {
     _checkNotClosed();
 
-    await _chan.invokeMethod(
-        'setRemoteDescription', {'description': description.toMap()});
+    await _chan.invokeMethod('setRemoteDescription', {
+      'description': description.toMap(),
+    });
     await _syncTransceiversMids();
   }
 
@@ -396,8 +432,9 @@ class _PeerConnectionChannel extends PeerConnection {
   Future<void> setLocalDescription(SessionDescription description) async {
     _checkNotClosed();
 
-    await _chan.invokeMethod(
-        'setLocalDescription', {'description': description.toMap()});
+    await _chan.invokeMethod('setLocalDescription', {
+      'description': description.toMap(),
+    });
     await _syncTransceiversMids();
   }
 
@@ -421,8 +458,9 @@ class _PeerConnectionChannel extends PeerConnection {
   Future<void> addIceCandidate(IceCandidate candidate) async {
     _checkNotClosed();
 
-    await _chan
-        .invokeMethod('addIceCandidate', {'candidate': candidate.toMap()});
+    await _chan.invokeMethod('addIceCandidate', {
+      'candidate': candidate.toMap(),
+    });
   }
 
   @override
@@ -473,19 +511,25 @@ class _PeerConnectionFFI extends PeerConnection {
   /// Creates a new [PeerConnection] with the provided [IceTransportType] and
   /// [IceServer]s.
   static Future<PeerConnection> create(
-      IceTransportType iceType, List<IceServer> iceServers) async {
+    IceTransportType iceType,
+    List<IceServer> iceServers,
+  ) async {
     var cfg = ffi.RtcConfiguration(
-        iceTransportPolicy: ffi.IceTransportsType.values[iceType.index],
-        bundlePolicy: ffi.BundlePolicy.maxBundle,
-        iceServers: iceServers
-            .map((server) => ffi.RtcIceServer(
-                urls: server.urls,
-                username: server.username != null ? server.username! : '',
-                credential: server.password != null ? server.password! : ''))
-            .toList());
+      iceTransportPolicy: ffi.IceTransportsType.values[iceType.index],
+      bundlePolicy: ffi.BundlePolicy.maxBundle,
+      iceServers: iceServers
+          .map(
+            (server) => ffi.RtcIceServer(
+              urls: server.urls,
+              username: server.username != null ? server.username! : '',
+              credential: server.password != null ? server.password! : '',
+            ),
+          )
+          .toList(),
+    );
 
     var peer = _PeerConnectionFFI();
-    peer._stream = api!.createPeerConnection(configuration: cfg);
+    peer._stream = ffi.createPeerConnection(configuration: cfg);
     peer._stream!.listen(peer.eventListener);
 
     await peer._initialized.future;
@@ -498,7 +542,7 @@ class _PeerConnectionFFI extends PeerConnection {
   final Completer _initialized = Completer();
 
   /// Native side peer connection.
-  ffi.ArcPeerConnection? _peer;
+  ArcPeerConnection? _peer;
 
   /// [Stream] for handling [PeerConnection] `event`s.
   Stream<ffi.PeerConnectionEvent>? _stream;
@@ -514,39 +558,43 @@ class _PeerConnectionFFI extends PeerConnection {
 
   /// Returns all [VideoCodecInfo]s of the supported video encoders.
   static Future<List<VideoCodecInfo>> videoEncoders() async {
-    var res = await api!.videoEncoders();
+    var res = await ffi.videoEncoders();
     return res.map((info) => VideoCodecInfo.fromFFI(info)).toList();
   }
 
   /// Returns all [VideoCodecInfo]s of the supported video decoders.
   static Future<List<VideoCodecInfo>> videoDecoders() async {
-    var res = await api!.videoDecoders();
+    var res = await ffi.videoDecoders();
     return res.map((info) => VideoCodecInfo.fromFFI(info)).toList();
   }
 
   /// Listener for the all [PeerConnection] events received from the native
   /// side.
-  void eventListener(ffi.PeerConnectionEvent event) {
+  Future<void> eventListener(ffi.PeerConnectionEvent event) async {
     if (event is ffi.PeerConnectionEvent_PeerCreated) {
       _peer = event.peer;
       _initialized.complete();
       return;
     } else if (event is ffi.PeerConnectionEvent_IceCandidate) {
       _onIceCandidate?.call(
-          IceCandidate(event.sdpMid, event.sdpMlineIndex, event.candidate));
+        IceCandidate(event.sdpMid, event.sdpMlineIndex, event.candidate),
+      );
       return;
     } else if (event is ffi.PeerConnectionEvent_IceGatheringStateChange) {
-      _onIceGatheringStateChange
-          ?.call(IceGatheringState.values[event.field0.index]);
+      _onIceGatheringStateChange?.call(
+        IceGatheringState.values[event.field0.index],
+      );
       return;
     } else if (event is ffi.PeerConnectionEvent_IceCandidateError) {
-      _onIceCandidateError?.call(IceCandidateErrorEvent.fromMap({
-        'address': event.address,
-        'port': event.port,
-        'url': event.url,
-        'errorCode': event.errorCode,
-        'errorText': event.errorText,
-      }));
+      _onIceCandidateError?.call(
+        IceCandidateErrorEvent.fromMap({
+          'address': event.address,
+          'port': event.port,
+          'url': event.url,
+          'errorCode': event.errorCode,
+          'errorText': event.errorText,
+        }),
+      );
       return;
     } else if (event is ffi.PeerConnectionEvent_NegotiationNeeded) {
       _onNegotiationNeeded?.call();
@@ -563,8 +611,10 @@ class _PeerConnectionFFI extends PeerConnection {
       _onConnectionStateChange?.call(_connectionState);
       return;
     } else if (event is ffi.PeerConnectionEvent_Track) {
-      _onTrack?.call(NativeMediaStreamTrack.from(event.field0.track),
-          RtpTransceiver.fromFFI(event.field0.transceiver));
+      _onTrack?.call(
+        await NativeMediaStreamTrack.from(event.field0.track),
+        RtpTransceiver.fromFFI(event.field0.transceiver),
+      );
       return;
     }
   }
@@ -573,25 +623,31 @@ class _PeerConnectionFFI extends PeerConnection {
   Future<void> addIceCandidate(IceCandidate candidate) async {
     _checkNotClosed();
 
-    await api!.addIceCandidate(
-        peer: _peer!,
-        candidate: candidate.candidate,
-        sdpMid: candidate.sdpMid,
-        sdpMlineIndex: candidate.sdpMLineIndex);
+    await ffi.addIceCandidate(
+      peer: _peer!,
+      candidate: candidate.candidate,
+      sdpMid: candidate.sdpMid,
+      sdpMlineIndex: candidate.sdpMLineIndex,
+    );
   }
 
   @override
   Future<RtpTransceiver> addTransceiver(
-      MediaKind mediaType, RtpTransceiverInit init) async {
+    MediaKind mediaType,
+    RtpTransceiverInit init,
+  ) async {
     _checkNotClosed();
 
-    var transceiver = RtpTransceiver.fromFFI(await api!.addTransceiver(
+    var transceiver = RtpTransceiver.fromFFI(
+      await ffi.addTransceiver(
         peer: _peer!,
         mediaType: ffi.MediaType.values[mediaType.index],
         init: ffi.RtpTransceiverInit(
-            direction: ffi.RtpTransceiverDirection.values[init.direction.index],
-            sendEncodings:
-                init.sendEncodings.map((e) => e.toFFI().$1).toList())));
+          direction: ffi.RtpTransceiverDirection.values[init.direction.index],
+          sendEncodings: init.sendEncodings.map((e) => e.toFFI().$1).toList(),
+        ),
+      ),
+    );
 
     _transceivers.add(transceiver);
 
@@ -605,19 +661,20 @@ class _PeerConnectionFFI extends PeerConnection {
     _onIceCandidate = null;
     _closed = true;
     await super.close();
-    _peer!.move = true;
-    await api!.disposePeerConnection(peer: _peer!);
+    await ffi.disposePeerConnection(peer: _peer!);
+    _peer!.dispose();
   }
 
   @override
   Future<SessionDescription> createAnswer() async {
     _checkNotClosed();
 
-    var res = await api!.createAnswer(
-        peer: _peer!,
-        voiceActivityDetection: true,
-        iceRestart: false,
-        useRtpMux: true);
+    var res = await ffi.createAnswer(
+      peer: _peer!,
+      voiceActivityDetection: true,
+      iceRestart: false,
+      useRtpMux: true,
+    );
 
     return SessionDescription(SessionDescriptionType.answer, res.sdp);
   }
@@ -626,11 +683,12 @@ class _PeerConnectionFFI extends PeerConnection {
   Future<SessionDescription> createOffer() async {
     _checkNotClosed();
 
-    var res = await api!.createOffer(
-        peer: _peer!,
-        voiceActivityDetection: true,
-        iceRestart: false,
-        useRtpMux: true);
+    var res = await ffi.createOffer(
+      peer: _peer!,
+      voiceActivityDetection: true,
+      iceRestart: false,
+      useRtpMux: true,
+    );
 
     return SessionDescription(SessionDescriptionType.offer, res.sdp);
   }
@@ -639,9 +697,9 @@ class _PeerConnectionFFI extends PeerConnection {
   Future<List<RtpTransceiver>> getTransceivers() async {
     _checkNotClosed();
 
-    var transceivers = (await api!.getTransceivers(peer: _peer!))
-        .map((transceiver) => RtpTransceiver.fromFFI(transceiver))
-        .toList();
+    var transceivers = (await ffi.getTransceivers(
+      peer: _peer!,
+    )).map((transceiver) => RtpTransceiver.fromFFI(transceiver)).toList();
     _transceivers.addAll(transceivers);
 
     return transceivers;
@@ -651,17 +709,18 @@ class _PeerConnectionFFI extends PeerConnection {
   Future<void> restartIce() async {
     _checkNotClosed();
 
-    return await api!.restartIce(peer: _peer!);
+    return await ffi.restartIce(peer: _peer!);
   }
 
   @override
   Future<void> setLocalDescription(SessionDescription description) async {
     _checkNotClosed();
 
-    await api!.setLocalDescription(
-        peer: _peer!,
-        kind: ffi.SdpType.values[description.type.index],
-        sdp: description.description);
+    await ffi.setLocalDescription(
+      peer: _peer!,
+      kind: ffi.SdpType.values[description.type.index],
+      sdp: description.description,
+    );
     await _syncTransceiversMids();
   }
 
@@ -669,16 +728,17 @@ class _PeerConnectionFFI extends PeerConnection {
   Future<void> setRemoteDescription(SessionDescription description) async {
     _checkNotClosed();
 
-    await api!.setRemoteDescription(
-        peer: _peer!,
-        kind: ffi.SdpType.values[description.type.index],
-        sdp: description.description);
+    await ffi.setRemoteDescription(
+      peer: _peer!,
+      kind: ffi.SdpType.values[description.type.index],
+      sdp: description.description,
+    );
     await _syncTransceiversMids();
   }
 
   @override
   Future<List<RtcStats>> getStats() async {
-    var stats = await api!.getPeerStats(peer: _peer!);
+    var stats = await ffi.getPeerStats(peer: _peer!);
     List<RtcStats> result = List.empty(growable: true);
 
     for (var s in stats) {

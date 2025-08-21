@@ -39,6 +39,19 @@ class PeerConnectionProxy {
     self.id
   }
 
+  /// Returns `RtcStats` of this `PeerConnectionProxy`.
+  func getStats() async throws -> RtcStats {
+    return try await withCheckedThrowingContinuation { continuation in
+      do {
+        try self.peer.statistics { report in
+          continuation.resume(returning: RtcStats(report: report))
+        }
+      } catch {
+        continuation.resume(throwing: error)
+      }
+    }
+  }
+
   /// Synchronizes and returns all the `RtpTransceiverProxy`s of this
   /// `PeerConnectionProxy`.
   func getTransceivers() -> [RtpTransceiverProxy] {
@@ -59,11 +72,15 @@ class PeerConnectionProxy {
   /// Creates a new `RtpTransceiverProxy` based on the provided `MediaType` and
   /// `RtpTransceiverProxy` configuration.
   func addTransceiver(mediaType: MediaType,
-                      transceiverInit: TransceiverInit) -> RtpTransceiverProxy
+                      transceiverInit: TransceiverInit)
+    throws -> RtpTransceiverProxy
   {
     let transceiver = self.peer.addTransceiver(
       of: mediaType.intoWebRtc(), init: transceiverInit.intoWebRtc()
     )
+    if transceiver == nil {
+      throw TransceiverException.failedToAddTransceiver
+    }
     self.syncTransceivers()
     return self.transceivers[self.lastTransceiverId]!
   }

@@ -21,7 +21,7 @@
 #include "modules/desktop_capture/cropped_desktop_frame.h"
 #include "modules/desktop_capture/desktop_and_cursor_composer.h"
 #include "rtc_base/logging.h"
-#include "system_wrappers/include/sleep.h"
+#include "rtc_base/thread.h"
 #include "third_party/libyuv/include/libyuv.h"
 
 #if __APPLE__
@@ -73,7 +73,7 @@ ScreenVideoCapturer::ScreenVideoCapturer(
       requested_frame_duration_((int) (1000.0f / target_fps)),
       quit_(false) {
   if (capture_thread_.empty()) {
-    capture_thread_ = rtc::PlatformThread::SpawnJoinable(
+    capture_thread_ = webrtc::PlatformThread::SpawnJoinable(
         [this, source_id] {
           auto options = CreateDesktopCaptureOptions();
           std::unique_ptr<webrtc::DesktopCapturer> screen_capturer(
@@ -100,7 +100,7 @@ ScreenVideoCapturer::ScreenVideoCapturer(
           capturer_.reset();
         },
         "ScreenCaptureThread",
-        rtc::ThreadAttributes().SetPriority(rtc::ThreadPriority::kHigh));
+        webrtc::ThreadAttributes().SetPriority(webrtc::ThreadPriority::kHigh));
   }
 }
 
@@ -121,17 +121,17 @@ bool ScreenVideoCapturer::CaptureProcess() {
   CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0, true);
 #endif
 
-  int64_t started_time = rtc::TimeMillis();
+  int64_t started_time = webrtc::TimeMillis();
   capturer_->CaptureFrame();
   mouse_monitor_->Capture();
 
-  int last_capture_duration = (int)(rtc::TimeMillis() - started_time);
+  int last_capture_duration = (int)(webrtc::TimeMillis() - started_time);
   int capture_period =
       std::max((last_capture_duration * 100) / maxCpuConsumptionPercentage,
                requested_frame_duration_);
   int delta_time = capture_period - last_capture_duration;
   if (delta_time > 0) {
-    webrtc::SleepMs(delta_time);
+    webrtc::Thread::SleepMs(delta_time);
   }
   return true;
 }
@@ -178,7 +178,7 @@ void ScreenVideoCapturer::OnCaptureResult(
     output_size.set(2, 2);
   }
 
-  rtc::scoped_refptr<webrtc::I420Buffer> dst_buffer(
+  webrtc::scoped_refptr<webrtc::I420Buffer> dst_buffer(
       webrtc::I420Buffer::Create(output_size.width(), output_size.height()));
   dst_buffer->InitializeData();
 
@@ -245,7 +245,7 @@ void ScreenVideoCapturer::OnCaptureResult(
   webrtc::VideoFrame captureFrame = webrtc::VideoFrame::Builder()
                                         .set_video_frame_buffer(dst_buffer)
                                         .set_timestamp_rtp(0)
-                                        .set_timestamp_ms(rtc::TimeMillis())
+                                        .set_timestamp_ms(webrtc::TimeMillis())
                                         .set_rotation(webrtc::kVideoRotation_0)
                                         .build();
 
@@ -258,7 +258,7 @@ bool ScreenVideoCapturer::is_screencast() const {
 }
 
 // Always returns `false`.
-absl::optional<bool> ScreenVideoCapturer::needs_denoising() const {
+std::optional<bool> ScreenVideoCapturer::needs_denoising() const {
   return false;
 }
 

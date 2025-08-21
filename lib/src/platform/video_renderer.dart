@@ -3,10 +3,10 @@ import 'package:flutter/foundation.dart';
 import 'track.dart';
 
 import '/src/platform/native/video_renderer.dart'
-    if (dart.library.html) 'web/video_renderer.dart';
+    if (dart.library.js_interop) 'web/video_renderer.dart';
 
 export 'native/video_renderer.dart'
-    if (dart.library.html) 'web/video_renderer.dart';
+    if (dart.library.js_interop) 'web/video_renderer.dart';
 
 @immutable
 class RTCVideoValue {
@@ -95,10 +95,7 @@ abstract class VideoRenderer extends ValueNotifier<RTCVideoValue> {
   }
 }
 
-enum VideoViewObjectFit {
-  contain,
-  cover,
-}
+enum VideoViewObjectFit { contain, cover }
 
 VideoRenderer createVideoRenderer() {
   return createPlatformSpecificVideoRenderer();

@@ -21,14 +21,14 @@
  * Full license: https://github.com/desktop-app/legal/blob/master/LICENSE
  */
 
-#include <iostream>
-
 #include <algorithm>
 #include <cfenv>
 #include <chrono>
 #include <cmath>
+#include <iostream>
 #include <thread>
 #include <vector>
+
 #include "adm.h"
 #include "api/make_ref_counted.h"
 #include "common_audio/wav_file.h"
@@ -57,6 +57,7 @@ using ALEVENTPROCSOFT = void (*)(ALenum eventType,
                                  void* userParam);
 using ALEVENTCALLBACKSOFT = void (*)(ALEVENTPROCSOFT callback, void* userParam);
 using ALCSETTHREADCONTEXT = ALCboolean (*)(ALCcontext* context);
+using ALCGETTHREADCONTEXT = ALCcontext* (*)();
 using ALGETSOURCEI64VSOFT = void (*)(ALuint source,
                                      ALenum param,
                                      AL_INT64_TYPE* values);
@@ -67,19 +68,20 @@ using ALCGETINTEGER64VSOFT = void (*)(ALCdevice* device,
 
 ALEVENTCALLBACKSOFT alEventCallbackSOFT /* = nullptr*/;
 ALCSETTHREADCONTEXT alcSetThreadContext /* = nullptr*/;
+ALCGETTHREADCONTEXT alcGetThreadContext /* = nullptr*/;
 ALGETSOURCEI64VSOFT alGetSourcei64vSOFT /* = nullptr*/;
 ALCGETINTEGER64VSOFT alcGetInteger64vSOFT /* = nullptr*/;
 
 struct OpenALAudioDeviceModule::Data {
   Data() {
-    _playoutThread = rtc::Thread::Create();
-    _recordingThread = rtc::Thread::Create();
-    rtc::Thread::Current()->AllowInvokesToThread(_playoutThread.get());
-    rtc::Thread::Current()->AllowInvokesToThread(_recordingThread.get());
+    _playoutThread = webrtc::Thread::Create();
+    _recordingThread = webrtc::Thread::Create();
+    webrtc::Thread::Current()->AllowInvokesToThread(_playoutThread.get());
+    webrtc::Thread::Current()->AllowInvokesToThread(_recordingThread.get());
   }
 
-  std::unique_ptr<rtc::Thread> _playoutThread;
-  std::unique_ptr<rtc::Thread> _recordingThread;
+  std::unique_ptr<webrtc::Thread> _playoutThread;
+  std::unique_ptr<webrtc::Thread> _recordingThread;
   ALuint source = 0;
   int queuedBuffersCount = 0;
   std::array<ALuint, kBuffersFullCount> buffers = {{0}};
@@ -91,6 +93,7 @@ struct OpenALAudioDeviceModule::Data {
   std::int64_t lastExactDeviceTimeWhen = 0;
   bool playing = false;
   bool recording = false;
+  bool playingQueued = false;
 };
 
 bool OpenALAudioDeviceModule::Initialized() const {
@@ -105,9 +108,16 @@ int32_t OpenALAudioDeviceModule::Init() {
 
   alcSetThreadContext =
       (ALCSETTHREADCONTEXT)alcGetProcAddress(nullptr, "alcSetThreadContext");
+  alcGetThreadContext =
+      (ALCGETTHREADCONTEXT)alcGetProcAddress(nullptr, "alcGetThreadContext");
+
   if (!alcSetThreadContext) {
     return -1;
   }
+  if (!alcGetThreadContext) {
+    return -1;
+  }
+
   alEventCallbackSOFT =
       (ALEVENTCALLBACKSOFT)alcGetProcAddress(nullptr, "alEventCallbackSOFT");
 
@@ -152,13 +162,14 @@ int32_t OpenALAudioDeviceModule::ActiveAudioLayer(
   return 0;
 }
 
-rtc::scoped_refptr<OpenALAudioDeviceModule> OpenALAudioDeviceModule::Create(
+webrtc::scoped_refptr<OpenALAudioDeviceModule> OpenALAudioDeviceModule::Create(
     AudioLayer audio_layer,
     webrtc::TaskQueueFactory* task_queue_factory) {
-  auto adm = rtc::make_ref_counted<OpenALAudioDeviceModule>();
+  auto adm = webrtc::make_ref_counted<OpenALAudioDeviceModule>();
 
   adm->audio_device_buffer_ =
       std::make_unique<webrtc::AudioDeviceBuffer>(task_queue_factory);
+  adm->apm_ = webrtc::make_ref_counted<PlayoutDelegatingAPM>();
 
   return adm;
 }
@@ -264,10 +275,11 @@ int OpenALAudioDeviceModule::restartPlayout() {
   stopPlayingOnThread();
   closePlayoutDevice();
   if (!validatePlayoutDeviceId()) {
-    _data->_playoutThread->BlockingCall([this] {
-      _data->playing = true;
-      _playoutFailed = true;
-    });
+    std::lock_guard<std::recursive_mutex> lk(_playout_mutex);
+
+    _data->playing = true;
+    _playoutFailed = true;
+
     return 0;
   }
   _playoutFailed = false;
@@ -332,7 +344,6 @@ int32_t OpenALAudioDeviceModule::StopPlayout() {
   if (_data) {
     stopPlayingOnThread();
     audio_device_buffer_->StopPlayout();
-    _data->_playoutThread->Stop();
     if (!_data->recording) {
       _data = nullptr;
     }
@@ -449,24 +460,17 @@ void OpenALAudioDeviceModule::openPlayoutDevice() {
     return;
   }
 
-  _data->_playoutThread->PostTask(
-      [=]() { alcSetThreadContext(_playoutContext); });
+  _data->_playoutThread->PostTask([=]() {
+    std::lock_guard<std::recursive_mutex> lk(_playout_mutex);
+
+    alcSetThreadContext(_playoutContext);
+  });
 }
 
 void OpenALAudioDeviceModule::ensureThreadStarted() {
-  if (_data) {
-    return;
+  if (!_data) {
+    _data = std::make_unique<Data>();
   }
-
-  _thread = rtc::Thread::Current();
-  if (_thread && !_thread->IsOwned()) {
-    _thread->UnwrapCurrent();
-    _thread = nullptr;
-  }
-
-  _data = std::make_unique<Data>();
-  processPlayoutQueued();
-  processRecordingQueued();
 }
 
 void OpenALAudioDeviceModule::processPlayoutQueued() {
@@ -474,8 +478,14 @@ void OpenALAudioDeviceModule::processPlayoutQueued() {
       [=] {
         std::lock_guard<std::recursive_mutex> lk(_playout_mutex);
 
-        processPlayout();
+        if (alcGetThreadContext()) {
+          processPlayout();
+        }
         processPlayoutQueued();
+
+        // If this thread is quitting, then the task was not scheduled and must
+        // be rescheduled when the thread will be restarted.
+        _data->playingQueued = !webrtc::Thread::Current()->IsQuitting();
       },
       webrtc::TimeDelta::Millis(10));
 }
@@ -507,14 +517,6 @@ bool OpenALAudioDeviceModule::clearProcessedBuffer() {
   }
 }
 
-void OpenALAudioDeviceModule::clearProcessedBuffers() {
-  while (true) {
-    if (!clearProcessedBuffer()) {
-      break;
-    }
-  }
-}
-
 void OpenALAudioDeviceModule::unqueueAllBuffers() {
   alSourcei(_data->source, AL_BUFFER, AL_NONE);
   std::fill(_data->queuedBuffers.begin(), _data->queuedBuffers.end(), false);
@@ -535,7 +537,11 @@ bool OpenALAudioDeviceModule::processPlayout() {
   const auto wasPlaying = playing();
 
   if (wasPlaying) {
-    clearProcessedBuffers();
+    while (true) {
+      if (!clearProcessedBuffer()) {
+        break;
+      }
+    }
   } else {
     unqueueAllBuffers();
   }
@@ -659,10 +665,11 @@ void OpenALAudioDeviceModule::startPlayingOnThread() {
       _data->exactDeviceTimeCounter = 0;
       _data->lastExactDeviceTime = 0;
       _data->lastExactDeviceTimeWhen = 0;
+    }
 
-      const auto bufferSize = kPlayoutPart * sizeof(int16_t) * _playoutChannels;
-
-      ensureThreadStarted();
+    if (!_data->playingQueued) {
+      _data->playingQueued = true;
+      processPlayoutQueued();
     }
   });
 }
@@ -701,21 +708,26 @@ void OpenALAudioDeviceModule::stopPlayingOnThread() {
   _data->_playoutThread->Stop();
 }
 
-rtc::scoped_refptr<bridge::LocalAudioSource>
-OpenALAudioDeviceModule::CreateAudioSource(uint32_t device_index) {
+webrtc::scoped_refptr<bridge::LocalAudioSource>
+OpenALAudioDeviceModule::CreateMicAudioSource(
+    uint32_t device_index,
+    webrtc::scoped_refptr<webrtc::AudioProcessing> ap) {
   std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
 
-  std::string deviceId;
+  std::string device_id;
   const auto result = DeviceName(ALC_CAPTURE_DEVICE_SPECIFIER, device_index,
-                                 nullptr, &deviceId);
+                                 nullptr, &device_id);
   if (result != 0) {
     return nullptr;
   }
 
-  auto recorder = std::make_unique<AudioDeviceRecorder>(deviceId);
+  apm_->AddDelegate(device_id, ap);
+  auto recorder = std::make_unique<AudioDeviceRecorder>(device_id, ap);
   recorder->StartCapture();
   auto source = recorder->GetSource();
-  _recorders[deviceId] = std::move(recorder);
+  _recorders[device_id] = std::move(recorder);
+  ensureThreadStarted();
+  startCaptureOnThread();
 
   return source;
 }
@@ -726,10 +738,34 @@ void OpenALAudioDeviceModule::DisposeAudioSource(std::string device_id) {
   auto it = _recorders.find(device_id);
   if (it != _recorders.end()) {
     auto recorder = std::move(it->second);
+    apm_->RemoveDelegate(device_id);
     recorder->StopCapture();
     _recorders.erase(it);
   }
 }
+
+webrtc::scoped_refptr<bridge::LocalAudioSource>
+OpenALAudioDeviceModule::CreateSysAudioSource(const std::string device_id) {
+  std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
+
+  auto recorder = CreateDefaultSysAudioSource();
+
+  if (!recorder) {
+    return nullptr;
+  }
+
+  auto source = recorder->GetSource();
+  _recorders[device_id] = std::move(recorder);
+  ensureThreadStarted();
+  startCaptureOnThread();
+
+  return source;
+}
+
+webrtc::scoped_refptr<PlayoutDelegatingAPM>
+OpenALAudioDeviceModule::AudioProcessing() {
+  return apm_;
+};
 
 void OpenALAudioDeviceModule::stopCaptureOnThread() {
   {
@@ -763,17 +799,19 @@ void OpenALAudioDeviceModule::processRecordingQueued() {
         }
         processRecordingQueued();
       },
-      webrtc::TimeDelta::Millis(kProcessInterval));
+      webrtc::TimeDelta::Millis(kBufferSizeMs));
 }
 
 void OpenALAudioDeviceModule::startCaptureOnThread() {
-  _data->_recordingThread->Start();
-  _data->_recordingThread->PostTask([=]() {
-    std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
+  std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
 
-    _data->recording = true;
-    processRecordingQueued();
-  });
+  if (_data && _data->recording) {
+    return;
+  }
+  _data->_recordingThread->Start();
+  _data->recording = true;
+
+  processRecordingQueued();
 }
 
 int16_t OpenALAudioDeviceModule::RecordingDevices() {
@@ -782,14 +820,14 @@ int16_t OpenALAudioDeviceModule::RecordingDevices() {
 
 int32_t OpenALAudioDeviceModule::SetRecordingDevice(uint16_t index) {
   RTC_LOG(LS_ERROR)
-    << "Use `CreateAudioSource` instead of `SetRecordingDevice`";
+      << "Use `CreateMicAudioSource` instead of `SetRecordingDevice`";
   return -1;
 }
 
 int32_t OpenALAudioDeviceModule::SetRecordingDevice(
     WindowsDeviceType /*device*/) {
   RTC_LOG(LS_ERROR)
-    << "Use `CreateAudioSource` instead of `SetRecordingDevice`";
+      << "Use `CreateMicAudioSource` instead of `SetRecordingDevice`";
   return -1;
 }
 
@@ -831,7 +869,12 @@ bool OpenALAudioDeviceModule::RecordingIsInitialized() const {
 }
 
 int32_t OpenALAudioDeviceModule::StartRecording() {
+  for (const auto& [_, recorder] : _recorders) {
+    recorder->StartCapture();
+  }
+  ensureThreadStarted();
   startCaptureOnThread();
+
   return 0;
 }
 

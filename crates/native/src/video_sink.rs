@@ -1,11 +1,10 @@
-use anyhow::anyhow;
+//! [`VideoSink`] related definitions.
+
 use cxx::UniquePtr;
-use derive_more::{AsMut, AsRef};
+use derive_more::with_trait::{AsMut, AsRef};
 use libwebrtc_sys as sys;
 
-use crate::{
-    renderer::FrameHandler, user_media::TrackOrigin, VideoTrackId, Webrtc,
-};
+use crate::{VideoTrackId, Webrtc, media::TrackOrigin, renderer::FrameHandler};
 
 impl Webrtc {
     /// Creates a new [`VideoSink`].
@@ -15,7 +14,7 @@ impl Webrtc {
         track_id: String,
         track_origin: TrackOrigin,
         handler: FrameHandler,
-    ) -> anyhow::Result<()> {
+    ) {
         self.dispose_video_sink(sink_id);
 
         let track_id = VideoTrackId::from(track_id);
@@ -28,26 +27,23 @@ impl Webrtc {
             track_origin,
         };
 
-        let mut track = self
-            .video_tracks
-            .get_mut(&(track_id.clone(), track_origin))
-            .ok_or_else(|| anyhow!("Cannot find track with ID `{track_id}`"))?;
-        track.add_video_sink(&mut sink);
+        let track = self.video_tracks.get_mut(&(track_id, track_origin));
 
-        self.video_sinks.insert(Id(sink_id), sink);
+        if let Some(mut track) = track {
+            track.add_video_sink(&mut sink);
 
-        Ok(())
+            self.video_sinks.insert(Id(sink_id), sink);
+        }
     }
 
     /// Destroys a [`VideoSink`] by the given ID.
     pub fn dispose_video_sink(&mut self, sink_id: i64) {
-        if let Some(sink) = self.video_sinks.remove(&Id(sink_id)) {
-            if let Some(mut track) = self
+        if let Some(sink) = self.video_sinks.remove(&Id(sink_id))
+            && let Some(mut track) = self
                 .video_tracks
                 .get_mut(&(sink.track_id.clone(), sink.track_origin))
-            {
-                track.remove_video_sink(sink);
-            }
+        {
+            track.remove_video_sink(sink);
         }
     }
 }
@@ -56,7 +52,7 @@ impl Webrtc {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct Id(i64);
 
-/// Wrapper around a [`sys::VideoSink`] attaching a unique ID to it.
+/// Wrapper around a [`sys::VideoSinkInterface`] attaching a unique ID to it.
 #[derive(AsRef, AsMut)]
 pub struct VideoSink {
     /// ID of this [`VideoSink`].
@@ -78,23 +74,18 @@ pub struct VideoSink {
 impl VideoSink {
     /// Creates a new [`VideoSink`].
     #[must_use]
-    pub fn new(
+    pub const fn new(
         id: i64,
         sink: sys::VideoSinkInterface,
         track_id: VideoTrackId,
         track_origin: TrackOrigin,
     ) -> Self {
-        Self {
-            id: Id(id),
-            inner: sink,
-            track_id,
-            track_origin,
-        }
+        Self { id: Id(id), inner: sink, track_id, track_origin }
     }
 
     /// Returns an [`Id`] of this [`VideoSink`].
     #[must_use]
-    pub fn id(&self) -> Id {
+    pub const fn id(&self) -> Id {
         self.id
     }
 }

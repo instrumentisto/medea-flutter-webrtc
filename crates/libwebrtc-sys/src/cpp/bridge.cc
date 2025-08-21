@@ -1,34 +1,36 @@
 #include <cstdint>
+#include <iostream>
 #include <memory>
 #include <string>
 
 #include <chrono>
 #include <thread>
 
+#include "api/audio/builtin_audio_processing_builder.h"
+#include "api/environment/environment_factory.h"
 #include "api/video/i420_buffer.h"
 #include "api/video_codecs/video_decoder_factory_template.h"
 #include "api/video_codecs/video_decoder_factory_template_dav1d_adapter.h"
 #include "api/video_codecs/video_decoder_factory_template_libvpx_vp8_adapter.h"
 #include "api/video_codecs/video_decoder_factory_template_libvpx_vp9_adapter.h"
-#include "api/video_codecs/video_decoder_factory_template_open_h264_adapter.h"
 #include "api/video_codecs/video_encoder_factory_template.h"
 #include "api/video_codecs/video_encoder_factory_template_libaom_av1_adapter.h"
 #include "api/video_codecs/video_encoder_factory_template_libvpx_vp8_adapter.h"
 #include "api/video_codecs/video_encoder_factory_template_libvpx_vp9_adapter.h"
-#include "api/video_codecs/video_encoder_factory_template_open_h264_adapter.h"
 #include "libwebrtc-sys/include/bridge.h"
 #include "libwebrtc-sys/include/local_audio_source.h"
 #include "libwebrtc-sys/src/bridge.rs.h"
 #include "libyuv.h"
 #include "modules/audio_device/include/audio_device_factory.h"
 #include "pc/proxy.h"
+#include "rtc_base/logging.h"
 
 namespace bridge {
 
 // Creates a new `TrackEventObserver`.
 TrackEventObserver::TrackEventObserver(
     rust::Box<bridge::DynTrackEventCallback> cb)
-    : cb_(std::move(cb)){};
+    : cb_(std::move(cb)) {};
 
 // Called when the `MediaStreamTrackInterface`, that this `TrackEventObserver`
 // is attached to, has its state changed.
@@ -43,7 +45,7 @@ void TrackEventObserver::OnChanged() {
 
 // Sets the inner `MediaStreamTrackInterface`.
 void TrackEventObserver::set_track(
-    rtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track) {
+    webrtc::scoped_refptr<webrtc::MediaStreamTrackInterface> track) {
   track_ = track;
 }
 
@@ -60,7 +62,7 @@ std::unique_ptr<VideoTrackSourceInterface> create_fake_device_video_source(
   int fps_ms = 1000 / fps;
   int timestamp_offset_us = 1000000 / fps;
   auto th = std::thread([=] {
-    auto frame = cricket::FakeFrameSource(width, height, timestamp_offset_us);
+    auto frame = webrtc::FakeFrameSource(width, height, timestamp_offset_us);
     while (true) {
       src->InjectFrame(frame.GetFrame());
       std::this_thread::sleep_for(std::chrono::milliseconds(fps_ms));
@@ -226,8 +228,8 @@ int32_t stop_playout(const AudioDeviceModule& audio_device_module) {
 // Sets stereo availability of the specified playout device.
 int32_t stereo_playout_is_available(
     const AudioDeviceModule& audio_device_module,
-    bool available) {
-  return audio_device_module->StereoPlayoutIsAvailable(&available);
+    bool& is_available) {
+  return audio_device_module->StereoPlayoutIsAvailable(&is_available);
 }
 
 // Initializes the specified audio playout device.
@@ -246,11 +248,12 @@ int32_t set_audio_playout_device(const AudioDeviceModule& audio_device_module,
   return audio_device_module->SetPlayoutDevice(index);
 }
 
-// Calls `AudioProcessingBuilder().Create()`.
-std::unique_ptr<AudioProcessing> create_audio_processing() {
-  auto ap = webrtc::AudioProcessingBuilder().Create();
-
-  return std::make_unique<AudioProcessing>(ap);
+// Calls `BuiltinAudioProcessingBuilder().Create()`.
+std::unique_ptr<AudioProcessing> create_audio_processing(
+    std::unique_ptr<AudioProcessingConfig> config) {
+  auto apm = webrtc::BuiltinAudioProcessingBuilder().SetConfig(*config).Build(
+      webrtc::CreateEnvironment());
+  return std::make_unique<AudioProcessing>(apm);
 }
 
 // Calls `AudioProcessing->set_output_will_be_muted()`.
@@ -288,8 +291,8 @@ int32_t video_device_name(VideoDeviceInfo& device_info,
 }
 
 // Calls `Thread->Create()`.
-std::unique_ptr<rtc::Thread> create_thread() {
-  return rtc::Thread::Create();
+std::unique_ptr<webrtc::Thread> create_thread() {
+  return webrtc::Thread::Create();
 }
 
 // Creates a default `TaskQueueFactory`, basing on the current platform.
@@ -298,8 +301,8 @@ std::unique_ptr<TaskQueueFactory> create_default_task_queue_factory() {
 }
 
 // Calls `Thread->CreateWithSocketServer()`.
-std::unique_ptr<rtc::Thread> create_thread_with_socket_server() {
-  return rtc::Thread::CreateWithSocketServer();
+std::unique_ptr<webrtc::Thread> create_thread_with_socket_server() {
+  return webrtc::Thread::CreateWithSocketServer();
 }
 
 // Creates a new `ScreenVideoCapturer` with the specified constraints and
@@ -311,8 +314,9 @@ std::unique_ptr<VideoTrackSourceInterface> create_display_video_source(
     size_t width,
     size_t height,
     size_t fps) {
-  rtc::scoped_refptr<ScreenVideoCapturer> capturer(
-      new rtc::RefCountedObject<ScreenVideoCapturer>(id, width, height, fps));
+  webrtc::scoped_refptr<ScreenVideoCapturer> capturer(
+      new webrtc::RefCountedObject<ScreenVideoCapturer>(id, width, height,
+                                                        fps));
 
   auto src = webrtc::CreateVideoTrackSourceProxy(
       &signaling_thread, &worker_thread, capturer.get());
@@ -327,8 +331,22 @@ std::unique_ptr<VideoTrackSourceInterface> create_display_video_source(
 // Creates a new `AudioSource` with the provided `AudioDeviceModule`.
 std::unique_ptr<AudioSourceInterface> create_audio_source(
     const AudioDeviceModule& audio_device_module,
-    uint16_t device_index) {
-  auto src = audio_device_module->CreateAudioSource(device_index);
+    uint16_t device_index,
+    const std::unique_ptr<AudioProcessing>& ap) {
+  auto src = audio_device_module->CreateMicAudioSource(device_index, *ap);
+  if (src == nullptr) {
+    return nullptr;
+  }
+
+  return std::make_unique<AudioSourceInterface>(src);
+}
+
+// Creates a new `AudioSource` for Display audio with the provided
+// `AudioDeviceModule`.
+std::unique_ptr<AudioSourceInterface> create_display_audio_source(
+    const AudioDeviceModule& audio_device_module,
+    rust::String device_id) {
+  auto src = audio_device_module->CreateSysAudioSource(std::string(device_id));
   if (src == nullptr) {
     return nullptr;
   }
@@ -345,7 +363,7 @@ void dispose_audio_source(const AudioDeviceModule& audio_device_module,
 // Creates a new fake `AudioSource`.
 std::unique_ptr<AudioSourceInterface> create_fake_audio_source() {
   return std::make_unique<AudioSourceInterface>(
-      bridge::LocalAudioSource::Create(cricket::AudioOptions()));
+      bridge::LocalAudioSource::Create(webrtc::AudioOptions(), nullptr));
 }
 
 // Calls `PeerConnectionFactoryInterface->CreateVideoTrack`.
@@ -441,7 +459,7 @@ TrackState audio_track_state(const AudioTrackInterface& track) {
 // Used to connect the given `track` to the underlying video engine.
 void add_or_update_video_sink(const VideoTrackInterface& track,
                               VideoSinkInterface& sink) {
-  track->AddOrUpdateSink(&sink, rtc::VideoSinkWants());
+  track->AddOrUpdateSink(&sink, webrtc::VideoSinkWants());
 }
 
 // Detaches the provided video `sink` from the given `track`.
@@ -459,7 +477,7 @@ std::unique_ptr<VideoSinkInterface> create_forwarding_video_sink(
 // Converts the provided `webrtc::VideoFrame` pixels to the ABGR scheme and
 // writes the result to the provided `dst_abgr`.
 void video_frame_to_abgr(const webrtc::VideoFrame& frame, uint8_t* dst_abgr) {
-  rtc::scoped_refptr<webrtc::I420BufferInterface> buffer(
+  webrtc::scoped_refptr<webrtc::I420BufferInterface> buffer(
       frame.video_frame_buffer()->ToI420());
 
   libyuv::I420ToABGR(buffer->DataY(), buffer->StrideY(), buffer->DataU(),
@@ -473,7 +491,7 @@ void video_frame_to_abgr(const webrtc::VideoFrame& frame, uint8_t* dst_abgr) {
 void video_frame_to_argb(const webrtc::VideoFrame& frame,
                          int argb_stride,
                          uint8_t* dst_argb) {
-  rtc::scoped_refptr<webrtc::I420BufferInterface> buffer(
+  webrtc::scoped_refptr<webrtc::I420BufferInterface> buffer(
       frame.video_frame_buffer()->ToI420());
 
   libyuv::I420ToARGB(buffer->DataY(), buffer->StrideY(), buffer->DataU(),
@@ -486,19 +504,16 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
     const std::unique_ptr<Thread>& network_thread,
     const std::unique_ptr<Thread>& worker_thread,
     const std::unique_ptr<Thread>& signaling_thread,
-    const std::unique_ptr<AudioDeviceModule>& default_adm,
-    const std::unique_ptr<AudioProcessing>& ap) {
+    const std::unique_ptr<AudioDeviceModule>& default_adm) {
   std::unique_ptr<webrtc::VideoEncoderFactory> video_encoder_factory =
       std::make_unique<webrtc::VideoEncoderFactoryTemplate<
           webrtc::LibvpxVp8EncoderTemplateAdapter,
           webrtc::LibvpxVp9EncoderTemplateAdapter,
-          webrtc::OpenH264EncoderTemplateAdapter,
           webrtc::LibaomAv1EncoderTemplateAdapter>>();
   std::unique_ptr<webrtc::VideoDecoderFactory> video_decoder_factory =
       std::make_unique<webrtc::VideoDecoderFactoryTemplate<
           webrtc::LibvpxVp8DecoderTemplateAdapter,
           webrtc::LibvpxVp9DecoderTemplateAdapter,
-          webrtc::OpenH264DecoderTemplateAdapter,
           webrtc::Dav1dDecoderTemplateAdapter>>();
 
   auto factory = webrtc::CreatePeerConnectionFactory(
@@ -507,7 +522,7 @@ std::unique_ptr<PeerConnectionFactoryInterface> create_peer_connection_factory(
       webrtc::CreateBuiltinAudioEncoderFactory(),
       webrtc::CreateBuiltinAudioDecoderFactory(),
       std::move(video_encoder_factory), std::move(video_decoder_factory),
-      nullptr, ap ? *ap : nullptr);
+      nullptr, default_adm ? (*default_adm)->AudioProcessing() : nullptr);
 
   if (factory == nullptr) {
     return nullptr;
@@ -702,32 +717,32 @@ std::unique_ptr<std::string> ice_candidate_interface_to_string(
 
 // Calls `Candidate->ToString`.
 std::unique_ptr<std::string> candidate_to_string(
-    const cricket::Candidate& candidate) {
+    const webrtc::Candidate& candidate) {
   return std::make_unique<std::string>(candidate.ToString());
 };
 
 // Returns `CandidatePairChangeEvent.candidate_pair` field value.
-const cricket::CandidatePair& get_candidate_pair(
-    const cricket::CandidatePairChangeEvent& event) {
+const webrtc::CandidatePair& get_candidate_pair(
+    const webrtc::CandidatePairChangeEvent& event) {
   return event.selected_candidate_pair;
 };
 
 // Returns `CandidatePairChangeEvent.last_data_received_ms` field value.
 int64_t get_last_data_received_ms(
-    const cricket::CandidatePairChangeEvent& event) {
+    const webrtc::CandidatePairChangeEvent& event) {
   return event.last_data_received_ms;
 }
 
 // Returns `CandidatePairChangeEvent.reason` field value.
 std::unique_ptr<std::string> get_reason(
-    const cricket::CandidatePairChangeEvent& event) {
+    const webrtc::CandidatePairChangeEvent& event) {
   return std::make_unique<std::string>(event.reason);
 }
 
 // Returns `CandidatePairChangeEvent.estimated_disconnected_time_ms` field
 // value.
 int64_t get_estimated_disconnected_time_ms(
-    const cricket::CandidatePairChangeEvent& event) {
+    const webrtc::CandidatePairChangeEvent& event) {
   return event.estimated_disconnected_time_ms;
 }
 
@@ -746,6 +761,175 @@ MediaType get_transceiver_media_type(
 RtpTransceiverDirection get_transceiver_direction(
     const RtpTransceiverInterface& transceiver) {
   return transceiver->direction();
+}
+
+// Returns the sender `RtpCapabilities` of the provided `MediaType`.
+std::unique_ptr<RtpCapabilities> get_rtp_sender_capabilities(
+    const PeerConnectionFactoryInterface& peer_connection_factory,
+    MediaType kind) {
+  return std::make_unique<RtpCapabilities>(
+      peer_connection_factory->GetRtpSenderCapabilities(kind));
+}
+
+// Returns the receiver `RtpCapabilities` of the provided `MediaType`.
+std::unique_ptr<RtpCapabilities> get_rtp_receiver_capabilities(
+    const PeerConnectionFactoryInterface& peer_connection_factory,
+    MediaType kind) {
+  return std::make_unique<RtpCapabilities>(
+      peer_connection_factory->GetRtpReceiverCapabilities(kind));
+}
+
+// Returns the `RtpCodecCapability` of the provided `RtpCapabilities`.
+rust::Vec<RtpCodecCapabilityContainer> rtp_capabilities_codecs(
+    const RtpCapabilities& capabilty) {
+  rust::Vec<RtpCodecCapabilityContainer> result;
+  for (int i = 0; i < capabilty.codecs.size(); ++i) {
+    RtpCodecCapabilityContainer capability = {
+        std::make_unique<RtpCodecCapability>(capabilty.codecs[i])};
+    result.push_back(std::move(capability));
+  }
+  return result;
+}
+
+// Returns the `RtpHeaderExtensionCapability` of the provided `RtpCapabilities`.
+rust::Vec<RtpHeaderExtensionCapabilityContainer>
+rtp_capabilities_header_extensions(const RtpCapabilities& capabilty) {
+  rust::Vec<RtpHeaderExtensionCapabilityContainer> result;
+  for (int i = 0; i < capabilty.header_extensions.size(); ++i) {
+    RtpHeaderExtensionCapabilityContainer header_extensions = {
+        std::make_unique<RtpHeaderExtensionCapability>(
+            capabilty.header_extensions[i])};
+    result.push_back(std::move(header_extensions));
+  }
+  return result;
+}
+
+// Returns the `uri` of the provided `RtpHeaderExtensionCapability`.
+std::unique_ptr<std::string> header_extensions_uri(
+    const RtpHeaderExtensionCapability& header_extensions) {
+  return std::make_unique<std::string>(header_extensions.uri);
+}
+
+// Returns the `preferred_id` of the provided `RtpHeaderExtensionCapability`.
+rust::Box<bridge::OptionI32> header_extensions_preferred_id(
+    const RtpHeaderExtensionCapability& header_extensions) {
+  auto preferred_id = init_option_i32();
+
+  if (header_extensions.preferred_id) {
+    preferred_id->set_value(header_extensions.preferred_id.value());
+  }
+  return preferred_id;
+}
+
+// Returns the `preferred_encrypted` of the provided
+// `RtpHeaderExtensionCapability`.
+bool header_extensions_preferred_encrypted(
+    const RtpHeaderExtensionCapability& header_extensions) {
+  return header_extensions.preferred_encrypt;
+}
+
+// Returns the `direction` of the provided `RtpHeaderExtensionCapability`.
+RtpTransceiverDirection header_extensions_direction(
+    const RtpHeaderExtensionCapability& header_extensions) {
+  return header_extensions.direction;
+}
+
+// Returns the `payload_type` of the provided `RtpCodecCapability`.
+rust::Box<bridge::OptionI32> preferred_payload_type(
+    const RtpCodecCapability& capabilty) {
+  auto preferred_payload_type = init_option_i32();
+
+  if (capabilty.preferred_payload_type) {
+    preferred_payload_type->set_value(capabilty.preferred_payload_type.value());
+  }
+  return preferred_payload_type;
+}
+
+// Returns the `scalability_modes` of the provided `RtpCodecCapability`.
+rust::Vec<ScalabilityMode> scalability_modes(
+    const RtpCodecCapability& capabilty) {
+  rust::Vec<ScalabilityMode> result;
+  for (int i = 0; i < capabilty.scalability_modes.size(); ++i) {
+    result.push_back(capabilty.scalability_modes[i]);
+  }
+  return result;
+}
+
+// Returns the `mime_type` of the provided `RtpCodecCapability`.
+std::unique_ptr<std::string> rtc_codec_mime_type(
+    const RtpCodecCapability& capabilty) {
+  return std::make_unique<std::string>(capabilty.mime_type());
+}
+
+// Returns the `name` of the provided `RtpCodecCapability`.
+std::unique_ptr<std::string> rtc_codec_name(
+    const RtpCodecCapability& capabilty) {
+  return std::make_unique<std::string>(capabilty.name);
+}
+
+// Returns the `kind` of the provided `RtpCodecCapability`.
+MediaType rtc_codec_kind(const RtpCodecCapability& capabilty) {
+  return capabilty.kind;
+}
+
+// Returns the `clock_rate` of the provided `RtpCodecCapability`
+rust::Box<bridge::OptionI32> rtc_codec_clock_rate(
+    const RtpCodecCapability& capabilty) {
+  auto clock_rate = init_option_i32();
+
+  if (capabilty.clock_rate) {
+    clock_rate->set_value(capabilty.clock_rate.value());
+  }
+  return clock_rate;
+}
+
+// Returns the `num_channels` of the provided `RtpCodecCapability`.
+rust::Box<bridge::OptionI32> rtc_codec_num_channels(
+    const RtpCodecCapability& capabilty) {
+  auto num_channels = init_option_i32();
+
+  if (capabilty.num_channels) {
+    num_channels->set_value(capabilty.num_channels.value());
+  }
+  return num_channels;
+}
+
+// Returns the `parameters` of the provided `RtpCodecCapability`.
+std::unique_ptr<std::vector<StringPair>> rtc_codec_parameters(
+    const RtpCodecCapability& capabilty) {
+  std::vector<StringPair> result;
+  for (auto const& p : capabilty.parameters) {
+    result.push_back(new_string_pair(p.first, p.second));
+  }
+  return std::make_unique<std::vector<StringPair>>(result);
+}
+
+// Returns the `rtcp_feedback` of the provided `RtpCodecCapability`.
+rust::Vec<RtcpFeedbackContainer> rtc_codec_rtcp_feedback(
+    const RtpCodecCapability& capabilty) {
+  rust::Vec<RtcpFeedbackContainer> result;
+  for (int i = 0; i < capabilty.rtcp_feedback.size(); ++i) {
+    RtcpFeedbackContainer feedback = {
+        std::make_unique<webrtc::RtcpFeedback>(capabilty.rtcp_feedback[i])};
+    result.push_back(std::move(feedback));
+  }
+  return result;
+}
+
+// Returns the `type` of the provided `RtcpFeedback`.
+RtcpFeedbackType rtcp_feedback_type(const RtcpFeedback& feedback) {
+  return feedback.type;
+}
+
+// Returns the `message_type` of the provided `RtcpFeedback`.
+rust::Box<bridge::OptionRtcpFeedbackMessageType> rtcp_feedback_message_type(
+    const RtcpFeedback& feedback) {
+  auto message_type = init_option_rtcp_feedback_message_type();
+
+  if (feedback.message_type) {
+    message_type->set_value(feedback.message_type.value());
+  }
+  return message_type;
 }
 
 // Calls `RtpTransceiverInterface->SetDirectionWithError()`.
@@ -792,6 +976,33 @@ void set_track_observer_audio_track(TrackEventObserver& obs,
   obs.set_track(track);
 }
 
+// Registers the provided observer in the provided `LocalAudioSource` to receive
+// audio level updates.
+//
+// Previous observer will be disposed. Only one observer at a time is supported.
+void audio_source_register_audio_level_observer(
+    rust::Box<bridge::DynAudioSourceOnAudioLevelChangeCallback> cb,
+    const AudioSourceInterface& audio_source) {
+  LocalAudioSource* local_audio_source =
+      dynamic_cast<LocalAudioSource*>(audio_source.get());
+  if (local_audio_source) {
+    local_audio_source->RegisterAudioLevelObserver(std::move(cb));
+  }
+}
+
+// Unregisters audio level observer from the provided `LocalAudioSource`.
+//
+// `LocalAudioSource` will not calculate audio level after calling this
+// function.
+void audio_source_unregister_audio_level_observer(
+    const AudioSourceInterface& audio_source) {
+  LocalAudioSource* local_audio_source =
+      dynamic_cast<LocalAudioSource*>(audio_source.get());
+  if (local_audio_source) {
+    local_audio_source->UnregisterAudioLevelObserver();
+  }
+}
+
 // Calls `VideoTrackInterface->RegisterObserver`.
 void video_track_register_observer(VideoTrackInterface& track,
                                    TrackEventObserver& obs) {
@@ -822,6 +1033,47 @@ std::unique_ptr<RtpSenderInterface> transceiver_sender(
   return std::make_unique<RtpSenderInterface>(transceiver->sender());
 }
 
+// Changes the preferred `RtpTransceiverInterface` codecs to the provided
+// `Vec<RtpCodecCapability>`.
+void set_codec_preferences(const RtpTransceiverInterface& transceiver,
+                           rust::Vec<RtpCodecCapabilityContainer> codecs) {
+  RtpCodecCapability* array = new RtpCodecCapability[codecs.size()];
+  for (int i = 0; i < codecs.size(); ++i) {
+    array[i] = *codecs[i].ptr.get();
+  }
+  webrtc::ArrayView<RtpCodecCapability> rtp_codecs(array, codecs.size());
+  transceiver->SetCodecPreferences(rtp_codecs);
+}
+
+// Creates a new `RtpCodecCapability`.
+std::unique_ptr<RtpCodecCapability> create_codec_capability(
+    int preferred_payload_type,
+    rust::String name,
+    MediaType kind,
+    int clock_rate,
+    int num_channels,
+    rust::Vec<StringPair> parameters) {
+  RtpCodecCapability codec;
+  if (clock_rate > 0) {
+    codec.preferred_payload_type = preferred_payload_type;
+  }
+  codec.name = std::string(name);
+  codec.kind = kind;
+  if (clock_rate > 0) {
+    codec.clock_rate = clock_rate;
+  }
+  if (num_channels > 0) {
+    codec.num_channels = num_channels;
+  }
+  std::map<std::string, std::string> map;
+  for (int i = 0; i < parameters.size(); ++i) {
+    map[std::string(parameters[i].first)] = std::string(parameters[i].second);
+  }
+
+  codec.parameters = map;
+  return std::make_unique<RtpCodecCapability>(codec);
+}
+
 // Returns the `receiver` of the provided `RtpTransceiverInterface`.
 std::unique_ptr<RtpReceiverInterface> transceiver_receiver(
     const RtpTransceiverInterface& transceiver) {
@@ -848,7 +1100,7 @@ rust::Vec<RtpCodecParametersContainer> rtp_parameters_codecs(
         std::make_unique<webrtc::RtpCodecParameters>(parameters.codecs[i])};
     result.push_back(std::move(codec));
   }
-  return std::move(result);
+  return result;
 }
 
 // Returns the `RtpParameters.header_extensions` field value.
@@ -860,7 +1112,7 @@ rust::Vec<RtpExtensionContainer> rtp_parameters_header_extensions(
         parameters.header_extensions[i])};
     result.push_back(std::move(codec));
   }
-  return std::move(result);
+  return result;
 }
 
 // Returns the `RtpParameters.encodings` field value.
@@ -873,7 +1125,7 @@ rust::Vec<RtpEncodingParametersContainer> rtp_parameters_encodings(
             parameters.encodings[i])};
     result.push_back(std::move(codec));
   }
-  return std::move(result);
+  return result;
 }
 
 // Calls `IceCandidateInterface->sdp_mid()`.
@@ -929,6 +1181,90 @@ int64_t display_source_id(const DisplaySource& source) {
 // Returns a `title` of the provided `DesktopCapturer::Source`.
 std::unique_ptr<std::string> display_source_title(const DisplaySource& source) {
   return std::make_unique<std::string>(source.title);
+}
+
+// Creates a new `AudioProcessingConfig`.
+std::unique_ptr<AudioProcessingConfig> create_audio_processing_config() {
+  return std::make_unique<AudioProcessingConfig>();
+}
+
+// Enables/disables AGC (auto gain control) in the provided
+// `AudioProcessingConfig`.
+void config_gain_controller1_set_enabled(AudioProcessingConfig& config,
+                                         bool enabled) {
+  config.gain_controller1.enabled = enabled;
+  config.gain_controller1.mode ==
+      webrtc::AudioProcessing::Config::GainController1::kAdaptiveDigital;
+  config.gain_controller1.enable_limiter = true;
+}
+
+// Enables/disables high pass filter in the provided `AudioProcessingConfig`.
+void config_high_pass_filter_set_enabled(AudioProcessingConfig& config,
+                                         bool enabled) {
+  config.high_pass_filter.enabled = enabled;
+}
+
+// Enables/disables acoustic echo cancellation in the provided
+// `AudioProcessingConfig`.
+void config_echo_cancellation_set_enabled(AudioProcessingConfig& config,
+                                          bool enabled) {
+  config.echo_canceller.enabled = enabled;
+  config.echo_canceller.mobile_mode = false;
+}
+
+// Enables/disables noise suppression in the provided `AudioProcessingConfig`.
+void config_noise_suppression_set_enabled(AudioProcessingConfig& config,
+                                          bool enabled) {
+  config.noise_suppression.enabled = enabled;
+}
+
+// Configures noise suppression level in the provided `AudioProcessingConfig`.
+void config_noise_suppression_set_level(AudioProcessingConfig& config,
+                                        NoiseSuppressionLevel level) {
+  config.noise_suppression.level = level;
+}
+
+// Returns `AudioProcessingConfig` of the provided `AudioProcessing`.
+std::unique_ptr<AudioProcessingConfig> audio_processing_get_config(
+    const AudioProcessing& ap) {
+  return std::make_unique<AudioProcessingConfig>(ap->GetConfig());
+}
+
+// Indicates whether AGC (auto gain control) is enabled in the provided
+// `AudioProcessingConfig`.
+bool config_gain_controller1_get_enabled(AudioProcessingConfig& config) {
+  return config.gain_controller1.enabled;
+}
+
+// Indicates whether high pass filter is enabled in the provided
+// `AudioProcessingConfig`.
+bool config_high_pass_filter_get_enabled(AudioProcessingConfig& config) {
+  return config.high_pass_filter.enabled;
+}
+
+// Indicates whether echo cancellation is enabled in the provided
+// `AudioProcessingConfig`.
+bool config_echo_cancellation_get_enabled(AudioProcessingConfig& config) {
+  return config.echo_canceller.enabled;
+}
+
+// Indicates whether noise suppression is enabled in the provided
+// `AudioProcessingConfig`.
+bool config_noise_suppression_get_enabled(AudioProcessingConfig& config) {
+  return config.noise_suppression.enabled;
+}
+
+// Returns noise suppression level in the provided `AudioProcessingConfig`.
+NoiseSuppressionLevel config_noise_suppression_get_level(
+    AudioProcessingConfig& config) {
+  return config.noise_suppression.level;
+}
+
+// Applies the provided  `AudioProcessingConfig` to the provided
+// `AudioProcessing`.
+void audio_processing_apply_config(const AudioProcessing& ap,
+                                   const AudioProcessingConfig& config) {
+  ap->ApplyConfig(config);
 }
 
 }  // namespace bridge

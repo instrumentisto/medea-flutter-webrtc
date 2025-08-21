@@ -10,7 +10,7 @@ import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';
 class GetDisplayMediaSample extends StatefulWidget {
   static String tag = 'get_display_media_sample';
 
-  const GetDisplayMediaSample({Key? key}) : super(key: key);
+  const GetDisplayMediaSample({super.key});
 
   @override
   State<GetDisplayMediaSample> createState() => _GetDisplayMediaSampleState();
@@ -96,9 +96,7 @@ class _GetDisplayMediaSampleState extends State<GetDisplayMediaSample> {
       children.add(Expanded(child: VideoView(r)));
     }
 
-    return Row(
-      children: children,
-    );
+    return Row(children: children);
   }
 
   @override
@@ -111,15 +109,17 @@ class _GetDisplayMediaSampleState extends State<GetDisplayMediaSample> {
       body: OrientationBuilder(
         builder: (context, orientation) {
           return Center(
-            child: Stack(children: <Widget>[
-              Container(
-                margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
-                decoration: const BoxDecoration(color: Colors.black54),
-                child: renderers(),
-              )
-            ]),
+            child: Stack(
+              children: <Widget>[
+                Container(
+                  margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
+                  decoration: const BoxDecoration(color: Colors.black54),
+                  child: renderers(),
+                ),
+              ],
+            ),
           );
         },
       ),

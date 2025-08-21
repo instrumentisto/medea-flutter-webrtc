@@ -1,8 +1,5 @@
 #include <iostream>
 
-#include <algorithm>
-#include <chrono>
-#include <vector>
 #include "api/make_ref_counted.h"
 #include "audio_device_recorder.h"
 #include "rtc_base/logging.h"
@@ -37,11 +34,14 @@ bool CheckDeviceFailed(ALCdevice* device) {
 }
 }  // namespace recorder
 
-AudioDeviceRecorder::AudioDeviceRecorder(std::string deviceId) {
+AudioDeviceRecorder::AudioDeviceRecorder(
+    std::string deviceId,
+    webrtc::scoped_refptr<webrtc::AudioProcessing> ap) {
+  _recordedSamples.reserve(_recordBufferSize);
   _device = alcCaptureOpenDevice(deviceId.empty() ? nullptr : deviceId.c_str(),
                                  kRecordingFrequency, AL_FORMAT_MONO16,
                                  kRecordingFrequency);
-  _source = bridge::LocalAudioSource::Create(cricket::AudioOptions());
+  _source = bridge::LocalAudioSource::Create(webrtc::AudioOptions(), ap);
   _deviceId = deviceId;
 }
 
@@ -70,17 +70,17 @@ bool AudioDeviceRecorder::ProcessRecordedPart(bool isFirstInCycle) {
   }
 
   _emptyRecordingData = 0;
-  alcCaptureSamples(_device, _recordedSamples->data(), kRecordingPart);
+  alcCaptureSamples(_device, _recordedSamples.data(), kRecordingPart);
 
-  if (checkDeviceFailed()) {
+  if (recorder::CheckDeviceFailed(_device)) {
     restartRecording();
     return false;
   }
 
-  _source->OnData(_recordedSamples->data(),  // audio_data
-                  16,
+  _source->OnData(_recordedSamples.data(),  // audio_data
+                  kBitsPerSample,
                   kRecordingFrequency,  // sample_rate
-                  kRecordingChannels, kRecordingFrequency * 10 / 1000);
+                  kRecordingChannels, kRecordingPart);
 
   return true;
 }
@@ -101,37 +101,34 @@ void AudioDeviceRecorder::StopCapture() {
   }
 }
 
-void AudioDeviceRecorder::StartCapture() {
+bool AudioDeviceRecorder::StartCapture() {
   std::lock_guard<std::recursive_mutex> lk(_mutex);
+
+  if (_recording) {
+    return false;
+  }
 
   _recording = true;
   if (_recordingFailed) {
-    return;
+    return false;
   }
 
   alcCaptureStart(_device);
   if (recorder::CheckDeviceFailed(_device)) {
     _recordingFailed = true;
-    return;
+    return false;
   }
 
   if (_recordingFailed) {
     closeRecordingDevice();
   }
+
+  return true;
 }
 
-rtc::scoped_refptr<bridge::LocalAudioSource> AudioDeviceRecorder::GetSource() {
+webrtc::scoped_refptr<bridge::LocalAudioSource>
+AudioDeviceRecorder::GetSource() {
   return _source;
-}
-
-bool AudioDeviceRecorder::checkDeviceFailed() {
-  if (auto code = alcGetError(_device); code != ALC_NO_ERROR) {
-    RTC_LOG(LS_ERROR) << "OpenAL Error " << code << ": "
-                      << (const char*)alcGetString(_device, code);
-    return true;
-  }
-
-  return false;
 }
 
 bool AudioDeviceRecorder::validateRecordingDeviceId() {
@@ -164,15 +161,15 @@ void AudioDeviceRecorder::restartRecording() {
   closeRecordingDevice();
 
   if (!validateRecordingDeviceId()) {
-    std::lock_guard<std::recursive_mutex> lk(_mutex);
-
     _recording = true;
     _recordingFailed = true;
     return;
   }
 
-  _recordingFailed = false;
   openRecordingDevice();
+  if (_device && !_recordingFailed) {
+    StartCapture();
+  }
 
   return;
 }
@@ -197,6 +194,7 @@ void AudioDeviceRecorder::openRecordingDevice() {
 
   if (!_device) {
     _recordingFailed = true;
-    return;
+  } else {
+    _recordingFailed = false;
   }
 }

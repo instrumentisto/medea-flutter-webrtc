@@ -29,8 +29,8 @@
 #include "rtc_base/platform_thread.h"
 
 // `VideoTrackSourceInterface` capturing frames from a user's display.
-class ScreenVideoCapturer : public rtc::AdaptedVideoTrackSource,
-                            public rtc::VideoSinkInterface<webrtc::VideoFrame>,
+class ScreenVideoCapturer : public webrtc::AdaptedVideoTrackSource,
+                            public webrtc::VideoSinkInterface<webrtc::VideoFrame>,
                             public webrtc::DesktopCapturer::Callback,
                             public webrtc::MouseCursorMonitor::Callback {
  public:
@@ -71,7 +71,7 @@ class ScreenVideoCapturer : public rtc::AdaptedVideoTrackSource,
   //
   // If it's not set, the default configuration is used which differs depending
   // on a video codec.
-  absl::optional<bool> needs_denoising() const override;
+  std::optional<bool> needs_denoising() const override;
 
   // Returns state of this `ScreenVideoCapturer`.
   webrtc::MediaSourceInterface::SourceState state() const override;
@@ -102,7 +102,7 @@ class ScreenVideoCapturer : public rtc::AdaptedVideoTrackSource,
   std::unique_ptr<webrtc::DesktopFrame> output_frame_;
 
   // `PlatformThread` performing the actual frames capturing.
-  rtc::PlatformThread capture_thread_;
+  webrtc::PlatformThread capture_thread_;
 
   // `webrtc::DesktopCapturer` used to capture frames.
   std::unique_ptr<webrtc::DesktopAndCursorComposer> capturer_;

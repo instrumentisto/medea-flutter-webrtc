@@ -1,9 +1,13 @@
 import 'package:flutter/services.dart';
 
+import 'package:medea_flutter_webrtc/src/model/capability.dart';
 import '/src/model/transceiver.dart';
-import 'bridge.g.dart' as ffi;
+import 'bridge/api/capability/rtp_codec.dart' as ffi;
+import 'bridge/api/media_stream_track/media_type.dart' as ffi;
+import 'bridge/api/transceiver.dart' as ffi;
+import 'bridge/api/transceiver/direction.dart' as ffi;
+import 'bridge/lib.dart';
 import 'channel.dart';
-import 'peer.dart';
 import 'sender.dart';
 
 /// [RTCTransceiver][1] representation
@@ -48,6 +52,10 @@ abstract class RtpTransceiver {
 
   /// Changes the [TransceiverDirection] of this [RtpTransceiver].
   Future<void> setDirection(TransceiverDirection direction);
+
+  /// Changes the preferred [RtpTransceiver] codecs to the [provided] list of
+  /// [RtpCodecCapability]s.
+  Future<void> setCodecPreferences(List<RtpCodecCapability> codecs);
 
   /// Changes the receive direction of this [RtpTransceiver].
   ///
@@ -111,9 +119,17 @@ class _RtpTransceiverChannel extends RtpTransceiver {
   }
 
   @override
+  Future<void> setCodecPreferences(List<RtpCodecCapability> codecs) async {
+    await _chan.invokeMethod('setCodecPreferences', {
+      'codecs': codecs.map((c) => c.toMap()).toList(),
+    });
+  }
+
+  @override
   Future<TransceiverDirection> getDirection() async {
-    return TransceiverDirection
-        .values[await _chan.invokeMethod('getDirection')];
+    return TransceiverDirection.values[await _chan.invokeMethod(
+      'getDirection',
+    )];
   }
 
   @override
@@ -155,42 +171,63 @@ class _RtpTransceiverFFI extends RtpTransceiver {
   }
 
   /// Native side peer connection.
-  late final ffi.ArcPeerConnection _peer;
+  late final ArcPeerConnection _peer;
 
   /// Native side transceiver.
-  late final ffi.ArcRtpTransceiver _transceiver;
+  late final ArcRtpTransceiver _transceiver;
 
   @override
   Future<TransceiverDirection> getDirection() async {
-    return TransceiverDirection.values[
-        (await api!.getTransceiverDirection(transceiver: _transceiver)).index];
+    return TransceiverDirection.values[(await ffi.getTransceiverDirection(
+      transceiver: _transceiver,
+    )).index];
   }
 
   @override
   Future<void> setDirection(TransceiverDirection direction) async {
-    await api!.setTransceiverDirection(
-        transceiver: _transceiver,
-        direction: ffi.RtpTransceiverDirection.values[direction.index]);
+    await ffi.setTransceiverDirection(
+      transceiver: _transceiver,
+      direction: ffi.RtpTransceiverDirection.values[direction.index],
+    );
+  }
+
+  @override
+  Future<void> setCodecPreferences(List<RtpCodecCapability> codecs) async {
+    var ffiCodecs = codecs.map((c) {
+      var params = c.parameters.entries.map((e) => (e.key, e.value)).toList();
+      return ffi.RtpCodecCapability(
+        clockRate: c.clockRate,
+        numChannels: c.numChannels,
+        preferredPayloadType: c.preferredPayloadType,
+        scalabilityModes: List.empty(),
+        mimeType: c.mimeType,
+        name: c.name,
+        kind: ffi.MediaType.values[c.kind.index],
+        parameters: params,
+        feedback: List.empty(),
+      );
+    }).toList();
+    await ffi.setCodecPreferences(transceiver: _transceiver, codecs: ffiCodecs);
   }
 
   @override
   Future<void> stop() async {
-    await api!.stopTransceiver(transceiver: _transceiver);
+    await ffi.stopTransceiver(transceiver: _transceiver);
   }
 
   @override
   Future<void> syncMid() async {
-    _mid = await api!.getTransceiverMid(transceiver: _transceiver);
+    _mid = await ffi.getTransceiverMid(transceiver: _transceiver);
   }
 
   @override
   Future<void> setRecv(bool recv) async {
-    await api!.setTransceiverRecv(transceiver: _transceiver, recv: recv);
+    await ffi.setTransceiverRecv(transceiver: _transceiver, recv: recv);
   }
 
   @override
   Future<void> setSend(bool send) async {
-    await api!.setTransceiverSend(transceiver: _transceiver, send: send);
+    await ffi.setTransceiverSend(transceiver: _transceiver, send: send);
   }
 
   @override

@@ -1,5 +1,6 @@
 package com.instrumentisto.medea_flutter_webrtc.controller
 
+import com.instrumentisto.medea_flutter_webrtc.ForegroundCallService
 import com.instrumentisto.medea_flutter_webrtc.MediaDevices
 import com.instrumentisto.medea_flutter_webrtc.Permissions
 import com.instrumentisto.medea_flutter_webrtc.State
@@ -12,8 +13,10 @@ import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 /**
@@ -26,7 +29,10 @@ class MediaDevicesController(
     private val messenger: BinaryMessenger,
     state: State,
     permissions: Permissions
-) : MethodChannel.MethodCallHandler, EventChannel.StreamHandler {
+) : EventChannel.StreamHandler, Controller {
+  /** [CoroutineScope] for this [MediaDevicesController] */
+  private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
   /** Underlying [MediaDevices] to perform [MethodCall]s on. */
   private val mediaDevices = MediaDevices(state, permissions)
 
@@ -52,6 +58,7 @@ class MediaDevicesController(
       }
 
   init {
+    ControllerRegistry.register(this)
     chan.setMethodCallHandler(this)
     eventChannel.setStreamHandler(this)
     mediaDevices.addObserver(eventObserver)
@@ -60,7 +67,7 @@ class MediaDevicesController(
   override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
     when (call.method) {
       "enumerateDevices" -> {
-        GlobalScope.launch(Dispatchers.Main) {
+        scope.launch {
           try {
             result.success(mediaDevices.enumerateDevices().map { it.asFlutterResult() })
           } catch (e: GetUserMediaException) {
@@ -74,7 +81,7 @@ class MediaDevicesController(
         }
       }
       "getUserMedia" -> {
-        GlobalScope.launch(Dispatchers.Main) {
+        scope.launch {
           val constraintsArg: Map<String, Any> = call.argument("constraints")!!
           try {
             val tracks = mediaDevices.getUserMedia(Constraints.fromMap(constraintsArg))
@@ -92,12 +99,27 @@ class MediaDevicesController(
       }
       "setOutputAudioId" -> {
         val deviceId: String = call.argument("deviceId")!!
-        GlobalScope.launch(Dispatchers.Main) {
+        scope.launch {
           try {
             mediaDevices.setOutputAudioId(deviceId)
             result.success(null)
           } catch (e: Exception) {
             result.error("SetOutputAudioIdException", e.message, null)
+          }
+        }
+      }
+      "setupForegroundService" -> {
+        scope.launch {
+          try {
+            val configArg: Map<String, Any> = call.argument("config")!!
+            val config = ForegroundCallService.Config.fromMap(configArg)
+            ForegroundCallService.setup(
+                config, mediaDevices.state.context, mediaDevices.permissions)
+
+            result.success(null)
+          } catch (e: Exception) {
+            e.printStackTrace()
+            result.error("SetupForegroundService Exception", e.message, null)
           }
         }
       }
@@ -111,6 +133,17 @@ class MediaDevicesController(
   }
 
   override fun onCancel(obj: Any?) {
+    eventChannel.setStreamHandler(null)
+    eventSink?.endOfStream()
     eventSink = null
+  }
+
+  /** Releases all the allocated resources. */
+  override fun dispose() {
+    ControllerRegistry.unregister(this)
+    mediaDevices.dispose()
+    chan.setMethodCallHandler(null)
+    scope.cancel("disposed")
+    onCancel(null)
   }
 }

@@ -9,11 +9,23 @@ class DisplayConstraints {
 
   /// Converts this model to the [Map] expected by Flutter.
   Map<String, Map<String, dynamic>> toMap() {
-    return {
-      'audio': audio.toMap(),
-      'video': video.toMap(),
-    };
+    return {'audio': audio.toMap(), 'video': video.toMap()};
   }
+}
+
+/// Audio processing noise suppression aggressiveness.
+enum NoiseSuppressionLevel {
+  /// Minimal noise suppression.
+  low,
+
+  /// Moderate level of suppression.
+  moderate,
+
+  /// Aggressive noise suppression.
+  high,
+
+  /// Maximum suppression.
+  veryHigh,
 }
 
 /// Possible directions in which a camera may produce video.
@@ -37,10 +49,7 @@ class DeviceConstraints {
 
   /// Converts this model to the [Map] expected by Flutter.
   Map<String, Map<String, dynamic>> toMap() {
-    return {
-      'audio': audio.toMap(),
-      'video': video.toMap(),
-    };
+    return {'audio': audio.toMap(), 'video': video.toMap()};
   }
 }
 
@@ -73,7 +82,29 @@ abstract class DeviceMediaConstraints {
 
 /// [DeviceMediaConstraints] for audio devices.
 class AudioConstraints implements DeviceMediaConstraints {
+  /// Identifier of the device generating the content of the
+  /// [MediaStreamTrack].
+  ///
+  /// First device will be chosen if an empty [String] is provided.
   String? deviceId;
+
+  /// Indicator whether to automatically manage changes in the volume of its
+  /// source media to maintain a steady overall volume level.
+  bool? autoGainControl;
+
+  /// Indicator whether to enable noise suppression to reduce background sounds.
+  bool? noiseSuppression;
+
+  /// Sets the level of aggressiveness for noise suppression if enabled.
+  NoiseSuppressionLevel? noiseSuppressionLevel;
+
+  /// Indicator whether to automatically enable echo cancellation to prevent
+  /// feedback.
+  bool? echoCancellation;
+
+  /// Indicator whether to enable a high-pass filter to eliminate low-frequency
+  /// noise.
+  bool? highPassFilter;
 
   /// Converts this model to the [Map] expected by Flutter.
   @override
@@ -82,6 +113,11 @@ class AudioConstraints implements DeviceMediaConstraints {
     if (deviceId != null) {
       map['deviceId'] = deviceId;
     }
+    map['googAutoGainControl'] = (autoGainControl ?? true).toString();
+    map['googNoiseSuppression'] = (noiseSuppression ?? true).toString();
+    map['googEchoCancellation'] = (echoCancellation ?? true).toString();
+    map['googHighpassFilter'] = (highPassFilter ?? true).toString();
+
     return map;
   }
 }

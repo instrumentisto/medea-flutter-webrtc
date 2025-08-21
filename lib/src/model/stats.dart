@@ -1,6 +1,14 @@
 import 'package:collection/collection.dart';
 
-import '../api/bridge.g.dart' as ffi;
+import '/src/api/bridge/api/stats.dart' as ffi;
+import '/src/api/bridge/api/stats/rtc_ice_candidate_stats.dart' as ffi;
+
+import '/src/api/bridge/api/stats/rtc_inbound_rtp_stream_media_type.dart'
+    as ffi;
+import '/src/api/bridge/api/stats/rtc_media_source_stats_media_type.dart'
+    as ffi;
+import '/src/api/bridge/api/stats/rtc_outbound_rtp_stream_media_type.dart'
+    as ffi;
 
 /// Tries to parse the provided [value] as [int].
 ///
@@ -31,11 +39,7 @@ int? tryParse(dynamic value) {
 /// [monitored object]: https://w3.org/TR/webrtc-stats#dfn-monitored-object
 /// [1]: https://w3.org/TR/webrtc#rtcstats-dictionary
 class RtcStats {
-  RtcStats(
-    this.id,
-    this.timestampUs,
-    this.type,
-  );
+  RtcStats(this.id, this.timestampUs, this.type);
 
   /// Creates [RTCStats] basing on the [ffi.RtcStats] received from the native
   /// side.
@@ -44,26 +48,17 @@ class RtcStats {
     if (kind == null) {
       return null;
     } else {
-      return RtcStats(
-        stats.id,
-        stats.timestampUs,
-        kind,
-      );
+      return RtcStats(stats.id, stats.timestampUs, kind);
     }
   }
 
   /// Creates [RTCStats] basing on the [Map] received from the native side.
   static RtcStats? fromMap(dynamic stats) {
-    stats['kind']['type'] = stats['type'];
-    var kind = RtcStatsType.fromMap(stats['kind']);
+    var kind = RtcStatsType.fromMap(stats);
     if (kind == null) {
       return null;
     } else {
-      return RtcStats(
-        stats['id'],
-        stats['timestampUs'],
-        kind,
-      );
+      return RtcStats(stats['id'], stats['timestampUs'], kind);
     }
   }
 
@@ -119,7 +114,8 @@ enum RtcStatsIceCandidatePairState {
 
 /// Tries to parse a [String] as an [RtcStatsIceCandidatePairState].
 RtcStatsIceCandidatePairState? iceCandidatePairStateTryFromString(
-    String state) {
+  String state,
+) {
   switch (state) {
     case ('frozen'):
       {
@@ -226,66 +222,30 @@ abstract class RtcStatsType {
   /// Creates an [RtcStatsType] basing on the [ffi.RtcStatsType] received from
   /// the native side.
   static RtcStatsType? fromFFI(ffi.RtcStatsType stats) {
-    switch (stats.runtimeType.toString().substring(2)) // Skip '_$' prefix.
-    {
-      case 'RtcStatsType_RtcMediaSourceStatsImpl':
-        {
-          var source = (stats as ffi.RtcStatsType_RtcMediaSourceStats);
-          if (source.kind
-              is ffi.RtcMediaSourceStatsMediaType_RtcAudioSourceStats) {
-            return RtcAudioSourceStats.fromFFI(
-                stats.kind
-                    as ffi.RtcMediaSourceStatsMediaType_RtcAudioSourceStats,
-                stats.trackIdentifier);
-          } else {
-            return RtcVideoSourceStats.fromFFI(
-                stats.kind
-                    as ffi.RtcMediaSourceStatsMediaType_RtcVideoSourceStats,
-                stats.trackIdentifier);
-          }
+    switch (stats) {
+      case ffi.RtcStatsType_RtcMediaSourceStats s:
+        switch (s.kind) {
+          case ffi.RtcMediaSourceStatsMediaType_RtcVideoSourceStats k:
+            return RtcVideoSourceStats.fromFFI(k, s.trackIdentifier);
+          case ffi.RtcMediaSourceStatsMediaType_RtcAudioSourceStats k:
+            return RtcAudioSourceStats.fromFFI(k, s.trackIdentifier);
         }
-
-      case 'RtcStatsType_RtcIceCandidateStatsImpl':
-        {
-          return RtcIceCandidateStats.fromFFI(
-              stats as ffi.RtcStatsType_RtcIceCandidateStats);
-        }
-
-      case 'RtcStatsType_RtcOutboundRtpStreamStatsImpl':
-        {
-          return RtcOutboundRtpStreamStats.fromFFI(
-              stats as ffi.RtcStatsType_RtcOutboundRtpStreamStats);
-        }
-
-      case 'RtcStatsType_RtcInboundRtpStreamStatsImpl':
-        {
-          return RtcInboundRtpStreamStats.fromFFI(
-              stats as ffi.RtcStatsType_RtcInboundRtpStreamStats);
-        }
-      case 'RtcStatsType_RtcTransportStatsImpl':
-        {
-          return RtcTransportStats.fromFFI(
-              stats as ffi.RtcStatsType_RtcTransportStats);
-        }
-      case 'RtcStatsType_RtcRemoteInboundRtpStreamStatsImpl':
-        {
-          return RtcRemoteInboundRtpStreamStats.fromFFI(
-              stats as ffi.RtcStatsType_RtcRemoteInboundRtpStreamStats);
-        }
-      case 'RtcStatsType_RtcRemoteOutboundRtpStreamStatsImpl':
-        {
-          return RtcRemoteOutboundRtpStreamStats.fromFFI(
-              stats as ffi.RtcStatsType_RtcRemoteOutboundRtpStreamStats);
-        }
-      case 'RtcStatsType_RtcIceCandidatePairStatsImpl':
-        {
-          return RtcIceCandidatePairStats.fromFFI(
-              stats as ffi.RtcStatsType_RtcIceCandidatePairStats);
-        }
+      case ffi.RtcStatsType_RtcIceCandidateStats s:
+        return RtcIceCandidateStats.fromFFI(s);
+      case ffi.RtcStatsType_RtcOutboundRtpStreamStats s:
+        return RtcOutboundRtpStreamStats.fromFFI(s);
+      case ffi.RtcStatsType_RtcInboundRtpStreamStats s:
+        return RtcInboundRtpStreamStats.fromFFI(s);
+      case ffi.RtcStatsType_RtcTransportStats s:
+        return RtcTransportStats.fromFFI(s);
+      case ffi.RtcStatsType_RtcRemoteInboundRtpStreamStats s:
+        return RtcRemoteInboundRtpStreamStats.fromFFI(s);
+      case ffi.RtcStatsType_RtcRemoteOutboundRtpStreamStats s:
+        return RtcRemoteOutboundRtpStreamStats.fromFFI(s);
+      case ffi.RtcStatsType_RtcIceCandidatePairStats s:
+        return RtcIceCandidatePairStats.fromFFI(s);
       default:
-        {
-          return null;
-        }
+        return null;
     }
   }
 
@@ -363,20 +323,21 @@ abstract class RtcMediaSourceStats extends RtcStatsType {
 /// [RtcStats] fields of audio [RtcMediaSourceStats].
 class RtcAudioSourceStats extends RtcMediaSourceStats {
   RtcAudioSourceStats(
-      this.audioLevel,
-      this.totalAudioEnergy,
-      this.totalSamplesDuration,
-      this.echoReturnLoss,
-      this.echoReturnLossEnhancement,
-      String? trackIdentifier)
-      : super(trackIdentifier);
+    this.audioLevel,
+    this.totalAudioEnergy,
+    this.totalSamplesDuration,
+    this.echoReturnLoss,
+    this.echoReturnLossEnhancement,
+    String? trackIdentifier,
+  ) : super(trackIdentifier);
 
   /// Creates [RtcAudioSourceStats] basing on the
   /// [ffi.RtcMediaSourceStatsMediaType_RtcAudioSourceStats] received from the
   /// native side.
   static RtcAudioSourceStats fromFFI(
-      ffi.RtcMediaSourceStatsMediaType_RtcAudioSourceStats stats,
-      String? trackIdentifier) {
+    ffi.RtcMediaSourceStatsMediaType_RtcAudioSourceStats stats,
+    String? trackIdentifier,
+  ) {
     return RtcAudioSourceStats(
       stats.audioLevel,
       stats.totalAudioEnergy,
@@ -424,25 +385,40 @@ class RtcAudioSourceStats extends RtcMediaSourceStats {
 
 /// [RtcStats] fields of video [RtcMediaSourceStats].
 class RtcVideoSourceStats extends RtcMediaSourceStats {
-  RtcVideoSourceStats(this.width, this.height, this.frames,
-      this.framesPerSecond, String? trackIdentifier)
-      : super(trackIdentifier);
+  RtcVideoSourceStats(
+    this.width,
+    this.height,
+    this.frames,
+    this.framesPerSecond,
+    String? trackIdentifier,
+  ) : super(trackIdentifier);
 
   /// Creates [RtcVideoSourceStats] basing on the
   /// [ffi.RtcMediaSourceStatsMediaType_RtcVideoSourceStats] received from the
   /// native side.
   static RtcVideoSourceStats fromFFI(
-      ffi.RtcMediaSourceStatsMediaType_RtcVideoSourceStats stats,
-      String? trackIdentifier) {
-    return RtcVideoSourceStats(stats.width, stats.height, stats.frames,
-        stats.framesPerSecond, trackIdentifier);
+    ffi.RtcMediaSourceStatsMediaType_RtcVideoSourceStats stats,
+    String? trackIdentifier,
+  ) {
+    return RtcVideoSourceStats(
+      stats.width,
+      stats.height,
+      stats.frames,
+      stats.framesPerSecond,
+      trackIdentifier,
+    );
   }
 
   /// Creates [RtcVideoSourceStats] basing on the [Map] received from the native
   /// side.
   static RtcVideoSourceStats fromMap(dynamic stats) {
-    return RtcVideoSourceStats(stats['width'], stats['height'], stats['frames'],
-        stats['framesPerSecond'], stats['trackIdentifier']);
+    return RtcVideoSourceStats(
+      stats['width'],
+      stats['height'],
+      stats['frames'],
+      stats['framesPerSecond'],
+      stats['trackIdentifier'],
+    );
   }
 
   /// Width (in pixels) of the last frame originating from the source.
@@ -471,13 +447,22 @@ class RtcVideoSourceStats extends RtcMediaSourceStats {
 /// [1]: https://tools.ietf.org/html/rfc5245#section-15.1
 /// [2]: https://w3.org/TR/webrtc-stats#icecandidate-dict%2A
 abstract class RtcIceCandidateStats extends RtcStatsType {
-  RtcIceCandidateStats(this.transportId, this.address, this.port, this.protocol,
-      this.candidateType, this.priority, this.url, this.relayProtocol);
+  RtcIceCandidateStats(
+    this.transportId,
+    this.address,
+    this.port,
+    this.protocol,
+    this.candidateType,
+    this.priority,
+    this.url,
+    this.relayProtocol,
+  );
 
   /// Creates [RtcIceCandidateStats] basing on the
   /// [ffi.RtcStatsType_RtcIceCandidateStats] received from the native side.
   static RtcIceCandidateStats fromFFI(
-      ffi.RtcStatsType_RtcIceCandidateStats stats) {
+    ffi.RtcStatsType_RtcIceCandidateStats stats,
+  ) {
     Protocol? relayProtocol;
     if (stats.field0.field0.relayProtocol != null) {
       relayProtocol = Protocol.values[stats.field0.field0.relayProtocol!.index];
@@ -485,25 +470,27 @@ abstract class RtcIceCandidateStats extends RtcStatsType {
     if (stats.field0 is ffi.RtcIceCandidateStats_Local) {
       var local = stats.field0 as ffi.RtcIceCandidateStats_Local;
       return RtcLocalIceCandidateStats(
-          local.field0.transportId,
-          local.field0.address,
-          local.field0.port,
-          Protocol.values[local.field0.protocol.index],
-          CandidateType.values[local.field0.candidateType.index],
-          local.field0.priority,
-          local.field0.url,
-          relayProtocol);
+        local.field0.transportId,
+        local.field0.address,
+        local.field0.port,
+        Protocol.values[local.field0.protocol.index],
+        CandidateType.values[local.field0.candidateType.index],
+        local.field0.priority,
+        local.field0.url,
+        relayProtocol,
+      );
     } else {
       var remote = stats.field0 as ffi.RtcIceCandidateStats_Remote;
       return RtcRemoteIceCandidateStats(
-          remote.field0.transportId,
-          remote.field0.address,
-          remote.field0.port,
-          Protocol.values[remote.field0.protocol.index],
-          CandidateType.values[remote.field0.candidateType.index],
-          remote.field0.priority,
-          remote.field0.url,
-          relayProtocol);
+        remote.field0.transportId,
+        remote.field0.address,
+        remote.field0.port,
+        Protocol.values[remote.field0.protocol.index],
+        CandidateType.values[remote.field0.candidateType.index],
+        remote.field0.priority,
+        remote.field0.url,
+        relayProtocol,
+      );
     }
   }
 
@@ -512,30 +499,38 @@ abstract class RtcIceCandidateStats extends RtcStatsType {
   static RtcIceCandidateStats fromMap(dynamic stats) {
     if (stats['isRemote']) {
       return RtcRemoteIceCandidateStats(
-          stats['transportId'],
-          stats['address'],
-          stats['port'],
-          Protocol.values
-              .firstWhere((element) => element.name == stats['protocol']),
-          CandidateType.values
-              .firstWhere((element) => element.name == stats['candidateType']),
-          stats['priority'],
-          stats['url'],
-          Protocol.values.firstWhereOrNull(
-              (element) => element.name == stats['relayProtocol']));
+        stats['transportId'],
+        stats['address'],
+        stats['port'],
+        Protocol.values.firstWhere(
+          (element) => element.name == stats['protocol'],
+        ),
+        CandidateType.values.firstWhere(
+          (element) => element.name == stats['candidateType'],
+        ),
+        stats['priority'],
+        stats['url'],
+        Protocol.values.firstWhereOrNull(
+          (element) => element.name == stats['relayProtocol'],
+        ),
+      );
     } else {
       return RtcLocalIceCandidateStats(
-          stats['transportId'],
-          stats['address'],
-          stats['port'],
-          Protocol.values
-              .firstWhere((element) => element.name == stats['protocol']),
-          CandidateType.values
-              .firstWhere((element) => element.name == stats['candidateType']),
-          stats['priority'],
-          stats['url'],
-          Protocol.values.firstWhereOrNull(
-              (element) => element.name == stats['relayProtocol']));
+        stats['transportId'],
+        stats['address'],
+        stats['port'],
+        Protocol.values.firstWhere(
+          (element) => element.name == stats['protocol'],
+        ),
+        CandidateType.values.firstWhere(
+          (element) => element.name == stats['candidateType'],
+        ),
+        stats['priority'],
+        stats['url'],
+        Protocol.values.firstWhereOrNull(
+          (element) => element.name == stats['relayProtocol'],
+        ),
+      );
     }
   }
 
@@ -626,7 +621,10 @@ class RtcOutboundRtpStreamStatsAudio
 class RtcOutboundRtpStreamStatsVideo
     extends RtcOutboundRtpStreamStatsMediaType {
   RtcOutboundRtpStreamStatsVideo(
-      this.frameWidth, this.frameHeight, this.framesPerSecond);
+    this.frameWidth,
+    this.frameHeight,
+    this.framesPerSecond,
+  );
 
   /// Width of the last encoded frame.
   ///
@@ -690,24 +688,26 @@ class RtcOutboundRtpStreamStats extends RtcStatsType {
   /// [ffi.RtcStatsType_RtcOutboundRtpStreamStats] received from the native
   /// side.
   static RtcOutboundRtpStreamStats fromFFI(
-      ffi.RtcStatsType_RtcOutboundRtpStreamStats stats) {
-    RtcOutboundRtpStreamStatsMediaType? mediaType;
-    var kind = stats.mediaType.runtimeType.toString().substring(2);
-    if (kind == 'RtcOutboundRtpStreamStatsKind_Audio') {
-      var cast =
-          stats.mediaType as ffi.RtcOutboundRtpStreamStatsMediaType_Audio;
-      mediaType = RtcOutboundRtpStreamStatsAudio(
-          cast.totalSamplesSent, cast.voiceActivityFlag);
-    } else if (kind == 'RtcOutboundRtpStreamStatsKind_Video') {
-      var cast =
-          stats.mediaType as ffi.RtcOutboundRtpStreamStatsMediaType_Video;
-      mediaType = RtcOutboundRtpStreamStatsVideo(
-          cast.frameWidth, cast.frameHeight, cast.framesPerSecond);
-    }
+    ffi.RtcStatsType_RtcOutboundRtpStreamStats stats,
+  ) {
+    RtcOutboundRtpStreamStatsMediaType? mediaType = switch (stats.mediaType) {
+      ffi.RtcOutboundRtpStreamStatsMediaType_Audio m =>
+        RtcOutboundRtpStreamStatsAudio(
+          m.totalSamplesSent?.toInt(),
+          m.voiceActivityFlag,
+        ),
+      ffi.RtcOutboundRtpStreamStatsMediaType_Video m =>
+        RtcOutboundRtpStreamStatsVideo(
+          m.frameWidth,
+          m.frameHeight,
+          m.framesPerSecond,
+        ),
+    };
+
     return RtcOutboundRtpStreamStats(
       stats.trackId,
       mediaType,
-      stats.bytesSent,
+      stats.bytesSent?.toInt(),
       stats.packetsSent,
       stats.mediaSourceId,
     );
@@ -719,10 +719,15 @@ class RtcOutboundRtpStreamStats extends RtcStatsType {
     RtcOutboundRtpStreamStatsMediaType? mediaType;
     if (stats['kind'] == 'audio') {
       mediaType = RtcOutboundRtpStreamStatsAudio(
-          tryParse(stats['totalSamplesSent']), stats['voiceActivityFlag']);
+        tryParse(stats['totalSamplesSent']),
+        stats['voiceActivityFlag'],
+      );
     } else if (stats['kind'] == 'video') {
       mediaType = RtcOutboundRtpStreamStatsVideo(
-          stats['frameWidth'], stats['frameHeight'], stats['framesPerSecond']);
+        stats['frameWidth'],
+        stats['frameHeight'],
+        stats['framesPerSecond'],
+      );
     }
 
     return RtcOutboundRtpStreamStats(
@@ -916,43 +921,42 @@ class RtcInboundRtpStreamStats extends RtcStatsType {
   /// Creates [RtcInboundRtpStreamStats] basing on the
   /// [ffi.RtcStatsType_RtcInboundRtpStreamStats] received from the native side.
   static RtcInboundRtpStreamStats fromFFI(
-      ffi.RtcStatsType_RtcInboundRtpStreamStats stats) {
-    RtcInboundRtpStreamMediaType? mediaType;
-    var type = stats.mediaType.runtimeType.toString().substring(2);
-    if (type == 'RtcInboundRtpStreamMediaType_Audio') {
-      var cast = stats.mediaType as ffi.RtcInboundRtpStreamMediaType_Audio;
-      mediaType = RtcInboundRtpStreamAudio(
-          cast.totalSamplesReceived,
-          cast.concealedSamples,
-          cast.silentConcealedSamples,
-          cast.audioLevel,
-          cast.totalAudioEnergy,
-          cast.totalSamplesDuration,
-          cast.voiceActivityFlag);
-    } else if (type == 'RtcInboundRtpStreamMediaType_Video') {
-      var cast = stats.mediaType as ffi.RtcInboundRtpStreamMediaType_Video;
-      mediaType = RtcInboundRtpStreamVideo(
-        cast.framesDecoded,
-        cast.keyFramesDecoded,
-        cast.frameWidth,
-        cast.frameHeight,
-        cast.totalInterFrameDelay,
-        cast.framesPerSecond,
-        cast.firCount,
-        cast.pliCount,
-        cast.concealmentEvents,
-        cast.framesReceived,
-        cast.sliCount,
-      );
-    }
+    ffi.RtcStatsType_RtcInboundRtpStreamStats stats,
+  ) {
+    RtcInboundRtpStreamMediaType? mediaType = switch (stats.mediaType) {
+      ffi.RtcInboundRtpStreamMediaType_Audio m => RtcInboundRtpStreamAudio(
+        m.totalSamplesReceived?.toInt(),
+        m.concealedSamples?.toInt(),
+        m.silentConcealedSamples?.toInt(),
+        m.audioLevel,
+        m.totalAudioEnergy,
+        m.totalSamplesDuration,
+        m.voiceActivityFlag,
+      ),
+      ffi.RtcInboundRtpStreamMediaType_Video m => RtcInboundRtpStreamVideo(
+        m.framesDecoded,
+        m.keyFramesDecoded,
+        m.frameWidth,
+        m.frameHeight,
+        m.totalInterFrameDelay,
+        m.framesPerSecond,
+        m.firCount,
+        m.pliCount,
+        m.concealmentEvents?.toInt(),
+        m.framesReceived,
+        m.sliCount,
+      ),
+      null => null,
+    };
 
     return RtcInboundRtpStreamStats(
-        stats.remoteId,
-        stats.bytesReceived,
-        stats.packetsReceived,
-        stats.totalDecodeTime,
-        stats.jitterBufferEmittedCount,
-        mediaType);
+      stats.remoteId,
+      stats.bytesReceived?.toInt(),
+      stats.packetsReceived,
+      stats.totalDecodeTime,
+      stats.jitterBufferEmittedCount?.toInt(),
+      mediaType,
+    );
   }
 
   /// Creates [RtcInboundRtpStreamStats] basing on the [Map] received from the
@@ -961,13 +965,14 @@ class RtcInboundRtpStreamStats extends RtcStatsType {
     RtcInboundRtpStreamMediaType? mediaType;
     if (stats['kind'] == 'audio') {
       mediaType = RtcInboundRtpStreamAudio(
-          tryParse(stats['totalSamplesReceived']),
-          tryParse(stats['concealedSamples']),
-          tryParse(stats['silentConcealedSamples']),
-          stats['audioLevel'],
-          stats['totalAudioEnergy'],
-          stats['totalSamplesDuration'],
-          stats['voiceActivityFlag']);
+        tryParse(stats['totalSamplesReceived']),
+        tryParse(stats['concealedSamples']),
+        tryParse(stats['silentConcealedSamples']),
+        stats['audioLevel'],
+        stats['totalAudioEnergy'],
+        stats['totalSamplesDuration'],
+        stats['voiceActivityFlag'],
+      );
     } else if (stats['kind'] == 'video') {
       mediaType = RtcInboundRtpStreamVideo(
         stats['framesDecoded'],
@@ -985,12 +990,13 @@ class RtcInboundRtpStreamStats extends RtcStatsType {
     }
 
     return RtcInboundRtpStreamStats(
-        stats['trackId'],
-        tryParse(stats['bytesReceived']),
-        stats['packetsReceived'],
-        stats['totalDecodeTime'],
-        tryParse(stats['jitterBufferEmittedCount']),
-        mediaType);
+      stats['trackId'],
+      tryParse(stats['bytesReceived']),
+      stats['packetsReceived'],
+      stats['totalDecodeTime'],
+      tryParse(stats['jitterBufferEmittedCount']),
+      mediaType,
+    );
   }
 
   /// ID of the stats object representing the receiving track.
@@ -1072,12 +1078,13 @@ class RtcIceCandidatePairStats extends RtcStatsType {
   /// Creates [RtcIceCandidatePairStats] basing on the
   /// [ffi.RtcStatsType_RtcIceCandidatePairStats] received from the native side.
   static RtcIceCandidatePairStats fromFFI(
-      ffi.RtcStatsType_RtcIceCandidatePairStats stats) {
+    ffi.RtcStatsType_RtcIceCandidatePairStats stats,
+  ) {
     return RtcIceCandidatePairStats(
       RtcStatsIceCandidatePairState.values[stats.state.index],
       stats.nominated,
-      stats.bytesSent,
-      stats.bytesReceived,
+      stats.bytesSent?.toInt(),
+      stats.bytesReceived?.toInt(),
       stats.totalRoundTripTime,
       stats.currentRoundTripTime,
       stats.availableOutgoingBitrate,
@@ -1176,19 +1183,25 @@ class RtcTransportStats extends RtcStatsType {
     if (stats.iceRole != null) {
       role = IceRole.values[stats.iceRole!.index];
     }
-    return RtcTransportStats(stats.packetsSent, stats.packetsReceived,
-        stats.bytesSent, stats.bytesReceived, role);
+    return RtcTransportStats(
+      stats.packetsSent?.toInt(),
+      stats.packetsReceived?.toInt(),
+      stats.bytesSent?.toInt(),
+      stats.bytesReceived?.toInt(),
+      role,
+    );
   }
 
   /// Creates [RtcTransportStats] basing on the [Map] received from the native
   /// side.
   static RtcTransportStats fromMap(dynamic stats) {
     return RtcTransportStats(
-        tryParse(stats['packetsSent']),
-        tryParse(stats['packetsReceived']),
-        tryParse(stats['bytesSent']),
-        tryParse(stats['bytesReceived']),
-        IceRole.values.byName(stats['iceRole']));
+      tryParse(stats['packetsSent']),
+      tryParse(stats['packetsReceived']),
+      tryParse(stats['bytesSent']),
+      tryParse(stats['bytesReceived']),
+      IceRole.values.byName(stats['iceRole']),
+    );
   }
 
   /// Total number of packets sent over this transport.
@@ -1240,14 +1253,15 @@ class RtcRemoteInboundRtpStreamStats extends RtcStatsType {
   /// [ffi.RtcStatsType_RtcRemoteInboundRtpStreamStats] received from the native
   /// side.
   static RtcRemoteInboundRtpStreamStats fromFFI(
-      ffi.RtcStatsType_RtcRemoteInboundRtpStreamStats stats) {
+    ffi.RtcStatsType_RtcRemoteInboundRtpStreamStats stats,
+  ) {
     return RtcRemoteInboundRtpStreamStats(
       stats.localId,
       stats.roundTripTime,
       stats.fractionLost,
       stats.roundTripTimeMeasurements,
       stats.jitter,
-      stats.reportsReceived,
+      stats.reportsReceived?.toInt(),
     );
   }
 
@@ -1330,11 +1344,12 @@ class RtcRemoteOutboundRtpStreamStats extends RtcStatsType {
   /// [ffi.RtcStatsType_RtcRemoteOutboundRtpStreamStats] received from the
   /// native side.
   static RtcRemoteOutboundRtpStreamStats fromFFI(
-      ffi.RtcStatsType_RtcRemoteOutboundRtpStreamStats stats) {
+    ffi.RtcStatsType_RtcRemoteOutboundRtpStreamStats stats,
+  ) {
     return RtcRemoteOutboundRtpStreamStats(
       stats.localId,
       stats.remoteTimestamp,
-      stats.reportsSent,
+      stats.reportsSent?.toInt(),
     );
   }
 

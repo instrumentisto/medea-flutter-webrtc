@@ -1,5 +1,7 @@
 // ignore_for_file: avoid_print
 import 'dart:core';
+import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';
@@ -7,7 +9,7 @@ import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';
 class Loopback extends StatefulWidget {
   static String tag = 'get_usermedia_sample';
 
-  const Loopback({Key? key}) : super(key: key);
+  const Loopback({super.key});
 
   @override
   State<Loopback> createState() => _LoopbackState();
@@ -15,10 +17,15 @@ class Loopback extends StatefulWidget {
 
 class _LoopbackState extends State<Loopback> {
   List<MediaDeviceInfo>? _mediaDevicesList;
-  List<MediaStreamTrack>? _tracks;
+
+  MediaStreamTrack? _videoTrack;
+  MediaStreamTrack? _micAudioTrack;
+  MediaStreamTrack? _systemAudioTrack;
 
   PeerConnection? _pc1;
-  RtpTransceiver? _audioTxTr;
+  RtpTransceiver? _videoTxTr;
+  RtpTransceiver? _deviceAudioTxTr;
+  RtpTransceiver? _systemAudioTxTr;
 
   PeerConnection? _pc2;
 
@@ -27,8 +34,18 @@ class _LoopbackState extends State<Loopback> {
   bool _inCalling = false;
   bool _mic = true;
   bool _cam = true;
+  bool _displayAudio = Platform.isWindows;
   int _volume = -1;
   bool _microIsAvailable = false;
+  double currentAudioLevel = 0.0;
+  double lastDeviceAudioLevel = 0.0;
+  double lastDisplayAudioLevel = 0.0;
+
+  bool _noiseSuppressionEnabled = true;
+  bool _highPassFilterEnabled = true;
+  bool _echoCancellationEnabled = true;
+  bool _autoGainControlEnabled = true;
+  NoiseSuppressionLevel _noiseSuppressionLevel = NoiseSuppressionLevel.veryHigh;
 
   @override
   void initState() {
@@ -70,10 +87,31 @@ class _LoopbackState extends State<Loopback> {
     caps.video.mandatory!.fps = 30;
 
     try {
+      await setupForegroundService(
+        ForegroundServiceConfig(
+          notificationTitle: 'medea-flutter-webrtc',
+          notificationText: 'Ongoing loopback test',
+        ),
+      );
+
       _mediaDevicesList = await enumerateDevices();
-      _tracks = await getUserMedia(caps);
-      await _localRenderer.setSrcObject(
-          _tracks!.firstWhere((track) => track.kind() == MediaKind.video));
+      var gumTracks = await getUserMedia(caps);
+      _videoTrack = gumTracks.firstWhere(
+        (track) => track.kind() == MediaKind.video,
+      );
+      _micAudioTrack = gumTracks.firstWhere(
+        (track) => track.kind() == MediaKind.audio,
+      );
+      await _localRenderer.setSrcObject(_videoTrack!);
+
+      try {
+        var displayCaps = DisplayConstraints();
+        displayCaps.audio.mandatory = AudioConstraints();
+
+        _systemAudioTrack = (await getDisplayMedia(displayCaps))[0];
+      } catch (e) {
+        print("Could not capture system audio: $e");
+      }
 
       var server = IceServer(['stun:stun.l.google.com:19302']);
       _pc1 = await PeerConnection.create(IceTransportType.all, [server]);
@@ -92,11 +130,18 @@ class _LoopbackState extends State<Loopback> {
         }
       });
 
-      var vtrans = await _pc1?.addTransceiver(
-          MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendOnly));
-
-      _audioTxTr = await _pc1?.addTransceiver(
-          MediaKind.audio, RtpTransceiverInit(TransceiverDirection.sendOnly));
+      _videoTxTr = await _pc1?.addTransceiver(
+        MediaKind.video,
+        RtpTransceiverInit(TransceiverDirection.sendOnly),
+      );
+      _deviceAudioTxTr = await _pc1?.addTransceiver(
+        MediaKind.audio,
+        RtpTransceiverInit(TransceiverDirection.sendOnly),
+      );
+      _systemAudioTxTr = await _pc1?.addTransceiver(
+        MediaKind.audio,
+        RtpTransceiverInit(TransceiverDirection.sendOnly),
+      );
 
       var offer = await _pc1?.createOffer();
       await _pc1?.setLocalDescription(offer!);
@@ -116,11 +161,41 @@ class _LoopbackState extends State<Loopback> {
         await _pc1?.addIceCandidate(candidate);
       });
 
-      await vtrans?.sender.replaceTrack(
-          _tracks!.firstWhere((track) => track.kind() == MediaKind.video));
+      if (_micAudioTrack!.isOnAudioLevelAvailable()) {
+        _micAudioTrack!.onAudioLevelChanged((volume) {
+          setState(() {
+            lastDeviceAudioLevel = volume / 100;
 
-      await _audioTxTr?.sender.replaceTrack(
-          _tracks!.firstWhere((track) => track.kind() == MediaKind.audio));
+            if (Platform.isWindows) {
+              currentAudioLevel = max(
+                lastDeviceAudioLevel,
+                lastDisplayAudioLevel,
+              );
+            } else {
+              currentAudioLevel = lastDeviceAudioLevel;
+            }
+          });
+        });
+      }
+
+      await _videoTxTr?.sender.replaceTrack(_videoTrack!);
+      await _deviceAudioTxTr?.sender.replaceTrack(_micAudioTrack!);
+      if (_systemAudioTrack != null) {
+        if (_systemAudioTrack!.isOnAudioLevelAvailable()) {
+          _systemAudioTrack!.onAudioLevelChanged((volume) {
+            setState(() {
+              lastDisplayAudioLevel = volume / 100;
+
+              currentAudioLevel = max(
+                lastDeviceAudioLevel,
+                lastDisplayAudioLevel,
+              );
+            });
+          });
+        }
+
+        await _systemAudioTxTr?.sender.replaceTrack(_systemAudioTrack);
+      }
     } catch (e) {
       print(e.toString());
     }
@@ -139,9 +214,9 @@ class _LoopbackState extends State<Loopback> {
       await _localRenderer.setSrcObject(null);
       await _remoteRenderer.setSrcObject(null);
 
-      for (var track in _tracks!) {
-        await track.stop();
-        await track.dispose();
+      for (var track in [_videoTrack, _micAudioTrack, _systemAudioTrack]) {
+        await track?.stop();
+        await track?.dispose();
       }
 
       await _pc1?.close();
@@ -151,6 +226,7 @@ class _LoopbackState extends State<Loopback> {
         _inCalling = false;
         _mic = true;
         _cam = true;
+        _displayAudio = Platform.isWindows;
       });
     } catch (e) {
       print(e.toString());
@@ -158,22 +234,25 @@ class _LoopbackState extends State<Loopback> {
   }
 
   void _setInputAudioId(String id) async {
-    for (var track in _tracks!) {
-      if (track.kind() == MediaKind.audio) {
-        await track.stop();
-        await track.dispose();
-      }
-    }
-    _tracks!.removeWhere((item) => item.kind() == MediaKind.audio);
+    await _micAudioTrack?.stop();
+    await _micAudioTrack?.dispose();
+    _micAudioTrack = null;
 
     var caps = DeviceConstraints();
     caps.audio.mandatory = AudioConstraints();
     caps.audio.mandatory!.deviceId = id;
 
     var newTrack = (await getUserMedia(caps))[0];
-    await _audioTxTr!.sender.replaceTrack(newTrack);
+    if (newTrack.isOnAudioLevelAvailable()) {
+      newTrack.onAudioLevelChanged((volume) {
+        setState(() {
+          currentAudioLevel = volume / 100;
+        });
+      });
+    }
+    await _deviceAudioTxTr!.sender.replaceTrack(newTrack);
 
-    _tracks!.add(newTrack);
+    _micAudioTrack = newTrack;
   }
 
   @override
@@ -181,9 +260,121 @@ class _LoopbackState extends State<Loopback> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-            'WebRTC loopback test. ${_inCalling ? (_microIsAvailable ? 'Micro volume: $_volume .' : 'Micro volume is not available') : ''}'),
+          'WebRTC loopback test. ${_inCalling ? (_microIsAvailable ? 'Micro volume: $_volume .' : 'Micro volume is not available') : ''}',
+        ),
         actions: _inCalling
             ? <Widget>[
+                PopupMenuButton<String>(
+                  itemBuilder: (context) {
+                    return [
+                      PopupMenuItem(
+                        enabled: false,
+                        child: StatefulBuilder(
+                          builder: (context, setStatePopup) {
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                CheckboxListTile(
+                                      dense: true,
+                                      title: Text("Noise Suppression"),
+                                      value: _noiseSuppressionEnabled,
+                                      onChanged: (bool? value) async {
+                                        await _micAudioTrack
+                                            ?.setNoiseSuppressionEnabled(
+                                              value!,
+                                            );
+
+                                        setState(() {
+                                          _noiseSuppressionEnabled = value!;
+                                        });
+                                        setStatePopup(() {});
+                                      },
+                                    )
+                                    as StatelessWidget,
+                                CheckboxListTile(
+                                  dense: true,
+                                  title: Text("High Pass Filter"),
+                                  value: _highPassFilterEnabled,
+                                  onChanged: (bool? value) async {
+                                    await _micAudioTrack
+                                        ?.setHighPassFilterEnabled(value!);
+
+                                    setState(() {
+                                      _highPassFilterEnabled = value!;
+                                    });
+                                    setStatePopup(() {});
+                                  },
+                                ),
+                                CheckboxListTile(
+                                  dense: true,
+                                  title: Text("Echo cancellation"),
+                                  value: _echoCancellationEnabled,
+                                  onChanged: (bool? value) async {
+                                    await _micAudioTrack
+                                        ?.setEchoCancellationEnabled(value!);
+
+                                    setState(() {
+                                      _echoCancellationEnabled = value!;
+                                    });
+                                    setStatePopup(() {});
+                                  },
+                                ),
+                                CheckboxListTile(
+                                  dense: true,
+                                  title: Text("Auto gain control"),
+                                  value: _autoGainControlEnabled,
+                                  onChanged: (bool? value) async {
+                                    await _micAudioTrack
+                                        ?.setAutoGainControlEnabled(value!);
+
+                                    setState(() {
+                                      _autoGainControlEnabled = value!;
+                                    });
+                                    setStatePopup(() {});
+                                  },
+                                ),
+                                Text('Noise suppression level'),
+                                RadioGroup<NoiseSuppressionLevel>(
+                                  groupValue: _noiseSuppressionLevel,
+                                  onChanged:
+                                      (NoiseSuppressionLevel? value) async {
+                                        await _micAudioTrack
+                                            ?.setNoiseSuppressionLevel(value!);
+
+                                        setState(() {
+                                          if (value != null) {
+                                            _noiseSuppressionLevel = value;
+                                          }
+                                        });
+                                        setStatePopup(() {});
+                                      },
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Text("Auto gain control"),
+                                      ...NoiseSuppressionLevel.values.map((
+                                        level,
+                                      ) {
+                                        return ListTile(
+                                          title: Text(level.name),
+                                          leading: Radio<NoiseSuppressionLevel>(
+                                            value: level,
+                                          ),
+                                        );
+                                      }),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                    ];
+                  },
+                  icon: const Icon(Icons.multitrack_audio),
+                ),
                 IconButton(
                   icon: const Icon(Icons.remove),
                   tooltip: 'Micro lower',
@@ -209,17 +400,35 @@ class _LoopbackState extends State<Loopback> {
                       : null,
                 ),
                 IconButton(
-                  icon:
-                      _mic ? const Icon(Icons.mic_off) : const Icon(Icons.mic),
-                  tooltip: _mic ? 'Disable audio rec' : 'Enable audio rec',
+                  icon: _mic
+                      ? const Icon(Icons.mic_off)
+                      : const Icon(Icons.mic),
+                  tooltip: _mic
+                      ? 'Disable device audio rec'
+                      : 'Enable device audio rec',
                   onPressed: () {
                     setState(() {
                       _mic = !_mic;
                     });
-                    _tracks!
-                        .firstWhere((track) => track.kind() == MediaKind.audio)
-                        .setEnabled(_mic);
+                    _micAudioTrack?.setEnabled(_mic);
                   },
+                ),
+                Visibility(
+                  visible: Platform.isWindows,
+                  child: IconButton(
+                    icon: _displayAudio
+                        ? const Icon(Icons.volume_off)
+                        : const Icon(Icons.volume_up),
+                    tooltip: _displayAudio
+                        ? 'Disable display audio rec'
+                        : 'Enable display audio rec',
+                    onPressed: () async {
+                      setState(() {
+                        _displayAudio = !_displayAudio;
+                      });
+                      _systemAudioTrack?.setEnabled(_displayAudio);
+                    },
+                  ),
                 ),
                 IconButton(
                   icon: _cam
@@ -230,75 +439,90 @@ class _LoopbackState extends State<Loopback> {
                     setState(() {
                       _cam = !_cam;
                     });
-                    _tracks!
-                        .firstWhere((track) => track.kind() == MediaKind.video)
-                        .setEnabled(_cam);
+                    _videoTrack?.setEnabled(_cam);
                   },
                 ),
                 PopupMenuButton<String>(
+                  tooltip: "Choose audio input device",
+                  icon: const Icon(Icons.mic),
                   onSelected: (id) {
                     _setInputAudioId(id);
                   },
                   itemBuilder: (BuildContext context) {
                     if (_mediaDevicesList != null) {
                       return _mediaDevicesList!
-                          .where((device) =>
-                              device.kind == MediaDeviceKind.audioinput)
+                          .where(
+                            (device) =>
+                                device.kind == MediaDeviceKind.audioinput,
+                          )
                           .map((device) {
-                        return PopupMenuItem<String>(
-                          value: device.deviceId,
-                          child: Text(device.label),
-                        );
-                      }).toList();
+                            return PopupMenuItem<String>(
+                              value: device.deviceId,
+                              child: Text(device.label),
+                            );
+                          })
+                          .toList();
                     }
                     return [];
                   },
-                  icon: const Icon(Icons.mic),
                 ),
                 PopupMenuButton<String>(
+                  tooltip: "Choose audio output device",
+                  icon: const Icon(Icons.volume_down),
                   onSelected: (id) {
                     setOutputAudioId(id);
                   },
                   itemBuilder: (BuildContext context) {
                     if (_mediaDevicesList != null) {
                       return _mediaDevicesList!
-                          .where((device) =>
-                              device.kind == MediaDeviceKind.audiooutput)
+                          .where(
+                            (device) =>
+                                device.kind == MediaDeviceKind.audiooutput,
+                          )
                           .map((device) {
-                        return PopupMenuItem<String>(
-                          value: device.deviceId,
-                          child: Text(device.label),
-                        );
-                      }).toList();
+                            return PopupMenuItem<String>(
+                              value: device.deviceId,
+                              child: Text(device.label),
+                            );
+                          })
+                          .toList();
                     }
                     return [];
                   },
-                  icon: const Icon(Icons.volume_down),
-                )
+                ),
               ]
             : null,
       ),
       body: OrientationBuilder(
         builder: (context, orientation) {
           return Center(
-              child: Row(
-            children: [
-              Container(
-                margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-                width: MediaQuery.of(context).size.width / 2,
-                height: MediaQuery.of(context).size.height,
-                decoration: const BoxDecoration(color: Colors.black54),
-                child: VideoView(_localRenderer, mirror: true),
-              ),
-              Container(
-                margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-                width: MediaQuery.of(context).size.width / 2,
-                height: MediaQuery.of(context).size.height,
-                decoration: const BoxDecoration(color: Colors.black54),
-                child: VideoView(_remoteRenderer, mirror: true),
-              ),
-            ],
-          ));
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                      width: MediaQuery.of(context).size.width / 2,
+                      height: MediaQuery.of(context).size.height - 66,
+                      decoration: const BoxDecoration(color: Colors.black54),
+                      child: VideoView(_localRenderer, mirror: true),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                      width: MediaQuery.of(context).size.width / 2,
+                      height: MediaQuery.of(context).size.height - 66,
+                      decoration: const BoxDecoration(color: Colors.black54),
+                      child: VideoView(_remoteRenderer, mirror: true),
+                    ),
+                  ],
+                ),
+                LinearProgressIndicator(
+                  value: currentAudioLevel,
+                  minHeight: 10.0,
+                ),
+              ],
+            ),
+          );
         },
       ),
       floatingActionButton: FloatingActionButton(

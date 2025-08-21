@@ -7,7 +7,7 @@ import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';
 class PeerConnectionSample extends StatefulWidget {
   static String tag = 'peer_connection_sample';
 
-  const PeerConnectionSample({Key? key}) : super(key: key);
+  const PeerConnectionSample({super.key});
 
   @override
   State<PeerConnectionSample> createState() => _PeerConnectionSampleState();
@@ -63,7 +63,9 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
       });
 
       var trans = await pc1.addTransceiver(
-          MediaKind.video, RtpTransceiverInit(TransceiverDirection.sendRecv));
+        MediaKind.video,
+        RtpTransceiverInit(TransceiverDirection.sendRecv),
+      );
 
       await trans.sender.replaceTrack(_track!);
 
@@ -98,9 +100,7 @@ class _PeerConnectionSampleState extends State<PeerConnectionSample> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('PeerConnection'),
-      ),
+      appBar: AppBar(title: const Text('PeerConnection')),
       body: Center(child: Text(text)),
       floatingActionButton: FloatingActionButton(
         onPressed: _createPeer,

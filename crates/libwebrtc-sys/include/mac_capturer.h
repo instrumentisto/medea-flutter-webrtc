@@ -28,11 +28,11 @@ RTC_FWD_DECL_OBJC_CLASS(RTCCameraVideoCapturer);
 RTC_FWD_DECL_OBJC_CLASS(RTCVideoSourceAdapter);
 
 // `VideoTrackSourceInterface` capturing frames from a local video input device.
-class MacCapturer : public rtc::AdaptedVideoTrackSource,
-                    public rtc::VideoSinkInterface<webrtc::VideoFrame> {
+class MacCapturer : public webrtc::AdaptedVideoTrackSource,
+                    public webrtc::VideoSinkInterface<webrtc::VideoFrame> {
  public:
   // Creates a new `MacCapturer` with the specified constraints.
-  static rtc::scoped_refptr<MacCapturer> Create(size_t width,
+  static webrtc::scoped_refptr<MacCapturer> Create(size_t width,
                                                 size_t height,
                                                 size_t target_fps,
                                                 uint32_t capture_device_index);
@@ -48,7 +48,7 @@ class MacCapturer : public rtc::AdaptedVideoTrackSource,
   //
   // If it's not set, the default configuration is used, which is different
   // depending on a video codec.
-  absl::optional<bool> needs_denoising() const override;
+  std::optional<bool> needs_denoising() const override;
 
   // Returns state of this `DeviceVideoCapturer`.
   webrtc::MediaSourceInterface::SourceState state() const override;

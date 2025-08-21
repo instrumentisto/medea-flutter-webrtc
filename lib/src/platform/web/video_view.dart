@@ -38,8 +38,9 @@ class _VideoViewState extends State<VideoView> {
     widget._renderer.addListener(_onRendererListener);
     videoRenderer.mirror = widget.mirror;
     videoRenderer.enableContextMenu = widget.enableContextMenu;
-    videoRenderer.objectFit =
-        widget.objectFit == VideoViewObjectFit.contain ? 'contain' : 'cover';
+    videoRenderer.objectFit = widget.objectFit == VideoViewObjectFit.contain
+        ? 'contain'
+        : 'cover';
   }
 
   void _onRendererListener() {
@@ -56,11 +57,14 @@ class _VideoViewState extends State<VideoView> {
   void didUpdateWidget(VideoView oldWidget) {
     super.didUpdateWidget(oldWidget);
     videoRenderer.mirror = widget.mirror;
-    Timer(const Duration(milliseconds: 10),
-        () => videoRenderer.mirror = widget.mirror);
+    Timer(
+      const Duration(milliseconds: 10),
+      () => videoRenderer.mirror = widget.mirror,
+    );
     videoRenderer.enableContextMenu = widget.enableContextMenu;
-    videoRenderer.objectFit =
-        widget.objectFit == VideoViewObjectFit.contain ? 'contain' : 'cover';
+    videoRenderer.objectFit = widget.objectFit == VideoViewObjectFit.contain
+        ? 'contain'
+        : 'cover';
   }
 
   Widget buildVideoElementView() {

@@ -2,9 +2,8 @@
 
 use libwebrtc_sys as sys;
 
-use crate::stream_sink::StreamSink;
-
-pub use frame_handler::FrameHandler;
+pub use self::frame_handler::FrameHandler;
+use crate::frb_generated::StreamSink;
 
 /// Frame change events.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -55,7 +54,7 @@ struct TextureEventNotifier {
 
 impl TextureEventNotifier {
     /// Creates a new [`TextureEventNotifier`].
-    fn new(sink: StreamSink<TextureEvent>, texture_id: i64) -> Self {
+    const fn new(sink: StreamSink<TextureEvent>, texture_id: i64) -> Self {
         Self {
             sink,
             first_frame_rendered: false,
@@ -74,7 +73,7 @@ impl TextureEventNotifier {
 
         if !self.first_frame_rendered {
             self.first_frame_rendered = true;
-            self.sink.add(TextureEvent::OnFirstFrameRendered {
+            _ = self.sink.add(TextureEvent::OnFirstFrameRendered {
                 texture_id: self.texture_id,
             });
         }
@@ -86,7 +85,7 @@ impl TextureEventNotifier {
             self.height = height;
             self.width = width;
             self.rotation = rotation;
-            self.sink.add(TextureEvent::OnTextureChange {
+            _ = self.sink.add(TextureEvent::OnTextureChange {
                 texture_id: self.texture_id,
                 width,
                 height,
@@ -100,16 +99,17 @@ impl TextureEventNotifier {
 /// Definitions and implementation of a handler for C++ API [`sys::VideoFrame`]s
 /// renderer.
 mod frame_handler {
+    #![expect(clippy::allow_attributes, reason = "`cxx` fails on `#[expect]`")]
+
+    pub use cpp_api_bindings::{OnFrameCallbackInterface, VideoFrame};
     use cxx::UniquePtr;
-    use derive_more::From;
+    use derive_more::with_trait::From;
     use libwebrtc_sys as sys;
 
     use crate::{
+        frb_generated::StreamSink,
         renderer::{TextureEvent, TextureEventNotifier},
-        stream_sink::StreamSink,
     };
-
-    pub use cpp_api_bindings::{OnFrameCallbackInterface, VideoFrame};
 
     /// Handler for a [`sys::VideoFrame`]s renderer.
     pub struct FrameHandler {
@@ -141,7 +141,7 @@ mod frame_handler {
     }
 
     impl From<UniquePtr<sys::VideoFrame>> for VideoFrame {
-        #[allow(clippy::cast_sign_loss)]
+        #[expect(clippy::cast_sign_loss, reason = "guarded by `assert!`")]
         fn from(frame: UniquePtr<sys::VideoFrame>) -> Self {
             let height = frame.height();
             let width = frame.width();
@@ -165,6 +165,11 @@ mod frame_handler {
     #[derive(From)]
     pub struct Frame(Box<UniquePtr<sys::VideoFrame>>);
 
+    #[allow( // `cxx::bridge` macro expansion
+        clippy::absolute_paths,
+        let_underscore_drop,
+        reason = "`cxx::bridge` macro expansion"
+    )]
     #[cxx::bridge]
     mod cpp_api_bindings {
         /// Single video `frame`.
@@ -211,13 +216,13 @@ mod frame_handler {
         // This will trigger `cxx` to generate `UniquePtrTarget` trait for the
         // mentioned types.
         extern "Rust" {
-            fn _touch_unique_ptr_on_frame_handler(
+            fn touch_unique_ptr_on_frame_handler(
                 i: UniquePtr<OnFrameCallbackInterface>,
             );
         }
     }
 
-    fn _touch_unique_ptr_on_frame_handler(
+    fn touch_unique_ptr_on_frame_handler(
         _: cxx::UniquePtr<OnFrameCallbackInterface>,
     ) {
     }
@@ -230,7 +235,12 @@ mod frame_handler {
         ///
         /// The provided `buffer` must be a valid pointer.
         pub unsafe fn get_abgr_bytes(&self, buffer: *mut u8) {
-            libwebrtc_sys::video_frame_to_abgr(self.frame.0.as_ref(), buffer);
+            unsafe {
+                libwebrtc_sys::video_frame_to_abgr(
+                    self.frame.0.as_ref(),
+                    buffer,
+                );
+            }
         }
     }
 }
@@ -245,8 +255,8 @@ mod frame_handler {
     use libwebrtc_sys as sys;
 
     use crate::{
+        frb_generated::StreamSink,
         renderer::{TextureEvent, TextureEventNotifier},
-        stream_sink::StreamSink,
     };
 
     /// Handler for a [`sys::VideoFrame`]s renderer.
@@ -257,7 +267,9 @@ mod frame_handler {
 
     impl Drop for FrameHandler {
         fn drop(&mut self) {
-            unsafe { drop_handler(self.inner) };
+            unsafe {
+                drop_handler(self.inner);
+            }
         }
     }
 
@@ -278,14 +290,14 @@ mod frame_handler {
         pub buffer_size: usize,
 
         /// Actual [`sys::VideoFrame`].
-        #[allow(clippy::struct_field_names)]
+        #[expect(clippy::struct_field_names, reason = "naming is OK")]
         pub frame: *mut sys::VideoFrame,
     }
 
     impl FrameHandler {
         /// Returns new [`FrameHandler`] with the provided [`sys::VideoFrame`]s
         /// receiver.
-        pub fn new(
+        pub const fn new(
             handler: *const (),
             sink: StreamSink<TextureEvent>,
             texture_id: i64,
@@ -297,7 +309,7 @@ mod frame_handler {
         }
 
         /// Passes the provided [`sys::VideoFrame`] to the C side listener.
-        #[allow(clippy::cast_sign_loss, clippy::too_many_lines)]
+        #[expect(clippy::cast_sign_loss, reason = "guarded by `assert!`")]
         pub fn on_frame(&mut self, frame: UniquePtr<sys::VideoFrame>) {
             let height = frame.height();
             let width = frame.width();
@@ -323,7 +335,7 @@ mod frame_handler {
         }
     }
 
-    extern "C" {
+    unsafe extern "C" {
         /// C side function into which [`Frame`]s will be passed.
         pub fn on_frame_caller(handler: *const (), frame: Frame);
 
@@ -337,22 +349,23 @@ mod frame_handler {
     /// # Safety
     ///
     /// The provided `buffer` must be a valid pointer.
-    #[no_mangle]
+    #[unsafe(no_mangle)]
     unsafe extern "C" fn get_argb_bytes(
         frame: *mut sys::VideoFrame,
         argb_stride: i32,
         buffer: *mut u8,
     ) {
-        libwebrtc_sys::video_frame_to_argb(
-            frame.as_ref().unwrap(),
-            argb_stride,
-            buffer,
-        );
+        let framer_ref = unsafe { frame.as_ref().unwrap() };
+        unsafe {
+            libwebrtc_sys::video_frame_to_argb(framer_ref, argb_stride, buffer);
+        }
     }
 
     /// Drops the provided [`sys::VideoFrame`].
-    #[no_mangle]
+    #[unsafe(no_mangle)]
     unsafe extern "C" fn drop_frame(frame: *mut sys::VideoFrame) {
-        UniquePtr::from_raw(frame);
+        unsafe {
+            UniquePtr::from_raw(frame);
+        }
     }
 }

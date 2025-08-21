@@ -13,7 +13,7 @@ import io.flutter.plugin.common.MethodChannel
  * @property sender Underlying [RtpSenderProxy] to perform [MethodCall]s on.
  */
 class RtpSenderController(messenger: BinaryMessenger, private val sender: RtpSenderProxy) :
-    MethodChannel.MethodCallHandler, IdentifiableController {
+    Controller {
   /** Unique ID of the [MethodChannel] of this controller. */
   private val channelId = nextChannelId()
 
@@ -22,6 +22,7 @@ class RtpSenderController(messenger: BinaryMessenger, private val sender: RtpSen
 
   init {
     chan.setMethodCallHandler(this)
+    ControllerRegistry.register(this)
   }
 
   override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
@@ -46,6 +47,7 @@ class RtpSenderController(messenger: BinaryMessenger, private val sender: RtpSen
                   "maxBitrate" to enc.maxBitrateBps,
                   "maxFramerate" to enc.maxFramerate,
                   "scaleResolutionDownBy" to enc.scaleResolutionDownBy,
+                  "scalabilityMode" to enc.scalabilityMode,
               )
             }
 
@@ -70,19 +72,27 @@ class RtpSenderController(messenger: BinaryMessenger, private val sender: RtpSen
           enc.maxBitrateBps = e["maxBitrate"] as Int?
           enc.maxFramerate = e["maxFramerate"] as Int?
           enc.scaleResolutionDownBy = e["scaleResolutionDownBy"] as Double?
+          enc.scalabilityMode = e["scalabilityMode"] as String?
         }
 
         if (!sender.setParameters(params)) {
           result.error("SenderException", "Could not set parameters", null)
+          return
         }
 
         result.success(null)
       }
       "dispose" -> {
-        chan.setMethodCallHandler(null)
+        dispose()
         result.success(null)
       }
     }
+  }
+
+  override fun dispose() {
+    ControllerRegistry.unregister(this)
+    chan.setMethodCallHandler(null)
+    sender.setDisposed()
   }
 
   /**

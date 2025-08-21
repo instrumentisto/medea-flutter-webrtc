@@ -1,7 +1,7 @@
 Contribution Guide
 ==================
 
-We love contributions from everyone, whether it's raising an issue, reporting a bug, adding a feature, or helping improve a documentation. Maintaining the `medea_flutter_webrtc` plugin for all the platforms is not an easy task, so everything you do is support for the project.
+We love contributions from everyone, whether it's raising an issue, reporting a bug, adding a feature, or helping improve documentation. Maintaining the `medea_flutter_webrtc` plugin for all the platforms is not an easy task, so everything you do is support for the project.
 
 1. [Code style](#code-style)
     - [Rust](#rust)
@@ -17,146 +17,9 @@ We love contributions from everyone, whether it's raising an issue, reporting a 
 
 ### Rust
 
-**All [Rust] source code must be formatted with [rustfmt] and linted with [Clippy] linter** (see `cargo.fmt` and `cargo.lint` commands in [`Makefile`]), customized by project settings ([`.rustfmt.toml`](.nightly.rustfmt.toml) and [`.clippy.toml`](.clippy.toml) files).
+**All [Rust] source code must be formatted with [rustfmt] and linted with [Clippy] linter** (see `cargo.fmt` and `cargo.lint` commands in [`Makefile`]), customized by project settings ([`.rustfmt.toml`](.rustfmt.toml) and [`.clippy.toml`](.clippy.toml) files).
 
 Additional rules, not handled by [rustfmt] and [Clippy] are described below.
-
-#### Imports, re-exports and modules declarations
-
-These should be divided into the following ordered sections:
-1. modules declarations (`mod` and `pub mode` keywords);
-2. imports sections (`use` keyword):
-    1. `std`/`core` imports;
-    2. external crates imports;
-    3. this crate imports (start with `crate::`);
-    4. imports from parent modules (start with `super::`);
-    5. imports from sub-modules (start with `self::`).
-3. re-export sections (`pub use` keyword):
-    1. `std`/`core` re-exports;
-    2. external crates re-exports;
-    3. this crate re-exports (start with `crate::`);
-    4. re-exports from parent modules (start with `super::`);
-    5. re-exports from sub-modules (start with `self::`).
-
-A **blank line** is mandatory **between these sections**, **before** and **after**.
-
-Items must be **sorted in alphabetical** order inside **each section** and inside **each statement**.
-
-If **imported trait** is **not used directly**, then it must be **underscore imported** (`as _`) to not pollute the current module's namespace.
-
-Import **multiple items in one statement** from one location, rather than using multiple statements (usually, controlled by `merge_imports` option of [rustfmt]).
-
-##### 👍 Correct example
-
-```rust
-//! Some module.
-
-mod private_stuff;
-pub mod public_stuff;
-
-use std::sync::{Arc, Mutex};
-
-use chrono::{DateTime, Utc};
-use futures::Future as _;
-use serde::{Deserialize, Serialize};
-
-use crate::core::{DynFuture, DynStream};
-
-use super::event;
-
-use self::private_stuff::util;
-
-pub use postgres::Type;
-
-pub use crate::core::util::UnfoldingStream;
-
-pub use super::props::Error;
-
-pub use self::public_stuff::*;
-
-const LIMIT: u8 = 100;
-```
-
-##### 🚫 Wrong examples
-
-- No blank lines:
-
-    ```rust
-    //! Some module.
-    mod private_stuff;
-    pub mod public_stuff;
-    ```
-
-    ```rust
-    use std::sync::{Arc, Mutex};
-    use chrono::{DateTime, Utc};
-    use futures::Future as _;
-    use serde::{Deserialize, Serialize};
-    use crate::core::{DynFuture, DynStream};
-    use super::event;
-    use self::private_stuff::util;
-    pub use postgres::Type;
-    pub use crate::core::util::UnfoldingStream;
-    pub use super::props::Error;
-    pub use self::public_stuff::*;
-    ```
-
-    ```rust
-    use std::sync::{Arc, Mutex};
-    use chrono::{DateTime, Utc};
-    use futures::Future as _;
-    use serde::{Deserialize, Serialize};
-
-    use crate::core::{DynFuture, DynStream};
-    use super::event;
-    use self::private_stuff::util;
-
-    pub use postgres::Type;
-    pub use crate::core::util::UnfoldingStream;
-    pub use super::props::Error;
-    pub use self::public_stuff::*;
-    ```
-
-    ```rust
-    pub use self::public_stuff::*;
-    const LIMIT: u8 = 100;
-    ```
-
-- Not sorted alphabetically:
-
-    ```rust
-    use serde::{Serialize, Deserialize};
-    ```
-
-    ```rust
-    pub mod public_stuff;
-    mod private_stuff;
-
-    use futures::Future as _;
-    use serde::{Deserialize, Serialize};
-    use chrono::{DateTime, Utc};
-    ```
-
-- Multiple statements for items from the same location:
-
-    ```rust
-    use chrono::DateTime;
-    use chrono::Utc;
-    use serde::Deserialize;
-    use serde::Serialize;
-    ```
-
-- Imported traits implementations without underscore:
-
-    ```rust
-    use futures::{Future, IntoFuture};
-
-    use crate::core::DynFuture;
-
-    fn do_something() -> DynFuture<i32, ()> {
-        Box::new(Ok(21).into_future().map(|n| n + 1))
-    }
-    ```
 
 #### Attributes
 
@@ -166,7 +29,7 @@ const LIMIT: u8 = 100;
 
 ```rust
 #[allow(clippy::mut_mut)]
-#[derive(smart_default::SmartDefault, Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, smart_default::SmartDefault)]
 #[serde(deny_unknown_fields)]
 struct User {
     #[serde(default)]
@@ -178,7 +41,7 @@ struct User {
 
 ```rust
 #[serde(deny_unknown_fields)]
-#[derive(smart_default::SmartDefault, Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, smart_default::SmartDefault)]
 #[allow(clippy::mut_mut)]
 struct User {
     id: u64,
@@ -187,6 +50,13 @@ struct User {
 
 ```rust
 #[derive(Debug, smart_default::SmartDefault, Serialize, Deserialize)]
+struct User {
+    id: u64,
+}
+```
+
+```rust
+#[derive(smart_default::SmartDefault, Debug, Deserialize, Serialize)]
 struct User {
     id: u64,
 }
@@ -204,9 +74,9 @@ Other **code definitions** should be **referred via ```[`Entity`]``` marking** (
 
 ```rust
 /// Type of [`User`]'s unique identifier.
-/// 
+///
 /// # Constraints
-/// 
+///
 /// - It **must not be zero**.
 /// - It _should not_ overflow [`i64::max_value`] due to usage in database.
 struct UserId(u64);
@@ -218,9 +88,9 @@ struct UserId(u64);
 
     ```rust
     /// Type of [`User`]'s unique identifier.
-    /// 
+    ///
     /// ## Constraints
-    /// 
+    ///
     /// - It **must not be zero**.
     /// - It _should not_ overflow [`i64::max_value`] due to usage in database.
     struct UserId(u64);
@@ -230,9 +100,9 @@ struct UserId(u64);
 
     ```rust
     /// Type of User's unique identifier.
-    /// 
+    ///
     /// # Constraints
-    /// 
+    ///
     /// - It **must not be zero**.
     /// - It _should not_ overflow `i64::max_value` due to usage in database.
     struct UserId(u64);
@@ -242,9 +112,9 @@ struct UserId(u64);
 
     ```rust
     /// Type of [`User`]'s unique identifier.
-    /// 
+    ///
     /// # Constraints
-    /// 
+    ///
     /// - It __must not be zero__.
     /// - It *should not* overflow [`i64::max_value`] due to usage in database.
     struct UserId(u64);

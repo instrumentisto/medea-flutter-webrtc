@@ -5,45 +5,28 @@
 #include <AL/alc.h>
 #include <mutex>
 
-#include "api/media_stream_interface.h"
-#include "libwebrtc-sys/include/local_audio_source.h"
-#include "rtc_base/thread.h"
-
-constexpr auto kPlayoutFrequency = 48000;
-constexpr auto kRecordingFrequency = 48000;
-constexpr auto kRecordingChannels = 1;
-constexpr std::int64_t kBufferSizeMs = 10;
-constexpr auto kProcessInterval = 10;
-constexpr auto kALMaxValues = 6;
-constexpr auto kQueryExactTimeEach = 20;
-constexpr auto kDefaultPlayoutLatency = std::chrono::duration<double>(20.0);
-constexpr auto kDefaultRecordingLatency = std::chrono::milliseconds(20);
-constexpr auto kRestartAfterEmptyData = 50;  // Half a second with no data.
-constexpr auto kPlayoutPart = (kPlayoutFrequency * kBufferSizeMs + 999) / 1000;
-constexpr auto kBuffersFullCount = 7;
-constexpr auto kBuffersKeepReadyCount = 5;
-constexpr auto kRecordingPart =
-    (kRecordingFrequency * kBufferSizeMs + 999) / 1000;
+#include "libwebrtc-sys/include/audio_recorder.h"
 
 // Audio recording from an audio device and propagation of the recorded audio
 // data to a `bridge::LocalAudioSource`.
-class AudioDeviceRecorder {
+class AudioDeviceRecorder final : public AudioRecorder {
  public:
-  AudioDeviceRecorder(std::string deviceId);
+  AudioDeviceRecorder(std::string deviceId,
+                      webrtc::scoped_refptr<webrtc::AudioProcessing> ap);
 
   // Captures a new batch of audio samples and propagates it to the inner
   // `bridge::LocalAudioSource`.
-  bool ProcessRecordedPart(bool firstInCycle);
+  bool ProcessRecordedPart(bool firstInCycle) override;
 
   // Stops audio capture freeing the captured device.
-  void StopCapture();
+  void StopCapture() override;
 
   // Starts recording audio from the captured device.
-  void StartCapture();
+  bool StartCapture() override;
 
   // Returns the `bridge::LocalAudioSource` that this `AudioDeviceRecorder`
   // writes the recorded audio to.
-  rtc::scoped_refptr<bridge::LocalAudioSource> GetSource();
+  webrtc::scoped_refptr<bridge::LocalAudioSource> GetSource() override;
 
  private:
   void openRecordingDevice();
@@ -52,15 +35,15 @@ class AudioDeviceRecorder {
   void restartRecording();
   bool validateRecordingDeviceId();
 
-  rtc::scoped_refptr<bridge::LocalAudioSource> _source;
+  webrtc::scoped_refptr<bridge::LocalAudioSource> _source;
+  webrtc::scoped_refptr<webrtc::AudioProcessing> _audio_processing;
   ALCdevice* _device;
   std::string _deviceId;
   std::recursive_mutex _mutex;
   bool _recordingFailed = false;
   bool _recording = false;
   int _recordBufferSize = kRecordingPart * sizeof(int16_t) * kRecordingChannels;
-  std::vector<char>* _recordedSamples =
-      new std::vector<char>(_recordBufferSize, 0);
+  std::vector<char> _recordedSamples;
   int _emptyRecordingData = 0;
 };
 

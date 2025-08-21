@@ -14,11 +14,11 @@
 
 // `VideoTrackSourceInterface` that captures frames from a local video input
 // device.
-class DeviceVideoCapturer : public rtc::AdaptedVideoTrackSource,
-                            public rtc::VideoSinkInterface<webrtc::VideoFrame> {
+class DeviceVideoCapturer : public webrtc::AdaptedVideoTrackSource,
+                            public webrtc::VideoSinkInterface<webrtc::VideoFrame> {
  public:
   // Creates a new `DeviceVideoCapturer`.
-  static rtc::scoped_refptr<DeviceVideoCapturer> Create(size_t width,
+  static webrtc::scoped_refptr<DeviceVideoCapturer> Create(size_t width,
                                                         size_t height,
                                                         size_t target_fps,
                                                         uint32_t device_index);
@@ -30,7 +30,7 @@ class DeviceVideoCapturer : public rtc::AdaptedVideoTrackSource,
   // Indicates that the encoder should denoise video before encoding it.
   // If it's not set, the default configuration is used which is different
   // depending on a video codec.
-  absl::optional<bool> needs_denoising() const override;
+  std::optional<bool> needs_denoising() const override;
 
   // Returns state of this `DeviceVideoCapturer`.
   webrtc::MediaSourceInterface::SourceState state() const override;
@@ -58,7 +58,7 @@ class DeviceVideoCapturer : public rtc::AdaptedVideoTrackSource,
 
   // `VideoCaptureModule` responsible for capturing track from the local video
   // input device.
-  rtc::scoped_refptr<webrtc::VideoCaptureModule> vcm_;
+  webrtc::scoped_refptr<webrtc::VideoCaptureModule> vcm_;
 
   // `VideoCaptureCapability` used to capture media.
   webrtc::VideoCaptureCapability capability_;

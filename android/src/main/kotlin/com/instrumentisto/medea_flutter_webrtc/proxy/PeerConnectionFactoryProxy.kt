@@ -1,15 +1,18 @@
 package com.instrumentisto.medea_flutter_webrtc.proxy
 
 import android.media.AudioManager.*
+import com.instrumentisto.medea_flutter_webrtc.ForegroundCallService
+import com.instrumentisto.medea_flutter_webrtc.Permissions
 import com.instrumentisto.medea_flutter_webrtc.State
 import com.instrumentisto.medea_flutter_webrtc.model.PeerConnectionConfiguration
+import org.webrtc.PeerConnectionFactory
 
 /**
  * Creator of new [PeerConnectionProxy]s.
  *
  * @property state Global state used for creation.
  */
-class PeerConnectionFactoryProxy(val state: State) {
+class PeerConnectionFactoryProxy(private val state: State, private val permissions: Permissions) {
   /** Counter for generating new [PeerConnectionProxy] IDs. */
   private var lastPeerConnectionId: Int = 0
 
@@ -20,6 +23,9 @@ class PeerConnectionFactoryProxy(val state: State) {
    */
   private var peerObservers: HashMap<Int, PeerObserver> = HashMap()
 
+  /** Disposed state of this [PeerConnectionFactoryProxy]. */
+  private var disposed = false
+
   /**
    * Creates a new [PeerConnectionProxy] based on the provided [PeerConnectionConfiguration].
    *
@@ -27,11 +33,7 @@ class PeerConnectionFactoryProxy(val state: State) {
    *
    * @return Newly created [PeerConnectionProxy].
    */
-  fun create(config: PeerConnectionConfiguration): PeerConnectionProxy {
-    if (peerObservers.isEmpty()) {
-      state.getAudioManager().mode = MODE_IN_COMMUNICATION
-    }
-
+  suspend fun create(config: PeerConnectionConfiguration): PeerConnectionProxy {
     val id = nextId()
     val peerObserver = PeerObserver()
     val peer =
@@ -41,9 +43,27 @@ class PeerConnectionFactoryProxy(val state: State) {
     peerObserver.setPeerConnection(peerProxy)
     peerProxy.onDispose(::removePeerObserver)
 
+    if (peerObservers.isEmpty()) {
+      state.getAudioManager().mode = MODE_IN_COMMUNICATION
+      ForegroundCallService.start(state.context, permissions)
+    }
+
     peerObservers[id] = peerObserver
 
     return peerProxy
+  }
+
+  /** Returns the underlying [PeerConnectionFactory]. */
+  fun getPeerConnectionFactory(): PeerConnectionFactory {
+    return state.getPeerConnectionFactory()
+  }
+
+  /** Disposes the underlying [PeerConnectionFactory]. */
+  fun dispose() {
+    if (disposed) return
+
+    state.getPeerConnectionFactory().dispose()
+    disposed = true
   }
 
   /** Removes the specified [PeerObserver] from the [peerObservers]. */
@@ -51,6 +71,7 @@ class PeerConnectionFactoryProxy(val state: State) {
     peerObservers.remove(id)
     if (peerObservers.isEmpty()) {
       state.getAudioManager().mode = MODE_NORMAL
+      ForegroundCallService.stop(state.context, permissions)
     }
   }
 

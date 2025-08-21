@@ -10,7 +10,7 @@ import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';
 class GetUserMediaSample extends StatefulWidget {
   static String tag = 'get_usermedia_sample';
 
-  const GetUserMediaSample({Key? key}) : super(key: key);
+  const GetUserMediaSample({super.key});
 
   @override
   State<GetUserMediaSample> createState() => _GetUserMediaSampleState();
@@ -45,9 +45,11 @@ class _GetUserMediaSampleState extends State<GetUserMediaSample> {
 
     _localRenderer.onCanPlay = () => {print('onCanPlay fired')};
     _localRenderer.onResize = () => {
-          print('resize: width = ${_localRenderer.videoWidth}, '
-              'height = ${_localRenderer.videoHeight}')
-        };
+      print(
+        'resize: width = ${_localRenderer.videoWidth}, '
+        'height = ${_localRenderer.videoHeight}',
+      ),
+    };
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -65,10 +67,19 @@ class _GetUserMediaSampleState extends State<GetUserMediaSample> {
     try {
       var stream = await getUserMedia(caps);
       _mediaDevicesList = await enumerateDevices();
+      for (var t in stream) {
+        t.onEnded(() {
+          print(
+            "Track ended: id = ${t.id()}, kind = ${t.kind()}, deviceId = ${t.deviceId()}",
+          );
+        });
+      }
       _tracks = stream;
-      await _localRenderer.setSrcObject(_tracks!.firstWhere((track) {
-        return track.kind() == MediaKind.video;
-      }));
+      await _localRenderer.setSrcObject(
+        _tracks!.firstWhere((track) {
+          return track.kind() == MediaKind.video;
+        }),
+      );
     } catch (e) {
       print(e.toString());
     }
@@ -106,14 +117,17 @@ class _GetUserMediaSampleState extends State<GetUserMediaSample> {
                   itemBuilder: (BuildContext context) {
                     if (_mediaDevicesList != null) {
                       return _mediaDevicesList!
-                          .where((device) =>
-                              device.kind == MediaDeviceKind.audiooutput)
+                          .where(
+                            (device) =>
+                                device.kind == MediaDeviceKind.audiooutput,
+                          )
                           .map((device) {
-                        return PopupMenuItem<String>(
-                          value: device.deviceId,
-                          child: Text(device.label),
-                        );
-                      }).toList();
+                            return PopupMenuItem<String>(
+                              value: device.deviceId,
+                              child: Text(device.label),
+                            );
+                          })
+                          .toList();
                     }
                     return [];
                   },
@@ -124,14 +138,17 @@ class _GetUserMediaSampleState extends State<GetUserMediaSample> {
                   itemBuilder: (BuildContext context) {
                     if (_mediaDevicesList != null) {
                       return _mediaDevicesList!
-                          .where((device) =>
-                              device.kind == MediaDeviceKind.audioinput)
+                          .where(
+                            (device) =>
+                                device.kind == MediaDeviceKind.audioinput,
+                          )
                           .map((device) {
-                        return PopupMenuItem<String>(
-                          value: device.deviceId,
-                          child: Text(device.label),
-                        );
-                      }).toList();
+                            return PopupMenuItem<String>(
+                              value: device.deviceId,
+                              child: Text(device.label),
+                            );
+                          })
+                          .toList();
                     }
                     return [];
                   },
@@ -142,19 +159,22 @@ class _GetUserMediaSampleState extends State<GetUserMediaSample> {
                   itemBuilder: (BuildContext context) {
                     if (_mediaDevicesList != null) {
                       return _mediaDevicesList!
-                          .where((device) =>
-                              device.kind == MediaDeviceKind.videoinput)
+                          .where(
+                            (device) =>
+                                device.kind == MediaDeviceKind.videoinput,
+                          )
                           .map((device) {
-                        return PopupMenuItem<String>(
-                          value: device.deviceId,
-                          child: Text(device.label),
-                        );
-                      }).toList();
+                            return PopupMenuItem<String>(
+                              value: device.deviceId,
+                              child: Text(device.label),
+                            );
+                          })
+                          .toList();
                     }
                     return [];
                   },
                   icon: const Icon(Icons.camera_alt),
-                )
+                ),
               ]
             : null,
       ),

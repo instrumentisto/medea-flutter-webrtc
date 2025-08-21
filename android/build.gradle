@@ -1,16 +1,18 @@
-group 'com.instrumentisto.medea_flutter_webrtc'
-version '0.10.0-dev'
+group = "com.instrumentisto.medea_flutter_webrtc"
+version = "0.16.0-dev"
+
+def webrtcBranch = System.getenv("WEBRTC_BRANCH")
 
 buildscript {
-    ext.kotlin_version = '1.7.10'
+    ext.kotlin_version = "1.8.22"
     repositories {
         google()
         mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.2.0'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath("com.android.tools.build:gradle:8.7.0")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
     }
 }
 
@@ -18,42 +20,52 @@ rootProject.allprojects {
     repositories {
         google()
         mavenCentral()
-        maven { url 'https://instrumentisto.github.io/libwebrtc-bin/android' }
+
+        if (webrtcBranch == null) {
+            maven {
+                url "https://instrumentisto.github.io/libwebrtc-bin/android"
+            }
+        } else {
+            flatDir { dirs "lib" }
+        }
     }
 }
 
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
+apply plugin: "com.android.library"
+apply plugin: "kotlin-android"
 
 android {
-    compileSdkVersion 31
+    namespace = "com.instrumentisto.medea_flutter_webrtc"
 
-    defaultConfig {
-        minSdkVersion 24
-        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
-        consumerProguardFiles 'proguard-rules.pro'
-    }
-
-    lintOptions {
-        disable 'InvalidPackage'
-    }
+    compileSdk = 34
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = JavaVersion.VERSION_11
     }
 
     sourceSets {
-        main.java.srcDirs += 'src/main/kotlin'
+        main.java.srcDirs += "src/main/kotlin"
     }
-}
 
-dependencies {
-    implementation 'com.github.instrumentisto:libwebrtc-bin:118.0.5993.88@aar'
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
+    defaultConfig {
+        minSdk = 21
+        consumerProguardFiles("proguard-rules.pro")
+    }
+
+    buildFeatures {
+        buildConfig = true
+    }
+
+    dependencies {
+        if (webrtcBranch == null) {
+            implementation "com.github.instrumentisto:libwebrtc-bin:139.0.7258.127@aar"
+        } else {
+            implementation(name: "libwebrtc-bin-${webrtcBranch}", ext: 'aar')
+        }
+    }
 }
