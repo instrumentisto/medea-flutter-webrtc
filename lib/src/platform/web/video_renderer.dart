@@ -111,12 +111,12 @@ class WebVideoRenderer extends VideoRenderer {
 
   String get _elementIdForVideo => 'video_RTCVideoRenderer-$textureId';
 
-  void _updateAllValues() {
-    final element = findHtmlView();
+  void _updateAllValues(web.HTMLVideoElement fallback) {
+    final element = findHtmlView() ?? fallback;
     value = value.copyWith(
       rotation: 0,
-      width: element?.videoWidth.toDouble() ?? 0.0,
-      height: element?.videoHeight.toDouble() ?? 0.0,
+      width: element.videoWidth.toDouble(),
+      height: element.videoHeight.toDouble(),
       renderVideo: renderVideo,
     );
   }
@@ -216,14 +216,14 @@ class WebVideoRenderer extends VideoRenderer {
 
       _subscriptions.add(
         element.onCanPlay.listen((dynamic _) {
-          _updateAllValues();
+          _updateAllValues(element);
           onCanPlay?.call();
         }),
       );
 
       _subscriptions.add(
         element.onResize.listen((dynamic _) {
-          _updateAllValues();
+          _updateAllValues(element);
           onResize?.call();
         }),
       );
