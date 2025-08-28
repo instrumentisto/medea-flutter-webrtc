@@ -26,8 +26,7 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Fixed
 
-- [Android]:
-  - `WebVideoRenderer` reporting 0x0 dimensions. ([#252])
+- `WebVideoRenderer` reporting 0x0 dimensions. ([#252])
 
 [#244]: https://github.com/instrumentisto/medea-flutter-webrtc/issues/244
 [#245]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/245
