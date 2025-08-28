@@ -24,10 +24,16 @@ All user visible changes to this project will be documented in this file. This p
 
 - Upgraded [libwebrtc] to [139.0.7258.138] version. ([#248], [todo])
 
+### Fixed
+
+- [Android]:
+  - `WebVideoRenderer` reporting 0x0 dimensions. ([#252])
+
 [#244]: https://github.com/instrumentisto/medea-flutter-webrtc/issues/244
 [#245]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/245
 [#248]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/248
 [#250]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/250
+[#252]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/252
 [139.0.7258.138]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/139.0.7258.138
 
 
