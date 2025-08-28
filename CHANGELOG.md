@@ -18,12 +18,14 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Added
 
+- Support `PeerConnection.videoDecoders()` and `PeerConnection.videoEncoders()` on iOS. ([#148])
 - Support for system audio capturing on [Windows] via `getDisplayMedia()`. ([#245], [#244])
 
 ### Changed
 
 - Upgraded [libwebrtc] to [139.0.7258.138] version. ([#248], [todo])
 
+[#148]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/148
 [#244]: https://github.com/instrumentisto/medea-flutter-webrtc/issues/244
 [#245]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/245
 [#248]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/248

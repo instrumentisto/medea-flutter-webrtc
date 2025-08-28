@@ -73,48 +73,10 @@ class PeerConnectionFactoryController {
 
       result(capabilities.asFlutterResult())
     case "videoEncoders":
-      let res = [
-        VideoCodecInfo(
-          isHardwareAccelerated: false,
-          codec: VideoCodec.VP8
-        ),
-        VideoCodecInfo(
-          isHardwareAccelerated: false,
-          codec: VideoCodec.VP9
-        ),
-        VideoCodecInfo(
-          isHardwareAccelerated: false,
-          codec: VideoCodec.AV1
-        ),
-        VideoCodecInfo(
-          isHardwareAccelerated: true,
-          codec: VideoCodec.H264
-        ),
-      ].map {
-        $0.asFlutterResult()
-      }
+      let res = self.peerFactory.videoEncoders().map { $0.asFlutterResult() }
       result(res)
     case "videoDecoders":
-      let res = [
-        VideoCodecInfo(
-          isHardwareAccelerated: false,
-          codec: VideoCodec.VP8
-        ),
-        VideoCodecInfo(
-          isHardwareAccelerated: false,
-          codec: VideoCodec.VP9
-        ),
-        VideoCodecInfo(
-          isHardwareAccelerated: false,
-          codec: VideoCodec.AV1
-        ),
-        VideoCodecInfo(
-          isHardwareAccelerated: true,
-          codec: VideoCodec.H264
-        ),
-      ].map {
-        $0.asFlutterResult()
-      }
+      let res = self.peerFactory.videoDecoders().map { $0.asFlutterResult() }
       result(res)
     case "dispose":
       self.channel.setMethodCallHandler(nil)
