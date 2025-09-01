@@ -28,7 +28,7 @@ static LIBWEBRTC_URL: &str = "https://github.com/instrumentisto/libwebrtc-bin";
 /// Release tag for downloading the [`libwebrtc-bin`].
 ///
 /// [`libwebrtc-bin`]: https://github.com/instrumentisto/libwebrtc-bin
-static LIBWEBRTC_RELEASE: &str = "139.0.7258.138";
+static LIBWEBRTC_RELEASE: &str = "139.0.7258.154";
 
 /// Base URL for the [`libwebrtc-bin`] GitHub API.
 ///
@@ -40,19 +40,19 @@ static GITHUB_API_URL: &str =
 fn get_expected_libwebrtc_hash() -> anyhow::Result<&'static str> {
     Ok(match get_target()? {
         Platform::LinuxArm64 => {
-            "90a4d183cc4e8de34dd6ea1ae556f447ce27c05acaf031aa3d4d3bfed8d1431f"
+            "06003eacda95fc152d35eea70be4c78179afc5817f0d108f16a6ed6ebd6ae779"
         }
         Platform::LinuxX64 => {
-            "b85be3cb6f41ff24ae4cdb14b4aec8c447093ce8144680abd98be3f06e5ac517"
+            "4ecdaa7c537d40d4a778b06e0913db2702c7124f2ff3889655a8e6b3c7432338"
         }
         Platform::MacOSArm64 => {
-            "672a8abb16c26601fd54f6f4ab88c0cbb6e98c31e877b33ebec597079f675d4e"
+            "277213abef22847c4c3fb016255fba7f0411d2ab772c58fe8d060714d4fa5970"
         }
         Platform::MacOSX64 => {
-            "76cae7f8f0982aa59eaf252d9dd3c0273aa2c8c59891e75def84f0b29a734760"
+            "efe45b0fac558e1fef0c20f0b4a2ef2e43c92204bd07f31d63951712f05490ee"
         }
         Platform::WindowsX64 => {
-            "5d83433600653a5a11d21c226b9d78ccbb8baf46a07f30aa46b9108e894b83a5"
+            "f6ea10071e1bc2ada8296e325a76440251843af9754e5885ba0b825caad5dd27"
         }
     })
 }
