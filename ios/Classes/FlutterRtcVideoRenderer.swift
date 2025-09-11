@@ -14,9 +14,6 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
   /// Pixel buffer into which video will be rendered from the track.
   private var pixelBuffer: CVPixelBuffer?
 
-  /// Last known frame size based on the `setSize()` method call.
-  private var frameSize: CGSize
-
   /// Registry for registering new `FlutterTexture`s.
   private var registry: FlutterTextureRegistry
 
@@ -39,9 +36,6 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
   /// `renderFrame()` method.
   private var frameRotation: Int = -1
 
-  /// Indicator whether the `FlutterRtcVideoRenderer` is stopped.
-  private var isRendererStopped: Bool = false
-
   /// Lock for the `renderFrame()` function.
   ///
   /// This lock is locked when some frame is currently rendering or the
@@ -50,7 +44,6 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
 
   /// Initializes a new `FlutterRtcVideoRenderer`.
   init(registry: FlutterTextureRegistry) {
-    self.frameSize = CGSize()
     self.registry = registry
     super.init()
     let textureId = registry.register(self)
@@ -108,118 +101,55 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
   ///
   /// Returns `nil` if no frames are available.
   func copyPixelBuffer() -> Unmanaged<CVPixelBuffer>? {
-    if self.pixelBuffer == nil {
-      return nil
+    self.rendererLock.lock()
+    defer { rendererLock.unlock() }
+
+    if let pixelBuf = self.pixelBuffer {
+        return Unmanaged<CVPixelBuffer>.passRetained(pixelBuf)
+    } else {
+        return nil
     }
-    return Unmanaged<CVPixelBuffer>.passRetained(self.pixelBuffer!)
   }
 
-  /// Creates a new `CVPixelBuffer` based on the provided `CGSize`.
-  func setSize(_ size: CGSize) {
-    if self.pixelBuffer == nil
-      ||
-      (size.width != self.frameSize.width || size.height != self.frameSize
-        .height)
-    {
-      let attrs =
-        [
-          kCVPixelBufferOpenGLCompatibilityKey: kCFBooleanTrue,
-          kCVPixelBufferOpenGLESCompatibilityKey: kCFBooleanTrue,
-          kCVPixelBufferMetalCompatibilityKey: kCFBooleanTrue,
-        ] as CFDictionary
-      let res = CVPixelBufferCreate(
-        kCFAllocatorDefault,
-        Int(size.width), Int(size.height),
-        kCVPixelFormatType_32BGRA,
-        attrs,
-        &self.pixelBuffer
-      )
-      self.frameSize = size
-    }
-  }
+  func setSize(_ size: CGSize) {}
 
   /// Resets the `CVPixelBuffer` of this renderer.
   func onTextureUnregistered(_: FlutterRtcVideoRenderer) {
     self.pixelBuffer = nil
   }
 
-  /// Resets this renderer and stops frames rendering.
-  ///
-  /// Renderer can be reused after reset.
-  func reset() {
-    self.rendererLock.lock()
-    self.frameWidth = 0
-    self.frameHeight = 0
-    self.frameRotation = -1
-    self.pixelBuffer = nil
-    self.isFirstFrameRendered = false
-    self.frameSize = CGSize()
-    self.rendererLock.unlock()
-  }
-
-  /// Corrects rotation of the provided `RTCVideoFrame` and converts it into
-  /// I420 format.
-  func correctRotation(frame: RTCVideoFrame) -> RTCI420Buffer {
-    let src = frame.buffer.toI420()
-    let rotation = frame.rotation
-    var rotatedWidth = src.width
-    var rotatedHeight = src.height
-
-    if rotation == ._90 || rotation == ._270 {
-      rotatedWidth = src.height
-      rotatedHeight = src.width
-    }
-
-    let buffer = RTCI420Buffer(width: rotatedWidth, height: rotatedHeight)
-    RTCYUVHelper.i420Rotate(
-      src.dataY,
-      srcStrideY: src.strideY,
-      srcU: src.dataU,
-      srcStrideU: src.strideU,
-      srcV: src.dataV,
-      srcStrideV: src.strideV,
-      dstY: UnsafeMutablePointer(mutating: buffer.dataY),
-      dstStrideY: buffer.strideY,
-      dstU: UnsafeMutablePointer(mutating: buffer.dataU),
-      dstStrideU: buffer.strideU,
-      dstV: UnsafeMutablePointer(mutating: buffer.dataV),
-      dstStrideV: buffer.strideV,
-      width: src.width,
-      height: src.height,
-      mode: rotation
-    )
-    return buffer
-  }
-
   /// Sets the `MediaStreamTrackProxy` which will be rendered by this renderer.
   func setVideoTrack(newTrack: MediaStreamTrackProxy?) {
+    self.rendererLock.lock()
+    defer { rendererLock.unlock() }
+
     if newTrack == nil {
-      self.reset()
-      self.rendererLock.lock()
+      self.frameWidth = 0
+      self.frameHeight = 0
+      self.frameRotation = -1
+      self.pixelBuffer = nil
+      self.isFirstFrameRendered = false
       self.track?.removeRenderer(renderer: self)
-      self.rendererLock.unlock()
-    }
-    if self.track != newTrack, newTrack != nil {
-      self.rendererLock.lock()
+      self.track = nil;
+    } else if self.track != newTrack {
       self.track?.removeRenderer(renderer: self)
-      self.rendererLock.unlock()
 
-      if self.track == nil {
-        newTrack!.addRenderer(renderer: self)
+      if let newTrack = newTrack {
+        newTrack.addRenderer(renderer: self)
       }
+      self.track = newTrack
     }
-
-    self.track = newTrack
   }
 
   /// Removes this renderer from the list of renderers used by the rendering
   /// track.
   func dispose() {
     self.rendererLock.lock()
+    defer { rendererLock.unlock() }
+
     if self.track != nil {
       self.track!.removeRenderer(renderer: self)
     }
-    self.rendererLock.unlock()
   }
 
   /// Renders the provided `RTCVideoFrame` to the `CVPixelBuffer`.
@@ -233,13 +163,14 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
   /// frame.
   func renderFrame(_ renderFrame: RTCVideoFrame?) {
     self.rendererLock.lock()
-    if renderFrame == nil {
-      self.rendererLock.unlock()
+    defer { rendererLock.unlock() }
+
+    guard let renderFrame = renderFrame else {
       return
     }
 
     var rotation = 0
-    switch renderFrame!.rotation {
+    switch renderFrame.rotation {
     case RTCVideoRotation._0:
       rotation = 0
     case RTCVideoRotation._90:
@@ -250,17 +181,16 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
       rotation = 270
     }
 
-    let buffer = self.correctRotation(frame: renderFrame!)
-    let isFrameWidthChanged = self.frameWidth != buffer.width
-    let isFrameHeightChanged = self.frameHeight != buffer.height
+    let isFrameWidthChanged = self.frameWidth != renderFrame.buffer.width
+    let isFrameHeightChanged = self.frameHeight != renderFrame.buffer.height
     let isFrameRotationChanged = self.frameRotation != rotation
 
     if isFrameWidthChanged
       || isFrameHeightChanged
       || isFrameRotationChanged
     {
-      self.frameWidth = buffer.width
-      self.frameHeight = buffer.height
+      self.frameWidth = renderFrame.buffer.width
+      self.frameHeight = renderFrame.buffer.height
       self.frameRotation = rotation
 
       let frameWidth = self.frameWidth
@@ -276,43 +206,59 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
       }
     }
 
-    if self.pixelBuffer == nil {
-      self.rendererLock.unlock()
-      return
-    }
+    if let cv = renderFrame.buffer as? RTCCVPixelBuffer {
+        self.pixelBuffer = cv.pixelBuffer
+    } else {
+      let buffer = renderFrame.buffer.toI420()
 
-    CVPixelBufferLockBaseAddress(
-      self.pixelBuffer!,
-      CVPixelBufferLockFlags(rawValue: 0)
-    )
-    let dst = CVPixelBufferGetBaseAddress(self.pixelBuffer!)!
-    let bytesPerRow = CVPixelBufferGetBytesPerRow(self.pixelBuffer!)
-    RTCYUVHelper.i420(
-      toARGB: buffer.dataY,
-      srcStrideY: buffer.strideY,
-      srcU: buffer.dataU,
-      srcStrideU: buffer.strideU,
-      srcV: buffer.dataV,
-      srcStrideV: buffer.strideV,
-      dstARGB: UnsafeMutablePointer<UInt8>(OpaquePointer(dst)),
-      dstStrideARGB: Int32(bytesPerRow),
-      width: buffer.width,
-      height: buffer.height
-    )
-    CVPixelBufferUnlockBaseAddress(
-      self.pixelBuffer!,
-      CVPixelBufferLockFlags(rawValue: 0)
-    )
+      if self.pixelBuffer == nil
+        || self.frameWidth != buffer.width
+        || self.frameHeight != buffer.height
+      {
+        let attrs =
+          [
+            kCVPixelBufferOpenGLCompatibilityKey: kCFBooleanTrue,
+            kCVPixelBufferOpenGLESCompatibilityKey: kCFBooleanTrue,
+            kCVPixelBufferMetalCompatibilityKey: kCFBooleanTrue,
+          ] as CFDictionary
 
-    if !self.isFirstFrameRendered {
-      self.isFirstFrameRendered = true
-      DispatchQueue.main.async {
-        self.broadcastEventObserver().onFirstFrameRendered(id: self.textureId)
+        var newPB: CVPixelBuffer?
+        CVPixelBufferCreate(
+          kCFAllocatorDefault,
+          Int(buffer.width),
+          Int(buffer.height),
+          kCVPixelFormatType_32BGRA,
+          attrs,
+          &self.pixelBuffer
+        )
+        self.pixelBuffer = pb
       }
+
+      CVPixelBufferLockBaseAddress(self.pixelBuffer!, CVPixelBufferLockFlags(rawValue: 0))
+
+      let dst = CVPixelBufferGetBaseAddress(self.pixelBuffer!)!
+      let bytesPerRow = CVPixelBufferGetBytesPerRow(self.pixelBuffer!)
+
+      RTCYUVHelper.i420(
+        toARGB: buffer.dataY,
+        srcStrideY: buffer.strideY,
+        srcU: buffer.dataU,
+        srcStrideU: buffer.strideU,
+        srcV: buffer.dataV,
+        srcStrideV: buffer.strideV,
+        dstARGB: UnsafeMutablePointer<UInt8>(OpaquePointer(dst)),
+        dstStrideARGB: Int32(bytesPerRow),
+        width: buffer.width,
+        height: buffer.height
+      )
+      CVPixelBufferUnlockBaseAddress(self.pixelBuffer!, CVPixelBufferLockFlags(rawValue: 0))
     }
-    self.rendererLock.unlock()
 
     DispatchQueue.main.async {
+      if !self.isFirstFrameRendered {
+        self.isFirstFrameRendered = true
+        self.broadcastEventObserver().onFirstFrameRendered(id: self.textureId)
+      }
       self.registry.textureFrameAvailable(self.textureId)
     }
   }
