@@ -77,7 +77,6 @@ class _NativeVideoRendererChannel extends NativeVideoRenderer {
 
   @override
   int get videoWidth {
-
     if (Platform.isAndroid) {
       return value.rotation % 180 == 0
           ? value.width.toInt()

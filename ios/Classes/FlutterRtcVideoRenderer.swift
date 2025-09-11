@@ -105,13 +105,13 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
     defer { rendererLock.unlock() }
 
     if let pixelBuf = self.pixelBuffer {
-        return Unmanaged<CVPixelBuffer>.passRetained(pixelBuf)
+      return Unmanaged<CVPixelBuffer>.passRetained(pixelBuf)
     } else {
-        return nil
+      return nil
     }
   }
 
-  func setSize(_ size: CGSize) {}
+  func setSize(_: CGSize) {}
 
   /// Resets the `CVPixelBuffer` of this renderer.
   func onTextureUnregistered(_: FlutterRtcVideoRenderer) {
@@ -130,7 +130,7 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
       self.pixelBuffer = nil
       self.isFirstFrameRendered = false
       self.track?.removeRenderer(renderer: self)
-      self.track = nil;
+      self.track = nil
     } else if self.track != newTrack {
       self.track?.removeRenderer(renderer: self)
 
@@ -207,7 +207,7 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
     }
 
     if let cv = renderFrame.buffer as? RTCCVPixelBuffer {
-        self.pixelBuffer = cv.pixelBuffer
+      self.pixelBuffer = cv.pixelBuffer
     } else {
       let buffer = renderFrame.buffer.toI420()
 
@@ -234,7 +234,10 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
         self.pixelBuffer = newPB
       }
 
-      CVPixelBufferLockBaseAddress(self.pixelBuffer!, CVPixelBufferLockFlags(rawValue: 0))
+      CVPixelBufferLockBaseAddress(
+        self.pixelBuffer!,
+        CVPixelBufferLockFlags(rawValue: 0)
+      )
 
       let dst = CVPixelBufferGetBaseAddress(self.pixelBuffer!)!
       let bytesPerRow = CVPixelBufferGetBytesPerRow(self.pixelBuffer!)
@@ -251,7 +254,10 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
         width: buffer.width,
         height: buffer.height
       )
-      CVPixelBufferUnlockBaseAddress(self.pixelBuffer!, CVPixelBufferLockFlags(rawValue: 0))
+      CVPixelBufferUnlockBaseAddress(
+        self.pixelBuffer!,
+        CVPixelBufferLockFlags(rawValue: 0)
+      )
     }
 
     DispatchQueue.main.async {
