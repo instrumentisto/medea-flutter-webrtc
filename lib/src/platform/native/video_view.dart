@@ -21,8 +21,8 @@ class VideoView extends StatelessWidget {
   final bool enableContextMenu;
   final FilterQuality filterQuality;
 
-  // Android is the only platform that implements rotation that implements
-  // rotation on the native side.
+  /// Indicates whether to use [RotatedBox] to rotate video inside [VideoView],
+  /// Android is the only platform that implements rotation on the native side.
   final bool _autoRotate = !Platform.isAndroid;
 
   NativeVideoRenderer get videoRenderer => _renderer as NativeVideoRenderer;

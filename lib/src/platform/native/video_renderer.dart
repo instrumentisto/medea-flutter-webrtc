@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/services.dart';
 
@@ -76,16 +77,25 @@ class _NativeVideoRendererChannel extends NativeVideoRenderer {
 
   @override
   int get videoWidth {
-    return value.rotation % 180 == 0
-        ? value.width.toInt()
-        : value.height.toInt();
+
+    if (Platform.isAndroid) {
+      return value.rotation % 180 == 0
+          ? value.width.toInt()
+          : value.height.toInt();
+    } else {
+      return value.width.toInt();
+    }
   }
 
   @override
   int get videoHeight {
-    return value.rotation % 180 == 0
-        ? value.height.toInt()
-        : value.width.toInt();
+    if (Platform.isAndroid) {
+      return value.rotation % 180 == 0
+          ? value.height.toInt()
+          : value.width.toInt();
+    } else {
+      return value.height.toInt();
+    }
   }
 
   @override
