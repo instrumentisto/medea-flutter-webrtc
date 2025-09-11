@@ -231,7 +231,7 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
           attrs,
           &self.pixelBuffer
         )
-        self.pixelBuffer = pb
+        self.pixelBuffer = newPB
       }
 
       CVPixelBufferLockBaseAddress(self.pixelBuffer!, CVPixelBufferLockFlags(rawValue: 0))
