@@ -13,6 +13,8 @@ concurrency:
 
 env:
   RUST_BACKTRACE: 1
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  WEBRTC_BRANCH: upgrade-to-140.0.7339.80
 
 jobs:
 
