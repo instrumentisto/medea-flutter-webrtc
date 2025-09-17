@@ -26,10 +26,10 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
-  instrumentisto-libwebrtc-bin: 55f346bc268a28377477148f4aefd83e9634c2ff
+  instrumentisto-libwebrtc-bin: 3c5cc970dca7b77172d45a49561720693122cf92
   integration_test: 252f60fa39af5e17c3aa9899d35d908a0721b573
-  medea_flutter_webrtc: 95c677390f3e2f20b48599a77c845ef0bdfc509c
+  medea_flutter_webrtc: fdada1fe2505169ab574ee14b93f1d7a2572a250
 
-PODFILE CHECKSUM: 1dbc3cbd33fc238907ad8f1ddbe5de6cf2d9c193
+PODFILE CHECKSUM: 96cbd66feeeb9e49d88210ea2b661316b312dda7
 
 COCOAPODS: 1.16.2
