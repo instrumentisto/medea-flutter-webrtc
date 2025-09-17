@@ -1,8 +1,8 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-import '../../api/peer.dart';
 import '../video_renderer.dart';
 
 class VideoView extends StatelessWidget {
@@ -20,7 +20,12 @@ class VideoView extends StatelessWidget {
   final bool mirror;
   final bool enableContextMenu;
   final FilterQuality filterQuality;
-  final bool _autoRotate = isDesktop;
+
+  /// Indicates whether to use a [RotatedBox] for rotating video inside a
+  /// [VideoView].
+  ///
+  /// Android is the only platform that implements rotation on the native side.
+  final bool _autoRotate = !Platform.isAndroid;
 
   NativeVideoRenderer get videoRenderer => _renderer as NativeVideoRenderer;
 
