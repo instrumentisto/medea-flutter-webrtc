@@ -17,12 +17,12 @@ Flutter WebRTC plugin based on Google WebRTC.
   s.dependency 'Flutter'
 
   if ENV['WEBRTC_BRANCH'] == nil
-      s.dependency 'instrumentisto-libwebrtc-bin', '139.0.7258.154'
+      s.dependency 'instrumentisto-libwebrtc-bin', '140.0.7339.127'
   else
       s.vendored_frameworks = 'WebRTC.xcframework'
   end
 
-  s.platform         = :ios, '13.0'
+  s.platform         = :ios, '15.0'
   s.static_framework = true
 
   # Flutter.framework does not contain a i386 slice.

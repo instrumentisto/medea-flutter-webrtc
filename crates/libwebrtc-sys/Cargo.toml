@@ -1,6 +1,6 @@
 [package]
 name = "libwebrtc-sys"
-version = "0.0.0+139.0.7258.154"
+version = "0.0.0+140.0.7339.127"
 edition = "2024"
 rust-version = "1.89"
 publish = false
@@ -26,7 +26,7 @@ serde = { version = "1.0.219", features = ["derive"] }
 sha2 = "0.10"
 tar = "0.4"
 walkdir = "2.5"
-zip = "4.3.0"
+zip = "5.1"
 
 [target.'cfg(target_os = "linux")'.build-dependencies]
 pkg-config = "0.3"
