@@ -15,6 +15,7 @@ All user visible changes to this project will be documented in this file. This p
 - Bumped up minimum supported [Flutter] version to 3.35. ([#250])
 - Bumped up minimum supported [Dart] version to 3.9. ([#250])
 - Bumped up minimum supported [Windows] deployment target to 10 (build 20348). ([#245])
+- Bumped up minimum supported [iOS] deployment target to 15. ([#254])
 
 ### Added
 
@@ -22,7 +23,7 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Changed
 
-- Upgraded [libwebrtc] to [139.0.7258.154] version. ([#248], [todo])
+- Upgraded [libwebrtc] to [140.0.7339.127] version. ([#248], [#254])
 
 ### Fixed
 
@@ -33,7 +34,8 @@ All user visible changes to this project will be documented in this file. This p
 [#248]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/248
 [#250]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/250
 [#252]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/252
-[139.0.7258.154]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/139.0.7258.154
+[#254]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/254
+[140.0.7339.127]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/140.0.7339.127
 
 
 
