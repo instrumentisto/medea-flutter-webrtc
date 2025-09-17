@@ -23,7 +23,7 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Changed
 
-- Upgraded [libwebrtc] to [140.0.7339.127] version. ([#248], [#254])
+- Upgraded [libwebrtc] to [140.0.7339.127] version. ([#254], [#248])
 
 ### Fixed
 
