@@ -23,7 +23,7 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Changed
 
-- Upgraded [libwebrtc] to [140.0.7339.127] version. ([#254], [#248])
+- Upgraded [libwebrtc] to [140.0.7339.185] version. ([todo], [#254], [#248])
 
 ### Fixed
 
@@ -35,7 +35,7 @@ All user visible changes to this project will be documented in this file. This p
 [#250]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/250
 [#252]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/252
 [#254]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/254
-[140.0.7339.127]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/140.0.7339.127
+[140.0.7339.185]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/140.0.7339.185
 
 
 
