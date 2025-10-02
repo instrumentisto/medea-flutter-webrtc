@@ -86,13 +86,15 @@ class RtpSenderController(messenger: BinaryMessenger, private val sender: RtpSen
         dispose()
         result.success(null)
       }
+      else -> result.notImplemented()
     }
   }
 
   override fun dispose() {
+    // Not disposing the actual RtpSenderProxy because its lifetime is bound
+    // to the transceiver.
     ControllerRegistry.unregister(this)
     chan.setMethodCallHandler(null)
-    sender.setDisposed()
   }
 
   /**

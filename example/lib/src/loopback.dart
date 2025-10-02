@@ -60,6 +60,16 @@ class _LoopbackState extends State<Loopback> {
         });
       }
     }();
+
+    onDeviceChange(() async {
+      try {
+        final devices = await enumerateDevices();
+        if (!mounted) return;
+        setState(() {
+          _mediaDevicesList = devices;
+        });
+      } catch (_) {}
+    });
   }
 
   @override
@@ -70,6 +80,7 @@ class _LoopbackState extends State<Loopback> {
     }
     _localRenderer.dispose();
     _remoteRenderer.dispose();
+    onDeviceChange(null);
   }
 
   void initRenderers() async {

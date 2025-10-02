@@ -17,13 +17,15 @@ class _State extends State<OnDeviceChangeNotifierSample> {
   void initState() {
     super.initState();
 
+    _handleOnDeviceChange();
+
     onDeviceChange(() {
+      count++;
       _handleOnDeviceChange();
     });
   }
 
   void _handleOnDeviceChange() async {
-    count++;
     var mediaDeviceInfos = await enumerateDevices();
     var mediaDisplayInfos = await enumerateDisplays();
 
