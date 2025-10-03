@@ -20,7 +20,7 @@ All user visible changes to this project will be documented in this file. This p
 ### Added
 
 - Support for system audio capturing on [Windows] via `getDisplayMedia()`. ([#245], [#244])
-- Capture audio focus when in call on [Android]. ([#255])
+- Capturing audio focus when in call on [Android]. ([#255])
 
 ### Changed
 
@@ -29,7 +29,7 @@ All user visible changes to this project will be documented in this file. This p
 ### Fixed
 
 - `WebVideoRenderer` reporting 0x0 dimensions. ([#252])
-- `RtpSender` being disposed before `RtpTransceiver` causing `replaceTrack` calls to do nothing on [Android]. ([#255])
+- `RtpSender` being disposed before `RtpTransceiver` causing `replaceTrack()` calls doing nothing on [Android]. ([#255])
 - `OnDeviceChangeCallback` not being called on wired headset connect/disconnect on [Android]. ([#255])
 
 [#244]: https://github.com/instrumentisto/medea-flutter-webrtc/issues/244

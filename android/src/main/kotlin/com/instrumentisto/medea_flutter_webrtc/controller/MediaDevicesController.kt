@@ -23,6 +23,7 @@ import kotlinx.coroutines.launch
  * Controller of [MediaDevices] functional.
  *
  * @property messenger Messenger used for creating new [MethodChannel]s.
+ * @property mediaDevices [MediaDevices] to perform [MethodCall]s on.
  * @param state State used for creating new [MediaStreamTrackProxy]s.
  */
 class MediaDevicesController(

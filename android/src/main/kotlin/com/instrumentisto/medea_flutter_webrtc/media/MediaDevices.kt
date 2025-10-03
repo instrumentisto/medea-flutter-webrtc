@@ -81,7 +81,7 @@ class MediaDevices(val state: State, val permissions: Permissions) : BroadcastRe
   /** Indicator of bluetooth headset connection state. */
   private var isBluetoothHeadsetConnected: Boolean = false
 
-  /** Indicator of a wired headset connection state. */
+  /** Indicator of wired headset connection state. */
   private var isWiredHeadsetConnected: Boolean = false
 
   /**
@@ -149,7 +149,7 @@ class MediaDevices(val state: State, val permissions: Permissions) : BroadcastRe
   }
 
   /**
-   * Prepares the app for an ongoing VoIP session.
+   * Prepares for an ongoing VoIP session.
    *
    * - Sets [AudioManager.mode] to [AudioManager.MODE_IN_COMMUNICATION].
    * - Requests audio focus.
@@ -271,7 +271,7 @@ class MediaDevices(val state: State, val permissions: Permissions) : BroadcastRe
    */
   private suspend fun stopBluetoothSco() {
     if (Build.VERSION.SDK_INT >= 31) {
-      // Prefer modern routing API on Android 12+
+      // Prefer modern routing API on Android 12+.
       audioManager.clearCommunicationDevice()
       stopBluetoothScoDeferred?.complete(Unit)
       stopBluetoothScoDeferred = null
@@ -306,7 +306,8 @@ class MediaDevices(val state: State, val permissions: Permissions) : BroadcastRe
             stopBluetoothSco()
           }
           if (Build.VERSION.SDK_INT >= 31) {
-            // Clear explicit routing; system will select the appropriate earpiece/wired device
+            // Clear explicit routing.
+            // System will select the appropriate earpiece/wired device.
             audioManager.clearCommunicationDevice()
           } else {
             audioManager.isSpeakerphoneOn = false

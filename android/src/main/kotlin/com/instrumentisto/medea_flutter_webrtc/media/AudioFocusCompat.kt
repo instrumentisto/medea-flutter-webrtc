@@ -14,28 +14,32 @@ import kotlinx.coroutines.withTimeoutOrNull
 
 private val TAG = AudioFocusCompat::class.java.simpleName
 
-/** Timeout for awaiting delayed audio focus gain, in milliseconds. */
-private const val FOCUS_REQUEST_TIMEOUT_MS: Long = 10_000
+/** Timeout in milliseconds for awaiting delayed audio focus gain. */
+private const val FOCUS_REQUEST_TIMEOUT_MS: Long = 10_000 // ms
 
-/** Compatibility facade for Android audio focus handling. */
+/**
+ * Compatibility facade for Android audio focus handling.
+ *
+ * @param state [State] to work with.
+ */
 abstract class AudioFocusCompat private constructor(state: State) {
   /** [AudioManager] system service used to make focus requests. */
   protected val audioManager: AudioManager = state.getAudioManager()
 
   @Volatile
-  /** Whether audio focus is currently granted to this app. */
+  /** Indicator whether audio focus is currently granted. */
   protected var granted: Boolean = false
 
   /** Shared deferred for the current in-flight focus grant, if any. */
   @Volatile protected var pendingGrant: CompletableDeferred<Boolean>? = null
 
-  /** Mutex to serialize request creation/dispatch. */
+  /** Mutex for request creation/dispatch. */
   private val requestMutex = Mutex()
 
   /**
-   * Listener that updates [granted] when the system reports focus changes.
+   * Listener updating the [granted] indicator whenever the system reports focus changes.
    *
-   * The field is shared by both implementations to centralize state updates.
+   * Shared by both implementations to centralize state updates.
    */
   protected val onAudioFocusChangeListener: AudioManager.OnAudioFocusChangeListener =
       AudioManager.OnAudioFocusChangeListener { focusChange: Int ->
@@ -112,7 +116,7 @@ abstract class AudioFocusCompat private constructor(state: State) {
 
   /**
    * Performs the platform-specific focus request and returns the raw result code from
-   * AudioManager.requestAudioFocus.
+   * [AudioManager.requestAudioFocus].
    */
   protected abstract fun requestAudioFocusInner(): Int
 
@@ -133,7 +137,11 @@ abstract class AudioFocusCompat private constructor(state: State) {
     return result
   }
 
-  /** API 26+ implementation backed by [AudioFocusRequest]. */
+  /**
+   * API 26+ implementation backed by [AudioFocusRequest].
+   *
+   * @param state [State] to work with.
+   */
   @RequiresApi(26)
   private class AudioFocusSdk26(state: State) : AudioFocusCompat(state) {
     /** Lazily constructed focus requests (immediate vs delayed). */
@@ -151,8 +159,8 @@ abstract class AudioFocusCompat private constructor(state: State) {
     }
 
     override fun requestAudioFocusInner(): Int {
-      // Try to request focus without delay first. If it fails then
-      // retry with setAcceptsDelayedFocusGain(true).
+      // Try to request focus without delay first.
+      // If it fails then retry with `setAcceptsDelayedFocusGain(true)`.
       if (immediateRequest == null) {
         immediateRequest =
             AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE)
@@ -205,7 +213,11 @@ abstract class AudioFocusCompat private constructor(state: State) {
     }
   }
 
-  /** Pre-API 26 implementation backed by legacy [AudioManager] APIs. */
+  /**
+   * Pre-API 26 implementation backed by legacy [AudioManager] APIs.
+   *
+   * @param state [State] to work with.
+   */
   private class AudioFocusSdk8(state: State) : AudioFocusCompat(state) {
     override fun requestAudioFocusInner(): Int {
       return audioManager.requestAudioFocus(
