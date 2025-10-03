@@ -196,6 +196,7 @@ class PeerConnectionController(
         disposeInternal(false)
         result.success(null)
       }
+      else -> result.notImplemented()
     }
   }
 

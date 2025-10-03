@@ -1,10 +1,10 @@
 package com.instrumentisto.medea_flutter_webrtc.controller
 
 import com.instrumentisto.medea_flutter_webrtc.ForegroundCallService
-import com.instrumentisto.medea_flutter_webrtc.MediaDevices
 import com.instrumentisto.medea_flutter_webrtc.Permissions
 import com.instrumentisto.medea_flutter_webrtc.State
 import com.instrumentisto.medea_flutter_webrtc.exception.GetUserMediaException
+import com.instrumentisto.medea_flutter_webrtc.media.MediaDevices
 import com.instrumentisto.medea_flutter_webrtc.model.Constraints
 import com.instrumentisto.medea_flutter_webrtc.proxy.MediaStreamTrackProxy
 import com.instrumentisto.medea_flutter_webrtc.proxy.PeerConnectionProxy
@@ -23,18 +23,17 @@ import kotlinx.coroutines.launch
  * Controller of [MediaDevices] functional.
  *
  * @property messenger Messenger used for creating new [MethodChannel]s.
+ * @property mediaDevices [MediaDevices] to perform [MethodCall]s on.
  * @param state State used for creating new [MediaStreamTrackProxy]s.
  */
 class MediaDevicesController(
     private val messenger: BinaryMessenger,
+    private val mediaDevices: MediaDevices,
     state: State,
     permissions: Permissions
 ) : EventChannel.StreamHandler, Controller {
   /** [CoroutineScope] for this [MediaDevicesController] */
   private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-
-  /** Underlying [MediaDevices] to perform [MethodCall]s on. */
-  private val mediaDevices = MediaDevices(state, permissions)
 
   /** Channel listened for [MethodCall]s. */
   private val chan = MethodChannel(messenger, ChannelNameGenerator.name("MediaDevices", 0))
@@ -123,6 +122,7 @@ class MediaDevicesController(
           }
         }
       }
+      else -> result.notImplemented()
     }
   }
 

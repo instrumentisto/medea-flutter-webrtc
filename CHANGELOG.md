@@ -20,6 +20,7 @@ All user visible changes to this project will be documented in this file. This p
 ### Added
 
 - Support for system audio capturing on [Windows] via `getDisplayMedia()`. ([#245], [#244])
+- Capturing audio focus when in call on [Android]. ([#255])
 
 ### Changed
 
@@ -28,6 +29,8 @@ All user visible changes to this project will be documented in this file. This p
 ### Fixed
 
 - `WebVideoRenderer` reporting 0x0 dimensions. ([#252])
+- `RtpSender` being disposed before `RtpTransceiver` causing `replaceTrack()` calls doing nothing on [Android]. ([#255])
+- `OnDeviceChangeCallback` not being called on wired headset connect/disconnect on [Android]. ([#255])
 
 [#244]: https://github.com/instrumentisto/medea-flutter-webrtc/issues/244
 [#245]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/245
@@ -35,6 +38,7 @@ All user visible changes to this project will be documented in this file. This p
 [#250]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/250
 [#252]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/252
 [#254]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/254
+[#255]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/255
 [140.0.7339.207]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/140.0.7339.207
 
 

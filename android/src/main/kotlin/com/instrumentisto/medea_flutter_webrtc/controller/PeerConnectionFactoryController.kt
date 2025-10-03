@@ -2,6 +2,7 @@ package com.instrumentisto.medea_flutter_webrtc.controller
 
 import com.instrumentisto.medea_flutter_webrtc.Permissions
 import com.instrumentisto.medea_flutter_webrtc.State
+import com.instrumentisto.medea_flutter_webrtc.media.MediaDevices
 import com.instrumentisto.medea_flutter_webrtc.model.IceServer
 import com.instrumentisto.medea_flutter_webrtc.model.IceTransportType
 import com.instrumentisto.medea_flutter_webrtc.model.PeerConnectionConfiguration
@@ -25,18 +26,21 @@ import org.webrtc.MediaStreamTrack
  * Controller of creating new [PeerConnectionController]s by a [PeerConnectionFactoryProxy].
  *
  * @property messenger Messenger used for creating new [MethodChannel]s.
- * @param state State used for creating new [PeerConnectionFactoryProxy]s.
+ * @property state State used for creating new [PeerConnectionFactoryProxy]s.
+ * @param mediaDevices [MediaDevices] used for creating new [PeerConnectionFactoryProxy]s.
  */
 class PeerConnectionFactoryController(
     private val messenger: BinaryMessenger,
     private val state: State,
+    mediaDevices: MediaDevices,
     permissions: Permissions
 ) : Controller {
   /** [CoroutineScope] for this [PeerConnectionFactoryController] */
   private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
   /** Factory creating new [PeerConnectionController]s. */
-  private val factory: PeerConnectionFactoryProxy = PeerConnectionFactoryProxy(state, permissions)
+  private val factory: PeerConnectionFactoryProxy =
+      PeerConnectionFactoryProxy(state, mediaDevices, permissions)
 
   /** Channel listened for the [MethodCall]s. */
   private val chan = MethodChannel(messenger, ChannelNameGenerator.name("PeerConnectionFactory", 0))
@@ -119,6 +123,7 @@ class PeerConnectionFactoryController(
         dispose()
         result.success(null)
       }
+      else -> result.notImplemented()
     }
   }
 

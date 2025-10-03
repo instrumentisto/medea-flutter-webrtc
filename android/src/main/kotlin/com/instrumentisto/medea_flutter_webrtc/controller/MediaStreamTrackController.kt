@@ -88,6 +88,7 @@ class MediaStreamTrackController(
         disposeInternal(false)
         result.success(null)
       }
+      else -> result.notImplemented()
     }
   }
 

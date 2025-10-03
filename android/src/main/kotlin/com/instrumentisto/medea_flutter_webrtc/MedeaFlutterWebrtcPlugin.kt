@@ -5,6 +5,7 @@ import com.instrumentisto.medea_flutter_webrtc.controller.ControllerRegistry
 import com.instrumentisto.medea_flutter_webrtc.controller.MediaDevicesController
 import com.instrumentisto.medea_flutter_webrtc.controller.PeerConnectionFactoryController
 import com.instrumentisto.medea_flutter_webrtc.controller.VideoRendererFactoryController
+import com.instrumentisto.medea_flutter_webrtc.media.MediaDevices
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -51,9 +52,11 @@ class MedeaFlutterWebrtcPlugin : FlutterPlugin, ActivityAware {
 
     activityPluginBinding = registrar
     permissions = Permissions(activityPluginBinding!!.activity)
+    val media = MediaDevices(state!!, permissions!!)
     activityPluginBinding!!.addRequestPermissionsResultListener(permissions!!)
-    mediaDevices = MediaDevicesController(messenger!!, state!!, permissions!!)
-    peerConnectionFactory = PeerConnectionFactoryController(messenger!!, state!!, permissions!!)
+    mediaDevices = MediaDevicesController(messenger!!, media, state!!, permissions!!)
+    peerConnectionFactory =
+        PeerConnectionFactoryController(messenger!!, state!!, media, permissions!!)
     videoRendererFactory = VideoRendererFactoryController(messenger!!, textureRegistry!!)
   }
 

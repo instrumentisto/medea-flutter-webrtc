@@ -75,6 +75,7 @@ class VideoRendererController(
         dispose()
         result.success(null)
       }
+      else -> result.notImplemented()
     }
   }
 

@@ -30,6 +30,7 @@ class VideoRendererFactoryController(
         val renderer = FlutterRtcVideoRenderer(textureRegistry)
         result.success(VideoRendererController(messenger, renderer).asFlutterResult())
       }
+      else -> result.notImplemented()
     }
   }
 
