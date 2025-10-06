@@ -26,7 +26,8 @@ import org.webrtc.MediaStreamTrack
  * Controller of creating new [PeerConnectionController]s by a [PeerConnectionFactoryProxy].
  *
  * @property messenger Messenger used for creating new [MethodChannel]s.
- * @param state State used for creating new [PeerConnectionFactoryProxy]s.
+ * @property state State used for creating new [PeerConnectionFactoryProxy]s.
+ * @param mediaDevices [MediaDevices] used for creating new [PeerConnectionFactoryProxy]s.
  */
 class PeerConnectionFactoryController(
     private val messenger: BinaryMessenger,
