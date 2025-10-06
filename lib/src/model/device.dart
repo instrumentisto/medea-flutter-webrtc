@@ -12,6 +12,18 @@ enum MediaDeviceKind {
   videoinput,
 }
 
+/// Possible kinds of media devices.
+enum AudioDeviceKind {
+  earSpeaker,
+  speakerphone,
+  wiredHeadphones,
+  wiredHeadset,
+  usbHeadphones,
+  usbHeadset,
+  bluetoothHeadphones,
+  bluetoothHeadset,
+}
+
 /// Information about some media device.
 class MediaDeviceInfo {
   /// Creates a [MediaDeviceInfo] basing on the [Map] received from the native
@@ -20,6 +32,9 @@ class MediaDeviceInfo {
     deviceId = map['deviceId'];
     label = map['label'];
     kind = MediaDeviceKind.values[map['kind']];
+    if (map['audioKind'] != null) {
+      audioDeviceKind = AudioDeviceKind.values[map['audioKind']];
+    }
     isFailed = map['isFailed'];
   }
 
@@ -40,6 +55,8 @@ class MediaDeviceInfo {
 
   /// Media kind of the device (for example, `audioinput` for microphone).
   late MediaDeviceKind kind;
+
+  AudioDeviceKind? audioDeviceKind;
 
   /// Indicator whether the last attempt to use this device failed.
   late bool isFailed;

@@ -22,6 +22,8 @@ class MediaDeviceInfo {
   /// Kind of the represented device.
   final MediaDeviceKind kind;
 
+  final AudioDeviceKind? audioDeviceKind;
+
   /// Label describing the represented device.
   final String label;
 
@@ -29,10 +31,8 @@ class MediaDeviceInfo {
     required this.deviceId,
     required this.kind,
     required this.label,
+    this.audioDeviceKind,
   });
-
-  @override
-  int get hashCode => deviceId.hashCode ^ kind.hashCode ^ label.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -41,7 +41,15 @@ class MediaDeviceInfo {
           runtimeType == other.runtimeType &&
           deviceId == other.deviceId &&
           kind == other.kind &&
+          audioDeviceKind == other.audioDeviceKind &&
           label == other.label;
+
+  @override
+  int get hashCode =>
+      deviceId.hashCode ^
+      kind.hashCode ^
+      audioDeviceKind.hashCode ^
+      label.hashCode;
 }
 
 /// Possible kinds of media devices.
