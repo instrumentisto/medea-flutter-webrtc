@@ -31,7 +31,7 @@ enum class MediaDeviceKind(val value: Int) {
  * @property value Integer value serialized to Flutter.
  */
 enum class AudioDeviceKind(val value: Int) {
-  /** Built-in earpiece speaker (typically used for calls). */
+  /** Built-in earpiece speaker. */
   EAR_SPEAKER(0),
 
   /** Built-in loudspeaker. */
@@ -40,13 +40,13 @@ enum class AudioDeviceKind(val value: Int) {
   /** Wired headphones without microphone. */
   WIRED_HEADPHONES(2),
 
-  /** Wired headset with microphone. */
+  /** Wired headset with a microphone. */
   WIRED_HEADSET(3),
 
   /** USB headphones without microphone. */
   USB_HEADPHONES(4),
 
-  /** USB headset with microphone. */
+  /** USB headset with a microphone. */
   USB_HEADSET(5),
 
   /** Bluetooth headphones profile (A2DP/BLE speaker). */

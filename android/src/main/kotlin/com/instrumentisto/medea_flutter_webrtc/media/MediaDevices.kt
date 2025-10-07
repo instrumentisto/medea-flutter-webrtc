@@ -92,7 +92,7 @@ class MediaDevices(val state: State, val permissions: Permissions) {
   }
 
   /**
-   * Prepares the app for an ongoing VoIP session.
+   * Prepares for an ongoing VoIP session.
    *
    * - Sets [AudioManager.mode] to [AudioManager.MODE_IN_COMMUNICATION].
    * - Requests audio focus.

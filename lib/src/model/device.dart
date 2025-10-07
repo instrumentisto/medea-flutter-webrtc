@@ -14,13 +14,28 @@ enum MediaDeviceKind {
 
 /// Possible kinds of media devices.
 enum AudioDeviceKind {
+  /// Built-in earpiece speaker.
   earSpeaker,
+
+  /// Built-in loudspeaker.
   speakerphone,
+
+  /// Wired headphones without microphone.
   wiredHeadphones,
+
+  /// Wired headset with a microphone.
   wiredHeadset,
+
+  /// USB headphones without microphone.
   usbHeadphones,
+
+  /// USB headset with a microphone.
   usbHeadset,
+
+  /// Bluetooth headphones profile (A2DP/BLE speaker).
   bluetoothHeadphones,
+
+  /// Bluetooth headset profile suitable for calls (SCO/BLE headset).
   bluetoothHeadset,
 }
 
@@ -56,7 +71,8 @@ class MediaDeviceInfo {
   /// Media kind of the device (for example, `audioinput` for microphone).
   late MediaDeviceKind kind;
 
-  AudioDeviceKind? audioDeviceKind;
+  /// Additional information on the nature of the audio device.
+  final AudioDeviceKind? audioDeviceKind;
 
   /// Indicator whether the last attempt to use this device failed.
   late bool isFailed;
