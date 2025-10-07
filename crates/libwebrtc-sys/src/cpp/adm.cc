@@ -36,6 +36,7 @@
 #include "rtc_base/checks.h"
 #include "rtc_base/logging.h"
 #include "rtc_base/platform_thread.h"
+#include "api/environment/environment_factory.h"
 
 auto kAL_EVENT_CALLBACK_FUNCTION_SOFT = ALenum();
 auto kAL_EVENT_CALLBACK_USER_PARAM_SOFT = ALenum();
@@ -167,8 +168,9 @@ webrtc::scoped_refptr<OpenALAudioDeviceModule> OpenALAudioDeviceModule::Create(
     webrtc::TaskQueueFactory* task_queue_factory) {
   auto adm = webrtc::make_ref_counted<OpenALAudioDeviceModule>();
 
+// TODO: dont create new environment
   adm->audio_device_buffer_ =
-      std::make_unique<webrtc::AudioDeviceBuffer>(task_queue_factory);
+      std::make_unique<webrtc::AudioDeviceBuffer>(webrtc::CreateEnvironment());
   adm->apm_ = webrtc::make_ref_counted<PlayoutDelegatingAPM>();
 
   return adm;

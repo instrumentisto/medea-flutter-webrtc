@@ -967,10 +967,11 @@ pub(crate) mod webrtc {
     #[derive(Debug, Eq, Hash, PartialEq)]
     #[repr(i32)]
     pub enum MediaType {
-        MEDIA_TYPE_AUDIO = 0,
-        MEDIA_TYPE_VIDEO,
-        MEDIA_TYPE_DATA,
-        MEDIA_TYPE_UNSUPPORTED,
+        AUDIO = 0,
+        VIDEO,
+        DATA,
+        UNSUPPORTED,
+        ANY,
     }
 
     /// [RTCIceCandidateType] represents the type of the ICE candidate, as
@@ -3551,10 +3552,10 @@ impl TryFrom<&str> for webrtc::MediaType {
 
     fn try_from(val: &str) -> Result<Self, Self::Error> {
         match val {
-            "audio" => Ok(Self::MEDIA_TYPE_AUDIO),
-            "video" => Ok(Self::MEDIA_TYPE_VIDEO),
-            "data" => Ok(Self::MEDIA_TYPE_DATA),
-            "unsupported" => Ok(Self::MEDIA_TYPE_UNSUPPORTED),
+            "audio" => Ok(Self::AUDIO),
+            "video" => Ok(Self::VIDEO),
+            "data" => Ok(Self::DATA),
+            "unsupported" => Ok(Self::UNSUPPORTED),
             v => Err(anyhow!("Invalid `MediaType`: {v}")),
         }
     }
@@ -3680,10 +3681,10 @@ impl fmt::Display for webrtc::TrackState {
 impl fmt::Display for webrtc::MediaType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
-            Self::MEDIA_TYPE_AUDIO => write!(f, "audio"),
-            Self::MEDIA_TYPE_VIDEO => write!(f, "video"),
-            Self::MEDIA_TYPE_DATA => write!(f, "data"),
-            Self::MEDIA_TYPE_UNSUPPORTED => write!(f, "unsupported"),
+            Self::AUDIO => write!(f, "audio"),
+            Self::VIDEO => write!(f, "video"),
+            Self::DATA => write!(f, "data"),
+            Self::UNSUPPORTED => write!(f, "unsupported"),
             _ => unreachable!(),
         }
     }
