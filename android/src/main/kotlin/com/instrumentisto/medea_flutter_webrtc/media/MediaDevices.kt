@@ -66,6 +66,7 @@ class MediaDevices(val state: State, val permissions: Permissions) {
   /** Audio focus manager compatible across API levels. */
   private val audioFocus: AudioFocusCompat = AudioFocusCompat.create(state)
 
+  /** Audio devices manager. */
   private val audioDevices: AudioDevices = AudioDevices.create(state, eventBroadcaster())
 
   companion object {
@@ -162,6 +163,11 @@ class MediaDevices(val state: State, val permissions: Permissions) {
     this.onDeviceChangeObs.add(onDeviceChangeObs)
   }
 
+  /**
+   * Switches the current output audio device to the device with the provided identifier.
+   *
+   * @param deviceId Identifier for the output audio device to be selected.
+   */
   suspend fun setOutputAudioId(id: String) {
     audioDevices.setOutputAudioId(id)
   }

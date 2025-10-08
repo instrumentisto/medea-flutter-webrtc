@@ -149,7 +149,6 @@ private class AudioDevicesSdk31(state: State, obs: OnDeviceChangeObs) :
    *
    * @param deviceId Device identifier (stringified [AudioDeviceInfo.id]).
    * @throws GetUserMediaException if routing fails to start.
-   * @throws java.util.concurrent.TimeoutException if the system does not confirm in time.
    */
   override suspend fun setOutputAudioId(deviceId: String) {
     // We use string cause other platform use it. But it is supposed to be
@@ -192,7 +191,12 @@ private class AudioDevicesSdk31(state: State, obs: OnDeviceChangeObs) :
 
       try {
         // Waiting for onCommunicationDeviceChanged with desired device.
-        withTimeout(DEVICE_CHANGE_TIMEOUT_MS) { deferred.await() }
+        try {
+          withTimeout(DEVICE_CHANGE_TIMEOUT_MS) { deferred.await() }
+        } catch (e: Exception) {
+          throw GetUserMediaException(
+              "Timeout changing communication device", GetUserMediaException.Kind.Audio)
+        }
         // Mark as selected after confirmation
         selectedDeviceId = desiredDeviceId
       } finally {
@@ -427,6 +431,7 @@ private class AudioDevicesLegacy(state: State, obs: OnDeviceChangeObs) : AudioDe
    * Routes output to the specified legacy device, handling SCO as needed.
    *
    * @param deviceId One of [LegacyAudioDevice.id] values.
+   * @throws GetUserMediaException if routing fails to start.
    */
   override suspend fun setOutputAudioId(deviceId: String) {
     var device = LegacyAudioDevice.entries.firstOrNull { it.id == deviceId }
@@ -464,7 +469,8 @@ private class AudioDevicesLegacy(state: State, obs: OnDeviceChangeObs) : AudioDe
               selectedAudioOutputId = deviceIdBefore
               audioManager.stopBluetoothSco()
               isBluetoothScoFailed = true
-              throw e
+              throw GetUserMediaException(
+                  "Timeout connecting bluetooth headset", GetUserMediaException.Kind.Audio)
             }
           } else {
             throw GetUserMediaException(
