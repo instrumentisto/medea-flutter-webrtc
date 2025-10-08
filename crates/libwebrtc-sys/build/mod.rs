@@ -400,6 +400,7 @@ fn link_libs() -> anyhow::Result<()> {
     {
         for dep in [
             "Gdi32",
+            "Mmdevapi",
             "Secur32",
             "amstrmid",
             "d3d11",
