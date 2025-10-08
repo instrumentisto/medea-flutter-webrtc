@@ -165,12 +165,11 @@ int32_t OpenALAudioDeviceModule::ActiveAudioLayer(
 
 webrtc::scoped_refptr<OpenALAudioDeviceModule> OpenALAudioDeviceModule::Create(
     AudioLayer audio_layer,
-    webrtc::TaskQueueFactory* task_queue_factory) {
+    const webrtc::Environment& environment) {
   auto adm = webrtc::make_ref_counted<OpenALAudioDeviceModule>();
 
-// TODO: dont create new environment
   adm->audio_device_buffer_ =
-      std::make_unique<webrtc::AudioDeviceBuffer>(webrtc::CreateEnvironment());
+      std::make_unique<webrtc::AudioDeviceBuffer>(environment);
   adm->apm_ = webrtc::make_ref_counted<PlayoutDelegatingAPM>();
 
   return adm;

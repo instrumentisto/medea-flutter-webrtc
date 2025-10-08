@@ -115,10 +115,10 @@ std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
     Thread& worker_thread,
     AudioLayer audio_layer,
-    TaskQueueFactory& task_queue_factory) {
-  AudioDeviceModule adm = worker_thread.BlockingCall([audio_layer,
-                                                      &task_queue_factory] {
-    return ::OpenALAudioDeviceModule::Create(audio_layer, &task_queue_factory);
+    const std::unique_ptr<webrtc::Environment>& environment) {
+  AudioDeviceModule adm = worker_thread.BlockingCall([audio_layer, &environment] {
+    return ::OpenALAudioDeviceModule::Create(
+        audio_layer, *environment);
   });
 
   if (adm == nullptr) {
@@ -250,9 +250,10 @@ int32_t set_audio_playout_device(const AudioDeviceModule& audio_device_module,
 
 // Calls `BuiltinAudioProcessingBuilder().Create()`.
 std::unique_ptr<AudioProcessing> create_audio_processing(
-    std::unique_ptr<AudioProcessingConfig> config) {
+    std::unique_ptr<AudioProcessingConfig> config,
+    const webrtc::Environment& environment) {
   auto apm = webrtc::BuiltinAudioProcessingBuilder().SetConfig(*config).Build(
-      webrtc::CreateEnvironment());
+      environment);
   return std::make_unique<AudioProcessing>(apm);
 }
 
@@ -293,11 +294,6 @@ int32_t video_device_name(VideoDeviceInfo& device_info,
 // Calls `Thread->Create()`.
 std::unique_ptr<webrtc::Thread> create_thread() {
   return webrtc::Thread::Create();
-}
-
-// Creates a default `TaskQueueFactory`, basing on the current platform.
-std::unique_ptr<TaskQueueFactory> create_default_task_queue_factory() {
-  return webrtc::CreateDefaultTaskQueueFactory();
 }
 
 // Calls `Thread->CreateWithSocketServer()`.
@@ -497,6 +493,11 @@ void video_frame_to_argb(const webrtc::VideoFrame& frame,
   libyuv::I420ToARGB(buffer->DataY(), buffer->StrideY(), buffer->DataU(),
                      buffer->StrideU(), buffer->DataV(), buffer->StrideV(),
                      dst_argb, argb_stride, buffer->width(), buffer->height());
+}
+
+// Creates a new `Environment`.
+std::unique_ptr<webrtc::Environment> create_environment() {
+  return std::make_unique<webrtc::Environment>(webrtc::CreateEnvironment());
 }
 
 // Creates a new `PeerConnectionFactoryInterface`.

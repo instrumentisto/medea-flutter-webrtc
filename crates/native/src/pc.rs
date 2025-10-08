@@ -182,12 +182,8 @@ impl Webrtc {
             }
         } else {
             match transceiver.media_type() {
-                sys::MediaType::VIDEO => {
-                    sender.replace_video_track(None)
-                }
-                sys::MediaType::AUDIO => {
-                    sender.replace_audio_track(None)
-                }
+                sys::MediaType::VIDEO => sender.replace_video_track(None),
+                sys::MediaType::AUDIO => sender.replace_audio_track(None),
                 _ => unreachable!(),
             }
         }

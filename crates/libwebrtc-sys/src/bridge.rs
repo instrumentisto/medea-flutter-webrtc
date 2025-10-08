@@ -1481,14 +1481,13 @@ pub(crate) mod webrtc {
     unsafe extern "C++" {
         include!("libwebrtc-sys/include/bridge.h");
 
-        pub type PeerConnectionFactoryInterface;
-        pub type TaskQueueFactory;
+        #[namespace = "webrtc"]
+        pub type Environment;
         pub type Thread;
+        pub type PeerConnectionFactoryInterface;
 
-        /// Creates a default [`TaskQueueFactory`] based on the current
-        /// platform.
-        pub fn create_default_task_queue_factory()
-            -> UniquePtr<TaskQueueFactory>;
+        /// Creates a new [`Environment`].
+        pub fn create_environment() -> UniquePtr<Environment>;
 
         /// Creates a new [`Thread`].
         pub fn create_thread() -> UniquePtr<Thread>;
@@ -1517,7 +1516,7 @@ pub(crate) mod webrtc {
         pub fn create_audio_device_module(
             worker_thread: Pin<&mut Thread>,
             audio_layer: AudioLayer,
-            task_queue_factory: Pin<&mut TaskQueueFactory>,
+            environment: &UniquePtr<Environment>,
         ) -> UniquePtr<AudioDeviceModule>;
 
         /// Initializes the given [`AudioDeviceModule`].
@@ -1619,9 +1618,11 @@ pub(crate) mod webrtc {
         pub type AudioProcessingConfig;
         pub type NoiseSuppressionLevel;
 
-        /// Creates a new [`AudioProcessing`].
+        /// Creates a new [`AudioProcessing`] using the provided
+        /// [`Environment`].
         pub fn create_audio_processing(
             conf: UniquePtr<AudioProcessingConfig>,
+            environment: &Environment,
         ) -> UniquePtr<AudioProcessing>;
 
         /// Indicates intent to mute the output of the provided
@@ -3556,6 +3557,7 @@ impl TryFrom<&str> for webrtc::MediaType {
             "video" => Ok(Self::VIDEO),
             "data" => Ok(Self::DATA),
             "unsupported" => Ok(Self::UNSUPPORTED),
+            "any" => Ok(Self::ANY),
             v => Err(anyhow!("Invalid `MediaType`: {v}")),
         }
     }
@@ -3685,6 +3687,7 @@ impl fmt::Display for webrtc::MediaType {
             Self::VIDEO => write!(f, "video"),
             Self::DATA => write!(f, "data"),
             Self::UNSUPPORTED => write!(f, "unsupported"),
+            Self::ANY => write!(f, "any"),
             _ => unreachable!(),
         }
     }

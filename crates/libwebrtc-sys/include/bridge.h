@@ -9,6 +9,7 @@
 #include "api/peer_connection_interface.h"
 #include "api/task_queue/default_task_queue_factory.h"
 #include "api/video_codecs/builtin_video_decoder_factory.h"
+#include "api/environment/environment_factory.h"
 #include "api/video_codecs/builtin_video_encoder_factory.h"
 #include "api/video_track_source_proxy_factory.h"
 #if __APPLE__
@@ -95,7 +96,6 @@ using PeerConnectionState =
 using RTCConfiguration = webrtc::PeerConnectionInterface::RTCConfiguration;
 using SdpType = webrtc::SdpType;
 using SignalingState = webrtc::PeerConnectionInterface::SignalingState;
-using TaskQueueFactory = webrtc::TaskQueueFactory;
 using VideoDeviceInfo = webrtc::VideoCaptureModule::DeviceInfo;
 using DisplaySource = webrtc::DesktopCapturer::Source;
 using VideoRotation = webrtc::VideoRotation;
@@ -135,7 +135,10 @@ using AudioProcessingConfig = webrtc::AudioProcessing::Config;
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(
     Thread& worker_thread,
     AudioLayer audio_layer,
-    TaskQueueFactory& task_queue_factory);
+    const std::unique_ptr<webrtc::Environment>& environment);
+
+// Creates a new `Environment`.
+std::unique_ptr<webrtc::Environment> create_environment();
 
 // Initializes the native audio parts required for each platform.
 int32_t init_audio_device_module(const AudioDeviceModule& audio_device_module);
@@ -205,9 +208,10 @@ int32_t start_playout(const AudioDeviceModule& audio_device_module);
 int32_t set_audio_playout_device(const AudioDeviceModule& audio_device_module,
                                  uint16_t index);
 
-// Creates a new `AudioProcessing`.
+// Creates a new `AudioProcessing` using the provided `Environment`.
 std::unique_ptr<AudioProcessing> create_audio_processing(
-    std::unique_ptr<AudioProcessingConfig>);
+    std::unique_ptr<AudioProcessingConfig>,
+    const webrtc::Environment& environment);
 
 // Indicates intent to mute the output of the provided `AudioProcessing`.
 //
@@ -228,9 +232,6 @@ int32_t video_device_name(VideoDeviceInfo& device_info,
 
 // Creates a new `Thread`.
 std::unique_ptr<webrtc::Thread> create_thread();
-
-// Creates a default `TaskQueueFactory`, basing on the current platform.
-std::unique_ptr<TaskQueueFactory> create_default_task_queue_factory();
 
 // Creates a new `Thread` with a socket server.
 std::unique_ptr<webrtc::Thread> create_thread_with_socket_server();
