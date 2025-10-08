@@ -72,7 +72,7 @@ class MediaDeviceInfo {
   late MediaDeviceKind kind;
 
   /// Additional information on the nature of the audio device.
-  final AudioDeviceKind? audioDeviceKind;
+  AudioDeviceKind? audioDeviceKind;
 
   /// Indicator whether the last attempt to use this device failed.
   late bool isFailed;
