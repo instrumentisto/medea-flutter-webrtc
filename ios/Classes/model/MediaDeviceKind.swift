@@ -10,9 +10,11 @@ enum MediaDeviceKind: Int {
   case videoInput
 }
 
-/// Audio-specific classification of device types mirroring Android/Dart `AudioDeviceKind`.
+/// Audio-specific classification of device types mirroring Android/Dart
+/// `AudioDeviceKind`.
 ///
-/// Used to provide additional semantics for `MediaDeviceKind.audioOutput` entries and serialized
+/// Used to provide additional semantics for `MediaDeviceKind.audioOutput`
+/// entries and serialized
 /// to Flutter under the `audioKind` key of `MediaDeviceInfo`.
 enum AudioDeviceKind: Int {
   /// Built-in earpiece speaker.

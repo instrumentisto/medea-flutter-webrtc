@@ -13,7 +13,12 @@ class MediaDeviceInfo {
   var audioKind: AudioDeviceKind?
 
   /// Initializes a new `MediaDeviceInfo` based on the provided data.
-  init(deviceId: String, label: String, kind: MediaDeviceKind, audioKind: AudioDeviceKind? = nil) {
+  init(
+    deviceId: String,
+    label: String,
+    kind: MediaDeviceKind,
+    audioKind: AudioDeviceKind? = nil
+  ) {
     self.deviceId = deviceId
     self.label = label
     self.kind = kind
