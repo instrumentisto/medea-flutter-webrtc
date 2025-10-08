@@ -399,6 +399,7 @@ fn link_libs() -> anyhow::Result<()> {
     #[cfg(target_os = "windows")]
     {
         for dep in [
+            "Dwmapi",
             "Gdi32",
             "Mmdevapi",
             "Secur32",
