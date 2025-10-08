@@ -24,20 +24,19 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeout
 import org.webrtc.ThreadUtils
 
-/** Tag for log messages produced by audio device helpers. */
 private val TAG = AudioDevices::class.java.simpleName
+
 /**
  * Maximum time to wait for the system to confirm a device routing operation (e.g.,
- * `onCommunicationDeviceChanged` or Bluetooth SCO connect).
+ * [AudioManager.OnCommunicationDeviceChangedListener.onCommunicationDeviceChanged] or Bluetooth SCO
+ * connect).
  */
 private const val DEVICE_CHANGE_TIMEOUT_MS = 10000L
 
 /**
- * Cross-version audio devices API.
+ * Manages audio input/output devices usage.
  *
- * Abstracts device enumeration and audio output routing across Android API levels.
- *
- * @property state Global plugin state providing access to `Context` and services.
+ * @property state Global plugin state providing access to [Context] and services.
  * @property obs Observer notified when the exposed device list or state changes.
  */
 sealed class AudioDevices(val state: State, val obs: OnDeviceChangeObs) : AudioDeviceCallback() {
@@ -67,9 +66,9 @@ sealed class AudioDevices(val state: State, val obs: OnDeviceChangeObs) : AudioD
   }
 
   /**
-   * Enumerates currently available media devices.
+   * Enumerates currently available audio devices.
    *
-   * @return List of `MediaDeviceInfo` entries.
+   * @return List of [MediaDeviceInfo] entries.
    */
   abstract fun enumerateDevices(): List<MediaDeviceInfo>
 
@@ -78,8 +77,8 @@ sealed class AudioDevices(val state: State, val obs: OnDeviceChangeObs) : AudioD
    *
    * Implementations may suspend until the system confirms routing or times out.
    *
-   * @param deviceId Platform-agnostic device identifier (Android uses `AudioDeviceInfo.id` on SDK
-   * >= 31).
+   * @param deviceId Device identifier ([AudioDeviceInfo.id] on SDK >= 31 or [LegacyAudioDevice.id]
+   * otherwise).
    */
   abstract suspend fun setOutputAudioId(deviceId: String)
 
@@ -89,7 +88,6 @@ sealed class AudioDevices(val state: State, val obs: OnDeviceChangeObs) : AudioD
   }
 }
 
-@RequiresApi(31)
 /**
  * API 31+ implementation using new APIs: [AudioManager.availableCommunicationDevices],
  * [AudioManager.setCommunicationDevice], [AudioManager.clearCommunicationDevice].
@@ -97,6 +95,7 @@ sealed class AudioDevices(val state: State, val obs: OnDeviceChangeObs) : AudioD
  * @param state Shared plugin state.
  * @param obs Observer notified when device list changes.
  */
+@RequiresApi(31)
 private class AudioDevicesSdk31(state: State, obs: OnDeviceChangeObs) :
     AudioDevices(state, obs), AudioManager.OnCommunicationDeviceChangedListener {
   /** Cached snapshot of the last reported device list. */
@@ -123,7 +122,11 @@ private class AudioDevicesSdk31(state: State, obs: OnDeviceChangeObs) :
     currentDevicesList = this.enumerateDevices()
   }
 
-  /** Enumerates available communication devices with failure flags applied. */
+  /**
+   * Enumerates available communication devices with failure flags applied.
+   *
+   * @return List of [MediaDeviceInfo] describing available output devices.
+   */
   override fun enumerateDevices(): List<MediaDeviceInfo> {
 
     val result = mutableListOf<MediaDeviceInfo>()
@@ -144,7 +147,7 @@ private class AudioDevicesSdk31(state: State, obs: OnDeviceChangeObs) :
   /**
    * Requests routing to the given communication device and waits for confirmation.
    *
-   * @param deviceId Device identifier (stringified `AudioDeviceInfo.id`).
+   * @param deviceId Device identifier (stringified [AudioDeviceInfo.id]).
    * @throws GetUserMediaException if routing fails to start.
    * @throws java.util.concurrent.TimeoutException if the system does not confirm in time.
    */
@@ -200,7 +203,11 @@ private class AudioDevicesSdk31(state: State, obs: OnDeviceChangeObs) :
     }
   }
 
-  /** Invoked by the system when output devices are added. */
+  /**
+   * Invoked by the system when output devices are added.
+   *
+   * @param addedDevices Array of added devices provided by the system.
+   */
   override fun onAudioDevicesAdded(addedDevices: Array<out AudioDeviceInfo?>?) {
     maybeOnDeviceChanged()
   }
@@ -208,6 +215,8 @@ private class AudioDevicesSdk31(state: State, obs: OnDeviceChangeObs) :
   /**
    * Invoked by the system when output devices are removed. Cleans up failure flags for removed
    * devices and notifies observers if needed.
+   *
+   * @param removedDevices Array of removed devices provided by the system.
    */
   override fun onAudioDevicesRemoved(removedDevices: Array<out AudioDeviceInfo?>?) {
     removedDevices?.forEach { d -> d?.let { failedDeviceIds.remove(it.id) } }
@@ -218,6 +227,8 @@ private class AudioDevicesSdk31(state: State, obs: OnDeviceChangeObs) :
    * Invoked when the active communication device changes. Completes pending awaits and marks
    * previously selected devices as failed if the system reroutes unexpectedly while the device
    * remains available.
+   *
+   * @param device The newly active communication device, or null if none.
    */
   override fun onCommunicationDeviceChanged(device: AudioDeviceInfo?) {
     val expectedId = pendingCommunicationDeviceId
@@ -248,7 +259,10 @@ private class AudioDevicesSdk31(state: State, obs: OnDeviceChangeObs) :
     super.dispose()
   }
 
-  /** Emits `onDeviceChange` if the enumerated list differs from the last reported one. */
+  /**
+   * Calls [OnDeviceChangeObs.onDeviceChange] if the enumerated list differs from the last reported
+   * one.
+   */
   private fun maybeOnDeviceChanged() {
     var newDevicesList = enumerateDevices()
     if (currentDevicesList != newDevicesList) {
@@ -271,10 +285,13 @@ private class AudioDevicesLegacy(state: State, obs: OnDeviceChangeObs) : AudioDe
   enum class LegacyAudioDevice(val id: String) {
     /** Built-in ear speaker. */
     EAR_SPEAKER("ear-speaker"),
+
     /** Built-in loudspeaker. */
     SPEAKERPHONE("speakerphone"),
+
     /** Wired headset (with microphone). */
     WIRED_HEADSET("wired-headset"),
+
     /** Bluetooth SCO headset. */
     BLUETOOTH_HEADSET("bluetooth-headset"),
   }
@@ -350,7 +367,11 @@ private class AudioDevicesLegacy(state: State, obs: OnDeviceChangeObs) : AudioDe
     synchronizeHeadsetState()
   }
 
-  /** Enumerates legacy logical outputs with Bluetooth failure flag. */
+  /**
+   * Enumerates available legacy audio devices.
+   *
+   * @return List of [MediaDeviceInfo] describing available audio devices.
+   */
   override fun enumerateDevices(): List<MediaDeviceInfo> {
     val result =
         mutableListOf(
@@ -405,7 +426,7 @@ private class AudioDevicesLegacy(state: State, obs: OnDeviceChangeObs) : AudioDe
   /**
    * Routes output to the specified legacy device, handling SCO as needed.
    *
-   * @param deviceId One of `LegacyAudioDevice.id` values.
+   * @param deviceId One of [LegacyAudioDevice.id] values.
    */
   override suspend fun setOutputAudioId(deviceId: String) {
     var device = LegacyAudioDevice.entries.firstOrNull { it.id == deviceId }
@@ -488,7 +509,11 @@ private class AudioDevicesLegacy(state: State, obs: OnDeviceChangeObs) : AudioDe
     updateHasWiredHeadset(hasWired)
   }
 
-  /** Updates wired headset connectivity and notifies on change. */
+  /**
+   * Updates wired headset connectivity and notifies on change.
+   *
+   * @param isConnected True if a wired headset is connected.
+   */
   private fun updateHasWiredHeadset(isConnected: Boolean) {
     if (isWiredHeadsetConnected != isConnected) {
       isWiredHeadsetConnected = isConnected
@@ -496,7 +521,11 @@ private class AudioDevicesLegacy(state: State, obs: OnDeviceChangeObs) : AudioDe
     }
   }
 
-  /** Updates Bluetooth headset connectivity and notifies on change. */
+  /**
+   * Updates Bluetooth headset connectivity and notifies on change.
+   *
+   * @param isConnected True if a Bluetooth headset is connected.
+   */
   private fun updateHasBluetoothHeadset(isConnected: Boolean) {
     if (isBluetoothHeadsetConnected != isConnected) {
       isBluetoothHeadsetConnected = isConnected
@@ -510,12 +539,20 @@ private class AudioDevicesLegacy(state: State, obs: OnDeviceChangeObs) : AudioDe
     super.dispose()
   }
 
-  /** Recomputes headset state on device additions. */
+  /**
+   * Recomputes headset state on device additions.
+   *
+   * @param addedDevices Array of added devices provided by the system.
+   */
   override fun onAudioDevicesAdded(addedDevices: Array<out AudioDeviceInfo?>?) {
     synchronizeHeadsetState()
   }
 
-  /** Recomputes headset state on device removals. */
+  /**
+   * Recomputes headset state on device removals.
+   *
+   * @param removedDevices Array of removed devices provided by the system.
+   */
   override fun onAudioDevicesRemoved(removedDevices: Array<out AudioDeviceInfo?>?) {
     synchronizeHeadsetState()
   }

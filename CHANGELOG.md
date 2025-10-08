@@ -16,13 +16,13 @@ All user visible changes to this project will be documented in this file. This p
 - Bumped up minimum supported [Dart] version to 3.9. ([#250])
 - Bumped up minimum supported [Windows] deployment target to 10 (build 20348). ([#245])
 - Bumped up minimum supported [iOS] deployment target to 15. ([#254])
-- Provide real device IDs as in `MediaDeviceInfo.id` instead of hardcoded kind based values on Android SDK >= 31. ([#257])
+- Provide real device IDs in `MediaDeviceInfo.id` instead of hardcoded kind based values on Android SDK >= 31. ([#257])
 
 ### Added
 
 - Support for system audio capturing on [Windows] via `getDisplayMedia()`. ([#245], [#244])
 - Capturing audio focus when in call on [Android]. ([#255])
-- `MediaDeviceInfo.audioDeviceKind` field and `AudioDeviceKind` enum to reflect audio device kind. ([#257])  
+- `MediaDeviceInfo.audioDeviceKind` field and `AudioDeviceKind` enum to reflect audio device kind. ([#257])
 
 ### Changed
 

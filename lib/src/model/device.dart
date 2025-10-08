@@ -12,7 +12,7 @@ enum MediaDeviceKind {
   videoinput,
 }
 
-/// Possible kinds of media devices.
+/// Audio device kind.
 enum AudioDeviceKind {
   /// Built-in earpiece speaker.
   earSpeaker,

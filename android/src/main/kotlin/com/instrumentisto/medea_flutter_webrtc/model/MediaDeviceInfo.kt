@@ -57,10 +57,10 @@ enum class AudioDeviceKind(val value: Int) {
 
   companion object {
     /**
-     * Maps a platform `AudioDeviceInfo` to an `AudioDeviceKind` where applicable.
+     * Maps a platform [AudioDeviceInfo] to an [AudioDeviceKind] where applicable.
      *
      * @param device System device descriptor to map.
-     * @return Matching `AudioDeviceKind`, or null if the type is not recognized/supported.
+     * @return Matching [AudioDeviceKind], or null if the type is not recognized/supported.
      */
     fun fromSystem(device: AudioDeviceInfo): AudioDeviceKind? {
       return when (device.type) {
