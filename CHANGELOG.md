@@ -16,7 +16,7 @@ All user visible changes to this project will be documented in this file. This p
 - Bumped up minimum supported [Dart] version to 3.9. ([#250])
 - Bumped up minimum supported [Windows] deployment target to 10 (build 20348). ([#245])
 - Bumped up minimum supported [iOS] deployment target to 15. ([#254])
-- Provide real device IDs in `MediaDeviceInfo.id` instead of hardcoded kind based values on Android SDK >= 31. ([#257])
+- Provide real device IDs in `MediaDeviceInfo.id` instead of hardcoded kind based values on [Android] SDK >= 31. ([#257])
 
 ### Added
 

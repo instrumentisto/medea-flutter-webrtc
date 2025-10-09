@@ -27,14 +27,14 @@ import org.webrtc.ThreadUtils
 private val TAG = AudioDevices::class.java.simpleName
 
 /**
- * Maximum time to wait for the system to confirm a device routing operation (e.g.,
+ * Maximum time in milliseconds to wait for the system to confirm a device routing operation (e.g.,
  * [AudioManager.OnCommunicationDeviceChangedListener.onCommunicationDeviceChanged] or Bluetooth SCO
  * connect).
  */
-private const val DEVICE_CHANGE_TIMEOUT_MS = 10000L
+private const val DEVICE_CHANGE_TIMEOUT_MS = 10000L // ms
 
 /**
- * Manages audio input/output devices usage.
+ * Manager of audio input/output devices usage.
  *
  * @property state Global plugin state providing access to [Context] and services.
  * @property obs Observer notified when the exposed device list or state changes.
@@ -50,7 +50,7 @@ sealed class AudioDevices(val state: State, val obs: OnDeviceChangeObs) : AudioD
 
   companion object {
     /**
-     * Creates an API-appropriate implementation.
+     * Creates the API-appropriate implementation.
      *
      * @param state Shared plugin state.
      * @param obs Observer for device list changes.
@@ -89,8 +89,8 @@ sealed class AudioDevices(val state: State, val obs: OnDeviceChangeObs) : AudioD
 }
 
 /**
- * API 31+ implementation using new APIs: [AudioManager.availableCommunicationDevices],
- * [AudioManager.setCommunicationDevice], [AudioManager.clearCommunicationDevice].
+ * API 31+ audio manager implementation using new APIs: [AudioManager.availableCommunicationDevices]
+ * , [AudioManager.setCommunicationDevice], [AudioManager.clearCommunicationDevice].
  *
  * @param state Shared plugin state.
  * @param obs Observer notified when device list changes.
@@ -104,13 +104,13 @@ private class AudioDevicesSdk31(state: State, obs: OnDeviceChangeObs) :
   /** Deferred completed when the system confirms a pending route change. */
   private var communicationDeviceChangedDeferred: CompletableDeferred<Unit>? = null
 
-  /** Device id currently awaited for activation (if any). */
+  /** ID of the device currently awaited for activation (if any). */
   private var pendingCommunicationDeviceId: Int? = null
 
-  /** Device id selected by the user and confirmed by the system. */
+  /** ID of the device selected by the user and confirmed by the system. */
   private var selectedDeviceId: Int? = null
 
-  /** Set of device ids marked as failed due to unexpected reroutes. */
+  /** Set of device IDs marked as failed due to unexpected reroutes. */
   private val failedDeviceIds: MutableSet<Int> = mutableSetOf()
 
   /** Serializes concurrent routing changes to avoid races. */
@@ -125,7 +125,7 @@ private class AudioDevicesSdk31(state: State, obs: OnDeviceChangeObs) :
   /**
    * Enumerates available communication devices with failure flags applied.
    *
-   * @return List of [MediaDeviceInfo] describing available output devices.
+   * @return List of [MediaDeviceInfo]s describing available output devices.
    */
   override fun enumerateDevices(): List<MediaDeviceInfo> {
 
@@ -145,14 +145,14 @@ private class AudioDevicesSdk31(state: State, obs: OnDeviceChangeObs) :
   }
 
   /**
-   * Requests routing to the given communication device and waits for confirmation.
+   * Requests routing to the given communication device and waits for the confirmation.
    *
    * @param deviceId Device identifier (stringified [AudioDeviceInfo.id]).
-   * @throws GetUserMediaException if routing fails to start.
+   * @throws []GetUserMediaException] if routing fails to start.
    */
   override suspend fun setOutputAudioId(deviceId: String) {
-    // We use string cause other platform use it. But it is supposed to be
-    // AudioDeviceInfo.id on SDK >= 31
+    // String is used, because other platform use it, but it's supposed to be `AudioDeviceInfo.id`
+    // on SDK >= 31.
     val desiredDeviceId = deviceId.toInt()
 
     val current = audioManager.communicationDevice
@@ -170,12 +170,12 @@ private class AudioDevicesSdk31(state: State, obs: OnDeviceChangeObs) :
           audioManager.availableCommunicationDevices.find { it.id == desiredDeviceId }
               ?: throw IllegalArgumentException("Unknown output device: $deviceId")
 
-      // Prepare await of confirmation from onCommunicationDeviceChanged
+      // Prepare await of confirmation from `onCommunicationDeviceChanged`.
       val deferred = CompletableDeferred<Unit>()
       communicationDeviceChangedDeferred = deferred
       pendingCommunicationDeviceId = desiredDeviceId
 
-      // Clear previous failure flag if we try again
+      // Clear previous failure flag if we try again.
       failedDeviceIds.remove(desiredDeviceId)
 
       if (!audioManager.setCommunicationDevice(newDevice)) {
@@ -190,17 +190,17 @@ private class AudioDevicesSdk31(state: State, obs: OnDeviceChangeObs) :
       }
 
       try {
-        // Waiting for onCommunicationDeviceChanged with desired device.
+        // Waiting for `onCommunicationDeviceChanged` with the desired device.
         try {
           withTimeout(DEVICE_CHANGE_TIMEOUT_MS) { deferred.await() }
         } catch (e: Exception) {
           throw GetUserMediaException(
               "Timeout changing communication device", GetUserMediaException.Kind.Audio)
         }
-        // Mark as selected after confirmation
+        // Mark as selected after confirmation.
         selectedDeviceId = desiredDeviceId
       } finally {
-        // Clear pending state regardless of success/timeout
+        // Clear pending state regardless of success/timeout.
         pendingCommunicationDeviceId = null
         communicationDeviceChangedDeferred = null
       }
@@ -217,8 +217,9 @@ private class AudioDevicesSdk31(state: State, obs: OnDeviceChangeObs) :
   }
 
   /**
-   * Invoked by the system when output devices are removed. Cleans up failure flags for removed
-   * devices and notifies observers if needed.
+   * Invoked by the system when output devices are removed.
+   *
+   * Cleans up failure flags for removed devices and notifies observers if needed.
    *
    * @param removedDevices Array of removed devices provided by the system.
    */
@@ -228,9 +229,10 @@ private class AudioDevicesSdk31(state: State, obs: OnDeviceChangeObs) :
   }
 
   /**
-   * Invoked when the active communication device changes. Completes pending awaits and marks
-   * previously selected devices as failed if the system reroutes unexpectedly while the device
-   * remains available.
+   * Invoked when the active communication device changes.
+   *
+   * Completes pending awaits and marks the previously selected devices as failed, if the system
+   * reroutes unexpectedly while the device remains available.
    *
    * @param device The newly active communication device, or null if none.
    */
@@ -238,12 +240,12 @@ private class AudioDevicesSdk31(state: State, obs: OnDeviceChangeObs) :
     val expectedId = pendingCommunicationDeviceId
     if (expectedId != null && device?.id == expectedId) {
       communicationDeviceChangedDeferred?.let { d -> if (!d.isCompleted) d.complete(Unit) }
-      // The expected device became active - ensure it's not marked failed
+      // The expected device became active - ensure it's not marked as failed.
       device?.id?.let { failedDeviceIds.remove(it) }
       return
     }
 
-    // Unexpected reroute: previously selected device lost without a new selection request
+    // Unexpected reroute: previously selected device lost without a new selection request.
     val previouslySelected = selectedDeviceId
     if (previouslySelected != null && device?.id != previouslySelected) {
       selectedDeviceId = null
@@ -251,7 +253,7 @@ private class AudioDevicesSdk31(state: State, obs: OnDeviceChangeObs) :
         // Device is gone, not failed.
         return
       }
-      // Device still present but system rerouted: mark as failed and notify
+      // Device still present, but system rerouted: mark as failed and notify.
       failedDeviceIds.add(previouslySelected)
       maybeOnDeviceChanged()
     }
@@ -277,8 +279,9 @@ private class AudioDevicesSdk31(state: State, obs: OnDeviceChangeObs) :
 }
 
 /**
- * Pre-API 31 implementation based on legacy audio routing APIs ([AudioManager.isSpeakerphoneOn],
- * [AudioManager.startBluetoothSco], [AudioManager.stopBluetoothSco]).
+ * Pre-API 31 audio manager implementation based on legacy audio routing APIs:
+ * [AudioManager.isSpeakerphoneOn], [AudioManager.startBluetoothSco],
+ * [AudioManager.stopBluetoothSco].
  */
 private class AudioDevicesLegacy(state: State, obs: OnDeviceChangeObs) : AudioDevices(state, obs) {
   /**
@@ -374,7 +377,7 @@ private class AudioDevicesLegacy(state: State, obs: OnDeviceChangeObs) : AudioDe
   /**
    * Enumerates available legacy audio devices.
    *
-   * @return List of [MediaDeviceInfo] describing available audio devices.
+   * @return List of [MediaDeviceInfo]s describing available audio devices.
    */
   override fun enumerateDevices(): List<MediaDeviceInfo> {
     val result =
@@ -431,7 +434,7 @@ private class AudioDevicesLegacy(state: State, obs: OnDeviceChangeObs) : AudioDe
    * Routes output to the specified legacy device, handling SCO as needed.
    *
    * @param deviceId One of [LegacyAudioDevice.id] values.
-   * @throws GetUserMediaException if routing fails to start.
+   * @throws [GetUserMediaException] if routing fails to start.
    */
   override suspend fun setOutputAudioId(deviceId: String) {
     var device = LegacyAudioDevice.entries.firstOrNull { it.id == deviceId }
@@ -518,7 +521,7 @@ private class AudioDevicesLegacy(state: State, obs: OnDeviceChangeObs) : AudioDe
   /**
    * Updates wired headset connectivity and notifies on change.
    *
-   * @param isConnected True if a wired headset is connected.
+   * @param isConnected Indication whether a wired headset is connected.
    */
   private fun updateHasWiredHeadset(isConnected: Boolean) {
     if (isWiredHeadsetConnected != isConnected) {
@@ -530,7 +533,7 @@ private class AudioDevicesLegacy(state: State, obs: OnDeviceChangeObs) : AudioDe
   /**
    * Updates Bluetooth headset connectivity and notifies on change.
    *
-   * @param isConnected True if a Bluetooth headset is connected.
+   * @param isConnected Indication whether a Bluetooth headset is connected.
    */
   private fun updateHasBluetoothHeadset(isConnected: Boolean) {
     if (isBluetoothHeadsetConnected != isConnected) {

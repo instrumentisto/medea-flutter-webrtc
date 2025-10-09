@@ -9,7 +9,8 @@ class MediaDeviceInfo {
   /// Media kind of the represented media device.
   var kind: MediaDeviceKind
 
-  /// Audio-specific classification for audio devices (nil for non-audio kinds).
+  /// Audio-specific classification for audio devices (`nil` for non-audio
+  /// kinds).
   var audioKind: AudioDeviceKind?
 
   /// Initializes a new `MediaDeviceInfo` based on the provided data.

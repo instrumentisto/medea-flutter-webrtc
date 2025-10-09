@@ -25,7 +25,7 @@ enum class MediaDeviceKind(val value: Int) {
  * Audio-specific classification of device types.
  *
  * This enum refines `MediaDeviceKind.AUDIO_*` with more granular categories (e.g., distinguishing
- * Bluetooth headset vs. headphones), allowing the Flutter side to present appropriate UI and
+ * Bluetooth headset vs headphones), allowing the Flutter side to present appropriate UI and
  * behavior.
  *
  * @property value Integer value serialized to Flutter.
