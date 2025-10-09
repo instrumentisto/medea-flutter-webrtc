@@ -87,7 +87,7 @@ class OpenALAudioDeviceModule : public ExtendedADM {
 
   static webrtc::scoped_refptr<OpenALAudioDeviceModule> Create(
       AudioLayer audio_layer,
-      webrtc::TaskQueueFactory* task_queue_factory);
+      const webrtc::Environment& environment);
 
   // Main initialization and termination.
   int32_t Init() override;
@@ -254,5 +254,8 @@ class OpenALAudioDeviceModule : public ExtendedADM {
   ALCcontext* _playoutContext = nullptr;
   int _playoutChannels = 2;
 };
+
+// Creates and registers a fake sine-wave audio source.
+webrtc::scoped_refptr<bridge::LocalAudioSource> CreateFakeAudioSource();
 
 #endif  // BRIDGE_ADM_H_

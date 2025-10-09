@@ -76,12 +76,12 @@ impl AudioDeviceModule {
     pub fn new(
         worker_thread: &mut sys::Thread,
         audio_layer: sys::AudioLayer,
-        task_queue_factory: &mut sys::TaskQueueFactory,
+        environment: &sys::Environment,
     ) -> anyhow::Result<Self> {
         let inner = sys::AudioDeviceModule::create_proxy(
             worker_thread,
             audio_layer,
-            task_queue_factory,
+            environment,
         )?;
         inner.init()?;
 

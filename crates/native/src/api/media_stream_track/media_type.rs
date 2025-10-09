@@ -18,8 +18,8 @@ pub enum MediaType {
 impl From<MediaType> for sys::MediaType {
     fn from(state: MediaType) -> Self {
         match state {
-            MediaType::Audio => Self::MEDIA_TYPE_AUDIO,
-            MediaType::Video => Self::MEDIA_TYPE_VIDEO,
+            MediaType::Audio => Self::AUDIO,
+            MediaType::Video => Self::VIDEO,
         }
     }
 }
@@ -27,8 +27,8 @@ impl From<MediaType> for sys::MediaType {
 impl From<sys::MediaType> for MediaType {
     fn from(state: sys::MediaType) -> Self {
         match state {
-            sys::MediaType::MEDIA_TYPE_AUDIO => Self::Audio,
-            sys::MediaType::MEDIA_TYPE_VIDEO => Self::Video,
+            sys::MediaType::AUDIO => Self::Audio,
+            sys::MediaType::VIDEO => Self::Video,
             _ => unreachable!(),
         }
     }

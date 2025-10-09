@@ -336,6 +336,7 @@ impl Webrtc {
                         .as_ref()
                         .map(sys::AudioProcessingConfig::from)
                         .unwrap_or_default(),
+                    &self.environment,
                 )?;
 
                 let src = Arc::new(AudioSource::new(
