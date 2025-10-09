@@ -255,4 +255,7 @@ class OpenALAudioDeviceModule : public ExtendedADM {
   int _playoutChannels = 2;
 };
 
+// Creates and registers a fake sine-wave audio source.
+webrtc::scoped_refptr<bridge::LocalAudioSource> CreateFakeAudioSource();
+
 #endif  // BRIDGE_ADM_H_

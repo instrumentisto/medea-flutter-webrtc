@@ -356,10 +356,13 @@ void dispose_audio_source(const AudioDeviceModule& audio_device_module,
   audio_device_module->DisposeAudioSource(std::string(device_id));
 }
 
-// Creates a new fake `AudioSource`.
+// Creates a new fake `AudioSource` that generates a sine wave.
 std::unique_ptr<AudioSourceInterface> create_fake_audio_source() {
-  return std::make_unique<AudioSourceInterface>(
-      bridge::LocalAudioSource::Create(webrtc::AudioOptions(), nullptr));
+  auto src = CreateFakeAudioSource();
+  if (src == nullptr) {
+    return nullptr;
+  }
+  return std::make_unique<AudioSourceInterface>(src);
 }
 
 // Calls `PeerConnectionFactoryInterface->CreateVideoTrack`.

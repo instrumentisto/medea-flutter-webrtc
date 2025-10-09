@@ -38,6 +38,9 @@
 #include "rtc_base/platform_thread.h"
 #include "api/environment/environment_factory.h"
 
+#include "libwebrtc-sys/include/audio_recorder.h"
+#include "libwebrtc-sys/include/local_audio_source.h"
+
 auto kAL_EVENT_CALLBACK_FUNCTION_SOFT = ALenum();
 auto kAL_EVENT_CALLBACK_USER_PARAM_SOFT = ALenum();
 auto kAL_EVENT_TYPE_BUFFER_COMPLETED_SOFT = ALenum();
@@ -1038,4 +1041,42 @@ int32_t OpenALAudioDeviceModule::EnableBuiltInAGC(bool enable) {
 
 int32_t OpenALAudioDeviceModule::EnableBuiltInNS(bool enable) {
   return enable ? -1 : 0;
+}
+
+// Creates and registers a fake sine-wave audio source.
+webrtc::scoped_refptr<bridge::LocalAudioSource> CreateFakeAudioSource() {
+  auto src = bridge::LocalAudioSource::Create(webrtc::AudioOptions(), nullptr);
+
+  // Spawn a background thread that continuously generates 10 ms of audio.
+  auto th = std::thread([src] {
+    // TODO: Thread will keep runinng even after returned LocalAudioSource is dropped
+    //       but this is supposed to be used only in tests so no big deal
+    std::vector<int16_t> buffer(kRecordingPart * kRecordingChannels);
+
+    // Generate a 440 Hz test tone.
+    const double frequency = 440.0;
+    const double two_pi = 6.2832;
+    const double phase_increment = two_pi * frequency / static_cast<double>(kRecordingFrequency);
+    const int amplitude = static_cast<int>(static_cast<double>(INT16_MAX) * 0.2);
+    double phase = 0.0;
+
+    while (true) {
+      for (size_t i = 0; i < kRecordingPart; ++i) {
+        const int16_t sample = static_cast<int16_t>(amplitude * std::sin(phase));
+        for (size_t ch = 0; ch < kRecordingChannels; ++ch) {
+          buffer[i * kRecordingChannels + ch] = sample;
+        }
+        phase += phase_increment;
+        if (phase >= two_pi) {
+          phase -= two_pi;
+        }
+      }
+
+      src->OnData(buffer.data(), kBitsPerSample, kRecordingFrequency, kRecordingChannels, kRecordingPart);
+      std::this_thread::sleep_for(std::chrono::milliseconds(kBufferSizeMs));
+    }
+  });
+  th.detach();
+
+  return src;
 }
