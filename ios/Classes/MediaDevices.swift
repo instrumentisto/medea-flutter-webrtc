@@ -77,12 +77,14 @@ class MediaDevices {
     devices.append(MediaDeviceInfo(
       deviceId: "speaker",
       label: "Speaker",
-      kind: MediaDeviceKind.audioOutput
+      kind: MediaDeviceKind.audioOutput,
+      audioKind: AudioDeviceKind.speakerphone
     ))
     devices.append(MediaDeviceInfo(
       deviceId: "ear-piece",
       label: "Ear-Piece",
-      kind: MediaDeviceKind.audioOutput
+      kind: MediaDeviceKind.audioOutput,
+      audioKind: AudioDeviceKind.earSpeaker
     ))
 
     let videoDevices = AVCaptureDevice.devices(for: AVMediaType.video).map {
@@ -105,7 +107,8 @@ class MediaDevices {
       devices.append(MediaDeviceInfo(
         deviceId: bluetoothOutput!.portName,
         label: bluetoothOutput!.portName,
-        kind: MediaDeviceKind.audioOutput
+        kind: MediaDeviceKind.audioOutput,
+        audioKind: AudioDeviceKind.bluetoothHeadset
       ))
     }
 

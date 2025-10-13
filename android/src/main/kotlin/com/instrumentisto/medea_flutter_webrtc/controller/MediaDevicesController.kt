@@ -49,8 +49,8 @@ class MediaDevicesController(
    * Observer for the [MediaDevices] events, which will send all the events to the Flutter side via
    * [EventChannel].
    */
-  private val eventObserver =
-      object : MediaDevices.Companion.EventObserver {
+  private val onDeviceChangeObs =
+      object : MediaDevices.Companion.OnDeviceChangeObs {
         override fun onDeviceChange() {
           eventSink?.success(mapOf("event" to "onDeviceChange"))
         }
@@ -60,7 +60,7 @@ class MediaDevicesController(
     ControllerRegistry.register(this)
     chan.setMethodCallHandler(this)
     eventChannel.setStreamHandler(this)
-    mediaDevices.addObserver(eventObserver)
+    mediaDevices.addObserver(onDeviceChangeObs)
   }
 
   override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {

@@ -35,7 +35,7 @@ class _State extends State<OnDeviceChangeNotifierSample> {
       var devicesInfo = '';
       for (var device in mediaDeviceInfos) {
         devicesInfo +=
-            'Kind: ${device.kind}\nName: ${device.label}\nId: ${device.deviceId}\n\n';
+            'Kind: ${device.kind} (${device.audioDeviceKind})\nName: ${device.label}\nId: ${device.deviceId}\n\n';
       }
       for (var display in mediaDisplayInfos) {
         devicesInfo +=

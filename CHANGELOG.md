@@ -16,11 +16,13 @@ All user visible changes to this project will be documented in this file. This p
 - Bumped up minimum supported [Dart] version to 3.9. ([#250])
 - Bumped up minimum supported [Windows] deployment target to 10 (build 20348). ([#245])
 - Bumped up minimum supported [iOS] deployment target to 15. ([#254])
+- Provide real device IDs in `MediaDeviceInfo.id` instead of hardcoded kind based values on [Android] SDK >= 31. ([#257])
 
 ### Added
 
 - Support for system audio capturing on [Windows] via `getDisplayMedia()`. ([#245], [#244])
 - Capturing audio focus when in call on [Android]. ([#255])
+- `MediaDeviceInfo.audioDeviceKind` field and `AudioDeviceKind` enum to reflect audio device kind. ([#257])
 
 ### Changed
 
@@ -40,6 +42,7 @@ All user visible changes to this project will be documented in this file. This p
 [#254]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/254
 [#255]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/255
 [#256]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/256
+[#257]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/257
 [8cb9bdf6]: https://github.com/instrumentisto/medea-flutter-webrtc/commit/8cb9bdf65e6ed1c252d28300e8e6738d2a81b0e1
 [141.0.7390.54]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/141.0.7390.54
 
