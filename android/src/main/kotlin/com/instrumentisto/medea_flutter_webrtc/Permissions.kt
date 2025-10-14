@@ -57,14 +57,17 @@ class Permissions(private val activity: Activity) :
   @MainThread
   suspend fun requestPermission(permission: String) {
     ThreadUtils.checkIsOnMainThread()
+    if (activity.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) {
+      return
+    }
     waitForRequestEnd()
     if (activity.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) {
       return
     }
     return suspendCoroutine {
       hasOngoingRequest = true
-      ActivityCompat.requestPermissions(activity, arrayOf(permission), PERMISSIONS_REQUEST_ID)
       permissionRequest = it
+      ActivityCompat.requestPermissions(activity, arrayOf(permission), PERMISSIONS_REQUEST_ID)
     }
   }
 
@@ -110,15 +113,20 @@ class Permissions(private val activity: Activity) :
       grantResults: IntArray
   ): Boolean {
     return if (requestCode == PERMISSIONS_REQUEST_ID) {
-      for (entry in permissions.withIndex()) {
-        if (grantResults[entry.index] == PackageManager.PERMISSION_GRANTED) {
-          grantedListeners.forEach { it.onGranted(permissions[entry.index]) }
-          permissionRequest?.resume(Unit)
-        } else {
-          permissionRequest?.resumeWithException(
-              PermissionException("Permission '${entry.value}' not granted"))
+      if (permissions.isEmpty()) {
+        permissionRequest?.resumeWithException(
+            PermissionException("Permission request interrupted"))
+      } else {
+        for (entry in permissions.withIndex()) {
+          if (grantResults[entry.index] == PackageManager.PERMISSION_GRANTED) {
+            grantedListeners.forEach { it.onGranted(permissions[entry.index]) }
+            permissionRequest?.resume(Unit)
+          } else {
+            permissionRequest?.resumeWithException(
+                PermissionException("Permission '${entry.value}' not granted"))
+          }
+          permissionRequest = null
         }
-        permissionRequest = null
       }
       requestResolved()
       true

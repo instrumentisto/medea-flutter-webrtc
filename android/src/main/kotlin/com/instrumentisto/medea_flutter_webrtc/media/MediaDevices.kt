@@ -149,7 +149,7 @@ class MediaDevices(val state: State, val permissions: Permissions) {
   }
 
   /** @return List of [MediaDeviceInfo]s for the currently available devices. */
-  suspend fun enumerateDevices(): List<MediaDeviceInfo> {
+  fun enumerateDevices(): List<MediaDeviceInfo> {
     return audioDevices.enumerateDevices() + enumerateVideoDevices()
   }
 
@@ -191,13 +191,7 @@ class MediaDevices(val state: State, val permissions: Permissions) {
   }
 
   /** @return List of [MediaDeviceInfo]s for the currently available video devices. */
-  private suspend fun enumerateVideoDevices(): List<MediaDeviceInfo> {
-    try {
-      permissions.requestPermission(Manifest.permission.CAMERA)
-    } catch (e: PermissionException) {
-      throw GetUserMediaException(
-          "Camera permission was not granted", GetUserMediaException.Kind.Video)
-    }
+  private fun enumerateVideoDevices(): List<MediaDeviceInfo> {
     return cameraEnumerator
         .deviceNames
         .map { deviceId ->
