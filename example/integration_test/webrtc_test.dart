@@ -1519,7 +1519,11 @@ void main() {
 
     expect(hasInboundTransport, isTrue);
     expect(hasInboundAudio, isTrue);
-    expect(hasInboundVideo, isTrue);
+
+    // iOS simulator has no camera.
+    if (!Platform.isIOS) {
+      expect(hasInboundVideo, isTrue);
+    }
 
     await pc1.close();
     await pc2.close();
