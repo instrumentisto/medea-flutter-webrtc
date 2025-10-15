@@ -2001,7 +2001,7 @@ impl Thread {
 unsafe impl Send for webrtc::Thread {}
 unsafe impl Sync for webrtc::Thread {}
 
-/// Contains references to WebRTC utilities
+/// Execution environment with references to WebRTC utilities.
 pub struct Environment(UniquePtr<webrtc::Environment>);
 
 impl Environment {

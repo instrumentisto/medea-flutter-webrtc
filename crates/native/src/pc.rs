@@ -130,13 +130,13 @@ impl Webrtc {
         let track_origin = TrackOrigin::Local;
 
         match transceiver.media_type() {
-            sys::MediaType::VIDEO => {
-                for mut track in self.video_tracks.iter_mut() {
+            sys::MediaType::AUDIO => {
+                for mut track in self.audio_tracks.iter_mut() {
                     track.remove_transceiver(peer, transceiver);
                 }
             }
-            sys::MediaType::AUDIO => {
-                for mut track in self.audio_tracks.iter_mut() {
+            sys::MediaType::VIDEO => {
+                for mut track in self.video_tracks.iter_mut() {
                     track.remove_transceiver(peer, transceiver);
                 }
             }
@@ -146,22 +146,6 @@ impl Webrtc {
         let sender = transceiver.inner.lock().unwrap().sender();
         if let Some(track_id) = track_id {
             match transceiver.media_type() {
-                sys::MediaType::VIDEO => {
-                    let track_id = VideoTrackId::from(track_id);
-                    let mut track = self
-                        .video_tracks
-                        .get_mut(&(track_id.clone(), track_origin))
-                        .ok_or_else(|| {
-                            anyhow!("Cannot find track with ID `{track_id}`")
-                        })?;
-
-                    track.add_transceiver(
-                        Arc::clone(peer),
-                        Arc::clone(transceiver),
-                    );
-
-                    sender.replace_video_track(Some(&*track))
-                }
                 sys::MediaType::AUDIO => {
                     let track_id = AudioTrackId::from(track_id);
                     let mut track = self
@@ -178,12 +162,28 @@ impl Webrtc {
 
                     sender.replace_audio_track(Some(&*track))
                 }
+                sys::MediaType::VIDEO => {
+                    let track_id = VideoTrackId::from(track_id);
+                    let mut track = self
+                        .video_tracks
+                        .get_mut(&(track_id.clone(), track_origin))
+                        .ok_or_else(|| {
+                            anyhow!("Cannot find track with ID `{track_id}`")
+                        })?;
+
+                    track.add_transceiver(
+                        Arc::clone(peer),
+                        Arc::clone(transceiver),
+                    );
+
+                    sender.replace_video_track(Some(&*track))
+                }
                 _ => unreachable!(),
             }
         } else {
             match transceiver.media_type() {
-                sys::MediaType::VIDEO => sender.replace_video_track(None),
                 sys::MediaType::AUDIO => sender.replace_audio_track(None),
+                sys::MediaType::VIDEO => sender.replace_video_track(None),
                 _ => unreachable!(),
             }
         }
