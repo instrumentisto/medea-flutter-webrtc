@@ -243,7 +243,8 @@ class MediaDevices(val state: State, val permissions: Permissions) {
     }
 
     val deviceId =
-        findDeviceMatchingConstraints(constraints) ?: throw RuntimeException("Overconstrained")
+        findDeviceMatchingConstraints(constraints)
+            ?: throw GetUserMediaException("Overconstrained", GetUserMediaException.Kind.Video)
     val width = constraints.width ?: DEFAULT_WIDTH
     val height = constraints.height ?: DEFAULT_HEIGHT
     val fps = constraints.fps ?: DEFAULT_FPS
