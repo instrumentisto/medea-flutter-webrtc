@@ -116,6 +116,7 @@ class Permissions(private val activity: Activity) :
       if (permissions.isEmpty()) {
         permissionRequest?.resumeWithException(
             PermissionException("Permission request interrupted"))
+        permissionRequest = null
       } else {
         for (entry in permissions.withIndex()) {
           if (grantResults[entry.index] == PackageManager.PERMISSION_GRANTED) {
