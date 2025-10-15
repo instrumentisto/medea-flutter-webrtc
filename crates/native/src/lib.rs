@@ -247,7 +247,7 @@ pub struct Webrtc {
 
     /// `peer_connection_factory` must be dropped before [`Thread`]s.
     peer_connection_factory: sys::PeerConnectionFactoryInterface,
-    _task_queue_factory: sys::TaskQueueFactory,
+    environment: sys::Environment,
     audio_device_module: AudioDeviceModule,
     worker_thread: sys::Thread,
     signaling_thread: sys::Thread,
@@ -256,8 +256,7 @@ pub struct Webrtc {
 impl Webrtc {
     /// Creates a new [`Webrtc`] context.
     fn new() -> anyhow::Result<Self> {
-        let mut task_queue_factory =
-            sys::TaskQueueFactory::create_default_task_queue_factory();
+        let environment = sys::Environment::create()?;
 
         let mut worker_thread = sys::Thread::create(false)?;
         worker_thread.start()?;
@@ -268,7 +267,7 @@ impl Webrtc {
         let audio_device_module = AudioDeviceModule::new(
             &mut worker_thread,
             sys::AudioLayer::kPlatformDefaultAudio,
-            &mut task_queue_factory,
+            &environment,
         )?;
 
         let peer_connection_factory =
@@ -280,10 +279,10 @@ impl Webrtc {
             )?;
 
         let mut this = Self {
-            _task_queue_factory: task_queue_factory,
             worker_thread,
             signaling_thread,
             devices_state: DevicesState::default(),
+            environment,
             audio_device_module,
             video_device_info: VideoDeviceInfo::new()?,
             peer_connection_factory,

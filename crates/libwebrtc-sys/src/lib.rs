@@ -340,24 +340,6 @@ pub trait AddIceCandidateCallback {
     fn on_fail(&mut self, error: &CxxString);
 }
 
-/// Thread safe task queue factory internally used in [`WebRTC`] that is capable
-/// of creating [Task Queue]s.
-///
-/// [`WebRTC`]: https://webrtc.googlesource.com/src
-/// [Task Queue]: https://tinyurl.com/doc-threads
-pub struct TaskQueueFactory(UniquePtr<webrtc::TaskQueueFactory>);
-
-impl TaskQueueFactory {
-    /// Creates a default [`TaskQueueFactory`] based on the current platform.
-    #[must_use]
-    pub fn create_default_task_queue_factory() -> Self {
-        Self(webrtc::create_default_task_queue_factory())
-    }
-}
-
-unsafe impl Send for webrtc::TaskQueueFactory {}
-unsafe impl Sync for webrtc::TaskQueueFactory {}
-
 /// Available audio devices manager that is responsible for driving input
 /// (microphone) and output (speaker) audio in WebRTC.
 ///
@@ -374,12 +356,12 @@ impl AudioDeviceModule {
     pub fn create_proxy(
         worker_thread: &mut Thread,
         audio_layer: AudioLayer,
-        task_queue_factory: &mut TaskQueueFactory,
+        environment: &Environment,
     ) -> anyhow::Result<Self> {
         let ptr = webrtc::create_audio_device_module(
             worker_thread.0.pin_mut(),
             audio_layer,
-            task_queue_factory.0.pin_mut(),
+            &environment.0,
         );
 
         if ptr.is_null() {
@@ -756,8 +738,11 @@ impl AudioProcessingConfig {
 
 impl AudioProcessing {
     /// Creates a new [`AudioProcessing`].
-    pub fn new(config: AudioProcessingConfig) -> anyhow::Result<Self> {
-        let ptr = webrtc::create_audio_processing(config.0);
+    pub fn new(
+        config: AudioProcessingConfig,
+        environment: &Environment,
+    ) -> anyhow::Result<Self> {
+        let ptr = webrtc::create_audio_processing(config.0, &environment.0);
 
         if ptr.is_null() {
             bail!("`null` pointer returned from `AudioProcessing::Create()`");
@@ -2015,6 +2000,26 @@ impl Thread {
 
 unsafe impl Send for webrtc::Thread {}
 unsafe impl Sync for webrtc::Thread {}
+
+/// Execution environment with references to WebRTC utilities.
+pub struct Environment(UniquePtr<webrtc::Environment>);
+
+impl Environment {
+    /// Creates a new [`Environment`].
+    pub fn create() -> anyhow::Result<Self> {
+        let inner = webrtc::create_environment();
+        if inner.is_null() {
+            bail!(
+                "`null` pointer returned from \
+                `webrtc::CreateEnvironment()`",
+            );
+        }
+        Ok(Self(inner))
+    }
+}
+
+unsafe impl Send for webrtc::Environment {}
+unsafe impl Sync for webrtc::Environment {}
 
 /// Representation of the static capabilities of an endpoint.
 ///

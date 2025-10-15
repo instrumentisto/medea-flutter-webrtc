@@ -706,7 +706,6 @@ void main() {
     final completer = Completer<void>();
     pc2.onTrack((track, transceiver) async {
       completer.complete();
-      await track.stop();
       await track.dispose();
       await transceiver.dispose();
     });
@@ -730,7 +729,6 @@ void main() {
     pc2.onTrack((track, transceiver) async {
       track.onEnded(() async {
         completer.complete();
-        await track.stop();
         await track.dispose();
       });
       await transceiver.dispose();
@@ -798,7 +796,7 @@ void main() {
 
     expect(await track.state(), equals(MediaStreamTrackState.live));
 
-    await track.stop();
+    await track.dispose();
 
     try {
       await completer.future.timeout(const Duration(seconds: 3));
@@ -854,7 +852,6 @@ void main() {
       } else {
         futures[3].complete();
       }
-      await track.stop();
       await track.dispose();
       await trans.dispose();
     });
@@ -905,8 +902,6 @@ void main() {
 
     await pc1.close();
     await pc2.close();
-    await videoTrack.stop();
-    await audioTrack.stop();
     await videoTrack.dispose();
     await audioTrack.dispose();
     await videoTransceiver.dispose();
@@ -927,7 +922,6 @@ void main() {
       if (transceiver.mid == '0') {
         track.onEnded(() async {
           onEndedComplete.complete();
-          await track.stop();
           await track.dispose();
           await transceiver.dispose();
         });
@@ -968,13 +962,11 @@ void main() {
     await t1.dispose();
     await t2.dispose();
     for (var t in tracks) {
-      await t.stop();
       await t.dispose();
     }
     for (var t in transceivers) {
       await t.dispose();
     }
-    await cloneVideoTrack.stop();
     await cloneVideoTrack.dispose();
   });
 
@@ -1023,7 +1015,6 @@ void main() {
 
     var tracks = tracksAudioOnly + tracksVideoDeviceOnly + tracksVideoAudio;
     for (var t in tracks) {
-      await t.stop();
       await t.dispose();
     }
   });
@@ -1316,6 +1307,10 @@ void main() {
       await transceiver.syncMid();
       expect(await transceiver.getDirection(), TransceiverDirection.stopped);
     }
+
+    for (var track in tracks) {
+      await track.dispose();
+    }
   });
 
   testWidgets('Video dimensions', (WidgetTester tester) async {
@@ -1381,7 +1376,7 @@ void main() {
     expect(audioTrack.deviceId(), "system_audio_capture");
 
     for (var track in tracks) {
-      track.dispose();
+      await track.dispose();
     }
   });
 
@@ -1411,6 +1406,22 @@ void main() {
   });
 
   testWidgets('Peer connection get stats.', (WidgetTester tester) async {
+    var caps = DeviceConstraints();
+    caps.audio.mandatory = AudioConstraints();
+    caps.video.mandatory = DeviceVideoConstraints();
+    caps.video.mandatory!.width = 640;
+    caps.video.mandatory!.height = 480;
+    caps.video.mandatory!.fps = 30;
+
+    var tracks = await getUserMedia(caps);
+
+    var videoTrack = tracks.firstWhere(
+      (track) => track.kind() == MediaKind.video,
+    );
+    var audioTrack = tracks.firstWhere(
+      (track) => track.kind() == MediaKind.audio,
+    );
+
     var pc1 = await PeerConnection.create(IceTransportType.all, []);
     var pc2 = await PeerConnection.create(IceTransportType.all, []);
 
@@ -1434,6 +1445,9 @@ void main() {
       RtpTransceiverInit(TransceiverDirection.sendRecv),
     );
 
+    tVideo.sender.replaceTrack(videoTrack);
+    tAudio.sender.replaceTrack(audioTrack);
+
     var offer = await pc1.createOffer();
     await pc1.setLocalDescription(offer);
     await pc2.setRemoteDescription(offer);
@@ -1442,25 +1456,81 @@ void main() {
     await pc2.setLocalDescription(answer);
     await pc1.setRemoteDescription(answer);
 
-    var senderStats = await pc1.getStats();
-    var receiverStats = await pc2.getStats();
+    var n = 5;
+    var hasOutboundAudio = false;
+    var hasOutboundVideo = false;
+    var hasOutboundTransport = false;
+    for (int i = 0; i < n; i++) {
+      var senderStats = await pc1.getStats();
 
-    expect(
-      senderStats.where((e) => e.type is RtcOutboundRtpStreamStats).length,
-      2,
-    );
-    expect(senderStats.where((e) => e.type is RtcTransportStats).length, 1);
+      hasOutboundTransport = senderStats.any(
+        (s) => s.type is RtcTransportStats,
+      );
+      hasOutboundAudio = senderStats.any(
+        (s) =>
+            (s.type is RtcOutboundRtpStreamStats &&
+            (s.type as RtcOutboundRtpStreamStats).mediaType
+                is RtcOutboundRtpStreamStatsAudio),
+      );
+      hasOutboundVideo = senderStats.any(
+        (s) =>
+            (s.type is RtcOutboundRtpStreamStats &&
+            (s.type as RtcOutboundRtpStreamStats).mediaType
+                is RtcOutboundRtpStreamStatsVideo),
+      );
 
-    expect(
-      receiverStats.where((e) => e.type is RtcInboundRtpStreamStats).length,
-      2,
-    );
-    expect(receiverStats.where((e) => e.type is RtcTransportStats).length, 1);
+      if (hasOutboundTransport && hasOutboundAudio && hasOutboundVideo) {
+        break;
+      }
+      await Future.delayed(Duration(milliseconds: 500));
+    }
+    expect(hasOutboundTransport, isTrue);
+    expect(hasOutboundAudio, isTrue);
+    expect(hasOutboundVideo, isTrue);
+
+    n = 5;
+    var hasInboundAudio = false;
+    var hasInboundVideo = false;
+    var hasInboundTransport = false;
+    for (int i = 0; i < n; i++) {
+      var receiverStats = await pc2.getStats();
+
+      hasInboundTransport = receiverStats.any(
+        (s) => s.type is RtcTransportStats,
+      );
+      hasInboundAudio = receiverStats.any(
+        (s) =>
+            (s.type is RtcInboundRtpStreamStats &&
+            (s.type as RtcInboundRtpStreamStats).mediaType
+                is RtcInboundRtpStreamAudio),
+      );
+      hasInboundVideo = receiverStats.any(
+        (s) =>
+            (s.type is RtcInboundRtpStreamStats &&
+            (s.type as RtcInboundRtpStreamStats).mediaType
+                is RtcInboundRtpStreamVideo),
+      );
+
+      if (hasInboundAudio && hasInboundVideo && hasInboundTransport) {
+        break;
+      }
+      await Future.delayed(Duration(milliseconds: 500));
+    }
+
+    expect(hasInboundTransport, isTrue);
+    expect(hasInboundAudio, isTrue);
+
+    // iOS simulator has no camera.
+    if (!Platform.isIOS) {
+      expect(hasInboundVideo, isTrue);
+    }
 
     await pc1.close();
     await pc2.close();
     await tVideo.dispose();
     await tAudio.dispose();
+    await videoTrack.dispose();
+    await audioTrack.dispose();
   });
 
   testWidgets('Audio processing in get user media', (
@@ -1487,7 +1557,7 @@ void main() {
         expect(e, isInstanceOf<UnsupportedError>());
       }
 
-      await track.stop();
+      await track.dispose();
 
       return;
     }
@@ -1502,7 +1572,7 @@ void main() {
       expect(track.setNoiseSuppressionEnabled(true), throwsUnsupportedError);
       expect(track.isNoiseSuppressionEnabled(), throwsUnsupportedError);
 
-      await track.stop();
+      await track.dispose();
     }
 
     {
@@ -1522,7 +1592,7 @@ void main() {
         equals(NoiseSuppressionLevel.veryHigh.index),
       );
 
-      await track.stop();
+      await track.dispose();
     }
 
     {
@@ -1547,7 +1617,7 @@ void main() {
         equals(NoiseSuppressionLevel.low.index),
       );
 
-      await track.stop();
+      await track.dispose();
     }
 
     {
@@ -1572,7 +1642,7 @@ void main() {
         equals(NoiseSuppressionLevel.low.index),
       );
 
-      await track.stop();
+      await track.dispose();
     }
 
     {
@@ -1603,7 +1673,7 @@ void main() {
         equals(NoiseSuppressionLevel.veryHigh.index),
       );
 
-      await track.stop();
+      await track.dispose();
     }
   });
 }

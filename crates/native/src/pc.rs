@@ -93,14 +93,14 @@ impl Webrtc {
         for trnscvr in peer.get_transceivers() {
             let sender = trnscvr.sender();
             match trnscvr.media_type() {
-                sys::MediaType::MEDIA_TYPE_VIDEO => {
+                sys::MediaType::VIDEO => {
                     if let Err(e) = sender.replace_video_track(None) {
                         log::error!(
                             "Failed to remove video track from sender: {e}",
                         );
                     }
                 }
-                sys::MediaType::MEDIA_TYPE_AUDIO => {
+                sys::MediaType::AUDIO => {
                     if let Err(e) = sender.replace_audio_track(None) {
                         log::error!(
                             "Failed to remove audio track from sender: {e}",
@@ -130,13 +130,13 @@ impl Webrtc {
         let track_origin = TrackOrigin::Local;
 
         match transceiver.media_type() {
-            sys::MediaType::MEDIA_TYPE_VIDEO => {
-                for mut track in self.video_tracks.iter_mut() {
+            sys::MediaType::AUDIO => {
+                for mut track in self.audio_tracks.iter_mut() {
                     track.remove_transceiver(peer, transceiver);
                 }
             }
-            sys::MediaType::MEDIA_TYPE_AUDIO => {
-                for mut track in self.audio_tracks.iter_mut() {
+            sys::MediaType::VIDEO => {
+                for mut track in self.video_tracks.iter_mut() {
                     track.remove_transceiver(peer, transceiver);
                 }
             }
@@ -146,23 +146,7 @@ impl Webrtc {
         let sender = transceiver.inner.lock().unwrap().sender();
         if let Some(track_id) = track_id {
             match transceiver.media_type() {
-                sys::MediaType::MEDIA_TYPE_VIDEO => {
-                    let track_id = VideoTrackId::from(track_id);
-                    let mut track = self
-                        .video_tracks
-                        .get_mut(&(track_id.clone(), track_origin))
-                        .ok_or_else(|| {
-                            anyhow!("Cannot find track with ID `{track_id}`")
-                        })?;
-
-                    track.add_transceiver(
-                        Arc::clone(peer),
-                        Arc::clone(transceiver),
-                    );
-
-                    sender.replace_video_track(Some(&*track))
-                }
-                sys::MediaType::MEDIA_TYPE_AUDIO => {
+                sys::MediaType::AUDIO => {
                     let track_id = AudioTrackId::from(track_id);
                     let mut track = self
                         .audio_tracks
@@ -178,16 +162,28 @@ impl Webrtc {
 
                     sender.replace_audio_track(Some(&*track))
                 }
+                sys::MediaType::VIDEO => {
+                    let track_id = VideoTrackId::from(track_id);
+                    let mut track = self
+                        .video_tracks
+                        .get_mut(&(track_id.clone(), track_origin))
+                        .ok_or_else(|| {
+                            anyhow!("Cannot find track with ID `{track_id}`")
+                        })?;
+
+                    track.add_transceiver(
+                        Arc::clone(peer),
+                        Arc::clone(transceiver),
+                    );
+
+                    sender.replace_video_track(Some(&*track))
+                }
                 _ => unreachable!(),
             }
         } else {
             match transceiver.media_type() {
-                sys::MediaType::MEDIA_TYPE_VIDEO => {
-                    sender.replace_video_track(None)
-                }
-                sys::MediaType::MEDIA_TYPE_AUDIO => {
-                    sender.replace_audio_track(None)
-                }
+                sys::MediaType::AUDIO => sender.replace_audio_track(None),
+                sys::MediaType::VIDEO => sender.replace_video_track(None),
                 _ => unreachable!(),
             }
         }
@@ -1152,7 +1148,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
                 let track_origin = TrackOrigin::Remote(peer.id());
 
                 let track = match transceiver.media_type() {
-                    sys::MediaType::MEDIA_TYPE_AUDIO => {
+                    sys::MediaType::AUDIO => {
                         let track_id = AudioTrackId::from(track_id);
                         if audio_tracks
                             .contains_key(&(track_id.clone(), track_origin))
@@ -1167,7 +1163,7 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
 
                         result
                     }
-                    sys::MediaType::MEDIA_TYPE_VIDEO => {
+                    sys::MediaType::VIDEO => {
                         let track_id = VideoTrackId::from(track_id);
                         if video_tracks.contains_key(&(track_id, track_origin))
                         {
