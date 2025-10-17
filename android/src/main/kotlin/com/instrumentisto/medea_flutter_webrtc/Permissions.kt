@@ -124,7 +124,7 @@ class Permissions(private val activity: Activity) :
             permissionRequest?.resume(Unit)
           } else {
             permissionRequest?.resumeWithException(
-                PermissionException("Permission '${entry.value}' not granted"))
+                PermissionException("Permission `${entry.value}` not granted"))
           }
           permissionRequest = null
         }

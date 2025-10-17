@@ -34,7 +34,7 @@ All user visible changes to this project will be documented in this file. This p
 - `WebVideoRenderer` reporting 0x0 dimensions. ([#252])
 - `RtpSender` being disposed before `RtpTransceiver` causing `replaceTrack()` calls doing nothing on [Android]. ([#255])
 - `OnDeviceChangeCallback` not being called on wired headset connect/disconnect on [Android]. ([#255])
-- Permissions request on Android hanging indefinitely if interrupted. ([#258])
+- Permission request on Android hanging indefinitely once is interrupted. ([#258])
 
 [#244]: https://github.com/instrumentisto/medea-flutter-webrtc/issues/244
 [#245]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/245
