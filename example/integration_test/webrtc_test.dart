@@ -1533,6 +1533,39 @@ void main() {
     await audioTrack.dispose();
   });
 
+  testWidgets('setLocalDescription', (WidgetTester tester) async {
+    // Tests the previously fixed issue in libwebrtc-bin caused by
+    // VideoDecoderFactory not supporting some codecs that
+    // VideoEncoderFactory declared to support. This caused this codecs
+    // to be included in SDP offer and rejected in setLocalDescription.
+    // Performs 2 negotiations and changes transceiver direction to
+    // hit certain branches in libwebrtc source.
+    var pc1 = await PeerConnection.create(IceTransportType.all, []);
+    var tv = await pc1.addTransceiver(
+      MediaKind.video,
+      RtpTransceiverInit(TransceiverDirection.sendRecv),
+    );
+    var ta = await pc1.addTransceiver(
+      MediaKind.audio,
+      RtpTransceiverInit(TransceiverDirection.sendRecv),
+    );
+
+    {
+      tv.setDirection(TransceiverDirection.sendOnly);
+      var offer = await pc1.createOffer();
+      await pc1.setLocalDescription(offer);
+    }
+    {
+      tv.setDirection(TransceiverDirection.sendRecv);
+      var offer = await pc1.createOffer();
+      await pc1.setLocalDescription(offer);
+    }
+
+    await ta.dispose();
+    await tv.dispose();
+    await pc1.close();
+  });
+
   testWidgets('Audio processing in get user media', (
     WidgetTester tester,
   ) async {
