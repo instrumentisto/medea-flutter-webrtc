@@ -66,18 +66,7 @@ class MediaDevicesController(
   override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
     when (call.method) {
       "enumerateDevices" -> {
-        scope.launch {
-          try {
-            result.success(mediaDevices.enumerateDevices().map { it.asFlutterResult() })
-          } catch (e: GetUserMediaException) {
-            when (e.kind) {
-              GetUserMediaException.Kind.Audio ->
-                  result.error("GetUserMediaAudioException", e.message, null)
-              GetUserMediaException.Kind.Video ->
-                  result.error("GetUserMediaVideoException", e.message, null)
-            }
-          }
-        }
+        result.success(mediaDevices.enumerateDevices().map { it.asFlutterResult() })
       }
       "getUserMedia" -> {
         scope.launch {
