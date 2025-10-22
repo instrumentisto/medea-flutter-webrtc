@@ -181,13 +181,9 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
       rotation = 270
     }
 
-    let isFrameWidthChanged = self.frameWidth != renderFrame.buffer.width
-    let isFrameHeightChanged = self.frameHeight != renderFrame.buffer.height
-    let isFrameRotationChanged = self.frameRotation != rotation
-
-    if isFrameWidthChanged
-      || isFrameHeightChanged
-      || isFrameRotationChanged
+    if self.frameWidth != renderFrame.buffer.width
+      || self.frameHeight != renderFrame.buffer.height
+      || self.frameRotation != rotation
     {
       self.frameWidth = renderFrame.buffer.width
       self.frameHeight = renderFrame.buffer.height
@@ -195,7 +191,6 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
 
       let frameWidth = self.frameWidth
       let frameHeight = self.frameHeight
-
       DispatchQueue.main.async {
         self.broadcastEventObserver().onTextureChange(
           id: self.textureId,
@@ -212,8 +207,8 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
       let buffer = renderFrame.buffer.toI420()
 
       if self.pixelBuffer == nil
-        || self.frameWidth != buffer.width
-        || self.frameHeight != buffer.height
+        || CVPixelBufferGetWidth(self.pixelBuffer!) != buffer.width
+        || CVPixelBufferGetHeight(self.pixelBuffer!) != buffer.height
       {
         let attrs =
           [
@@ -223,15 +218,21 @@ class FlutterRtcVideoRenderer: NSObject, FlutterTexture, RTCVideoRenderer {
           ] as CFDictionary
 
         var newPB: CVPixelBuffer?
-        CVPixelBufferCreate(
+        let status = CVPixelBufferCreate(
           kCFAllocatorDefault,
           Int(buffer.width),
           Int(buffer.height),
           kCVPixelFormatType_32BGRA,
           attrs,
-          &self.pixelBuffer
+          &newPB
         )
-        self.pixelBuffer = newPB
+        if status == kCVReturnSuccess {
+          self.pixelBuffer = newPB
+        } else {
+          print("CVPixelBufferCreate failed with status \(status)")
+          self.pixelBuffer = nil
+          return
+        }
       }
 
       CVPixelBufferLockBaseAddress(
