@@ -1539,7 +1539,7 @@ void main() {
     // VideoEncoderFactory declared to support. This caused this codecs
     // to be included in SDP offer and rejected in setLocalDescription.
     // Performs 2 negotiations and changes transceiver direction to
-    // hit certain branches in libwebrtc source.
+    // hit certain branches in libwebrtc source code.
     var pc1 = await PeerConnection.create(IceTransportType.all, []);
     var tv = await pc1.addTransceiver(
       MediaKind.video,
