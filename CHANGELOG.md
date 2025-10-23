@@ -27,12 +27,14 @@ All user visible changes to this project will be documented in this file. This p
 ### Changed
 
 - Upgraded [libwebrtc] to [141.0.7390.107] version. ([#256], [#254], [#248], [#260])
+- Removed camera permission request in `enumerateDevices()` on Android. ([#258])
 
 ### Fixed
 
 - `WebVideoRenderer` reporting 0x0 dimensions. ([#252])
 - `RtpSender` being disposed before `RtpTransceiver` causing `replaceTrack()` calls doing nothing on [Android]. ([#255])
 - `OnDeviceChangeCallback` not being called on wired headset connect/disconnect on [Android]. ([#255])
+- Permission request on Android hanging indefinitely once is interrupted. ([#258])
 
 [#244]: https://github.com/instrumentisto/medea-flutter-webrtc/issues/244
 [#245]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/245
@@ -43,6 +45,7 @@ All user visible changes to this project will be documented in this file. This p
 [#255]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/255
 [#256]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/256
 [#257]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/257
+[#258]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/258
 [141.0.7390.107]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/141.0.7390.107
 
 
