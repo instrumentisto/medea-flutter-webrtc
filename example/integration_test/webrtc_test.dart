@@ -1534,12 +1534,12 @@ void main() {
   });
 
   testWidgets('setLocalDescription', (WidgetTester tester) async {
-    // Tests the previously fixed issue in libwebrtc-bin caused by
-    // VideoDecoderFactory not supporting some codecs that
-    // VideoEncoderFactory declared to support. This caused this codecs
-    // to be included in SDP offer and rejected in setLocalDescription.
-    // Performs 2 negotiations and changes transceiver direction to
-    // hit certain branches in libwebrtc source code.
+    // Tests the previously fixed issue in `libwebrtc-bin` caused by
+    // `VideoDecoderFactory` not supporting some codecs that
+    // `VideoEncoderFactory` declared to support. This caused these codecs
+    // to be included in an SDP offer and rejected in the `setLocalDescription`.
+    // Performs 2 negotiations and changes transceiver direction to hit certain
+    // branches in `libwebrtc` source code.
     var pc1 = await PeerConnection.create(IceTransportType.all, []);
     var tv = await pc1.addTransceiver(
       MediaKind.video,
