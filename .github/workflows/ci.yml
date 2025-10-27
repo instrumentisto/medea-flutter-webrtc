@@ -200,7 +200,7 @@ jobs:
 
       - run: make cargo.build platform=${{ matrix.platform }} debug=no
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: build-rust-${{ matrix.platform }}
           path: ${{ matrix.platform }}/rust/
@@ -239,7 +239,7 @@ jobs:
 
       - run: make cargo.build platform=linux debug=no
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: build-rust-linux
           path: linux/rust/
