@@ -20,12 +20,15 @@
 #include "libwebrtc-sys/include/bridge.h"
 #include "libwebrtc-sys/include/local_audio_source.h"
 #include "libwebrtc-sys/src/bridge.rs.h"
+#include "libwebrtc-sys/include/sys_audio_capture/capture.h"
 #include "libyuv.h"
 #include "modules/audio_device/include/audio_device_factory.h"
 #include "pc/proxy.h"
 #include "rtc_base/logging.h"
 
 namespace bridge {
+
+bool sys_audio_capture_is_available() { return SysAudioCaptureIsAvailable(); }
 
 // Creates a new `TrackEventObserver`.
 TrackEventObserver::TrackEventObserver(

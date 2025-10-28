@@ -13,6 +13,7 @@ use crate::{
     devices,
     frb_generated::StreamSink,
 };
+use libwebrtc_sys as sys;
 
 /// Indicator whether application is configured to use fake media devices.
 static FAKE_MEDIA: AtomicBool = AtomicBool::new(false);
@@ -62,6 +63,12 @@ pub fn set_microphone_volume(level: u8) -> anyhow::Result<()> {
 /// Returns the current level of the microphone volume in `[0; 100]` range.
 pub fn microphone_volume() -> anyhow::Result<u32> {
     WEBRTC.lock().unwrap().microphone_volume()
+}
+
+/// Indicates whether system audio capture is available on this platform.
+#[must_use]
+pub fn sys_audio_capture_is_available() -> bool {
+    sys::sys_audio_capture_is_available()
 }
 
 /// Sets the provided `OnDeviceChangeCallback` as the callback to be called

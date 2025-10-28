@@ -9,6 +9,18 @@
 #if defined(WEBRTC_LINUX)
 #endif
 
+inline bool SysAudioCaptureIsAvailable() {
+#if defined(WEBRTC_WIN)
+  return true;
+#elif defined(WEBRTC_LINUX)
+  return false;
+#elif defined(WEBRTC_MAC)
+  return IsSysAudioCaptureAvailable();
+#else
+  static_assert(false, "unknown platform");
+#endif
+}
+
 inline std::unique_ptr<AudioRecorder> CreateDefaultSysAudioSource() {
 #if defined(WEBRTC_WIN)
   auto recorder = std::make_unique<SysAudioSource>();

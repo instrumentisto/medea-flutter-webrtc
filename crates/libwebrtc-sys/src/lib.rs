@@ -657,6 +657,12 @@ impl AudioDeviceModule {
     }
 }
 
+/// Indicates whether system audio capture is available on this platform.
+#[must_use]
+pub fn sys_audio_capture_is_available() -> bool {
+    webrtc::sys_audio_capture_is_available()
+}
+
 unsafe impl Send for webrtc::AudioDeviceModule {}
 unsafe impl Sync for webrtc::AudioDeviceModule {}
 
