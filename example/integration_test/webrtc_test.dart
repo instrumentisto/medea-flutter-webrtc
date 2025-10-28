@@ -1353,7 +1353,7 @@ void main() {
 
   testWidgets('Display audio', (WidgetTester tester) async {
     // Display audio tracks are implemented only on Windows and MacOS.
-    if (!(Platform.isWindows || Platform.isMacOS) {
+    if (!(Platform.isWindows || Platform.isMacOS)) {
       return;
     }
 

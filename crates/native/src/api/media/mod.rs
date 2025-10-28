@@ -4,6 +4,8 @@ pub mod constraints;
 
 use std::sync::atomic::{AtomicBool, Ordering};
 
+use libwebrtc_sys as sys;
+
 pub use self::constraints::{
     AudioConstraints, AudioProcessingConstraints, MediaStreamConstraints,
     VideoConstraints,
@@ -13,7 +15,6 @@ use crate::{
     devices,
     frb_generated::StreamSink,
 };
-use libwebrtc_sys as sys;
 
 /// Indicator whether application is configured to use fake media devices.
 static FAKE_MEDIA: AtomicBool = AtomicBool::new(false);
