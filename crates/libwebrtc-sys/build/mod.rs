@@ -373,9 +373,12 @@ fn link_libs() -> anyhow::Result<()> {
             "AVFoundation",
             "AppKit",
             "System",
+            "ScreenCaptureKit",
         ] {
             println!("cargo:rustc-link-lib=framework={framework}");
         }
+        // Available since macOS 12.3+, used for system audio capture.
+        println!("cargo:rustc-link-arg=-Wl,-weak_framework,ScreenCaptureKit");
         if let Some(path) = macos_link_search_path() {
             println!("cargo:rustc-link-lib=clang_rt.osx");
             println!("cargo:rustc-link-search={path}");

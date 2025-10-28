@@ -1352,15 +1352,12 @@ void main() {
   });
 
   testWidgets('Display audio', (WidgetTester tester) async {
-    // Display audio tracks are implemented only on Windows.
-    if (!Platform.isWindows) {
+    // Display audio tracks are implemented only on Windows and MacOS.
+    if (!(Platform.isWindows || Platform.isMacOS) {
       return;
     }
 
     var caps = DisplayConstraints();
-    caps.video.mandatory = DeviceVideoConstraints();
-    caps.video.mandatory!.width = 640;
-    caps.video.mandatory!.height = 480;
     caps.audio.mandatory = AudioConstraints();
 
     var tracks = await getDisplayMedia(caps);
