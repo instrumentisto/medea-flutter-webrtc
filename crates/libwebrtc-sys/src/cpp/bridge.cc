@@ -91,7 +91,7 @@ std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(
     size_t height,
     size_t fps,
     uint32_t device) {
-#if __APPLE__
+#if defined(WEBRTC_MAC)
   auto dvc = signaling_thread.BlockingCall([width, height, fps, device] {
     return MacCapturer::Create(width, height, fps, device);
   });
@@ -267,7 +267,7 @@ void set_output_will_be_muted(const AudioProcessing& ap, bool muted) {
 
 // Calls `VideoCaptureFactory->CreateDeviceInfo()`.
 std::unique_ptr<VideoDeviceInfo> create_video_device_info() {
-#if __APPLE__
+#if defined(WEBRTC_MAC)
   return create_device_info_mac();
 #else
   std::unique_ptr<VideoDeviceInfo> ptr(

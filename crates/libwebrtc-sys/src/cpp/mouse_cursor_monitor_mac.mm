@@ -1,4 +1,4 @@
-#if __APPLE__
+#if defined(WEBRTC_MAC)
 
 #include "mouse_cursor_monitor_mac.h"
 
@@ -26,4 +26,4 @@ void MouseCursorMonitorMac::Capture() {
 
 }  // namespace bridge
 
-#endif
+#endif // WEBRTC_MAC

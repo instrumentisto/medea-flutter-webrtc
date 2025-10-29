@@ -1,7 +1,7 @@
+#if defined(WEBRTC_MAC)
+
 #ifndef BRIDGE_MOUSE_CURSOR_MONITOR_MAC_H_
 #define BRIDGE_MOUSE_CURSOR_MONITOR_MAC_H_
-
-#if __APPLE__
 
 #include "modules/desktop_capture/mouse_cursor_monitor.h"
 
@@ -31,6 +31,6 @@ class MouseCursorMonitorMac : public webrtc::MouseCursorMonitor {
 
 }  // namespace bridge
 
-#endif // __APPLE__
-
 #endif // BRIDGE_MOUSE_CURSOR_MONITOR_MAC_H_
+
+#endif // WEBRTC_MAC

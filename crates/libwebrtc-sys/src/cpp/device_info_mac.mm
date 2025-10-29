@@ -1,4 +1,4 @@
-#if __APPLE__
+#if defined(WEBRTC_MAC)
 #include "device_info_mac.h"
 
 // Creates a new `DeviceInfoMac`.
@@ -80,4 +80,5 @@ std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> create_device_info_mac()
 
   return ptr;
 }
-#endif
+
+#endif // WEBRTC_MAC

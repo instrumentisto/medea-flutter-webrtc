@@ -24,7 +24,7 @@
 #include "rtc_base/thread.h"
 #include "third_party/libyuv/include/libyuv.h"
 
-#if __APPLE__
+#if defined(WEBRTC_MAC)
 #include "mouse_cursor_monitor_mac.h"
 #endif
 
@@ -83,7 +83,7 @@ ScreenVideoCapturer::ScreenVideoCapturer(
                 CreateWithoutMouseCursorMonitor(std::move(screen_capturer));
             mouse_monitor_ = webrtc::MouseCursorMonitor::Create(options);
 
-#if __APPLE__
+#if defined(WEBRTC_MAC)
             mouse_monitor_ = std::make_unique<bridge::MouseCursorMonitorMac>(
                 std::move(mouse_monitor_));
 #endif

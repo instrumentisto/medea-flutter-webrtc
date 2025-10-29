@@ -12,7 +12,7 @@
 #include "api/environment/environment_factory.h"
 #include "api/video_codecs/builtin_video_encoder_factory.h"
 #include "api/video_track_source_proxy_factory.h"
-#if __APPLE__
+#if defined(WEBRTC_MAC)
 #include "device_info_mac.h"
 #include "libwebrtc-sys/include/device_info_mac.h"
 #include "mac_capturer.h"

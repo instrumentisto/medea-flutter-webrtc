@@ -1,4 +1,4 @@
-#if __APPLE__
+#if defined(WEBRTC_MAC)
 #include "mac_capturer.h"
 
 #include <rtc_base/logging.h>
@@ -119,4 +119,5 @@ webrtc::MediaSourceInterface::SourceState MacCapturer::state() const {
 bool MacCapturer::remote() const {
   return false;
 }
-#endif __APPLE__
+
+#endif // WEBRTC_MAC

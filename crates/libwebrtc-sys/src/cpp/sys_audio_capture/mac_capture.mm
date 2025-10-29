@@ -8,22 +8,29 @@
 #include <unistd.h>
 #include <objc/message.h>
 #include <vector>
+#include <algorithm>
+#include <limits>
 #include "rtc_base/logging.h"
 #include "libwebrtc-sys/include/sys_audio_capture/mac_capture.h"
 
+constexpr float kInt16MaxAsFloat = static_cast<float>(std::numeric_limits<int16_t>::max());
+constexpr int32_t kInt16Min = std::numeric_limits<int16_t>::min();
+constexpr int32_t kInt16Max = std::numeric_limits<int16_t>::max();
+constexpr long kShareableContentTimeoutSeconds = 5;
+
 bool IsSysAudioCaptureAvailable() {
-    if (@available(macOS 13.0, *)) {
-        return true;
-    } else {
-        return false;
-    }
+  if (@available(macOS 13.0, *)) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 /// SCStreamOutput that forwards audio buffers to a C++ SysAudioSource instance.
 API_AVAILABLE(macos(13.0))
 @interface SystemAudioDelegate : NSObject <SCStreamOutput, SCStreamDelegate>
-    /// `SysAudioSource` that this `SCStreamOutput` forwards captured audio to.
-    @property(nonatomic, assign) SysAudioSource* owner;
+/// `SysAudioSource` that this `SCStreamOutput` forwards captured audio to.
+@property(nonatomic, assign) SysAudioSource* owner;
 @end
 
 @implementation SystemAudioDelegate
@@ -110,6 +117,7 @@ API_AVAILABLE(macos(13.0))
     mono.reserve((size_t)totalFrames);
 
     if (isFloat) {
+      // Float planar to mono S16
       for (CMItemCount i = 0; i < totalFrames; ++i) {
         double acc = 0.0;
         for (UInt32 c = 0; c < channels; ++c) {
@@ -117,14 +125,16 @@ API_AVAILABLE(macos(13.0))
           acc += src[i];
         }
         float v = (float)(acc / (double)channels);
-        if (v > 1.0f) v = 1.0f; else if (v < -1.0f) v = -1.0f;
-        mono.push_back((int16_t)lrintf(v * 32767.0f));
+        v = std::clamp(v, -1.0f, 1.0f);
+        mono.push_back((int16_t)lrintf(v * kInt16MaxAsFloat));
       }
     } else {
       if (channels == 1) {
+        // S16 planar mono is what we need so just copy.
         const int16_t* src = reinterpret_cast<const int16_t*>(abl->mBuffers[0].mData);
         mono.insert(mono.end(), src, src + totalFrames);
       } else {
+        // S16 planar multi-channel to mono.
         for (CMItemCount i = 0; i < totalFrames; ++i) {
           long acc = 0;
           for (UInt32 c = 0; c < channels; ++c) {
@@ -144,82 +154,86 @@ API_AVAILABLE(macos(13.0))
       CFRelease(retainedBlock);
     }
     return;
-  }
+  } else {
+    CMBlockBufferRef blockBuffer = CMSampleBufferGetDataBuffer(sampleBuffer);
+    if (!blockBuffer) {
+      RTC_LOG(LS_ERROR) << "SystemAudioDelegate: Missing CMBlockBuffer in CMSampleBuffer.";
+      return;
+    }
 
-  CMBlockBufferRef blockBuffer = CMSampleBufferGetDataBuffer(sampleBuffer);
-  if (!blockBuffer) {
-    RTC_LOG(LS_ERROR) << "SystemAudioDelegate: Missing CMBlockBuffer in CMSampleBuffer.";
-    return;
-  }
+    size_t length = 0;
+    char* dataPtr = nullptr;
+    OSStatus getPtrStatus = CMBlockBufferGetDataPointer(blockBuffer, 0, nullptr, &length, &dataPtr);
+    if (getPtrStatus != kCMBlockBufferNoErr) {
+      RTC_LOG(LS_ERROR) << "SystemAudioDelegate: CMBlockBufferGetDataPointer failed with status: " << (int)getPtrStatus;
+      return;
+    }
 
-  size_t length = 0;
-  char* dataPtr = nullptr;
-  OSStatus getPtrStatus = CMBlockBufferGetDataPointer(blockBuffer, 0, nullptr, &length, &dataPtr);
-  if (getPtrStatus != kCMBlockBufferNoErr) {
-    RTC_LOG(LS_ERROR) << "SystemAudioDelegate: CMBlockBufferGetDataPointer failed with status: " << (int)getPtrStatus;
-    return;
-  }
+    if (length == 0) {
+      RTC_LOG(LS_ERROR) << "SystemAudioDelegate: CMBlockBuffer has zero length.";
+      return;
+    }
 
-  if (length == 0) {
-    RTC_LOG(LS_ERROR) << "SystemAudioDelegate: CMBlockBuffer has zero length.";
-    return;
-  }
+    const UInt32 bytesPerFrame = asbd->mBytesPerFrame;
+    if (bytesPerFrame == 0) {
+      RTC_LOG(LS_ERROR) << "SystemAudioDelegate: AudioStreamBasicDescription reports zero bytesPerFrame.";
+      return;
+    }
 
-  const UInt32 bytesPerFrame = asbd->mBytesPerFrame;
-  if (bytesPerFrame == 0) {
-    RTC_LOG(LS_ERROR) << "SystemAudioDelegate: AudioStreamBasicDescription reports zero bytesPerFrame.";
-    return;
-  }
+    const size_t frames = length / bytesPerFrame;
 
-  const size_t frames = length / bytesPerFrame;
-
-  if (isFloat) {
+    if (isFloat) {
       const float* fsrc = reinterpret_cast<const float*>(dataPtr);
       std::vector<int16_t> tmp;
       tmp.reserve(frames);
       if (channels == 1) {
-          for (size_t i = 0; i < frames; ++i) {
-              float v = fsrc[i];
-              if (v > 1.0f) v = 1.0f; else if (v < -1.0f) v = -1.0f;
-              tmp.push_back((int16_t) lrintf(v * 32767.0f));
-          }
+        // Float interleaved mono to S16.
+        for (size_t i = 0; i < frames; ++i) {
+          float v = std::clamp(fsrc[i], -1.0f, 1.0f);
+          tmp.push_back((int16_t) lrintf(v * kInt16MaxAsFloat));
+        }
       } else {
-          for (size_t i = 0; i < frames; ++i) {
-              double acc = 0.0;
-              for (UInt32 c = 0; c < channels; ++c) {
-                  acc += fsrc[i * channels + c];
-              }
-              float v = (float) (acc / (double) channels);
-              if (v > 1.0f) v = 1.0f; else if (v < -1.0f) v = -1.0f;
-              tmp.push_back((int16_t) lrintf(v * 32767.0f));
+        // Float interleaved multi-channel to mono
+        for (size_t i = 0; i < frames; ++i) {
+          double acc = 0.0;
+          for (UInt32 c = 0; c < channels; ++c) {
+            acc += fsrc[i * channels + c];
           }
+          float v = (float) (acc / (double) channels);
+          v = std::clamp(v, -1.0f, 1.0f);
+          tmp.push_back((int16_t) lrintf(v * kInt16MaxAsFloat));
+        }
       }
       if (self.owner) {
-          self.owner->OnPcmDataFromSC(tmp.data(), frames, 1, asbd->mSampleRate);
+        // Hand off mono S16 PCM; resampling (if needed) happens downstream.
+        self.owner->OnPcmDataFromSC(tmp.data(), frames, 1, asbd->mSampleRate);
       }
-  } else {
+    } else {
       if (channels == kRecordingChannels) {
-          if (self.owner) {
-              self.owner->OnPcmDataFromSC(reinterpret_cast<const int16_t *>(dataPtr),
-                                          frames,
-                                          channels,
-                                          asbd->mSampleRate);
-          }
+        // S16 interleaved, channel count already matches target: forward as-is.
+        if (self.owner) {
+          self.owner->OnPcmDataFromSC(reinterpret_cast<const int16_t *>(dataPtr),
+                                      frames,
+                                      channels,
+                                      asbd->mSampleRate);
+        }
       } else {
-          std::vector<int16_t> mono;
-          mono.reserve(frames);
-          const int16_t* src = reinterpret_cast<const int16_t*>(dataPtr);
-          for (size_t i = 0; i < frames; ++i) {
-              long acc = 0;
-              for (UInt32 c = 0; c < channels; ++c) {
-                  acc += src[i * channels + c];
-              }
-              mono.push_back(static_cast<int16_t>(acc / (long)channels));
+        // S16 interleaved multichannel, downmix to mono by averaging.
+        std::vector<int16_t> mono;
+        mono.reserve(frames);
+        const int16_t* src = reinterpret_cast<const int16_t*>(dataPtr);
+        for (size_t i = 0; i < frames; ++i) {
+          long acc = 0;
+          for (UInt32 c = 0; c < channels; ++c) {
+            acc += src[i * channels + c];
           }
-          if (self.owner) {
-              self.owner->OnPcmDataFromSC(mono.data(), frames, 1, asbd->mSampleRate);
-          }
+          mono.push_back(static_cast<int16_t>(acc / (long)channels));
+        }
+        if (self.owner) {
+          self.owner->OnPcmDataFromSC(mono.data(), frames, 1, asbd->mSampleRate);
+        }
       }
+    }
   }
 }
 @end
@@ -247,8 +261,8 @@ API_AVAILABLE(macos(13.0)) bool SysAudioSource::StartCapture() {
          dispatch_semaphore_signal(sema);
        }];
 
-    // Wait 5 seconds max.
-    long waitResult = dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
+    // Wait up to kShareableContentTimeoutSeconds seconds max.
+    long waitResult = dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, kShareableContentTimeoutSeconds * NSEC_PER_SEC));
     if (waitResult != 0) {
       RTC_LOG(LS_ERROR) << "SysAudioSource(Mac): Timeout waiting for shareable content.";
       return false;
@@ -283,7 +297,6 @@ API_AVAILABLE(macos(13.0)) bool SysAudioSource::StartCapture() {
     SystemAudioDelegate* output = [[SystemAudioDelegate alloc] init];
     output.owner = this;
 
-    NSError* error = nil;
     SCStream* stream = [[SCStream alloc] initWithFilter:filter configuration:cfg delegate:output];
     if (!stream) {
       RTC_LOG(LS_ERROR) << "SysAudioSource(Mac): Failed to create SCStream.";
@@ -418,11 +431,9 @@ void SysAudioSource::OnPcmDataFromSC(const int16_t* data,
       if (idx0 >= frames) idx0 = frames - 1;
       size_t idx1 = idx0 + 1;
       if (idx1 >= frames) idx1 = frames - 1;
-      int32_t s0 = data[idx0];
-      int32_t s1 = data[idx1];
-      double v = (1.0 - frac) * (double)s0 + frac * (double)s1;
+      double v = (1.0 - frac) * (double)data[idx0] + frac * (double)data[idx1];
       int32_t vi = (int32_t)lrint(v);
-      if (vi > 32767) vi = 32767; else if (vi < -32768) vi = -32768;
+      vi = std::clamp<int32_t>(vi, kInt16Min, kInt16Max);
       tmp.push_back((int16_t)vi);
     }
     recorded_samples_.insert(recorded_samples_.end(), tmp.begin(), tmp.end());
