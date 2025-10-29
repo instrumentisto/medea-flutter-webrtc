@@ -42,7 +42,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.11.1";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1851697459;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 368743498;
 
 // Section: executor
 
@@ -717,6 +717,21 @@ fn wire__crate__api__transceiver__stop_transceiver_impl(
             let api_transceiver = <RustOpaqueMoi<Arc < RtpTransceiver >>>::sse_decode(&mut deserializer);deserializer.end(); move |context|  {
                     transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>((move ||  {
                          let output_ok = crate::api::transceiver::stop_transceiver(api_transceiver)?;   Ok(output_ok)
+                    })())
+                } })
+}
+fn wire__crate__api__media__sys_audio_capture_is_available_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec,_,_>(flutter_rust_bridge::for_generated::TaskInfo{ debug_name: "sys_audio_capture_is_available", port: Some(port_), mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal }, move || { 
+            let message = unsafe { flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(ptr_, rust_vec_len_, data_len_) };
+            let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            deserializer.end(); move |context|  {
+                    transform_result_sse::<_, ()>((move ||  {
+                         let output_ok = Result::<_,()>::Ok(crate::api::media::sys_audio_capture_is_available())?;   Ok(output_ok)
                     })())
                 } })
 }
@@ -2697,12 +2712,13 @@ fn pde_ffi_dispatcher_primary_impl(
 40 => wire__crate__api__transceiver__set_transceiver_recv_impl(port, ptr, rust_vec_len, data_len),
 41 => wire__crate__api__transceiver__set_transceiver_send_impl(port, ptr, rust_vec_len, data_len),
 42 => wire__crate__api__transceiver__stop_transceiver_impl(port, ptr, rust_vec_len, data_len),
-43 => wire__crate__api__media_stream_track__track_height_impl(port, ptr, rust_vec_len, data_len),
-44 => wire__crate__api__media_stream_track__track_state_impl(port, ptr, rust_vec_len, data_len),
-45 => wire__crate__api__media_stream_track__track_width_impl(port, ptr, rust_vec_len, data_len),
-46 => wire__crate__api__media_stream_track__update_audio_processing_impl(port, ptr, rust_vec_len, data_len),
-47 => wire__crate__api__peer__video_codec_info__video_decoders_impl(port, ptr, rust_vec_len, data_len),
-48 => wire__crate__api__peer__video_codec_info__video_encoders_impl(port, ptr, rust_vec_len, data_len),
+43 => wire__crate__api__media__sys_audio_capture_is_available_impl(port, ptr, rust_vec_len, data_len),
+44 => wire__crate__api__media_stream_track__track_height_impl(port, ptr, rust_vec_len, data_len),
+45 => wire__crate__api__media_stream_track__track_state_impl(port, ptr, rust_vec_len, data_len),
+46 => wire__crate__api__media_stream_track__track_width_impl(port, ptr, rust_vec_len, data_len),
+47 => wire__crate__api__media_stream_track__update_audio_processing_impl(port, ptr, rust_vec_len, data_len),
+48 => wire__crate__api__peer__video_codec_info__video_decoders_impl(port, ptr, rust_vec_len, data_len),
+49 => wire__crate__api__peer__video_codec_info__video_encoders_impl(port, ptr, rust_vec_len, data_len),
                         _ => unreachable!(),
                     }
 }
