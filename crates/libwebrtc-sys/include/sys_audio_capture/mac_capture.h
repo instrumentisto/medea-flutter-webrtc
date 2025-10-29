@@ -9,7 +9,7 @@
 // Returns true if ScreenCaptureKit-based system audio capture is available at
 // runtime on this host (macOS >= 13).
 bool IsSysAudioCaptureAvailable();
-//API_AVAILABLE(macos(13.0))
+
 // System audio capture implementation for macOS using ScreenCaptureKit.
 class SysAudioSource final : public AudioRecorder {
 public:

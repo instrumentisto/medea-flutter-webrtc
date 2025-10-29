@@ -171,6 +171,7 @@ use regex_lite::Regex;
 use walkdir::{DirEntry, WalkDir};
 
 #[cfg(target_os = "macos")]
+/// macOS deployment target version.
 const MACOS_MINOS: &str = "10.15";
 
 fn main() -> anyhow::Result<()> {

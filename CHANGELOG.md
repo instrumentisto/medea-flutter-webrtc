@@ -20,7 +20,7 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Added
 
-- Support for system audio capturing on [Windows] via `getDisplayMedia()`. ([#245], [#244])
+- Support for system audio capturing on [Windows] and [macOS] via `getDisplayMedia()`. ([#245], [#244], [#263])
 - Capturing audio focus when in call on [Android]. ([#255])
 - `MediaDeviceInfo.audioDeviceKind` field and `AudioDeviceKind` enum to reflect audio device kind. ([#257])
 
@@ -47,6 +47,7 @@ All user visible changes to this project will be documented in this file. This p
 [#257]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/257
 [#258]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/258
 [#260]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/260
+[#263]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/263
 [todo]: https://github.com/instrumentisto/medea-flutter-webrtc/commit/todo
 [141.0.7390.122]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/141.0.7390.122
 

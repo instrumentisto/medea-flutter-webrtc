@@ -19,11 +19,16 @@ constexpr int32_t kInt16Max = std::numeric_limits<int16_t>::max();
 constexpr long kShareableContentTimeoutSeconds = 5;
 
 bool IsSysAudioCaptureAvailable() {
-  if (@available(macOS 13.0, *)) {
+    NSOperatingSystemVersion v = [[NSProcessInfo processInfo] operatingSystemVersion];
+    if (v.majorVersion < 13) {
+        return false;
+    }
+
+    if (NSClassFromString(@"SCStream") == nil) {
+        return false;
+    }
+
     return true;
-  } else {
-    return false;
-  }
 }
 
 /// SCStreamOutput that forwards audio buffers to a C++ SysAudioSource instance.
@@ -36,9 +41,10 @@ API_AVAILABLE(macos(13.0))
 @implementation SystemAudioDelegate
 - (void)stream:(SCStream*)stream didStopWithError:(NSError *)error {
   if (error) {
-    RTC_LOG(LS_ERROR) << "SystemAudioDelegate: Stream stopped with error: " << error.code;
+    RTC_LOG(LS_ERROR)
+        << "Stream stopped with error: " << error.code;
   } else {
-    RTC_LOG(LS_VERBOSE) << "SystemAudioDelegate: Stream stopped without error.";
+    RTC_LOG(LS_VERBOSE) << "Stream stopped without error.";
   }
   if (self.owner) {
     self.owner->StopCapture();
@@ -46,29 +52,32 @@ API_AVAILABLE(macos(13.0))
 }
 - (void)stream:(SCStream*)stream didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer ofType:(SCStreamOutputType)type {
   if (type != SCStreamOutputTypeAudio) {
-    RTC_LOG(LS_VERBOSE) << "SystemAudioDelegate: Ignoring non-audio output type: " << (int)type;
+    RTC_LOG(LS_VERBOSE)
+        << "Ignoring non-audio output type: " << (int)type;
     return;
   }
 
   if (!CMSampleBufferIsValid(sampleBuffer)) {
-    RTC_LOG(LS_ERROR) << "SystemAudioDelegate: Received invalid CMSampleBuffer.";
+    RTC_LOG(LS_ERROR) << "Received invalid CMSampleBuffer.";
     return;
   }
 
   CMFormatDescriptionRef fmt = CMSampleBufferGetFormatDescription(sampleBuffer);
   if (!fmt) {
-    RTC_LOG(LS_ERROR) << "SystemAudioDelegate: Missing CMFormatDescription from CMSampleBuffer.";
+    RTC_LOG(LS_ERROR)
+        << "Missing CMFormatDescription from CMSampleBuffer.";
     return;
   }
 
   const AudioStreamBasicDescription* asbd = CMAudioFormatDescriptionGetStreamBasicDescription(fmt);
   if (!asbd) {
-    RTC_LOG(LS_ERROR) << "SystemAudioDelegate: Missing AudioStreamBasicDescription.";
+    RTC_LOG(LS_ERROR)
+        << "Missing AudioStreamBasicDescription.";
     return;
   }
 
   if (asbd->mFormatID != kAudioFormatLinearPCM) {
-    RTC_LOG(LS_ERROR) << "SystemAudioDelegate: Unsupported audio format (mFormatID=" << (unsigned int)asbd->mFormatID << ") expected kAudioFormatLinearPCM.";
+    RTC_LOG(LS_ERROR) << "Unsupported audio format (mFormatID=" << (unsigned int)asbd->mFormatID << ") expected kAudioFormatLinearPCM.";
     return;
   }
 
@@ -77,18 +86,21 @@ API_AVAILABLE(macos(13.0))
   const UInt32 channels = asbd->mChannelsPerFrame;
 
   if (channels == 0) {
-    RTC_LOG(LS_ERROR) << "SystemAudioDelegate: AudioStreamBasicDescription reports zero channels.";
+    RTC_LOG(LS_ERROR)
+        << "AudioStreamBasicDescription reports zero channels.";
     return;
   }
 
   const CMItemCount totalFrames = CMSampleBufferGetNumSamples(sampleBuffer);
   if (totalFrames <= 0) {
-    RTC_LOG(LS_ERROR) << "SystemAudioDelegate: CMSampleBuffer has zero frames.";
+    RTC_LOG(LS_ERROR) << "CMSampleBuffer has zero frames.";
     return;
   }
 
   if (!isFloat && asbd->mBitsPerChannel != 16) {
-    RTC_LOG(LS_ERROR) << "SystemAudioDelegate: Unsupported integer PCM bits per channel: " << (unsigned int)asbd->mBitsPerChannel << ", only 16-bit supported.";
+    RTC_LOG(LS_ERROR)
+        << "Unsupported integer PCM bits per channel: "
+        << (unsigned int)asbd->mBitsPerChannel << ", only 16-bit supported.";
     return;
   }
 
@@ -109,7 +121,8 @@ API_AVAILABLE(macos(13.0))
         0,
         &retainedBlock);
     if (st != noErr) {
-      RTC_LOG(LS_ERROR) << "SystemAudioDelegate: CMAudioSampleBufferGetAudioBufferListWithRetainedBlockBuffer failed with status: " << (int)st;
+      RTC_LOG(LS_ERROR)
+        << "Could not get AudioBuffer list failed with status: " << (int)st;
       return;
     }
 
@@ -157,26 +170,31 @@ API_AVAILABLE(macos(13.0))
   } else {
     CMBlockBufferRef blockBuffer = CMSampleBufferGetDataBuffer(sampleBuffer);
     if (!blockBuffer) {
-      RTC_LOG(LS_ERROR) << "SystemAudioDelegate: Missing CMBlockBuffer in CMSampleBuffer.";
+      RTC_LOG(LS_ERROR) << "Missing CMBlockBuffer in CMSampleBuffer.";
       return;
     }
 
     size_t length = 0;
     char* dataPtr = nullptr;
-    OSStatus getPtrStatus = CMBlockBufferGetDataPointer(blockBuffer, 0, nullptr, &length, &dataPtr);
+    OSStatus getPtrStatus =
+            CMBlockBufferGetDataPointer(
+                    blockBuffer, 0, nullptr, &length, &dataPtr
+            );
     if (getPtrStatus != kCMBlockBufferNoErr) {
-      RTC_LOG(LS_ERROR) << "SystemAudioDelegate: CMBlockBufferGetDataPointer failed with status: " << (int)getPtrStatus;
+      RTC_LOG(LS_ERROR)
+        << "CMBlockBufferGetDataPointer failed with status: " << (int)getPtrStatus;
       return;
     }
 
     if (length == 0) {
-      RTC_LOG(LS_ERROR) << "SystemAudioDelegate: CMBlockBuffer has zero length.";
+      RTC_LOG(LS_ERROR) << "CMBlockBuffer has zero length.";
       return;
     }
 
     const UInt32 bytesPerFrame = asbd->mBytesPerFrame;
     if (bytesPerFrame == 0) {
-      RTC_LOG(LS_ERROR) << "SystemAudioDelegate: AudioStreamBasicDescription reports zero bytesPerFrame.";
+      RTC_LOG(LS_ERROR)
+        << "AudioStreamBasicDescription reports zero bytesPerFrame.";
       return;
     }
 
@@ -264,11 +282,13 @@ API_AVAILABLE(macos(13.0)) bool SysAudioSource::StartCapture() {
     // Wait up to kShareableContentTimeoutSeconds seconds max.
     long waitResult = dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, kShareableContentTimeoutSeconds * NSEC_PER_SEC));
     if (waitResult != 0) {
-      RTC_LOG(LS_ERROR) << "SysAudioSource(Mac): Timeout waiting for shareable content.";
+      RTC_LOG(LS_ERROR)
+        << "SysAudioSource(Mac): Timeout waiting for shareable content.";
       return false;
     }
     if (!content || contentError) {
-      RTC_LOG(LS_ERROR) << "SysAudioSource(Mac): Failed to get shareable content.";
+      RTC_LOG(LS_ERROR)
+        << "SysAudioSource(Mac): Failed to get shareable content.";
       return false;
     }
 

@@ -474,12 +474,16 @@ impl AudioDeviceModule {
 
     /// Creates a new [`AudioSourceInterface`] for display audio.
     ///
-    /// **NOTE**: Implemented only on Windows and will return `nullptr` error on
-    ///           other platforms.
+    /// **NOTE**: Check whether system audio is supported using
+    /// [`sys_audio_capture_is_available`].
     pub fn create_display_audio_source(
         &self,
         device_id: String,
     ) -> anyhow::Result<AudioSourceInterface> {
+        if !sys_audio_capture_is_available() {
+            bail!("System audio capture is not supported on this host.",);
+        }
+
         let ptr = webrtc::create_display_audio_source(&self.0, device_id);
 
         if ptr.is_null() {

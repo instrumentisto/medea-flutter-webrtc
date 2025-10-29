@@ -1506,9 +1506,6 @@ pub(crate) mod webrtc {
             signaling_thread: &UniquePtr<Thread>,
             default_adm: &UniquePtr<AudioDeviceModule>,
         ) -> UniquePtr<PeerConnectionFactoryInterface>;
-
-        /// Indicates whether system audio capture is available on this platform.
-        pub fn sys_audio_capture_is_available() -> bool;
     }
 
     unsafe extern "C++" {
@@ -2760,6 +2757,10 @@ pub(crate) mod webrtc {
             device_index: u16,
             ap: &UniquePtr<AudioProcessing>,
         ) -> UniquePtr<AudioSourceInterface>;
+
+        /// Indicates whether system audio capture is available on this
+        /// platform.
+        pub fn sys_audio_capture_is_available() -> bool;
 
         /// Creates a new [`AudioSourceInterface`] for display audio.
         pub fn create_display_audio_source(
