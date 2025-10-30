@@ -20,12 +20,16 @@
 #include "libwebrtc-sys/include/bridge.h"
 #include "libwebrtc-sys/include/local_audio_source.h"
 #include "libwebrtc-sys/src/bridge.rs.h"
+#include "libwebrtc-sys/include/sys_audio_capture/capture.h"
 #include "libyuv.h"
 #include "modules/audio_device/include/audio_device_factory.h"
 #include "pc/proxy.h"
 #include "rtc_base/logging.h"
 
 namespace bridge {
+
+// Indicates whether system audio capture is available on this platform.
+bool sys_audio_capture_is_available() { return SysAudioCaptureIsAvailable(); }
 
 // Creates a new `TrackEventObserver`.
 TrackEventObserver::TrackEventObserver(
@@ -88,7 +92,7 @@ std::unique_ptr<VideoTrackSourceInterface> create_device_video_source(
     size_t height,
     size_t fps,
     uint32_t device) {
-#if __APPLE__
+#if defined(WEBRTC_MAC)
   auto dvc = signaling_thread.BlockingCall([width, height, fps, device] {
     return MacCapturer::Create(width, height, fps, device);
   });
@@ -264,7 +268,7 @@ void set_output_will_be_muted(const AudioProcessing& ap, bool muted) {
 
 // Calls `VideoCaptureFactory->CreateDeviceInfo()`.
 std::unique_ptr<VideoDeviceInfo> create_video_device_info() {
-#if __APPLE__
+#if defined(WEBRTC_MAC)
   return create_device_info_mac();
 #else
   std::unique_ptr<VideoDeviceInfo> ptr(

@@ -190,6 +190,13 @@ fn main() -> anyhow::Result<()> {
 #[cfg(target_os = "macos")]
 /// Emits all the required `rustc-link-lib` instructions.
 fn link_libs() {
+    // Framework is available since macOS 12.3, audio capture is available
+    // since 13.0.
+    //
+    // Should be in `libwebrtc-sys` but has no effect there: weak link is not
+    // being carried over to `libmedea_flutter_webrtc_native.dylib`.
+    println!("cargo:rustc-link-arg=-Wl,-weak_framework,ScreenCaptureKit");
+
     println!("cargo:rustc-link-lib=framework=AVFoundation");
     if let Some(path) = macos_link_search_path() {
         println!("cargo:rustc-link-lib=clang_rt.osx");

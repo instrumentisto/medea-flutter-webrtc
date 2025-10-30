@@ -45,6 +45,10 @@ Future<void> setMicrophoneVolume({required int level}) =>
 Future<int> microphoneVolume() =>
     RustLib.instance.api.crateApiMediaMicrophoneVolume();
 
+/// Indicates whether system audio capture is available on this platform.
+Future<bool> sysAudioCaptureIsAvailable() =>
+    RustLib.instance.api.crateApiMediaSysAudioCaptureIsAvailable();
+
 /// Sets the provided `OnDeviceChangeCallback` as the callback to be called
 /// whenever a set of available media devices changes.
 ///

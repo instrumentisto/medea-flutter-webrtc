@@ -2,11 +2,24 @@
 #define SYS_AUDIO_CAPTURE_CAPTURE_H
 
 #if defined(WEBRTC_MAC)
+#include "mac_capture.h"
 #elif defined(WEBRTC_WIN)
 #include "win_capture.h"
 #endif
 #if defined(WEBRTC_LINUX)
 #endif
+
+inline bool SysAudioCaptureIsAvailable() {
+#if defined(WEBRTC_WIN)
+  return true;
+#elif defined(WEBRTC_LINUX)
+  return false;
+#elif defined(WEBRTC_MAC)
+  return IsSysAudioCaptureAvailable();
+#else
+  static_assert(false, "unknown platform");
+#endif
+}
 
 inline std::unique_ptr<AudioRecorder> CreateDefaultSysAudioSource() {
 #if defined(WEBRTC_WIN)
@@ -21,8 +34,14 @@ inline std::unique_ptr<AudioRecorder> CreateDefaultSysAudioSource() {
   // TODO: Implement for Linux.
   return nullptr;
 #elif defined(WEBRTC_MAC)
-  // TODO: Implement for MacOS.
-  return nullptr;
+  if (!SysAudioCaptureIsAvailable()) {
+    return nullptr;
+  }
+  auto recorder = std::make_unique<SysAudioSource>();
+  if (!recorder->StartCapture()) {
+    return nullptr;
+  }
+  return recorder;
 #else
   static_assert(false, "unknown platform");
 #endif

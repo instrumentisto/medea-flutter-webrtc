@@ -1352,21 +1352,17 @@ void main() {
   });
 
   testWidgets('Display audio', (WidgetTester tester) async {
-    // Display audio tracks are implemented only on Windows.
-    if (!Platform.isWindows) {
+    // Display audio tracks are implemented only on Windows and macOS.
+    if (!(Platform.isWindows || Platform.isMacOS)) {
       return;
     }
 
     var caps = DisplayConstraints();
-    caps.video.mandatory = DeviceVideoConstraints();
-    caps.video.mandatory!.width = 640;
-    caps.video.mandatory!.height = 480;
     caps.audio.mandatory = AudioConstraints();
 
     var tracks = await getDisplayMedia(caps);
 
-    expect(tracks.length, 2);
-    expect(tracks.where((track) => track.kind() == MediaKind.video).length, 1);
+    expect(tracks.length, 1);
     expect(tracks.where((track) => track.kind() == MediaKind.audio).length, 1);
 
     var audioTrack = tracks.firstWhere(

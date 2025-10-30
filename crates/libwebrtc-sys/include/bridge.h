@@ -12,7 +12,7 @@
 #include "api/environment/environment_factory.h"
 #include "api/video_codecs/builtin_video_encoder_factory.h"
 #include "api/video_track_source_proxy_factory.h"
-#if __APPLE__
+#if defined(WEBRTC_MAC)
 #include "device_info_mac.h"
 #include "libwebrtc-sys/include/device_info_mac.h"
 #include "mac_capturer.h"
@@ -130,6 +130,9 @@ using RtpCapabilities = webrtc::RtpCapabilities;
 using RtpHeaderExtensionCapability = webrtc::RtpHeaderExtensionCapability;
 using RuntimeSetting = webrtc::AudioProcessing::RuntimeSetting;
 using AudioProcessingConfig = webrtc::AudioProcessing::Config;
+
+// Indicates whether system audio capture is available on this platform.
+bool sys_audio_capture_is_available();
 
 // Creates a new proxied `AudioDeviceModule` for the given `AudioLayer`.
 std::unique_ptr<AudioDeviceModule> create_audio_device_module(

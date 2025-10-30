@@ -33,6 +33,7 @@ pub use self::{
         enumerate_displays, is_fake_media, microphone_volume,
         microphone_volume_is_available, set_audio_playout_device,
         set_microphone_volume, set_on_device_changed,
+        sys_audio_capture_is_available,
     },
     media_info::{MediaDeviceInfo, MediaDeviceKind, MediaDisplayInfo},
     media_stream_track::{

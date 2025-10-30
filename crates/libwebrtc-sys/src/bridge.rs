@@ -2758,6 +2758,10 @@ pub(crate) mod webrtc {
             ap: &UniquePtr<AudioProcessing>,
         ) -> UniquePtr<AudioSourceInterface>;
 
+        /// Indicates whether system audio capture is available on this
+        /// platform.
+        pub fn sys_audio_capture_is_available() -> bool;
+
         /// Creates a new [`AudioSourceInterface`] for display audio.
         pub fn create_display_audio_source(
             audio_device_module: &AudioDeviceModule,
