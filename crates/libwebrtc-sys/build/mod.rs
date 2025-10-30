@@ -380,7 +380,6 @@ fn link_libs() -> anyhow::Result<()> {
         ] {
             println!("cargo:rustc-link-lib=framework={framework}");
         }
-
         if let Some(path) = macos_link_search_path() {
             println!("cargo:rustc-link-lib=clang_rt.osx");
             println!("cargo:rustc-link-search={path}");

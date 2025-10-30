@@ -153,6 +153,15 @@ Future<List<NativeMediaStreamTrack>> getUserMedia(
   }
 }
 
+/// Indicates whether system audio capture is available on this platform.
+Future<bool> systemAudioCaptureIsAvailable() async {
+  if (isDesktop) {
+    return await ffi.sysAudioCaptureIsAvailable();
+  } else {
+    return false;
+  }
+}
+
 /// Returns list of local display [NativeMediaStreamTrack]s based on the
 /// provided [DisplayConstraints].
 Future<List<NativeMediaStreamTrack>> getDisplayMedia(

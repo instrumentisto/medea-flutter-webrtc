@@ -12,7 +12,7 @@ bool IsSysAudioCaptureAvailable();
 
 // System audio capture implementation for macOS using ScreenCaptureKit.
 class SysAudioSource final : public AudioRecorder {
-public:
+ public:
   SysAudioSource();
 
   // Captures a new batch of audio samples and propagates it to the inner
@@ -35,7 +35,7 @@ public:
                        unsigned int channels,
                        double sample_rate);
 
-private:
+ private:
   std::recursive_mutex mutex_;
 
   bool recording_ = false;

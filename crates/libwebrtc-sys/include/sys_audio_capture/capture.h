@@ -34,7 +34,7 @@ inline std::unique_ptr<AudioRecorder> CreateDefaultSysAudioSource() {
   // TODO: Implement for Linux.
   return nullptr;
 #elif defined(WEBRTC_MAC)
-  if (!IsSysAudioCaptureAvailable()) {
+  if (!SysAudioCaptureIsAvailable()) {
     return nullptr;
   }
 

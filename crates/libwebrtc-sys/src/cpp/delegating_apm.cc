@@ -237,6 +237,7 @@ bool PlayoutDelegatingAPM::CreateAndAttachAecDump(
       << "`PlayoutDelegatingAPM::CreateAndAttachAecDump()` is unsupported";
   return false;
 }
+
 bool PlayoutDelegatingAPM::CreateAndAttachAecDump(
     FILE* handle,
     int64_t max_log_size_bytes,

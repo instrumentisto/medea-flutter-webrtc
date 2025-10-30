@@ -77,7 +77,9 @@ API_AVAILABLE(macos(13.0))
   }
 
   if (asbd->mFormatID != kAudioFormatLinearPCM) {
-    RTC_LOG(LS_ERROR) << "Unsupported audio format (mFormatID=" << (unsigned int)asbd->mFormatID << ") expected kAudioFormatLinearPCM.";
+    RTC_LOG(LS_ERROR)
+        << "Unsupported audio format (mFormatID="
+        << (unsigned int)asbd->mFormatID << ") expected kAudioFormatLinearPCM.";
     return;
   }
 
@@ -274,13 +276,15 @@ API_AVAILABLE(macos(13.0)) bool SysAudioSource::StartCapture() {
     __block NSError* contentError = nil;
     dispatch_semaphore_t sema = dispatch_semaphore_create(0);
     [SCShareableContent getShareableContentWithCompletionHandler:^(SCShareableContent *c, NSError *err) {
-         content = c;
-         contentError = err;
-         dispatch_semaphore_signal(sema);
-       }];
+      content = c;
+      contentError = err;
+      dispatch_semaphore_signal(sema);
+    }];
 
     // Wait up to kShareableContentTimeoutSeconds seconds max.
-    long waitResult = dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, kShareableContentTimeoutSeconds * NSEC_PER_SEC));
+    long waitResult = dispatch_semaphore_wait(sema,
+                                              dispatch_time(DISPATCH_TIME_NOW,
+                                              kShareableContentTimeoutSeconds * NSEC_PER_SEC));
     if (waitResult != 0) {
       RTC_LOG(LS_ERROR)
         << "SysAudioSource(Mac): Timeout waiting for shareable content.";
@@ -331,7 +335,8 @@ API_AVAILABLE(macos(13.0)) bool SysAudioSource::StartCapture() {
                                 sampleHandlerQueue:q
                                              error:&addStreamOutputError];
     if (!add_output_ok) {
-      RTC_LOG(LS_ERROR) << "SysAudioSource(Mac): addStreamOutput (SCStreamOutputTypeAudio) error: " << addStreamOutputError.code;
+      RTC_LOG(LS_ERROR) << "SysAudioSource(Mac): addStreamOutput (SCStreamOutputTypeAudio) error: "
+                        << addStreamOutputError.code;
       return false;
     }
 
@@ -383,7 +388,8 @@ API_AVAILABLE(macos(13.0)) void SysAudioSource::StopCapture() {
     if (stream) {
       [stream stopCaptureWithCompletionHandler:^(NSError *_Nullable error) {
         if (error && error.code != SCStreamErrorAttemptToStopStreamState) {
-          RTC_LOG(LS_ERROR) << "SysAudioSource(Mac): stopCaptureWithCompletionHandler error: " << error.code;
+          RTC_LOG(LS_ERROR) << "SysAudioSource(Mac): stopCaptureWithCompletionHandler error: "
+                            << error.code;
         }
         if (stream_to_release) {
           CFRelease((__bridge CFTypeRef)((__bridge id)stream_to_release));
@@ -440,7 +446,7 @@ void SysAudioSource::OnPcmDataFromSC(const int16_t* data,
 
   // Resample if needed using linear interpolation.
   if ((int)sample_rate != kRecordingFrequency) {
-    const double scale = sample_rate / (double)kRecordingFrequency; // in_frames = out_idx * scale
+    const double scale = sample_rate / (double)kRecordingFrequency;
     const size_t outFrames = (size_t)((double)frames / scale);
     std::vector<int16_t> tmp;
     tmp.reserve(outFrames);
