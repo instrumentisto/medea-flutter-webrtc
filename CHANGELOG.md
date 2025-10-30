@@ -20,6 +20,7 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Added
 
+- Support `PeerConnection.videoDecoders()` and `PeerConnection.videoEncoders()` on iOS. ([#148])
 - Support for system audio capturing on [Windows] via `getDisplayMedia()`. ([#245], [#244])
 - Capturing audio focus when in call on [Android]. ([#255])
 - `MediaDeviceInfo.audioDeviceKind` field and `AudioDeviceKind` enum to reflect audio device kind. ([#257])
@@ -36,6 +37,7 @@ All user visible changes to this project will be documented in this file. This p
 - `OnDeviceChangeCallback` not being called on wired headset connect/disconnect on [Android]. ([#255])
 - Permission request on Android hanging indefinitely once is interrupted. ([#258])
 
+[#148]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/148
 [#244]: https://github.com/instrumentisto/medea-flutter-webrtc/issues/244
 [#245]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/245
 [#248]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/248
