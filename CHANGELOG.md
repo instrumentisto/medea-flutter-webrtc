@@ -21,6 +21,7 @@ All user visible changes to this project will be documented in this file. This p
 ### Added
 
 - Support for system audio capturing on [Windows] and [macOS] via `getDisplayMedia()`. ([#245], [#244], [#263])
+- `systemAudioCaptureIsAvailable()` for probing system audio capturing support. ([#263]))
 - Capturing audio focus when in call on [Android]. ([#255])
 - `MediaDeviceInfo.audioDeviceKind` field and `AudioDeviceKind` enum to reflect audio device kind. ([#257])
 

@@ -14,7 +14,7 @@ use flate2::read::GzDecoder;
 use tar::Archive;
 
 #[cfg(target_os = "macos")]
-use crate::MACOS_MINOS;
+use crate::MACOS_MIN_VER;
 use crate::{copy_dir_all, get_target};
 
 /// URL for downloading `openal-soft` source code.
@@ -85,9 +85,8 @@ pub(super) fn compile() -> anyhow::Result<()> {
     #[cfg(target_os = "macos")]
     {
         cmake_cmd.arg("-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64");
-        cmake_cmd.arg(format!("-DCMAKE_OSX_DEPLOYMENT_TARGET={MACOS_MINOS}"));
+        cmake_cmd.arg(format!("-DCMAKE_OSX_DEPLOYMENT_TARGET={MACOS_MIN_VER}"));
     }
-
     drop(cmake_cmd.output()?);
 
     drop(

@@ -28,6 +28,7 @@
 
 namespace bridge {
 
+// Indicates whether system audio capture is available on this platform.
 bool sys_audio_capture_is_available() { return SysAudioCaptureIsAvailable(); }
 
 // Creates a new `TrackEventObserver`.

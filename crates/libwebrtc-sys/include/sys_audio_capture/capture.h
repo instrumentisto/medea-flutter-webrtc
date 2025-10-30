@@ -37,7 +37,6 @@ inline std::unique_ptr<AudioRecorder> CreateDefaultSysAudioSource() {
   if (!SysAudioCaptureIsAvailable()) {
     return nullptr;
   }
-
   auto recorder = std::make_unique<SysAudioSource>();
   if (!recorder->StartCapture()) {
     return nullptr;

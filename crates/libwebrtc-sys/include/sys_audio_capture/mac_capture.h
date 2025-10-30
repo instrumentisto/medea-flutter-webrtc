@@ -6,11 +6,11 @@
 
 #include "libwebrtc-sys/include/audio_recorder.h"
 
-// Returns true if ScreenCaptureKit-based system audio capture is available at
-// runtime on this host (macOS >= 13).
+// Indicates whether `ScreenCaptureKit`-based system audio capture is available
+// at runtime on this host (macOS >= 13).
 bool IsSysAudioCaptureAvailable();
 
-// System audio capture implementation for macOS using ScreenCaptureKit.
+// System audio capture implementation for macOS using `ScreenCaptureKit`.
 class SysAudioSource final : public AudioRecorder {
  public:
   SysAudioSource();
@@ -29,7 +29,7 @@ class SysAudioSource final : public AudioRecorder {
   // writes the recorded audio to.
   webrtc::scoped_refptr<bridge::LocalAudioSource> GetSource() override;
 
-  // Forwards raw PCM data from ScreenCaptureKit callback.
+  // Forwards raw PCM data from the `ScreenCaptureKit` callback.
   void OnPcmDataFromSC(const int16_t* data,
                        size_t frames,
                        unsigned int channels,
@@ -48,5 +48,3 @@ class SysAudioSource final : public AudioRecorder {
 };
 
 #endif  // SYS_AUDIO_CAPTURE_MAC_CAPTURE_H
-
-

@@ -474,8 +474,8 @@ impl AudioDeviceModule {
 
     /// Creates a new [`AudioSourceInterface`] for display audio.
     ///
-    /// **NOTE**: Check whether system audio is supported using
-    /// [`sys_audio_capture_is_available`].
+    /// **NOTE**: Check whether system audio is supported using the
+    /// [`sys_audio_capture_is_available()`] function.
     pub fn create_display_audio_source(
         &self,
         device_id: String,

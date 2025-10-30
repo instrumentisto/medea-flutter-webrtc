@@ -171,8 +171,8 @@ use regex_lite::Regex;
 use walkdir::{DirEntry, WalkDir};
 
 #[cfg(target_os = "macos")]
-/// macOS deployment target version.
-const MACOS_MINOS: &str = "10.15";
+/// macOS minimal deployment target version.
+const MACOS_MIN_VER: &str = "10.15";
 
 fn main() -> anyhow::Result<()> {
     drop(dotenv());
@@ -235,7 +235,7 @@ fn main() -> anyhow::Result<()> {
     }
     #[cfg(target_os = "macos")]
     {
-        println!("cargo:rustc-env=MACOSX_DEPLOYMENT_TARGET={MACOS_MINOS}");
+        println!("cargo:rustc-env=MACOSX_DEPLOYMENT_TARGET={MACOS_MIN_VER}");
         build
             .include(libpath.join("include/sdk/objc/base"))
             .include(libpath.join("include/sdk/objc"));
