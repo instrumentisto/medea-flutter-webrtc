@@ -618,7 +618,7 @@ mod windows {
         clippy::borrow_as_ptr,
         clippy::inline_always,
         clippy::multiple_unsafe_ops_per_block,
-        clippy::ptr_as_ptr,
+        clippy::ref_as_ptr,
         trivial_casts,
         reason = "`#[windows::core::implement]` macro expansion"
     )]
