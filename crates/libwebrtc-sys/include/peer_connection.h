@@ -43,10 +43,6 @@ class PeerConnectionObserver : public webrtc::PeerConnectionObserver {
                            int error_code,
                            const std::string& error_text) override;
 
-  // Called when the ICE candidates have been removed.
-  void OnIceCandidatesRemoved(
-      const std::vector<webrtc::Candidate>& candidates) override;
-
   // Called when the `SignalingState` changes.
   void OnSignalingChange(
       webrtc::PeerConnectionInterface::SignalingState new_state) override;

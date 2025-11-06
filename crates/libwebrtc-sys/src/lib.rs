@@ -162,7 +162,7 @@ mod bridge;
 use std::{collections::HashMap, mem};
 
 use anyhow::{anyhow, bail};
-use cxx::{CxxString, CxxVector, UniquePtr, let_cxx_string};
+use cxx::{CxxString, UniquePtr, let_cxx_string};
 use derive_more::with_trait::From;
 
 use self::bridge::webrtc;
@@ -279,9 +279,6 @@ pub trait PeerConnectionEventsHandler {
     ///
     /// [1]: https://w3.org/TR/webrtc#event-icecandidate
     fn on_ice_candidate(&mut self, candidate: IceCandidateInterface);
-
-    /// Called when some ICE candidates have been removed.
-    fn on_ice_candidates_removed(&mut self, candidates: &CxxVector<Candidate>);
 
     /// Called when a [`selectedcandidatepairchange`][1] event occurs.
     ///
