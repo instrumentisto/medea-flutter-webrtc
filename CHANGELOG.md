@@ -27,7 +27,7 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Changed
 
-- Upgraded [libwebrtc] to [142.0.7444.59] version. ([#256], [#254], [#248], [#260], [#264])
+- Upgraded [libwebrtc] to [142.0.7444.134] version. ([#256], [#254], [#248], [#260], [#264], [todo])
 - Removed camera permission request in `enumerateDevices()` on Android. ([#258])
 
 ### Fixed
@@ -50,7 +50,8 @@ All user visible changes to this project will be documented in this file. This p
 [#260]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/260
 [#263]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/263
 [#264]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/264
-[142.0.7444.59]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/142.0.7444.59
+[todo]: https://github.com/instrumentisto/medea-flutter-webrtc/commit/todo
+[142.0.7444.134]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/142.0.7444.134
 
 
 
