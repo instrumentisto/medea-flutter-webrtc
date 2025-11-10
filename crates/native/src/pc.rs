@@ -9,7 +9,7 @@ use std::{
 };
 
 use anyhow::anyhow;
-use cxx::{CxxString, CxxVector};
+use cxx::CxxString;
 use dashmap::DashMap;
 use derive_more::with_trait::{Display, From, Into};
 use libwebrtc_sys as sys;
@@ -1114,10 +1114,6 @@ impl sys::PeerConnectionEventsHandler for PeerConnectionObserver {
                 candidate: candidate.candidate(),
             },
         );
-    }
-
-    fn on_ice_candidates_removed(&mut self, _: &CxxVector<sys::Candidate>) {
-        // This is a non-spec-compliant event.
     }
 
     fn on_ice_selected_candidate_pair_changed(

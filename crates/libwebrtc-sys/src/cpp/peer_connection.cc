@@ -57,12 +57,6 @@ void PeerConnectionObserver::OnIceCandidateError(const std::string& address,
   bridge::on_ice_candidate_error(*cb_, address, port, url, err_code, err_text);
 }
 
-// Propagates the removed `Candidate`s to the Rust side.
-void PeerConnectionObserver::OnIceCandidatesRemoved(
-    const std::vector<webrtc::Candidate>& candidates) {
-  bridge::on_ice_candidates_removed(*cb_, candidates);
-}
-
 // Propagates the new ICE connection receiving status to the Rust side.
 void PeerConnectionObserver::OnIceConnectionReceivingChange(bool receiving) {
   bridge::on_ice_connection_receiving_change(*cb_, receiving);

@@ -3,7 +3,7 @@
 use std::fmt;
 
 use anyhow::anyhow;
-use cxx::{CxxString, CxxVector, UniquePtr};
+use cxx::{CxxString, UniquePtr};
 use derive_more::with_trait::{Deref, DerefMut};
 
 use crate::{
@@ -3217,14 +3217,6 @@ pub(crate) mod webrtc {
             candidate: UniquePtr<IceCandidateInterface>,
         );
 
-        /// Forwards the removed [`Candidate`]s to the given
-        /// [`DynPeerConnectionEventsHandler`] when some ICE candidates have
-        /// been removed.
-        pub fn on_ice_candidates_removed(
-            cb: &mut DynPeerConnectionEventsHandler,
-            candidates: &CxxVector<Candidate>,
-        );
-
         /// Forwards the selected [`CandidatePairChangeEvent`] to the provided
         /// [`DynPeerConnectionEventsHandler`] when a
         /// [`selectedcandidatepairchange`][1] event occurs in the attached
@@ -3404,18 +3396,6 @@ pub fn on_ice_candidate(
     candidate: UniquePtr<webrtc::IceCandidateInterface>,
 ) {
     cb.on_ice_candidate(IceCandidateInterface(candidate));
-}
-
-/// Forwards the removed [`Candidate`]s to the given
-/// [`DynPeerConnectionEventsHandler`] when some ICE candidates have been
-/// removed.
-///
-/// [`Candidate`]: webrtc::Candidate
-pub fn on_ice_candidates_removed(
-    cb: &mut DynPeerConnectionEventsHandler,
-    candidates: &CxxVector<webrtc::Candidate>,
-) {
-    cb.on_ice_candidates_removed(candidates);
 }
 
 /// Called when a [`selectedcandidatepairchange`][1] event occurs in the
