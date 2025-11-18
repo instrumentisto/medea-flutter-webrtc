@@ -12,8 +12,8 @@ All user visible changes to this project will be documented in this file. This p
 
 ### BC Breaks
 
-- Bumped up minimum supported [Flutter] version to 3.35. ([#250])
-- Bumped up minimum supported [Dart] version to 3.9. ([#250])
+- Bumped up minimum supported [Flutter] version to 3.38. ([#250], [#265])
+- Bumped up minimum supported [Dart] version to 3.10. ([#250], [#265])
 - Bumped up minimum supported [Windows] deployment target to 10 (build 20348). ([#245])
 - Bumped up minimum supported [iOS] deployment target to 15. ([#254])
 - Provide real device IDs in `MediaDeviceInfo.id` instead of hardcoded kind based values on [Android] SDK >= 31. ([#257])
@@ -50,6 +50,7 @@ All user visible changes to this project will be documented in this file. This p
 [#260]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/260
 [#263]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/263
 [#264]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/264
+[#265]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/265
 [todo]: https://github.com/instrumentisto/medea-flutter-webrtc/commit/todo
 [142.0.7444.162]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/142.0.7444.162
 
