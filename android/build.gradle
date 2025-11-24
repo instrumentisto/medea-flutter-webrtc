@@ -63,7 +63,7 @@ android {
 
     dependencies {
         if (webrtcBranch == null) {
-            implementation "com.github.instrumentisto:libwebrtc-bin:142.0.7444.162@aar"
+            implementation "com.github.instrumentisto:libwebrtc-bin:142.0.7444.175@aar"
         } else {
             implementation(name: "libwebrtc-bin-${webrtcBranch}", ext: 'aar')
         }
