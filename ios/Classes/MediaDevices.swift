@@ -71,13 +71,16 @@ class MediaDevices {
       MediaDeviceInfo(
         deviceId: "speaker",
         label: "Speaker",
-        kind: MediaDeviceKind.audioOutput
+        kind: MediaDeviceKind.audioOutput,
+        audioKind: AudioDeviceKind.speakerphone
       ))
     devices.append(
       MediaDeviceInfo(
         deviceId: "ear-piece",
         label: "Ear-Piece",
-        kind: MediaDeviceKind.audioOutput
+        kind: MediaDeviceKind.audioOutput,
+        audioKind: AudioDeviceKind.earSpeaker
+        
       ))
 
     let videoDevices = AVCaptureDevice.devices(for: AVMediaType.video).map {
@@ -102,14 +105,16 @@ class MediaDevices {
         MediaDeviceInfo(
           deviceId: bluetoothOutput!.portName,
           label: bluetoothOutput!.portName,
-          kind: MediaDeviceKind.audioOutput
+          kind: MediaDeviceKind.audioOutput,
+          audioKind: AudioDeviceKind.bluetoothHeadset
+
         ))
     }
 
     return devices
   }
 
- /// Activates the app's audio session for an active call.
+  /// Activates the app's audio session for an active call.
   ///
   /// Sets `AVAudioSession` to `.playAndRecord` with `.voiceChat` mode (and enables
   /// Bluetooth routing), then activates the session. Call this only when the mic
@@ -135,7 +140,7 @@ class MediaDevices {
   /// Creates local audio and video `MediaStreamTrackProxy`s based on the
   /// provided `Constraints`.
   func getUserMedia(constraints: Constraints) -> [MediaStreamTrackProxy] {
-    
+
     var tracks: [MediaStreamTrackProxy] = []
     if constraints.audio != nil {
       activateForCall()
@@ -266,4 +271,3 @@ class MediaDevices {
     return bestFoundFormat!
   }
 }
-
