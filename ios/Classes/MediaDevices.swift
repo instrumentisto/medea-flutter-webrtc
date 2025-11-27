@@ -14,12 +14,6 @@ class MediaDevices {
   /// Subscribes on `AVAudioSession.routeChangeNotification` notifications for
   /// `onDeviceChange` callback firing.
   init(state: State) {
-    // try? AVAudioSession.sharedInstance().setCategory(
-    //   .playAndRecord,
-    //   mode: .default,
-    //   options: [.allowBluetooth, .mixWithOthers]
-    // )
-    //    try? AVAudioSession.sharedInstance().setActive(true)
     self.state = state
     NotificationCenter.default.addObserver(
       forName: AVAudioSession.routeChangeNotification, object: nil,
@@ -47,7 +41,7 @@ class MediaDevices {
 
   /// Switches current audio output device to a device with the provided ID.
   func setOutputAudioId(id: String) {
-    activateForCallIfNeeded(true)  // ensure active + correct category
+    activateForCall()
 
     let s = AVAudioSession.sharedInstance()
     try? s.setCategory(.playAndRecord, mode: .voiceChat, options: [.allowBluetooth])
@@ -68,16 +62,6 @@ class MediaDevices {
   /// Subscribes to `onDeviceChange` callback of these `MediaDevices`.
   func onDeviceChange(cb: @escaping () -> Void) {
     self.onDeviceChange.append(cb)
-  }
-
-  private func endCallAudioIfPossible() {
-    let s = AVAudioSession.sharedInstance()
-
-    // Let other apps resume (Spotify/Apple Music etc).
-    try? s.setActive(false, options: .notifyOthersOnDeactivation)
-
-    // Put the app back into a non-invasive category for idle.
-    try? s.setCategory(.ambient, mode: .default, options: [.mixWithOthers])
   }
 
   /// Returns a list of `MediaDeviceInfo`s for the currently available devices.
@@ -125,13 +109,23 @@ class MediaDevices {
     return devices
   }
 
-  private func activateForCallIfNeeded(_ needsMic: Bool) {
-    guard needsMic else { return }
+ /// Activates the app's audio session for an active call.
+  ///
+  /// Sets `AVAudioSession` to `.playAndRecord` with `.voiceChat` mode (and enables
+  /// Bluetooth routing), then activates the session. Call this only when the mic
+  /// is actually needed (e.g., `constraints.audio != nil`) to avoid unnecessary
+  /// disruption of background/ambient audio.
+  private func activateForCall() {
     let s = AVAudioSession.sharedInstance()
     try? s.setCategory(.playAndRecord, mode: .voiceChat, options: [.allowBluetooth])
     try? s.setActive(true)
   }
 
+  /// Sets the audio session to an idle, non-invasive configuration.
+  ///
+  /// Intended for “not in a call” state: restores `.ambient` + `.mixWithOthers`
+  /// and deactivates the session with `.notifyOthersOnDeactivation` so other apps
+  /// can keep/continue playback.
   func setIdleAudioSession() {
     let s = AVAudioSession.sharedInstance()
     try? s.setCategory(.ambient, mode: .default, options: [.mixWithOthers])
@@ -141,9 +135,10 @@ class MediaDevices {
   /// Creates local audio and video `MediaStreamTrackProxy`s based on the
   /// provided `Constraints`.
   func getUserMedia(constraints: Constraints) -> [MediaStreamTrackProxy] {
-    activateForCallIfNeeded(constraints.audio != nil)
+    
     var tracks: [MediaStreamTrackProxy] = []
     if constraints.audio != nil {
+      activateForCall()
       tracks.append(self.getUserAudio())
     }
     if constraints.video != nil {

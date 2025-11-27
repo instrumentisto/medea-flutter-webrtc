@@ -16,6 +16,8 @@ public class MedeaFlutterWebrtcPlugin: NSObject, FlutterPlugin {
   private let mediaDevicesImpl: MediaDevices
 
   init(messenger: FlutterBinaryMessenger, textures: FlutterTextureRegistry) {
+    // Uncomment the underlying line for `libwebrtc` debug logs:
+    // RTCSetMinDebugLogLevel(RTCLoggingSeverity.verbose)
     self.state = State()
     self.messenger = messenger
     self.textures = textures
@@ -34,7 +36,9 @@ public class MedeaFlutterWebrtcPlugin: NSObject, FlutterPlugin {
       messenger: messenger, registry: textures
     )
   }
-
+  
+  /// Registers this `MedeaFlutterWebrtcPlugin` in the provided
+  /// `FlutterPluginRegistrar`.
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(
       name: "medea_flutter_webrtc",
@@ -50,6 +54,12 @@ public class MedeaFlutterWebrtcPlugin: NSObject, FlutterPlugin {
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
     case "setIdleAudioSession":
+    /// Handles the `setIdleAudioSession` Flutter method call.
+    ///
+    /// Resets `AVAudioSession` to a non-invasive idle configuration so other
+    /// apps (e.g., Spotify/Apple Music) can resume playback after a call ends.
+    /// Dispatched onto the main queue to keep AVAudioSession interactions
+    /// consistent with typical iOS audio lifecycle expectations.
       DispatchQueue.main.async {
         self.mediaDevicesImpl.setIdleAudioSession()
         result(nil)
