@@ -12,9 +12,11 @@ public class MedeaFlutterWebrtcPlugin: NSObject, FlutterPlugin {
   var textures: FlutterTextureRegistry
   var state: State
 
-  // ✅ keep the real MediaDevices instance
+  // keep the real MediaDevices instance
   private let mediaDevicesImpl: MediaDevices
 
+  /// Initializes a new `MedeaFlutterWebrtcPlugin` with the provided
+  /// parameters.
   init(messenger: FlutterBinaryMessenger, textures: FlutterTextureRegistry) {
     // Uncomment the underlying line for `libwebrtc` debug logs:
     // RTCSetMinDebugLogLevel(RTCLoggingSeverity.verbose)
