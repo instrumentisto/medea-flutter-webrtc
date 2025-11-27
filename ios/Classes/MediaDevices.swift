@@ -14,11 +14,6 @@ class MediaDevices {
   /// Subscribes on `AVAudioSession.routeChangeNotification` notifications for
   /// `onDeviceChange` callback firing.
   init(state: State) {
-    try? AVAudioSession.sharedInstance().setCategory(
-      AVAudioSession.Category.playAndRecord,
-      options: AVAudioSession.CategoryOptions.allowBluetooth
-    )
-    try? AVAudioSession.sharedInstance().setActive(true)
     self.state = state
     NotificationCenter.default.addObserver(
       forName: AVAudioSession.routeChangeNotification, object: nil,
@@ -46,22 +41,20 @@ class MediaDevices {
 
   /// Switches current audio output device to a device with the provided ID.
   func setOutputAudioId(id: String) {
-    let session = AVAudioSession.sharedInstance()
-    try! AVAudioSession.sharedInstance().setCategory(
-      AVAudioSession.Category.playAndRecord,
-      options: AVAudioSession.CategoryOptions.allowBluetooth
-    )
+    activateForCall()
+
+    let s = AVAudioSession.sharedInstance()
+    try? s.setCategory(.playAndRecord, mode: .voiceChat, options: [.allowBluetooth])
+
     if id == "speaker" {
-      self.setBuiltInMicAsInput()
-      try! AVAudioSession.sharedInstance().overrideOutputAudioPort(.speaker)
+      setBuiltInMicAsInput()
+      try? s.overrideOutputAudioPort(.speaker)
     } else if id == "ear-piece" {
-      self.setBuiltInMicAsInput()
-      try! AVAudioSession.sharedInstance().overrideOutputAudioPort(.none)
+      setBuiltInMicAsInput()
+      try? s.overrideOutputAudioPort(.none)
     } else {
-      let selectedInput = AVAudioSession.sharedInstance().availableInputs?
-        .first(where: { $0.portName == id })
-      if selectedInput != nil {
-        try! session.setPreferredInput(selectedInput!)
+      if let selectedInput = s.availableInputs?.first(where: { $0.portName == id }) {
+        try? s.setPreferredInput(selectedInput)
       }
     }
   }
@@ -74,18 +67,21 @@ class MediaDevices {
   /// Returns a list of `MediaDeviceInfo`s for the currently available devices.
   func enumerateDevices() -> [MediaDeviceInfo] {
     var devices: [MediaDeviceInfo] = []
-    devices.append(MediaDeviceInfo(
-      deviceId: "speaker",
-      label: "Speaker",
-      kind: MediaDeviceKind.audioOutput,
-      audioKind: AudioDeviceKind.speakerphone
-    ))
-    devices.append(MediaDeviceInfo(
-      deviceId: "ear-piece",
-      label: "Ear-Piece",
-      kind: MediaDeviceKind.audioOutput,
-      audioKind: AudioDeviceKind.earSpeaker
-    ))
+    devices.append(
+      MediaDeviceInfo(
+        deviceId: "speaker",
+        label: "Speaker",
+        kind: MediaDeviceKind.audioOutput,
+        audioKind: AudioDeviceKind.speakerphone
+      ))
+    devices.append(
+      MediaDeviceInfo(
+        deviceId: "ear-piece",
+        label: "Ear-Piece",
+        kind: MediaDeviceKind.audioOutput,
+        audioKind: AudioDeviceKind.earSpeaker
+        
+      ))
 
     let videoDevices = AVCaptureDevice.devices(for: AVMediaType.video).map {
       device -> MediaDeviceInfo in
@@ -101,25 +97,53 @@ class MediaDevices {
       return devices
     }
 
-    let bluetoothOutput = availableInputs
+    let bluetoothOutput =
+      availableInputs
       .filter { $0.portType == AVAudioSession.Port.bluetoothHFP }.last
     if bluetoothOutput != nil {
-      devices.append(MediaDeviceInfo(
-        deviceId: bluetoothOutput!.portName,
-        label: bluetoothOutput!.portName,
-        kind: MediaDeviceKind.audioOutput,
-        audioKind: AudioDeviceKind.bluetoothHeadset
-      ))
+      devices.append(
+        MediaDeviceInfo(
+          deviceId: bluetoothOutput!.portName,
+          label: bluetoothOutput!.portName,
+          kind: MediaDeviceKind.audioOutput,
+          audioKind: AudioDeviceKind.bluetoothHeadset
+
+        ))
     }
 
     return devices
   }
 
+  /// Activates the app's audio session for an active call.
+  ///
+  /// Sets `AVAudioSession` to `.playAndRecord` with `.voiceChat` mode (and enables
+  /// Bluetooth routing), then activates the session. Call this only when the mic
+  /// is actually needed (e.g., `constraints.audio != nil`) to avoid unnecessary
+  /// disruption of background/ambient audio.
+  private func activateForCall() {
+    let s = AVAudioSession.sharedInstance()
+    try? s.setCategory(.playAndRecord, mode: .voiceChat, options: [.allowBluetooth])
+    try? s.setActive(true)
+  }
+
+  /// Sets the audio session to an idle, non-invasive configuration.
+  ///
+  /// Intended for “not in a call” state: restores `.ambient` + `.mixWithOthers`
+  /// and deactivates the session with `.notifyOthersOnDeactivation` so other apps
+  /// can keep/continue playback.
+  func setIdleAudioSession() {
+    let s = AVAudioSession.sharedInstance()
+    try? s.setCategory(.ambient, mode: .default, options: [.mixWithOthers])
+    try? s.setActive(false, options: .notifyOthersOnDeactivation)
+  }
+
   /// Creates local audio and video `MediaStreamTrackProxy`s based on the
   /// provided `Constraints`.
   func getUserMedia(constraints: Constraints) -> [MediaStreamTrackProxy] {
+
     var tracks: [MediaStreamTrackProxy] = []
     if constraints.audio != nil {
+      activateForCall()
       tracks.append(self.getUserAudio())
     }
     if constraints.video != nil {
@@ -173,7 +197,8 @@ class MediaDevices {
       let deviceId = "fake-camera"
       let position = AVCaptureDevice.Position.front
     #else
-      let videoDevice = self
+      let videoDevice =
+        self
         .findVideoDeviceForConstraints(constraints: constraints)!
       let position = videoDevice.position
       let selectedFormat = self.selectFormatForDevice(
@@ -234,10 +259,10 @@ class MediaDevices {
       targetHeight = constraints.height!
     }
     for format in RTCCameraVideoCapturer.supportedFormats(for: device) {
-      let dimension = CMVideoFormatDescriptionGetDimensions(format
-        .formatDescription)
-      let diff = abs(targetWidth - Int(dimension.width)) +
-        abs(targetHeight - Int(dimension.height))
+      let dimension = CMVideoFormatDescriptionGetDimensions(
+        format
+          .formatDescription)
+      let diff = abs(targetWidth - Int(dimension.width)) + abs(targetHeight - Int(dimension.height))
       if diff < currentDiff {
         bestFoundFormat = format
         currentDiff = diff

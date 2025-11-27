@@ -22,3 +22,4 @@ export 'src/platform/native/video_view.dart'
     if (dart.library.js_interop) 'src/platform/web/video_view.dart';
 export 'src/platform/track.dart';
 export 'src/platform/video_renderer.dart';
+export 'src/platform/native/medea_flutter_webrtc_method_channel.dart';
