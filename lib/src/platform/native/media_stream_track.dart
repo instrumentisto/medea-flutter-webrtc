@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter/services.dart';
+import 'package:medea_flutter_webrtc/src/platform/native/medea_flutter_webrtc_method_channel.dart';
 
 import '/medea_flutter_webrtc.dart';
 import '/src/api/bridge/api/media/constraints/audio.dart' as ffi;
@@ -11,6 +13,8 @@ import '/src/api/channel.dart';
 
 import '/src/api/bridge/api/media_stream_track/audio_processing_config.dart'
     as ffi;
+
+final isIOS = !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
 
 /// Representation of a single media unit.
 abstract class NativeMediaStreamTrack extends MediaStreamTrack {
@@ -71,6 +75,14 @@ abstract class NativeMediaStreamTrack extends MediaStreamTrack {
   /// [_eventChan] subscription to the [PeerConnection] events.
   late StreamSubscription<dynamic>? _eventSub;
 
+  Future<void> _maybeSetIdleAudioSession() async {
+    // only makes sense for local audio tracks on iOS
+    if (!isIOS) return;
+    if (_kind == MediaKind.audio && _deviceId != 'remote') {
+      await MedeaFlutterWebrtcMethodChannel.setIdleAudioSession();
+    }
+  }
+
   /// Listener for all the [MediaStreamTrack] events received from the native
   /// side.
   void eventListener(dynamic event) async {
@@ -79,6 +91,7 @@ abstract class NativeMediaStreamTrack extends MediaStreamTrack {
       case 'onEnded':
         _onEnded?.call();
         await _eventSub?.cancel();
+        await _maybeSetIdleAudioSession();
         _eventSub = null;
         break;
     }
@@ -152,6 +165,7 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
       _stopped = true;
       _onEnded = null;
       await _chan.invokeMethod('stop');
+      await _maybeSetIdleAudioSession();
     }
   }
 
@@ -164,6 +178,8 @@ class _NativeMediaStreamTrackChannel extends NativeMediaStreamTrack {
       await _chan.invokeMethod('dispose');
       await _eventSub?.cancel();
       _eventSub = null;
+
+      await _maybeSetIdleAudioSession();
     }
   }
 
