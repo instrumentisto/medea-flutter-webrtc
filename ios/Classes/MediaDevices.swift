@@ -35,8 +35,9 @@ class MediaDevices {
     )
   }
 
-  /// Called when a new `RTCPeerConnection` is created. Captures
-  /// `AVAudioSession` (if its not captured already).
+  /// Called when a new `RTCPeerConnection` is created.
+  ///
+  /// Captures the `AVAudioSession` (if its not captured already).
   func peerAdded(_ id: Int) {
     assert(Thread.isMainThread)
 
@@ -44,9 +45,10 @@ class MediaDevices {
     self.updateAudioSession()
   }
 
-  /// Called when a `RTCPeerConnection` is disposed. Releases `AVAudioSession`
-  /// if it is the last `RTCPeerConnection` and there are no active local audio
-  /// tracks.
+  /// Called when a `RTCPeerConnection` is disposed.
+  ///
+  /// Releases the `AVAudioSession` if it's the last `RTCPeerConnection` and
+  /// there are no active local audio tracks.
   func peerRemoved(_ id: Int) {
     assert(Thread.isMainThread)
 
@@ -55,8 +57,9 @@ class MediaDevices {
     }
   }
 
-  /// Called when a new local audio track is created. Captures
-  /// `AVAudioSession` (if its not captured already).
+  /// Called when a new local audio track is created.
+  ///
+  /// Captures the `AVAudioSession` (if its not captured already).
   func audioTrackAdded(_ id: String) {
     assert(Thread.isMainThread)
 
@@ -64,8 +67,10 @@ class MediaDevices {
     self.updateAudioSession()
   }
 
-  /// Called when a local audio track is disposed. Releases `AVAudioSession`
-  /// if it is the last local audio track and there are no `RTCPeerConnection`s.
+  /// Called when a local audio track is disposed.
+  ////
+  /// Releases the `AVAudioSession` if it's the last local audio track and there
+  /// are no `RTCPeerConnection`s.
   func audioTrackRemoved(_ id: String) {
     assert(Thread.isMainThread)
 
@@ -74,9 +79,10 @@ class MediaDevices {
     }
   }
 
-  /// Captures `AVAudioSession` if there is at least one local audio track
-  /// or `RTCPeerConnection` and relases otherwise. Nop if `AVAudioSession`
-  /// is already in a desired state.
+  /// Captures the `AVAudioSession` if there is at least one local audio track
+  /// or `RTCPeerConnection`, or releases otherwise.
+  ///
+  /// No-op if the `AVAudioSession` is in the desired state already.
   private func updateAudioSession() {
     assert(Thread.isMainThread)
 

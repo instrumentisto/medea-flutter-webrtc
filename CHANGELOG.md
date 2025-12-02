@@ -29,7 +29,7 @@ All user visible changes to this project will be documented in this file. This p
 
 - Upgraded [libwebrtc] to [142.0.7444.175] version. ([#256], [#254], [#248], [#260], [#264], [todo])
 - Removed camera permission request in `enumerateDevices()` on Android. ([#258])
-- `AVAudioSession` is now captured when there is at least one `PeerConnection` or local audio track and released when there is none ([#268])
+- `AVAudioSession` is now captured only when there is at least one `PeerConnection` or local audio track, and released when there are none. ([#268])
 
 ### Fixed
 

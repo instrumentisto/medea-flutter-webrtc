@@ -52,7 +52,7 @@ class PeerConnectionFactoryProxy {
   private var mediaDevices: MediaDevices
 
   /// Initializes a new `PeerConnectionFactoryProxy` based on the provided
-  /// `State`.
+  /// `State` and `MediaDevices`.
   init(state: State, mediaDevices: MediaDevices) {
     self.factory = state.getPeerFactory()
     self.mediaDevices = mediaDevices
