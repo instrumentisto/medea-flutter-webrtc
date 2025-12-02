@@ -92,8 +92,10 @@ class PeerConnectionFactoryProxy {
     let peerProxy = PeerConnectionProxy(id: id, peer: peer!)
     self.mediaDevices.peerAdded(id)
     peerProxy.onDispose = { [weak self] in
+      guard let self = self else { return }
+
       self.peerObservers.removeValue(forKey: id)
-      self?.mediaDevices.peerRemoved(id)
+      self.mediaDevices.peerRemoved(id)
     }
     peerObserver.setPeer(peer: peerProxy)
 
