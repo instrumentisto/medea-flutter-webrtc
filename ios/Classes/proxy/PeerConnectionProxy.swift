@@ -28,6 +28,9 @@ class PeerConnectionProxy {
   /// Last unique ID of `RtpTransceiverProxy`s.
   private var lastTransceiverId: Int = 0
 
+  /// Callback for notifying about `PeerConnectionProxy` disposal.
+  var onDispose: (() -> Void)?
+
   /// Initializes a new `PeerConnectionProxy` with the provided `peer` and `id`.
   init(id: Int, peer: RTCPeerConnection) {
     self.peer = peer
@@ -289,5 +292,6 @@ class PeerConnectionProxy {
       receiver.notifyRemoved()
     }
     self.receivers = [:]
+    self.onDispose?()
   }
 }
