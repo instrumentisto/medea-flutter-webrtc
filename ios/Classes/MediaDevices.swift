@@ -74,6 +74,9 @@ class MediaDevices {
     }
   }
 
+  /// Captures `AVAudioSession` if there is at least one local audio track
+  /// or `RTCPeerConnection` and relases otherwise. Nop if `AVAudioSession`
+  /// is already in a desired state.
   private func updateAudioSession() {
     assert(Thread.isMainThread)
 
