@@ -48,10 +48,14 @@ class PeerConnectionFactoryProxy {
   /// Underlying native factory object of this factory.
   private var factory: RTCPeerConnectionFactory
 
+  /// Instance of a `MediaDevices` manager.
+  private var mediaDevices: MediaDevices
+
   /// Initializes a new `PeerConnectionFactoryProxy` based on the provided
-  /// `State`.
-  init(state: State) {
+  /// `State` and `MediaDevices`.
+  init(state: State, mediaDevices: MediaDevices) {
     self.factory = state.getPeerFactory()
+    self.mediaDevices = mediaDevices
   }
 
   /// Returns sender capabilities of this factory.
@@ -86,16 +90,18 @@ class PeerConnectionFactoryProxy {
       delegate: peerObserver
     )
     let peerProxy = PeerConnectionProxy(id: id, peer: peer!)
+    self.mediaDevices.peerAdded(id)
+    peerProxy.onDispose = { [weak self] in
+      guard let self = self else { return }
+
+      self.peerObservers.removeValue(forKey: id)
+      self.mediaDevices.peerRemoved(id)
+    }
     peerObserver.setPeer(peer: peerProxy)
 
     self.peerObservers[id] = peerObserver
 
     return peerProxy
-  }
-
-  /// Removes the specified `PeerObserver` from the `peerObservers`.
-  private func remotePeerObserver(id: Int) {
-    self.peerObservers.removeValue(forKey: id)
   }
 
   /// Generates the next track ID.
