@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: ["main", "upgrade-libwebrtc-143"]
+    branches: ["main"]
     tags: ["*"]
   pull_request:
     branches: ["main"]
