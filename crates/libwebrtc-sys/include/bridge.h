@@ -705,6 +705,13 @@ int64_t display_source_id(const DisplaySource& source);
 // Returns a `title` of the provided `DesktopCapturer::Source`.
 std::unique_ptr<std::string> display_source_title(const DisplaySource& source);
 
+// Creates a `SessionDescriptionInterface` based on the SDP string and the type.
+// Returns null if the SDP string cannot be parsed.
+std::unique_ptr<webrtc::SessionDescriptionInterface> create_session_description(
+    SdpType kind,
+    rust::String sdp,
+    rust::String& error);
+
 // Creates a new `IceCandidateInterface`.
 std::unique_ptr<webrtc::IceCandidateInterface> create_ice_candidate(
     rust::Str sdp_mid,
