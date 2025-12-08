@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "upgrade-libwebrtc-143"]
     tags: ["*"]
   pull_request:
     branches: ["main"]
@@ -13,6 +13,8 @@ concurrency:
 
 env:
   RUST_BACKTRACE: 1
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  WEBRTC_BRANCH: upgrade-to-143.0.7499.40
 
 jobs:
 
