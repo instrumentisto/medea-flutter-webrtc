@@ -185,7 +185,7 @@ jobs:
         platform:
           - macos
           - windows
-    runs-on: ${{ (matrix.platform == 'macos' && 'macos-13')
+    runs-on: ${{ (matrix.platform == 'macos' && 'macos-latest')
               ||                                'windows-latest' }}
     steps:
       - uses: actions/checkout@v6
@@ -325,8 +325,7 @@ jobs:
           - windows
     runs-on: ${{ (matrix.platform == 'linux' &&   'ubuntu-latest')
               || (matrix.platform == 'windows' && 'windows-latest')
-              || (matrix.platform == 'ios' &&     'macos-latest')
-              ||                                  'macos-13' }}
+              ||                                  'macos-latest' }}
     steps:
       - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@v1
