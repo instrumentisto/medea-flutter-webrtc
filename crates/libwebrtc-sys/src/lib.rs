@@ -1015,15 +1015,15 @@ pub struct SessionDescriptionInterface(
 
 impl SessionDescriptionInterface {
     /// Creates a new [`SessionDescriptionInterface`].
-    #[must_use]
     pub fn new(kind: webrtc::SdpType, sdp: String) -> anyhow::Result<Self> {
         let mut err = String::new();
+
         let inner = webrtc::create_session_description(kind, sdp, &mut err);
         if inner.is_null() {
             bail!("`SessionDescription` parse error: {err}");
-        } else {
-            Ok(Self(inner))
         }
+
+        Ok(Self(inner))
     }
 }
 
