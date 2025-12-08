@@ -13,7 +13,7 @@ import '/src/api/bridge/api/stats/rtc_outbound_rtp_stream_media_type.dart'
 /// Tries to parse the provided [value] as [int].
 ///
 /// If the provided [value] is a [String] then parses it as hexadecimal.
-int? tryParse(dynamic value) {
+int? parseInt(dynamic value) {
   switch (value.runtimeType) {
     case const (int):
       {
@@ -58,7 +58,7 @@ class RtcStats {
     if (kind == null) {
       return null;
     } else {
-      return RtcStats(stats['id'], stats['timestampUs'], kind);
+      return RtcStats(stats['id'], parseInt(stats['timestampUs']) ?? 0, kind);
     }
   }
 
@@ -678,9 +678,9 @@ class RtcVideoSourceStats extends RtcMediaSourceStats {
   static RtcVideoSourceStats fromMap(dynamic stats) {
     return RtcVideoSourceStats(
       trackIdentifier: stats['trackIdentifier'],
-      width: stats['width'],
-      height: stats['height'],
-      frames: stats['frames'],
+      width: parseInt(stats['width']),
+      height: parseInt(stats['height']),
+      frames: parseInt(stats['frames']),
       framesPerSecond: stats['framesPerSecond'],
     );
   }
@@ -730,10 +730,10 @@ class RtcAudioPlayoutStats extends RtcStatsType {
     return RtcAudioPlayoutStats(
       kind: stats['kind'],
       synthesizedSamplesDuration: stats['synthesizedSamplesDuration'],
-      synthesizedSamplesEvents: stats['synthesizedSamplesEvents'],
+      synthesizedSamplesEvents: parseInt(stats['synthesizedSamplesEvents']),
       totalSamplesDuration: stats['totalSamplesDuration'],
       totalPlayoutDelay: stats['totalPlayoutDelay'],
-      totalSamplesCount: stats['totalSamplesCount'],
+      totalSamplesCount: parseInt(stats['totalSamplesCount']),
     );
   }
 
@@ -814,8 +814,8 @@ class RtcPeerConnectionStats extends RtcStatsType {
 
   static RtcPeerConnectionStats fromMap(dynamic stats) {
     return RtcPeerConnectionStats(
-      dataChannelsOpened: stats['dataChannelsOpened'],
-      dataChannelsClosed: stats['dataChannelsClosed'],
+      dataChannelsOpened: parseInt(stats['dataChannelsOpened']),
+      dataChannelsClosed: parseInt(stats['dataChannelsClosed']),
     );
   }
 
@@ -864,12 +864,14 @@ class RtcDataChannelStats extends RtcStatsType {
     return RtcDataChannelStats(
       label: stats['label'],
       protocol: stats['protocol'],
-      dataChannelIdentifier: stats['dataChannelIdentifier'],
-      state: stats['state'],
-      messagesSent: stats['messagesSent'],
-      bytesSent: stats['bytesSent'],
-      messagesReceived: stats['messagesReceived'],
-      bytesReceived: stats['bytesReceived'],
+      dataChannelIdentifier: parseInt(stats['dataChannelIdentifier']),
+      state: RtcDataChannelState.values.firstWhereOrNull(
+        (e) => e.name == stats['state'],
+      ),
+      messagesSent: parseInt(stats['messagesSent']),
+      bytesSent: parseInt(stats['bytesSent']),
+      messagesReceived: parseInt(stats['messagesReceived']),
+      bytesReceived: parseInt(stats['bytesReceived']),
     );
   }
 
@@ -1026,29 +1028,29 @@ abstract class RtcIceCandidateStats extends RtcStatsType {
   /// Creates [RtcIceCandidateStats] basing on the [Map] received from the
   /// native side.
   static RtcIceCandidateStats fromMap(dynamic stats) {
-    var candidateType = RtcIceCandidateType.values.firstWhere(
-      (element) => element.name == stats['candidateType'],
+    var candidateType = RtcIceCandidateType.values.firstWhereOrNull(
+      (e) => e.name == stats['candidateType'],
     );
-    var relayProtocol = IceServerTransportProtocol.values.firstWhere(
-      (element) => element.name == stats['candidateType'],
+    var relayProtocol = IceServerTransportProtocol.values.firstWhereOrNull(
+      (e) => e.name == stats['relayProtocol'],
     );
-    var tcpType = RtcIceTcpCandidateType.values.firstWhere(
-      (element) => element.name == stats['candidateType'],
+    var tcpType = RtcIceTcpCandidateType.values.firstWhereOrNull(
+      (e) => e.name == stats['tcpType'],
     );
 
     if (stats['isRemote']) {
       return RtcRemoteIceCandidateStats(
         transportId: stats['transportId'],
         address: stats['address'],
-        port: stats['port'],
+        port: parseInt(stats['port']),
         protocol: stats['protocol'],
         candidateType: candidateType,
-        priority: stats['priority'],
+        priority: parseInt(stats['priority']),
         url: stats['url'],
         relayProtocol: relayProtocol,
         foundation: stats['foundation'],
         relatedAddress: stats['relatedAddress'],
-        relatedPort: stats['relatedPort'],
+        relatedPort: parseInt(stats['relatedPort']),
         usernameFragment: stats['usernameFragment'],
         tcpType: tcpType,
         networkType: stats['networkType'],
@@ -1057,15 +1059,15 @@ abstract class RtcIceCandidateStats extends RtcStatsType {
       return RtcLocalIceCandidateStats(
         transportId: stats['transportId'],
         address: stats['address'],
-        port: stats['port'],
+        port: parseInt(stats['port']),
         protocol: stats['protocol'],
         candidateType: candidateType,
-        priority: stats['priority'],
+        priority: parseInt(stats['priority']),
         url: stats['url'],
         relayProtocol: relayProtocol,
         foundation: stats['foundation'],
         relatedAddress: stats['relatedAddress'],
-        relatedPort: stats['relatedPort'],
+        relatedPort: parseInt(stats['relatedPort']),
         usernameFragment: stats['usernameFragment'],
         tcpType: tcpType,
         networkType: stats['networkType'],
@@ -1682,55 +1684,59 @@ class RtcOutboundRtpStreamStats extends RtcSentRtpStreamStats {
     RtcOutboundRtpStreamStatsMediaType? mediaType;
     if (stats['kind'] == 'audio') {
       mediaType = RtcOutboundRtpStreamStatsAudio(
-        totalSamplesSent: tryParse(stats['totalSamplesSent']),
+        totalSamplesSent: parseInt(stats['totalSamplesSent']),
         voiceActivityFlag: stats['voiceActivityFlag'],
       );
     } else if (stats['kind'] == 'video') {
       mediaType = RtcOutboundRtpStreamStatsVideo(
         rid: stats['rid'],
-        encodingIndex: stats['encodingIndex'],
-        totalEncodedBytesTarget: stats['totalEncodedBytesTarget'],
-        frameWidth: stats['frameWidth'],
-        frameHeight: stats['frameHeight'],
+        encodingIndex: parseInt(stats['encodingIndex']),
+        totalEncodedBytesTarget: parseInt(stats['totalEncodedBytesTarget']),
+        frameWidth: parseInt(stats['frameWidth']),
+        frameHeight: parseInt(stats['frameHeight']),
         framesPerSecond: stats['framesPerSecond'],
-        framesSent: stats['framesSent'],
-        hugeFramesSent: stats['hugeFramesSent'],
-        framesEncoded: stats['framesEncoded'],
-        keyFramesEncoded: stats['keyFramesEncoded'],
-        qpSum: stats['qpSum'],
-        psnrMeasurements: stats['psnrMeasurements'],
+        framesSent: parseInt(stats['framesSent']),
+        hugeFramesSent: parseInt(stats['hugeFramesSent']),
+        framesEncoded: parseInt(stats['framesEncoded']),
+        keyFramesEncoded: parseInt(stats['keyFramesEncoded']),
+        qpSum: parseInt(stats['qpSum']),
+        psnrMeasurements: parseInt(stats['psnrMeasurements']),
         totalEncodeTime: stats['totalEncodeTime'],
-        firCount: stats['firCount'],
-        pliCount: stats['pliCount'],
+        firCount: parseInt(stats['firCount']),
+        pliCount: parseInt(stats['pliCount']),
         encoderImplementation: stats['encoderImplementation'],
         powerEfficientEncoder: stats['powerEfficientEncoder'],
-        qualityLimitationReason: stats['qualityLimitationReason'],
-        qualityLimitationResolutionChanges:
-            stats['qualityLimitationResolutionChanges'],
+        qualityLimitationReason: RtcQualityLimitationReason.values
+            .firstWhereOrNull(
+              (e) => e.name == stats['qualityLimitationReason'],
+            ),
+        qualityLimitationResolutionChanges: parseInt(
+          stats['qualityLimitationResolutionChanges'],
+        ),
         scalabilityMode: stats['scalabilityMode'],
       );
     }
 
     return RtcOutboundRtpStreamStats(
-      ssrc: stats['voiceActivityFlag'],
-      kind: stats['voiceActivityFlag'],
-      transportId: stats['voiceActivityFlag'],
-      codecId: stats['voiceActivityFlag'],
-      packetsSent: stats['voiceActivityFlag'],
-      bytesSent: stats['voiceActivityFlag'],
+      ssrc: parseInt(stats['ssrc']),
+      kind: stats['kind'],
+      transportId: stats['transportId'],
+      codecId: stats['codecId'],
+      packetsSent: parseInt(stats['packetsSent']),
+      bytesSent: parseInt(stats['bytesSent']),
       mediaType: mediaType,
-      mid: stats['voiceActivityFlag'],
-      mediaSourceId: stats['voiceActivityFlag'],
-      remoteId: stats['voiceActivityFlag'],
-      headerBytesSent: stats['voiceActivityFlag'],
-      retransmittedPacketsSent: stats['voiceActivityFlag'],
-      retransmittedBytesSent: stats['voiceActivityFlag'],
-      rtxSsrc: stats['voiceActivityFlag'],
-      targetBitrate: stats['voiceActivityFlag'],
-      totalPacketSendDelay: stats['voiceActivityFlag'],
-      nackCount: stats['voiceActivityFlag'],
-      active: stats['voiceActivityFlag'],
-      packetsSentWithEct1: stats['voiceActivityFlag'],
+      mid: stats['mid'],
+      mediaSourceId: stats['mediaSourceId'],
+      remoteId: stats['remoteId'],
+      headerBytesSent: parseInt(stats['headerBytesSent']),
+      retransmittedPacketsSent: parseInt(stats['retransmittedPacketsSent']),
+      retransmittedBytesSent: parseInt(stats['retransmittedBytesSent']),
+      rtxSsrc: parseInt(stats['rtxSsrc']),
+      targetBitrate: stats['targetBitrate'],
+      totalPacketSendDelay: stats['totalPacketSendDelay'],
+      nackCount: parseInt(stats['nackCount']),
+      active: stats['active'],
+      packetsSentWithEct1: parseInt(stats['packetsSentWithEct1']),
     );
   }
 
@@ -2242,11 +2248,11 @@ class RtcCodecStats extends RtcStatsType {
 
   static RtcCodecStats fromMap(dynamic stats) {
     return RtcCodecStats(
-      payloadType: stats['payloadType'],
+      payloadType: parseInt(stats['payloadType']),
       transportId: stats['transportId'],
       mimeType: stats['mimeType'],
-      clockRate: stats['clockRate'],
-      channels: stats['channels'],
+      clockRate: parseInt(stats['clockRate']),
+      channels: parseInt(stats['channels']),
       sdpFmtpLine: stats['sdpFmtpLine'],
     );
   }
@@ -2398,12 +2404,16 @@ class RtcInboundRtpStreamStats extends RtcReceivedRtpStreamStats {
     RtcInboundRtpStreamMediaType? mediaType;
     if (stats['kind'] == 'audio') {
       mediaType = RtcInboundRtpStreamAudio(
-        totalSamplesReceived: stats['totalSamplesReceived'],
-        concealedSamples: stats['concealedSamples'],
-        silentConcealedSamples: stats['silentConcealedSamples'],
-        concealmentEvents: stats['concealmentEvents'],
-        insertedSamplesForDeceleration: stats['insertedSamplesForDeceleration'],
-        removedSamplesForAcceleration: stats['removedSamplesForAcceleration'],
+        totalSamplesReceived: parseInt(stats['totalSamplesReceived']),
+        concealedSamples: parseInt(stats['concealedSamples']),
+        silentConcealedSamples: parseInt(stats['silentConcealedSamples']),
+        concealmentEvents: parseInt(stats['concealmentEvents']),
+        insertedSamplesForDeceleration: parseInt(
+          stats['insertedSamplesForDeceleration'],
+        ),
+        removedSamplesForAcceleration: parseInt(
+          stats['removedSamplesForAcceleration'],
+        ),
         audioLevel: stats['audioLevel'],
         totalAudioEnergy: stats['totalAudioEnergy'],
         totalSamplesDuration: stats['totalSamplesDuration'],
@@ -2411,53 +2421,56 @@ class RtcInboundRtpStreamStats extends RtcReceivedRtpStreamStats {
       );
     } else if (stats['kind'] == 'video') {
       mediaType = RtcInboundRtpStreamVideo(
-        framesDecoded: stats['framesDecoded'],
-        keyFramesDecoded: stats['keyFramesDecoded'],
-        frameWidth: stats['frameWidth'],
-        frameHeight: stats['frameHeight'],
+        framesDecoded: parseInt(stats['framesDecoded']),
+        keyFramesDecoded: parseInt(stats['keyFramesDecoded']),
+        frameWidth: parseInt(stats['frameWidth']),
+        frameHeight: parseInt(stats['frameHeight']),
         totalInterFrameDelay: stats['totalInterFrameDelay'],
         framesPerSecond: stats['framesPerSecond'],
-        firCount: stats['firCount'],
-        pliCount: stats['pliCount'],
-        framesReceived: stats['framesReceived'],
+        firCount: parseInt(stats['firCount']),
+        pliCount: parseInt(stats['pliCount']),
+        framesReceived: parseInt(stats['framesReceived']),
       );
     }
 
     return RtcInboundRtpStreamStats(
-      ssrc: stats['ssrc'],
+      ssrc: parseInt(stats['ssrc']),
       kind: stats['kind'],
       transportId: stats['transportId'],
       codecId: stats['codecId'],
-      packetsReceived: stats['packetsReceived'],
-      packetsReceivedWithEct1: stats['packetsReceivedWithEct1'],
-      packetsReceivedWithCe: stats['packetsReceivedWithCe'],
-      packetsReportedAsLost: stats['packetsReportedAsLost'],
-      packetsReportedAsLostButRecovered:
-          stats['packetsReportedAsLostButRecovered'],
-      packetsLost: stats['packetsLost'],
+      packetsReceived: parseInt(stats['packetsReceived']),
+      packetsReceivedWithEct1: parseInt(stats['packetsReceivedWithEct1']),
+      packetsReceivedWithCe: parseInt(stats['packetsReceivedWithCe']),
+      packetsReportedAsLost: parseInt(stats['packetsReportedAsLost']),
+      packetsReportedAsLostButRecovered: parseInt(
+        stats['packetsReportedAsLostButRecovered'],
+      ),
+      packetsLost: parseInt(stats['packetsLost']),
       jitter: stats['jitter'],
       mediaType: mediaType,
       trackIdentifier: stats['trackIdentifier'],
       mid: stats['mid'],
       remoteId: stats['remoteId'],
-      bytesReceived: stats['bytesReceived'],
-      jitterBufferEmittedCount: stats['jitterBufferEmittedCount'],
+      bytesReceived: parseInt(stats['bytesReceived']),
+      jitterBufferEmittedCount: parseInt(stats['jitterBufferEmittedCount']),
       jitterBufferDelay: stats['jitterBufferDelay'],
       jitterBufferTargetDelay: stats['jitterBufferTargetDelay'],
       jitterBufferMinimumDelay: stats['jitterBufferMinimumDelay'],
-      headerBytesReceived: stats['headerBytesReceived'],
-      packetsDiscarded: stats['packetsDiscarded'],
+      headerBytesReceived: parseInt(stats['headerBytesReceived']),
+      packetsDiscarded: parseInt(stats['packetsDiscarded']),
       lastPacketReceivedTimestamp: stats['lastPacketReceivedTimestamp'],
       estimatedPlayoutTimestamp: stats['estimatedPlayoutTimestamp'],
-      fecBytesReceived: stats['fecBytesReceived'],
-      fecPacketsReceived: stats['fecPacketsReceived'],
-      fecPacketsDiscarded: stats['fecPacketsDiscarded'],
+      fecBytesReceived: parseInt(stats['fecBytesReceived']),
+      fecPacketsReceived: parseInt(stats['fecPacketsReceived']),
+      fecPacketsDiscarded: parseInt(stats['fecPacketsDiscarded']),
       totalProcessingDelay: stats['totalProcessingDelay'],
-      nackCount: stats['nackCount'],
-      retransmittedPacketsReceived: stats['retransmittedPacketsReceived'],
-      retransmittedBytesReceived: stats['retransmittedBytesReceived'],
-      rtxSsrc: stats['rtxSsrc'],
-      fecSsrc: stats['fecSsrc'],
+      nackCount: parseInt(stats['nackCount']),
+      retransmittedPacketsReceived: parseInt(
+        stats['retransmittedPacketsReceived'],
+      ),
+      retransmittedBytesReceived: parseInt(stats['retransmittedBytesReceived']),
+      rtxSsrc: parseInt(stats['rtxSsrc']),
+      fecSsrc: parseInt(stats['fecSsrc']),
     );
   }
 
@@ -2738,7 +2751,7 @@ class RtcInboundRtpStreamStats extends RtcReceivedRtpStreamStats {
 /// [RTCIceTransport]: https://w3.org/TR/webrtc#dom-rtcicetransport
 /// [1]: https://w3.org/TR/webrtc#dom-rtcicetransportstate-new
 class RtcIceCandidatePairStats extends RtcStatsType {
-  RtcIceCandidatePairStats(
+  RtcIceCandidatePairStats({
     this.state,
     this.nominated,
     this.bytesSent,
@@ -2746,7 +2759,7 @@ class RtcIceCandidatePairStats extends RtcStatsType {
     this.totalRoundTripTime,
     this.currentRoundTripTime,
     this.availableOutgoingBitrate,
-  );
+  });
 
   /// Creates [RtcIceCandidatePairStats] basing on the
   /// [ffi.RtcStatsType_RtcIceCandidatePairStats] received from the native side.
@@ -2754,13 +2767,13 @@ class RtcIceCandidatePairStats extends RtcStatsType {
     ffi.RtcStatsType_RtcIceCandidatePairStats stats,
   ) {
     return RtcIceCandidatePairStats(
-      RtcStatsIceCandidatePairState.values[stats.state.index],
-      stats.nominated,
-      stats.bytesSent?.toInt(),
-      stats.bytesReceived?.toInt(),
-      stats.totalRoundTripTime,
-      stats.currentRoundTripTime,
-      stats.availableOutgoingBitrate,
+      state: RtcStatsIceCandidatePairState.values[stats.state.index],
+      nominated: stats.nominated,
+      bytesSent: stats.bytesSent?.toInt(),
+      bytesReceived: stats.bytesReceived?.toInt(),
+      totalRoundTripTime: stats.totalRoundTripTime,
+      currentRoundTripTime: stats.currentRoundTripTime,
+      availableOutgoingBitrate: stats.availableOutgoingBitrate,
     );
   }
 
@@ -2768,13 +2781,13 @@ class RtcIceCandidatePairStats extends RtcStatsType {
   /// native side.
   static RtcIceCandidatePairStats fromMap(dynamic stats) {
     return RtcIceCandidatePairStats(
-      iceCandidatePairStateTryFromString(stats['state'])!,
-      stats['nominated'],
-      tryParse(stats['bytesSent']),
-      tryParse(stats['bytesReceived']),
-      stats['totalRoundTripTime'],
-      stats['currentRoundTripTime'],
-      stats['availableOutgoingBitrate'],
+      state: iceCandidatePairStateTryFromString(stats['state']),
+      nominated: stats['nominated'],
+      bytesSent: parseInt(stats['bytesSent']),
+      bytesReceived: parseInt(stats['bytesReceived']),
+      totalRoundTripTime: stats['totalRoundTripTime'],
+      currentRoundTripTime: stats['currentRoundTripTime'],
+      availableOutgoingBitrate: stats['availableOutgoingBitrate'],
     );
   }
 
@@ -2942,13 +2955,13 @@ class RtcIceCandidatePairStats extends RtcStatsType {
 ///
 /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
 class RtcTransportStats extends RtcStatsType {
-  RtcTransportStats(
+  RtcTransportStats({
     this.packetsSent,
     this.packetsReceived,
     this.bytesSent,
     this.bytesReceived,
     this.iceRole,
-  );
+  });
 
   /// Creates [RtcIceCandidatePairStats] basing on the
   /// [ffi.RtcStatsType_RtcIceCandidatePairStats] received from the native side.
@@ -2958,11 +2971,11 @@ class RtcTransportStats extends RtcStatsType {
       role = RtcIceRole.values[stats.iceRole!.index];
     }
     return RtcTransportStats(
-      stats.packetsSent?.toInt(),
-      stats.packetsReceived?.toInt(),
-      stats.bytesSent?.toInt(),
-      stats.bytesReceived?.toInt(),
-      role,
+      packetsSent: stats.packetsSent?.toInt(),
+      packetsReceived: stats.packetsReceived?.toInt(),
+      bytesSent: stats.bytesSent?.toInt(),
+      bytesReceived: stats.bytesReceived?.toInt(),
+      iceRole: role,
     );
   }
 
@@ -2970,11 +2983,13 @@ class RtcTransportStats extends RtcStatsType {
   /// side.
   static RtcTransportStats fromMap(dynamic stats) {
     return RtcTransportStats(
-      tryParse(stats['packetsSent']),
-      tryParse(stats['packetsReceived']),
-      tryParse(stats['bytesSent']),
-      tryParse(stats['bytesReceived']),
-      RtcIceRole.values.byName(stats['iceRole']),
+      packetsSent: parseInt(stats['packetsSent']),
+      packetsReceived: parseInt(stats['packetsReceived']),
+      bytesSent: parseInt(stats['bytesSent']),
+      bytesReceived: parseInt(stats['bytesReceived']),
+      iceRole: RtcIceRole.values.firstWhereOrNull(
+        (e) => e.name == stats['iceRole'],
+      ),
     );
   }
 
@@ -3334,24 +3349,27 @@ class RtcRemoteInboundRtpStreamStats extends RtcReceivedRtpStreamStats {
   /// the native side.
   static RtcRemoteInboundRtpStreamStats fromMap(dynamic stats) {
     return RtcRemoteInboundRtpStreamStats(
-      ssrc: stats['ssrc'],
+      ssrc: parseInt(stats['ssrc']),
       kind: stats['kind'],
       transportId: stats['transportId'],
       codecId: stats['codecId'],
-      packetsReceived: stats['packetsReceived'],
-      packetsReceivedWithEct1: stats['packetsReceivedWithEct1'],
-      packetsReceivedWithCe: stats['packetsReceivedWithCe'],
-      packetsReportedAsLost: stats['packetsReportedAsLost'],
-      packetsReportedAsLostButRecovered:
-          stats['packetsReportedAsLostButRecovered'],
-      packetsLost: stats['packetsLost'],
+      packetsReceived: parseInt(stats['packetsReceived']),
+      packetsReceivedWithEct1: parseInt(stats['packetsReceivedWithEct1']),
+      packetsReceivedWithCe: parseInt(stats['packetsReceivedWithCe']),
+      packetsReportedAsLost: parseInt(stats['packetsReportedAsLost']),
+      packetsReportedAsLostButRecovered: parseInt(
+        stats['packetsReportedAsLostButRecovered'],
+      ),
+      packetsLost: parseInt(stats['packetsLost']),
       jitter: stats['jitter'],
       localId: stats['localId'],
       roundTripTime: stats['roundTripTime'],
       totalRoundTripTime: stats['totalRoundTripTime'],
       fractionLost: stats['fractionLost'],
-      roundTripTimeMeasurements: stats['roundTripTimeMeasurements'],
-      packetsWithBleachedEct1Marking: stats['packetsWithBleachedEct1Marking'],
+      roundTripTimeMeasurements: parseInt(stats['roundTripTimeMeasurements']),
+      packetsWithBleachedEct1Marking: parseInt(
+        stats['packetsWithBleachedEct1Marking'],
+      ),
     );
   }
 
@@ -3477,18 +3495,18 @@ class RtcRemoteOutboundRtpStreamStats extends RtcSentRtpStreamStats {
   /// from the native side.
   static RtcRemoteOutboundRtpStreamStats fromMap(dynamic stats) {
     return RtcRemoteOutboundRtpStreamStats(
-      ssrc: stats['ssrc'],
+      ssrc: parseInt(stats['ssrc']),
       kind: stats['kind'],
       transportId: stats['transportId'],
       codecId: stats['codecId'],
-      packetsSent: stats['packetsSent'],
-      bytesSent: stats['bytesSent'],
+      packetsSent: parseInt(stats['packetsSent']),
+      bytesSent: parseInt(stats['bytesSent']),
       localId: stats['localId'],
       remoteTimestamp: stats['remoteTimestamp'],
-      reportsSent: stats['reportsSent'],
+      reportsSent: parseInt(stats['reportsSent']),
       roundTripTime: stats['roundTripTime'],
       totalRoundTripTime: stats['totalRoundTripTime'],
-      roundTripTimeMeasurements: stats['roundTripTimeMeasurements'],
+      roundTripTimeMeasurements: parseInt(stats['roundTripTimeMeasurements']),
     );
   }
 
