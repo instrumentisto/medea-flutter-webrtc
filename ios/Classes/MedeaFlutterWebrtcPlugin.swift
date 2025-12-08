@@ -20,11 +20,12 @@ public class MedeaFlutterWebrtcPlugin: NSObject, FlutterPlugin {
     self.state = State()
     self.messenger = messenger
     self.textures = textures
+    let mediaDevices = MediaDevices(state: self.state)
     self.peerConnectionFactory = PeerConnectionFactoryController(
-      messenger: self.messenger, state: self.state
+      messenger: self.messenger, state: self.state, mediaDevices: mediaDevices
     )
     self.mediaDevices = MediaDevicesController(
-      messenger: self.messenger, mediaDevices: MediaDevices(state: self.state)
+      messenger: self.messenger, mediaDevices: mediaDevices
     )
     self.videoRendererFactory = VideoRendererFactoryController(
       messenger: self.messenger, registry: self.textures

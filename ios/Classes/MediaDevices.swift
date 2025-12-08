@@ -9,16 +9,20 @@ class MediaDevices {
   /// Subscribers for `onDeviceChange` callback of these `MediaDevices`.
   private var onDeviceChange: [() -> Void] = []
 
+  /// Set of all existing `RTCPeerConnection`s.
+  private var activePeers: Set<Int> = []
+
+  /// Set of all existing local audio tracks.
+  private var activeAudioTracks: Set<String> = []
+
+  /// Indicator of whether `AVAudioSession` is currently "captured".
+  private var isAudioSessionActive: Bool = false
+
   /// Initializes new `MediaDevices` with the provided `State`.
   ///
   /// Subscribes on `AVAudioSession.routeChangeNotification` notifications for
   /// `onDeviceChange` callback firing.
   init(state: State) {
-    try? AVAudioSession.sharedInstance().setCategory(
-      AVAudioSession.Category.playAndRecord,
-      options: AVAudioSession.CategoryOptions.allowBluetooth
-    )
-    try? AVAudioSession.sharedInstance().setActive(true)
     self.state = state
     NotificationCenter.default.addObserver(
       forName: AVAudioSession.routeChangeNotification, object: nil,
@@ -29,6 +33,77 @@ class MediaDevices {
         }
       }
     )
+  }
+
+  /// Called when a new `RTCPeerConnection` is created.
+  ///
+  /// Captures the `AVAudioSession` (if its not captured already).
+  func peerAdded(_ id: Int) {
+    assert(Thread.isMainThread)
+
+    self.activePeers.insert(id)
+    self.updateAudioSession()
+  }
+
+  /// Called when a `RTCPeerConnection` is disposed.
+  ///
+  /// Releases the `AVAudioSession` if it's the last `RTCPeerConnection` and
+  /// there are no active local audio tracks.
+  func peerRemoved(_ id: Int) {
+    assert(Thread.isMainThread)
+
+    if self.activePeers.remove(id) != nil {
+      self.updateAudioSession()
+    }
+  }
+
+  /// Called when a new local audio track is created.
+  ///
+  /// Captures the `AVAudioSession` (if its not captured already).
+  func audioTrackAdded(_ id: String) {
+    assert(Thread.isMainThread)
+
+    self.activeAudioTracks.insert(id)
+    self.updateAudioSession()
+  }
+
+  /// Called when a local audio track is disposed.
+  ////
+  /// Releases the `AVAudioSession` if it's the last local audio track and there
+  /// are no `RTCPeerConnection`s.
+  func audioTrackRemoved(_ id: String) {
+    assert(Thread.isMainThread)
+
+    if self.activeAudioTracks.remove(id) != nil {
+      self.updateAudioSession()
+    }
+  }
+
+  /// Captures the `AVAudioSession` if there is at least one local audio track
+  /// or `RTCPeerConnection`, or releases otherwise.
+  ///
+  /// No-op if the `AVAudioSession` is in the desired state already.
+  private func updateAudioSession() {
+    assert(Thread.isMainThread)
+
+    let shouldBeActive = !self.activePeers.isEmpty || !self.activeAudioTracks
+      .isEmpty
+    if shouldBeActive, !self.isAudioSessionActive {
+      try? AVAudioSession.sharedInstance().setCategory(
+        AVAudioSession.Category.playAndRecord,
+        options: AVAudioSession.CategoryOptions.allowBluetooth
+      )
+      try? AVAudioSession.sharedInstance().setActive(true)
+      self.isAudioSessionActive = true
+    } else {
+      if self.isAudioSessionActive {
+        try? AVAudioSession.sharedInstance().setActive(
+          false,
+          options: .notifyOthersOnDeactivation
+        )
+        self.isAudioSessionActive = false
+      }
+    }
   }
 
   /// Switches current input device to the iPhone's microphone.
@@ -159,7 +234,12 @@ class MediaDevices {
       withTrackId: LocalTrackIdGenerator.shared.nextId()
     )
     let audioSource = AudioMediaTrackSourceProxy(track: track)
-    return audioSource.newTrack()
+    let trackProxy = audioSource.newTrack()
+    self.audioTrackAdded(trackProxy.id())
+    trackProxy.onStopped(cb: { [weak self] in
+      self?.audioTrackRemoved(trackProxy.id())
+    })
+    return trackProxy
   }
 
   /// Creates a video `MediaStreamTrackProxy` for the provided
