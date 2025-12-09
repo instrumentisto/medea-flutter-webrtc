@@ -27,7 +27,7 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Changed
 
-- Upgraded [libwebrtc] to [142.0.7444.175] version. ([#256], [#254], [#248], [#260], [#264], [todo])
+- Upgraded [libwebrtc] to [143.0.7499.40] version. ([#256], [#254], [#248], [#260], [#264], [#269])
 - Removed camera permission request in `enumerateDevices()` on Android. ([#258])
 - `AVAudioSession` is now captured only when there is at least one `PeerConnection` or local audio track, and released when there are none. ([#268])
 
@@ -53,8 +53,9 @@ All user visible changes to this project will be documented in this file. This p
 [#264]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/264
 [#265]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/265
 [#268]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/268
+[#269]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/269
 [todo]: https://github.com/instrumentisto/medea-flutter-webrtc/commit/todo
-[142.0.7444.175]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/142.0.7444.175
+[143.0.7499.40]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/143.0.7499.40
 
 
 
