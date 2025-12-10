@@ -2241,11 +2241,10 @@ pub(crate) mod webrtc {
         );
 
         /// Creates a new [`SessionDescriptionInterface`].
-        #[namespace = "webrtc"]
-        #[cxx_name = "CreateSessionDescription"]
         pub fn create_session_description(
             kind: SdpType,
-            sdp: &CxxString,
+            sdp: String,
+            error: &mut String,
         ) -> UniquePtr<SessionDescriptionInterface>;
 
         /// Creates a new [`IceCandidateInterface`] from the provided data.
