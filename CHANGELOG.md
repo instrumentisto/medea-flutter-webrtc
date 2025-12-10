@@ -54,7 +54,6 @@ All user visible changes to this project will be documented in this file. This p
 [#265]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/265
 [#268]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/268
 [#269]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/269
-[todo]: https://github.com/instrumentisto/medea-flutter-webrtc/commit/todo
 [143.0.7499.40]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/143.0.7499.40
 
 

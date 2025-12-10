@@ -501,8 +501,8 @@ impl PeerConnection {
     ) {
         let desc = match sys::SessionDescriptionInterface::new(kind, sdp) {
             Ok(desc) => desc,
-            Err(err) => {
-                drop(set_sdp_tx.send(Err(err)));
+            Err(e) => {
+                drop(set_sdp_tx.send(Err(e)));
                 return;
             }
         };

@@ -1147,8 +1147,9 @@ int sdp_mline_index_of_ice_candidate(const IceCandidateInterface& candidate) {
   return candidate.sdp_mline_index();
 }
 
-/// Creates a `SessionDescriptionInterface` based on the SDP string and the type.
-/// Returns null if the SDP string cannot be parsed.
+// Creates a `SessionDescriptionInterface` based on the SDP string and the type.
+//
+// Returns `null` if the SDP string cannot be parsed.
 std::unique_ptr<webrtc::SessionDescriptionInterface> create_session_description(
     SdpType kind,
     rust::String sdp,

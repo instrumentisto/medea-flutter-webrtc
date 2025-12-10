@@ -706,7 +706,8 @@ int64_t display_source_id(const DisplaySource& source);
 std::unique_ptr<std::string> display_source_title(const DisplaySource& source);
 
 // Creates a `SessionDescriptionInterface` based on the SDP string and the type.
-// Returns null if the SDP string cannot be parsed.
+///
+// Returns `null` if the SDP string cannot be parsed.
 std::unique_ptr<webrtc::SessionDescriptionInterface> create_session_description(
     SdpType kind,
     rust::String sdp,

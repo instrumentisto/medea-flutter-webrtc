@@ -192,13 +192,14 @@ jobs:
           toolchain: stable
       - run: make rustup.targets only=${{ matrix.platform }}
 
-      # Target macOS 10.15 (see `MACOS_MIN_VER` const in libwebrtc-sys build
+      # Target macOS 10.15 (see `MACOS_MIN_VER` const in `libwebrtc-sys` build
       # script). Xcode 16.4 is the last version supporting macOS 10.15 (see
       # https://developer.apple.com/support/xcode to match `minos` to Xcode
       # version).
       - name: Select Xcode 16.4 for macOS build
-        run: sudo xcode-select --switch /Applications/Xcode_16.4.0.app/Contents/Developer
-        if: ${{ contains('macos', matrix.platform) }}
+        run: sudo xcode-select
+                  --switch /Applications/Xcode_16.4.0.app/Contents/Developer
+        if: ${{ matrix.platform == 'macos' }}
 
       - run: make cargo.build platform=${{ matrix.platform }} debug=no
 
