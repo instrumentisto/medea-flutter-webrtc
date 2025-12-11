@@ -162,7 +162,7 @@ mod bridge;
 use std::{collections::HashMap, mem};
 
 use anyhow::{anyhow, bail};
-use cxx::{CxxString, UniquePtr, let_cxx_string};
+use cxx::{CxxString, UniquePtr};
 use derive_more::with_trait::From;
 
 use self::bridge::webrtc;
@@ -1015,10 +1015,15 @@ pub struct SessionDescriptionInterface(
 
 impl SessionDescriptionInterface {
     /// Creates a new [`SessionDescriptionInterface`].
-    #[must_use]
-    pub fn new(kind: webrtc::SdpType, sdp: &str) -> Self {
-        let_cxx_string!(cxx_sdp = sdp);
-        Self(webrtc::create_session_description(kind, &cxx_sdp))
+    pub fn new(kind: webrtc::SdpType, sdp: String) -> anyhow::Result<Self> {
+        let mut err = String::new();
+
+        let inner = webrtc::create_session_description(kind, sdp, &mut err);
+        if inner.is_null() {
+            bail!("`SessionDescription` parse error: {err}");
+        }
+
+        Ok(Self(inner))
     }
 }
 
