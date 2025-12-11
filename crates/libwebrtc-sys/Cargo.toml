@@ -2,7 +2,7 @@
 name = "libwebrtc-sys"
 version = "0.0.0+143.0.7499.40"
 edition = "2024"
-rust-version = "1.91"
+rust-version = "1.92"
 publish = false
 links = "webrtc"
 build = "build/mod.rs"
