@@ -84,6 +84,22 @@ pub enum RtcStatsType {
     /// [4]: https://tinyurl.com/rkuvpl4
     /// [5]: https://w3.org/TR/webrtc-stats#dom-rtcoutboundrtpstreamstats
     RtcOutboundRtpStreamStats {
+        /// The synchronization source (SSRC) identifier is an unsigned
+        /// integer value per [RFC3550] used to identify the stream of [RTP]
+        /// packets that this stats object is describing.
+        ///
+        /// [RFC3550]: https://www.rfc-editor.org/rfc/rfc3550
+        /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
+        ssrc: Option<u32>,
+
+        /// Either `audio` or `video`.
+        ///
+        /// This MUST match the `kind` attribute of the related
+        /// [MediaStreamTrack][1].
+        ///
+        /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
+        kind: Option<String>,
+
         /// ID of the stats object representing the current track attachment to
         /// the sender of the stream.
         track_id: Option<String>,
@@ -113,6 +129,22 @@ pub enum RtcStatsType {
     /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
     /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
     RtcInboundRtpStreamStats {
+        /// The synchronization source (SSRC) identifier is an unsigned
+        /// integer value per [RFC3550] used to identify the stream of [RTP]
+        /// packets that this stats object is describing.
+        ///
+        /// [RFC3550]: https://www.rfc-editor.org/rfc/rfc3550
+        /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
+        ssrc: Option<u32>,
+
+        /// Either `audio` or `video`.
+        ///
+        /// This MUST match the `kind` attribute of the related
+        /// [MediaStreamTrack][1].
+        ///
+        /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
+        kind: Option<String>,
+
         /// ID of the stats object representing the receiving track.
         remote_id: Option<String>,
 
@@ -282,6 +314,22 @@ pub enum RtcStatsType {
     /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
     /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
     RtcRemoteInboundRtpStreamStats {
+        /// The synchronization source (SSRC) identifier is an unsigned
+        /// integer value per [RFC3550] used to identify the stream of [RTP]
+        /// packets that this stats object is describing.
+        ///
+        /// [RFC3550]: https://www.rfc-editor.org/rfc/rfc3550
+        /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
+        ssrc: Option<u32>,
+
+        /// Either `audio` or `video`.
+        ///
+        /// This MUST match the `kind` attribute of the related
+        /// [MediaStreamTrack][1].
+        ///
+        /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
+        kind: Option<String>,
+
         /// [localId] is used for looking up the local
         /// [RTCOutboundRtpStreamStats][1] object for the same [SSRC].
         ///
@@ -338,6 +386,22 @@ pub enum RtcStatsType {
     /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
     /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
     RtcRemoteOutboundRtpStreamStats {
+        /// The synchronization source (SSRC) identifier is an unsigned
+        /// integer value per [RFC3550] used to identify the stream of [RTP]
+        /// packets that this stats object is describing.
+        ///
+        /// [RFC3550]: https://www.rfc-editor.org/rfc/rfc3550
+        /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
+        ssrc: Option<u32>,
+
+        /// Either `audio` or `video`.
+        ///
+        /// This MUST match the `kind` attribute of the related
+        /// [MediaStreamTrack][1].
+        ///
+        /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
+        kind: Option<String>,
+
         /// [localId] is used for looking up the local
         /// [RTCInboundRtpStreamStats][1] object for the same [SSRC].
         ///
@@ -394,12 +458,16 @@ impl From<sys::RtcStatsType> for RtcStatsType {
                 )),
             },
             T::RtcOutboundRtpStreamStats {
+                ssrc,
+                kind,
                 track_id,
                 media_type,
                 bytes_sent,
                 packets_sent,
                 media_source_id,
             } => Self::RtcOutboundRtpStreamStats {
+                ssrc,
+                kind,
                 track_id,
                 media_type: media_type.into(),
                 bytes_sent,
@@ -407,6 +475,8 @@ impl From<sys::RtcStatsType> for RtcStatsType {
                 media_source_id,
             },
             T::RtcInboundRtpStreamStats {
+                ssrc,
+                kind,
                 remote_id,
                 bytes_received,
                 packets_received,
@@ -414,6 +484,8 @@ impl From<sys::RtcStatsType> for RtcStatsType {
                 jitter_buffer_emitted_count,
                 media_type,
             } => Self::RtcInboundRtpStreamStats {
+                ssrc,
+                kind,
                 remote_id,
                 bytes_received,
                 packets_received,
@@ -453,11 +525,15 @@ impl From<sys::RtcStatsType> for RtcStatsType {
                 ice_role: None,
             },
             T::RtcRemoteInboundRtpStreamStats {
+                ssrc,
+                kind,
                 local_id,
                 round_trip_time,
                 fraction_lost,
                 round_trip_time_measurements,
             } => Self::RtcRemoteInboundRtpStreamStats {
+                ssrc,
+                kind,
                 local_id,
                 round_trip_time,
                 fraction_lost,
@@ -466,10 +542,14 @@ impl From<sys::RtcStatsType> for RtcStatsType {
                 reports_received: None,
             },
             T::RtcRemoteOutboundRtpStreamStats {
+                ssrc,
+                kind,
                 local_id,
                 remote_timestamp,
                 reports_sent,
             } => Self::RtcRemoteOutboundRtpStreamStats {
+                ssrc,
+                kind,
                 local_id,
                 remote_timestamp,
                 reports_sent,

@@ -17,6 +17,7 @@ All user visible changes to this project will be documented in this file. This p
 - Bumped up minimum supported [Windows] deployment target to 10 (build 20348). ([#245])
 - Bumped up minimum supported [iOS] deployment target to 15. ([#254])
 - Provide real device IDs in `MediaDeviceInfo.id` instead of hardcoded kind based values on [Android] SDK >= 31. ([#257])
+- Reworked RTC stats to align with [Identifiers for WebRTC's Statistics API][webrtc-stats] specification (only partial support for desktop platforms). ([#270])
 
 ### Added
 
@@ -54,6 +55,7 @@ All user visible changes to this project will be documented in this file. This p
 [#265]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/265
 [#268]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/268
 [#269]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/269
+[#270]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/270
 [143.0.7499.40]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/143.0.7499.40
 
 
@@ -575,3 +577,4 @@ See [changelog in upstream repository](https://github.com/flutter-webrtc/flutter
 [iOS]: https://www.apple.com/ios
 [libwebrtc]: https://github.com/instrumentisto/libwebrtc-bin
 [macOS]: https://www.apple.com/macos
+[webrtc-stats]: https://w3.org/TR/webrtc-stats
