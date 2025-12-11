@@ -377,13 +377,16 @@ class RtcStatsType_RtcOutboundRtpStreamStats extends RtcStatsType {
   
 
 /// The synchronization source (SSRC) identifier is an unsigned
-/// integer value per [RFC3550] used to identify the stream of RTP
+/// integer value per [RFC3550] used to identify the stream of [RTP]
 /// packets that this stats object is describing.
 ///
 /// [RFC3550]: https://www.rfc-editor.org/rfc/rfc3550
+/// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
  final  int? ssrc;
-/// Either "audio" or "video". This MUST match the kind attribute of
-/// the related [MediaStreamTrack][1].
+/// Either `audio` or `video`.
+///
+/// This MUST match the `kind` attribute of the related
+/// [MediaStreamTrack][1].
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
  final  String? kind;
@@ -485,13 +488,16 @@ class RtcStatsType_RtcInboundRtpStreamStats extends RtcStatsType {
   
 
 /// The synchronization source (SSRC) identifier is an unsigned
-/// integer value per [RFC3550] used to identify the stream of RTP
+/// integer value per [RFC3550] used to identify the stream of [RTP]
 /// packets that this stats object is describing.
 ///
 /// [RFC3550]: https://www.rfc-editor.org/rfc/rfc3550
+/// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
  final  int? ssrc;
-/// Either "audio" or "video". This MUST match the kind attribute of
-/// the related [MediaStreamTrack][1].
+/// Either `audio` or `video`.
+///
+/// This MUST match the `kind` attribute of the related
+/// [MediaStreamTrack][1].
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
  final  String? kind;
@@ -839,13 +845,16 @@ class RtcStatsType_RtcRemoteInboundRtpStreamStats extends RtcStatsType {
   
 
 /// The synchronization source (SSRC) identifier is an unsigned
-/// integer value per [RFC3550] used to identify the stream of RTP
+/// integer value per [RFC3550] used to identify the stream of [RTP]
 /// packets that this stats object is describing.
 ///
 /// [RFC3550]: https://www.rfc-editor.org/rfc/rfc3550
+/// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
  final  int? ssrc;
-/// Either "audio" or "video". This MUST match the kind attribute of
-/// the related [MediaStreamTrack][1].
+/// Either `audio` or `video`.
+///
+/// This MUST match the `kind` attribute of the related
+/// [MediaStreamTrack][1].
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
  final  String? kind;
@@ -961,13 +970,16 @@ class RtcStatsType_RtcRemoteOutboundRtpStreamStats extends RtcStatsType {
   
 
 /// The synchronization source (SSRC) identifier is an unsigned
-/// integer value per [RFC3550] used to identify the stream of RTP
+/// integer value per [RFC3550] used to identify the stream of [RTP]
 /// packets that this stats object is describing.
 ///
 /// [RFC3550]: https://www.rfc-editor.org/rfc/rfc3550
+/// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
  final  int? ssrc;
-/// Either "audio" or "video". This MUST match the kind attribute of
-/// the related [MediaStreamTrack][1].
+/// Either `audio` or `video`.
+///
+/// This MUST match the `kind` attribute of the related
+/// [MediaStreamTrack][1].
 ///
 /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
  final  String? kind;
