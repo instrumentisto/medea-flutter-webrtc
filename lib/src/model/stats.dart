@@ -3223,7 +3223,7 @@ class RtcTransportStats extends RtcStat {
       iceRole: _$RtcIceRoleEnumMap.entries
           .firstWhereOrNull((e) => e.value == stats['iceRole'])
           ?.key,
-      iceLocalUsernameFragment: stats['bytesReceived'],
+      iceLocalUsernameFragment: stats['iceLocalUsernameFragment'],
       iceState: _$RtcIceTransportStateEnumMap.entries
           .firstWhereOrNull((e) => e.value == stats['iceState'])
           ?.key,
