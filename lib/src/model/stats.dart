@@ -454,7 +454,7 @@ abstract class RtcRtpStreamStats extends RtcStat {
 
   /// Either `audio` or `video`.
   ///
-  /// This MUST match the [kind` attribute][1] of the related
+  /// This MUST match the [`kind` attribute][1] of the related
   /// [MediaStreamTrack][0].
   ///
   /// [0]: https://w3.org/TR/mediacapture-streams#dom-mediastreamtrack
@@ -880,7 +880,7 @@ class RtcAudioPlayoutStats extends RtcStat {
 
   /// For audio playout, this has the value `audio`.
   ///
-  /// This reflects the [kind` attribute][1] of the [MediaStreamTrack][0]
+  /// This reflects the [`kind` attribute][1] of the [MediaStreamTrack][0]
   /// being played out.
   ///
   /// [0]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
@@ -968,7 +968,7 @@ class RtcPeerConnectionStats extends RtcStat {
   RtcStatsType type() => RtcStatsType.peerConnection;
 
   /// Number of unique [RTCDataChannel]s that have entered the
-  /// [open` state][1] during their lifetime.
+  /// [`open` state][1] during their lifetime.
   ///
   /// [RTCDataChannel]: https://w3.org/TR/webrtc#dom-rtcdatachannel
   /// [1]: https://w3.org/TR/webrtc#dom-rtcdatachannelstate-open
@@ -3851,20 +3851,16 @@ class RtcRemoteOutboundRtpStreamStats extends RtcSentRtpStreamStats {
 ///
 /// If the provided [value] is a [String] then parses it as hexadecimal.
 int? parseInt(dynamic value) {
-  switch (value.runtimeType) {
-    case const (int):
-      {
-        return value;
-      }
-    case const (String):
-      {
-        return int.tryParse(value, radix: 16);
-      }
-    default:
-      {
-        return null;
-      }
+  if (value is int) {
+    return value;
   }
+  if (value is double) {
+    return value.toInt();
+  }
+  if (value is String) {
+    return int.tryParse(value);
+  }
+  return null;
 }
 
 /// Tries to parse the provided [value] as `Map<String, double>`.
