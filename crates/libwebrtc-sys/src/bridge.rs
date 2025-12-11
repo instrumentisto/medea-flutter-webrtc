@@ -277,12 +277,22 @@ pub(crate) mod webrtc {
 
     /// Wrapper for C++ [`RTCOutboundRTPStreamStats`].
     pub struct RTCOutboundRTPStreamStatsWrap {
+        /// The synchronization source (SSRC) identifier is an unsigned
+        /// integer value per [RFC3550] used to identify the stream of RTP
+        /// packets that this stats object is describing.
+        ///
+        /// [RFC3550]: https://www.rfc-editor.org/rfc/rfc3550
+        pub ssrc: Box<OptionU32>,
+
+        /// Either "audio" or "video". This MUST match the kind attribute of
+        /// the related [MediaStreamTrack][1].
+        ///
+        /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
+        pub kind: Box<OptionString>,
+
         /// ID of the stats object representing the current track attachment to
         /// the sender of this stream.
         pub track_id: Box<OptionString>,
-
-        /// [`MediaKind`] of these [`RTCOutboundRTPStreamStats`].
-        pub kind: MediaKind,
 
         /// Width of the last encoded frame.
         ///
@@ -329,6 +339,19 @@ pub(crate) mod webrtc {
 
     /// Wrapper for C++ [`RTCInboundRTPStreamStats`].
     pub struct RTCInboundRTPStreamStatsWrap {
+        /// The synchronization source (SSRC) identifier is an unsigned
+        /// integer value per [RFC3550] used to identify the stream of RTP
+        /// packets that this stats object is describing.
+        ///
+        /// [RFC3550]: https://www.rfc-editor.org/rfc/rfc3550
+        pub ssrc: Box<OptionU32>,
+
+        /// Either "audio" or "video". This MUST match the kind attribute of
+        /// the related [MediaStreamTrack][1].
+        ///
+        /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
+        pub kind: Box<OptionString>,
+
         /// ID of the stats object representing the receiving track.
         pub remote_id: Box<OptionString>,
 
@@ -549,6 +572,19 @@ pub(crate) mod webrtc {
 
     /// Wrapper for C++ [`RTCRemoteInboundRtpStreamStats`].
     pub struct RTCRemoteInboundRtpStreamStatsWrap {
+        /// The synchronization source (SSRC) identifier is an unsigned
+        /// integer value per [RFC3550] used to identify the stream of RTP
+        /// packets that this stats object is describing.
+        ///
+        /// [RFC3550]: https://www.rfc-editor.org/rfc/rfc3550
+        pub ssrc: Box<OptionU32>,
+
+        /// Either "audio" or "video". This MUST match the kind attribute of
+        /// the related [MediaStreamTrack][1].
+        ///
+        /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
+        pub kind: Box<OptionString>,
+
         /// [localId] is used for looking up the local
         /// [RTCOutboundRtpStreamStats][1] object for the same [SSRC].
         ///
@@ -586,6 +622,19 @@ pub(crate) mod webrtc {
 
     /// Wrapper for C++ [`RTCRemoteOutboundRtpStreamStats`].
     pub struct RTCRemoteOutboundRtpStreamStatsWrap {
+        /// The synchronization source (SSRC) identifier is an unsigned
+        /// integer value per [RFC3550] used to identify the stream of RTP
+        /// packets that this stats object is describing.
+        ///
+        /// [RFC3550]: https://www.rfc-editor.org/rfc/rfc3550
+        pub ssrc: Box<OptionU32>,
+
+        /// Either "audio" or "video". This MUST match the kind attribute of
+        /// the related [MediaStreamTrack][1].
+        ///
+        /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
+        pub kind: Box<OptionString>,
+
         /// [localId] is used for looking up the local
         /// [RTCInboundRtpStreamStats][1] object for the same [SSRC].
         ///

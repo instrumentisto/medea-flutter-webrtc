@@ -127,6 +127,19 @@ sealed class RtcStatsType with _$RtcStatsType {
   /// [4]: https://tinyurl.com/rkuvpl4
   /// [5]: https://w3.org/TR/webrtc-stats#dom-rtcoutboundrtpstreamstats
   const factory RtcStatsType.rtcOutboundRtpStreamStats({
+    /// The synchronization source (SSRC) identifier is an unsigned
+    /// integer value per [RFC3550] used to identify the stream of RTP
+    /// packets that this stats object is describing.
+    ///
+    /// [RFC3550]: https://www.rfc-editor.org/rfc/rfc3550
+    int? ssrc,
+
+    /// Either "audio" or "video". This MUST match the kind attribute of
+    /// the related [MediaStreamTrack][1].
+    ///
+    /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
+    String? kind,
+
     /// ID of the stats object representing the current track attachment to
     /// the sender of the stream.
     String? trackId,
@@ -156,6 +169,19 @@ sealed class RtcStatsType with _$RtcStatsType {
   /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
   /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
   const factory RtcStatsType.rtcInboundRtpStreamStats({
+    /// The synchronization source (SSRC) identifier is an unsigned
+    /// integer value per [RFC3550] used to identify the stream of RTP
+    /// packets that this stats object is describing.
+    ///
+    /// [RFC3550]: https://www.rfc-editor.org/rfc/rfc3550
+    int? ssrc,
+
+    /// Either "audio" or "video". This MUST match the kind attribute of
+    /// the related [MediaStreamTrack][1].
+    ///
+    /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
+    String? kind,
+
     /// ID of the stats object representing the receiving track.
     String? remoteId,
 
@@ -325,6 +351,19 @@ sealed class RtcStatsType with _$RtcStatsType {
   /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
   /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
   const factory RtcStatsType.rtcRemoteInboundRtpStreamStats({
+    /// The synchronization source (SSRC) identifier is an unsigned
+    /// integer value per [RFC3550] used to identify the stream of RTP
+    /// packets that this stats object is describing.
+    ///
+    /// [RFC3550]: https://www.rfc-editor.org/rfc/rfc3550
+    int? ssrc,
+
+    /// Either "audio" or "video". This MUST match the kind attribute of
+    /// the related [MediaStreamTrack][1].
+    ///
+    /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
+    String? kind,
+
     /// [localId] is used for looking up the local
     /// [RTCOutboundRtpStreamStats][1] object for the same [SSRC].
     ///
@@ -381,6 +420,19 @@ sealed class RtcStatsType with _$RtcStatsType {
   /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
   /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
   const factory RtcStatsType.rtcRemoteOutboundRtpStreamStats({
+    /// The synchronization source (SSRC) identifier is an unsigned
+    /// integer value per [RFC3550] used to identify the stream of RTP
+    /// packets that this stats object is describing.
+    ///
+    /// [RFC3550]: https://www.rfc-editor.org/rfc/rfc3550
+    int? ssrc,
+
+    /// Either "audio" or "video". This MUST match the kind attribute of
+    /// the related [MediaStreamTrack][1].
+    ///
+    /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
+    String? kind,
+
     /// [localId] is used for looking up the local
     /// [RTCInboundRtpStreamStats][1] object for the same [SSRC].
     ///

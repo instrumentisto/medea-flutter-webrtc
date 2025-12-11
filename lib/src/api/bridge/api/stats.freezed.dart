@@ -140,17 +140,17 @@ return unimplemented(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String? trackIdentifier,  RtcMediaSourceStatsMediaType kind)?  rtcMediaSourceStats,TResult Function( RtcIceCandidateStats field0)?  rtcIceCandidateStats,TResult Function( String? trackId,  RtcOutboundRtpStreamStatsMediaType mediaType,  BigInt? bytesSent,  int? packetsSent,  String? mediaSourceId)?  rtcOutboundRtpStreamStats,TResult Function( String? remoteId,  BigInt? bytesReceived,  int? packetsReceived,  BigInt? packetsLost,  double? jitter,  double? totalDecodeTime,  BigInt? jitterBufferEmittedCount,  RtcInboundRtpStreamMediaType? mediaType)?  rtcInboundRtpStreamStats,TResult Function( RtcStatsIceCandidatePairState state,  bool? nominated,  BigInt? bytesSent,  BigInt? bytesReceived,  double? totalRoundTripTime,  double? currentRoundTripTime,  double? availableOutgoingBitrate)?  rtcIceCandidatePairStats,TResult Function( BigInt? packetsSent,  BigInt? packetsReceived,  BigInt? bytesSent,  BigInt? bytesReceived,  IceRole? iceRole)?  rtcTransportStats,TResult Function( String? localId,  double? jitter,  double? roundTripTime,  double? fractionLost,  BigInt? reportsReceived,  int? roundTripTimeMeasurements)?  rtcRemoteInboundRtpStreamStats,TResult Function( String? localId,  double? remoteTimestamp,  BigInt? reportsSent)?  rtcRemoteOutboundRtpStreamStats,TResult Function()?  unimplemented,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String? trackIdentifier,  RtcMediaSourceStatsMediaType kind)?  rtcMediaSourceStats,TResult Function( RtcIceCandidateStats field0)?  rtcIceCandidateStats,TResult Function( int? ssrc,  String? kind,  String? trackId,  RtcOutboundRtpStreamStatsMediaType mediaType,  BigInt? bytesSent,  int? packetsSent,  String? mediaSourceId)?  rtcOutboundRtpStreamStats,TResult Function( int? ssrc,  String? kind,  String? remoteId,  BigInt? bytesReceived,  int? packetsReceived,  BigInt? packetsLost,  double? jitter,  double? totalDecodeTime,  BigInt? jitterBufferEmittedCount,  RtcInboundRtpStreamMediaType? mediaType)?  rtcInboundRtpStreamStats,TResult Function( RtcStatsIceCandidatePairState state,  bool? nominated,  BigInt? bytesSent,  BigInt? bytesReceived,  double? totalRoundTripTime,  double? currentRoundTripTime,  double? availableOutgoingBitrate)?  rtcIceCandidatePairStats,TResult Function( BigInt? packetsSent,  BigInt? packetsReceived,  BigInt? bytesSent,  BigInt? bytesReceived,  IceRole? iceRole)?  rtcTransportStats,TResult Function( int? ssrc,  String? kind,  String? localId,  double? jitter,  double? roundTripTime,  double? fractionLost,  BigInt? reportsReceived,  int? roundTripTimeMeasurements)?  rtcRemoteInboundRtpStreamStats,TResult Function( int? ssrc,  String? kind,  String? localId,  double? remoteTimestamp,  BigInt? reportsSent)?  rtcRemoteOutboundRtpStreamStats,TResult Function()?  unimplemented,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case RtcStatsType_RtcMediaSourceStats() when rtcMediaSourceStats != null:
 return rtcMediaSourceStats(_that.trackIdentifier,_that.kind);case RtcStatsType_RtcIceCandidateStats() when rtcIceCandidateStats != null:
 return rtcIceCandidateStats(_that.field0);case RtcStatsType_RtcOutboundRtpStreamStats() when rtcOutboundRtpStreamStats != null:
-return rtcOutboundRtpStreamStats(_that.trackId,_that.mediaType,_that.bytesSent,_that.packetsSent,_that.mediaSourceId);case RtcStatsType_RtcInboundRtpStreamStats() when rtcInboundRtpStreamStats != null:
-return rtcInboundRtpStreamStats(_that.remoteId,_that.bytesReceived,_that.packetsReceived,_that.packetsLost,_that.jitter,_that.totalDecodeTime,_that.jitterBufferEmittedCount,_that.mediaType);case RtcStatsType_RtcIceCandidatePairStats() when rtcIceCandidatePairStats != null:
+return rtcOutboundRtpStreamStats(_that.ssrc,_that.kind,_that.trackId,_that.mediaType,_that.bytesSent,_that.packetsSent,_that.mediaSourceId);case RtcStatsType_RtcInboundRtpStreamStats() when rtcInboundRtpStreamStats != null:
+return rtcInboundRtpStreamStats(_that.ssrc,_that.kind,_that.remoteId,_that.bytesReceived,_that.packetsReceived,_that.packetsLost,_that.jitter,_that.totalDecodeTime,_that.jitterBufferEmittedCount,_that.mediaType);case RtcStatsType_RtcIceCandidatePairStats() when rtcIceCandidatePairStats != null:
 return rtcIceCandidatePairStats(_that.state,_that.nominated,_that.bytesSent,_that.bytesReceived,_that.totalRoundTripTime,_that.currentRoundTripTime,_that.availableOutgoingBitrate);case RtcStatsType_RtcTransportStats() when rtcTransportStats != null:
 return rtcTransportStats(_that.packetsSent,_that.packetsReceived,_that.bytesSent,_that.bytesReceived,_that.iceRole);case RtcStatsType_RtcRemoteInboundRtpStreamStats() when rtcRemoteInboundRtpStreamStats != null:
-return rtcRemoteInboundRtpStreamStats(_that.localId,_that.jitter,_that.roundTripTime,_that.fractionLost,_that.reportsReceived,_that.roundTripTimeMeasurements);case RtcStatsType_RtcRemoteOutboundRtpStreamStats() when rtcRemoteOutboundRtpStreamStats != null:
-return rtcRemoteOutboundRtpStreamStats(_that.localId,_that.remoteTimestamp,_that.reportsSent);case RtcStatsType_Unimplemented() when unimplemented != null:
+return rtcRemoteInboundRtpStreamStats(_that.ssrc,_that.kind,_that.localId,_that.jitter,_that.roundTripTime,_that.fractionLost,_that.reportsReceived,_that.roundTripTimeMeasurements);case RtcStatsType_RtcRemoteOutboundRtpStreamStats() when rtcRemoteOutboundRtpStreamStats != null:
+return rtcRemoteOutboundRtpStreamStats(_that.ssrc,_that.kind,_that.localId,_that.remoteTimestamp,_that.reportsSent);case RtcStatsType_Unimplemented() when unimplemented != null:
 return unimplemented();case _:
   return orElse();
 
@@ -169,17 +169,17 @@ return unimplemented();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String? trackIdentifier,  RtcMediaSourceStatsMediaType kind)  rtcMediaSourceStats,required TResult Function( RtcIceCandidateStats field0)  rtcIceCandidateStats,required TResult Function( String? trackId,  RtcOutboundRtpStreamStatsMediaType mediaType,  BigInt? bytesSent,  int? packetsSent,  String? mediaSourceId)  rtcOutboundRtpStreamStats,required TResult Function( String? remoteId,  BigInt? bytesReceived,  int? packetsReceived,  BigInt? packetsLost,  double? jitter,  double? totalDecodeTime,  BigInt? jitterBufferEmittedCount,  RtcInboundRtpStreamMediaType? mediaType)  rtcInboundRtpStreamStats,required TResult Function( RtcStatsIceCandidatePairState state,  bool? nominated,  BigInt? bytesSent,  BigInt? bytesReceived,  double? totalRoundTripTime,  double? currentRoundTripTime,  double? availableOutgoingBitrate)  rtcIceCandidatePairStats,required TResult Function( BigInt? packetsSent,  BigInt? packetsReceived,  BigInt? bytesSent,  BigInt? bytesReceived,  IceRole? iceRole)  rtcTransportStats,required TResult Function( String? localId,  double? jitter,  double? roundTripTime,  double? fractionLost,  BigInt? reportsReceived,  int? roundTripTimeMeasurements)  rtcRemoteInboundRtpStreamStats,required TResult Function( String? localId,  double? remoteTimestamp,  BigInt? reportsSent)  rtcRemoteOutboundRtpStreamStats,required TResult Function()  unimplemented,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String? trackIdentifier,  RtcMediaSourceStatsMediaType kind)  rtcMediaSourceStats,required TResult Function( RtcIceCandidateStats field0)  rtcIceCandidateStats,required TResult Function( int? ssrc,  String? kind,  String? trackId,  RtcOutboundRtpStreamStatsMediaType mediaType,  BigInt? bytesSent,  int? packetsSent,  String? mediaSourceId)  rtcOutboundRtpStreamStats,required TResult Function( int? ssrc,  String? kind,  String? remoteId,  BigInt? bytesReceived,  int? packetsReceived,  BigInt? packetsLost,  double? jitter,  double? totalDecodeTime,  BigInt? jitterBufferEmittedCount,  RtcInboundRtpStreamMediaType? mediaType)  rtcInboundRtpStreamStats,required TResult Function( RtcStatsIceCandidatePairState state,  bool? nominated,  BigInt? bytesSent,  BigInt? bytesReceived,  double? totalRoundTripTime,  double? currentRoundTripTime,  double? availableOutgoingBitrate)  rtcIceCandidatePairStats,required TResult Function( BigInt? packetsSent,  BigInt? packetsReceived,  BigInt? bytesSent,  BigInt? bytesReceived,  IceRole? iceRole)  rtcTransportStats,required TResult Function( int? ssrc,  String? kind,  String? localId,  double? jitter,  double? roundTripTime,  double? fractionLost,  BigInt? reportsReceived,  int? roundTripTimeMeasurements)  rtcRemoteInboundRtpStreamStats,required TResult Function( int? ssrc,  String? kind,  String? localId,  double? remoteTimestamp,  BigInt? reportsSent)  rtcRemoteOutboundRtpStreamStats,required TResult Function()  unimplemented,}) {final _that = this;
 switch (_that) {
 case RtcStatsType_RtcMediaSourceStats():
 return rtcMediaSourceStats(_that.trackIdentifier,_that.kind);case RtcStatsType_RtcIceCandidateStats():
 return rtcIceCandidateStats(_that.field0);case RtcStatsType_RtcOutboundRtpStreamStats():
-return rtcOutboundRtpStreamStats(_that.trackId,_that.mediaType,_that.bytesSent,_that.packetsSent,_that.mediaSourceId);case RtcStatsType_RtcInboundRtpStreamStats():
-return rtcInboundRtpStreamStats(_that.remoteId,_that.bytesReceived,_that.packetsReceived,_that.packetsLost,_that.jitter,_that.totalDecodeTime,_that.jitterBufferEmittedCount,_that.mediaType);case RtcStatsType_RtcIceCandidatePairStats():
+return rtcOutboundRtpStreamStats(_that.ssrc,_that.kind,_that.trackId,_that.mediaType,_that.bytesSent,_that.packetsSent,_that.mediaSourceId);case RtcStatsType_RtcInboundRtpStreamStats():
+return rtcInboundRtpStreamStats(_that.ssrc,_that.kind,_that.remoteId,_that.bytesReceived,_that.packetsReceived,_that.packetsLost,_that.jitter,_that.totalDecodeTime,_that.jitterBufferEmittedCount,_that.mediaType);case RtcStatsType_RtcIceCandidatePairStats():
 return rtcIceCandidatePairStats(_that.state,_that.nominated,_that.bytesSent,_that.bytesReceived,_that.totalRoundTripTime,_that.currentRoundTripTime,_that.availableOutgoingBitrate);case RtcStatsType_RtcTransportStats():
 return rtcTransportStats(_that.packetsSent,_that.packetsReceived,_that.bytesSent,_that.bytesReceived,_that.iceRole);case RtcStatsType_RtcRemoteInboundRtpStreamStats():
-return rtcRemoteInboundRtpStreamStats(_that.localId,_that.jitter,_that.roundTripTime,_that.fractionLost,_that.reportsReceived,_that.roundTripTimeMeasurements);case RtcStatsType_RtcRemoteOutboundRtpStreamStats():
-return rtcRemoteOutboundRtpStreamStats(_that.localId,_that.remoteTimestamp,_that.reportsSent);case RtcStatsType_Unimplemented():
+return rtcRemoteInboundRtpStreamStats(_that.ssrc,_that.kind,_that.localId,_that.jitter,_that.roundTripTime,_that.fractionLost,_that.reportsReceived,_that.roundTripTimeMeasurements);case RtcStatsType_RtcRemoteOutboundRtpStreamStats():
+return rtcRemoteOutboundRtpStreamStats(_that.ssrc,_that.kind,_that.localId,_that.remoteTimestamp,_that.reportsSent);case RtcStatsType_Unimplemented():
 return unimplemented();}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -194,17 +194,17 @@ return unimplemented();}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String? trackIdentifier,  RtcMediaSourceStatsMediaType kind)?  rtcMediaSourceStats,TResult? Function( RtcIceCandidateStats field0)?  rtcIceCandidateStats,TResult? Function( String? trackId,  RtcOutboundRtpStreamStatsMediaType mediaType,  BigInt? bytesSent,  int? packetsSent,  String? mediaSourceId)?  rtcOutboundRtpStreamStats,TResult? Function( String? remoteId,  BigInt? bytesReceived,  int? packetsReceived,  BigInt? packetsLost,  double? jitter,  double? totalDecodeTime,  BigInt? jitterBufferEmittedCount,  RtcInboundRtpStreamMediaType? mediaType)?  rtcInboundRtpStreamStats,TResult? Function( RtcStatsIceCandidatePairState state,  bool? nominated,  BigInt? bytesSent,  BigInt? bytesReceived,  double? totalRoundTripTime,  double? currentRoundTripTime,  double? availableOutgoingBitrate)?  rtcIceCandidatePairStats,TResult? Function( BigInt? packetsSent,  BigInt? packetsReceived,  BigInt? bytesSent,  BigInt? bytesReceived,  IceRole? iceRole)?  rtcTransportStats,TResult? Function( String? localId,  double? jitter,  double? roundTripTime,  double? fractionLost,  BigInt? reportsReceived,  int? roundTripTimeMeasurements)?  rtcRemoteInboundRtpStreamStats,TResult? Function( String? localId,  double? remoteTimestamp,  BigInt? reportsSent)?  rtcRemoteOutboundRtpStreamStats,TResult? Function()?  unimplemented,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String? trackIdentifier,  RtcMediaSourceStatsMediaType kind)?  rtcMediaSourceStats,TResult? Function( RtcIceCandidateStats field0)?  rtcIceCandidateStats,TResult? Function( int? ssrc,  String? kind,  String? trackId,  RtcOutboundRtpStreamStatsMediaType mediaType,  BigInt? bytesSent,  int? packetsSent,  String? mediaSourceId)?  rtcOutboundRtpStreamStats,TResult? Function( int? ssrc,  String? kind,  String? remoteId,  BigInt? bytesReceived,  int? packetsReceived,  BigInt? packetsLost,  double? jitter,  double? totalDecodeTime,  BigInt? jitterBufferEmittedCount,  RtcInboundRtpStreamMediaType? mediaType)?  rtcInboundRtpStreamStats,TResult? Function( RtcStatsIceCandidatePairState state,  bool? nominated,  BigInt? bytesSent,  BigInt? bytesReceived,  double? totalRoundTripTime,  double? currentRoundTripTime,  double? availableOutgoingBitrate)?  rtcIceCandidatePairStats,TResult? Function( BigInt? packetsSent,  BigInt? packetsReceived,  BigInt? bytesSent,  BigInt? bytesReceived,  IceRole? iceRole)?  rtcTransportStats,TResult? Function( int? ssrc,  String? kind,  String? localId,  double? jitter,  double? roundTripTime,  double? fractionLost,  BigInt? reportsReceived,  int? roundTripTimeMeasurements)?  rtcRemoteInboundRtpStreamStats,TResult? Function( int? ssrc,  String? kind,  String? localId,  double? remoteTimestamp,  BigInt? reportsSent)?  rtcRemoteOutboundRtpStreamStats,TResult? Function()?  unimplemented,}) {final _that = this;
 switch (_that) {
 case RtcStatsType_RtcMediaSourceStats() when rtcMediaSourceStats != null:
 return rtcMediaSourceStats(_that.trackIdentifier,_that.kind);case RtcStatsType_RtcIceCandidateStats() when rtcIceCandidateStats != null:
 return rtcIceCandidateStats(_that.field0);case RtcStatsType_RtcOutboundRtpStreamStats() when rtcOutboundRtpStreamStats != null:
-return rtcOutboundRtpStreamStats(_that.trackId,_that.mediaType,_that.bytesSent,_that.packetsSent,_that.mediaSourceId);case RtcStatsType_RtcInboundRtpStreamStats() when rtcInboundRtpStreamStats != null:
-return rtcInboundRtpStreamStats(_that.remoteId,_that.bytesReceived,_that.packetsReceived,_that.packetsLost,_that.jitter,_that.totalDecodeTime,_that.jitterBufferEmittedCount,_that.mediaType);case RtcStatsType_RtcIceCandidatePairStats() when rtcIceCandidatePairStats != null:
+return rtcOutboundRtpStreamStats(_that.ssrc,_that.kind,_that.trackId,_that.mediaType,_that.bytesSent,_that.packetsSent,_that.mediaSourceId);case RtcStatsType_RtcInboundRtpStreamStats() when rtcInboundRtpStreamStats != null:
+return rtcInboundRtpStreamStats(_that.ssrc,_that.kind,_that.remoteId,_that.bytesReceived,_that.packetsReceived,_that.packetsLost,_that.jitter,_that.totalDecodeTime,_that.jitterBufferEmittedCount,_that.mediaType);case RtcStatsType_RtcIceCandidatePairStats() when rtcIceCandidatePairStats != null:
 return rtcIceCandidatePairStats(_that.state,_that.nominated,_that.bytesSent,_that.bytesReceived,_that.totalRoundTripTime,_that.currentRoundTripTime,_that.availableOutgoingBitrate);case RtcStatsType_RtcTransportStats() when rtcTransportStats != null:
 return rtcTransportStats(_that.packetsSent,_that.packetsReceived,_that.bytesSent,_that.bytesReceived,_that.iceRole);case RtcStatsType_RtcRemoteInboundRtpStreamStats() when rtcRemoteInboundRtpStreamStats != null:
-return rtcRemoteInboundRtpStreamStats(_that.localId,_that.jitter,_that.roundTripTime,_that.fractionLost,_that.reportsReceived,_that.roundTripTimeMeasurements);case RtcStatsType_RtcRemoteOutboundRtpStreamStats() when rtcRemoteOutboundRtpStreamStats != null:
-return rtcRemoteOutboundRtpStreamStats(_that.localId,_that.remoteTimestamp,_that.reportsSent);case RtcStatsType_Unimplemented() when unimplemented != null:
+return rtcRemoteInboundRtpStreamStats(_that.ssrc,_that.kind,_that.localId,_that.jitter,_that.roundTripTime,_that.fractionLost,_that.reportsReceived,_that.roundTripTimeMeasurements);case RtcStatsType_RtcRemoteOutboundRtpStreamStats() when rtcRemoteOutboundRtpStreamStats != null:
+return rtcRemoteOutboundRtpStreamStats(_that.ssrc,_that.kind,_that.localId,_that.remoteTimestamp,_that.reportsSent);case RtcStatsType_Unimplemented() when unimplemented != null:
 return unimplemented();case _:
   return null;
 
@@ -373,9 +373,20 @@ $RtcIceCandidateStatsCopyWith<$Res> get field0 {
 
 
 class RtcStatsType_RtcOutboundRtpStreamStats extends RtcStatsType {
-  const RtcStatsType_RtcOutboundRtpStreamStats({this.trackId, required this.mediaType, this.bytesSent, this.packetsSent, this.mediaSourceId}): super._();
+  const RtcStatsType_RtcOutboundRtpStreamStats({this.ssrc, this.kind, this.trackId, required this.mediaType, this.bytesSent, this.packetsSent, this.mediaSourceId}): super._();
   
 
+/// The synchronization source (SSRC) identifier is an unsigned
+/// integer value per [RFC3550] used to identify the stream of RTP
+/// packets that this stats object is describing.
+///
+/// [RFC3550]: https://www.rfc-editor.org/rfc/rfc3550
+ final  int? ssrc;
+/// Either "audio" or "video". This MUST match the kind attribute of
+/// the related [MediaStreamTrack][1].
+///
+/// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
+ final  String? kind;
 /// ID of the stats object representing the current track attachment to
 /// the sender of the stream.
  final  String? trackId;
@@ -404,16 +415,16 @@ $RtcStatsType_RtcOutboundRtpStreamStatsCopyWith<RtcStatsType_RtcOutboundRtpStrea
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RtcStatsType_RtcOutboundRtpStreamStats&&(identical(other.trackId, trackId) || other.trackId == trackId)&&(identical(other.mediaType, mediaType) || other.mediaType == mediaType)&&(identical(other.bytesSent, bytesSent) || other.bytesSent == bytesSent)&&(identical(other.packetsSent, packetsSent) || other.packetsSent == packetsSent)&&(identical(other.mediaSourceId, mediaSourceId) || other.mediaSourceId == mediaSourceId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RtcStatsType_RtcOutboundRtpStreamStats&&(identical(other.ssrc, ssrc) || other.ssrc == ssrc)&&(identical(other.kind, kind) || other.kind == kind)&&(identical(other.trackId, trackId) || other.trackId == trackId)&&(identical(other.mediaType, mediaType) || other.mediaType == mediaType)&&(identical(other.bytesSent, bytesSent) || other.bytesSent == bytesSent)&&(identical(other.packetsSent, packetsSent) || other.packetsSent == packetsSent)&&(identical(other.mediaSourceId, mediaSourceId) || other.mediaSourceId == mediaSourceId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,trackId,mediaType,bytesSent,packetsSent,mediaSourceId);
+int get hashCode => Object.hash(runtimeType,ssrc,kind,trackId,mediaType,bytesSent,packetsSent,mediaSourceId);
 
 @override
 String toString() {
-  return 'RtcStatsType.rtcOutboundRtpStreamStats(trackId: $trackId, mediaType: $mediaType, bytesSent: $bytesSent, packetsSent: $packetsSent, mediaSourceId: $mediaSourceId)';
+  return 'RtcStatsType.rtcOutboundRtpStreamStats(ssrc: $ssrc, kind: $kind, trackId: $trackId, mediaType: $mediaType, bytesSent: $bytesSent, packetsSent: $packetsSent, mediaSourceId: $mediaSourceId)';
 }
 
 
@@ -424,7 +435,7 @@ abstract mixin class $RtcStatsType_RtcOutboundRtpStreamStatsCopyWith<$Res> imple
   factory $RtcStatsType_RtcOutboundRtpStreamStatsCopyWith(RtcStatsType_RtcOutboundRtpStreamStats value, $Res Function(RtcStatsType_RtcOutboundRtpStreamStats) _then) = _$RtcStatsType_RtcOutboundRtpStreamStatsCopyWithImpl;
 @useResult
 $Res call({
- String? trackId, RtcOutboundRtpStreamStatsMediaType mediaType, BigInt? bytesSent, int? packetsSent, String? mediaSourceId
+ int? ssrc, String? kind, String? trackId, RtcOutboundRtpStreamStatsMediaType mediaType, BigInt? bytesSent, int? packetsSent, String? mediaSourceId
 });
 
 
@@ -441,9 +452,11 @@ class _$RtcStatsType_RtcOutboundRtpStreamStatsCopyWithImpl<$Res>
 
 /// Create a copy of RtcStatsType
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? trackId = freezed,Object? mediaType = null,Object? bytesSent = freezed,Object? packetsSent = freezed,Object? mediaSourceId = freezed,}) {
+@pragma('vm:prefer-inline') $Res call({Object? ssrc = freezed,Object? kind = freezed,Object? trackId = freezed,Object? mediaType = null,Object? bytesSent = freezed,Object? packetsSent = freezed,Object? mediaSourceId = freezed,}) {
   return _then(RtcStatsType_RtcOutboundRtpStreamStats(
-trackId: freezed == trackId ? _self.trackId : trackId // ignore: cast_nullable_to_non_nullable
+ssrc: freezed == ssrc ? _self.ssrc : ssrc // ignore: cast_nullable_to_non_nullable
+as int?,kind: freezed == kind ? _self.kind : kind // ignore: cast_nullable_to_non_nullable
+as String?,trackId: freezed == trackId ? _self.trackId : trackId // ignore: cast_nullable_to_non_nullable
 as String?,mediaType: null == mediaType ? _self.mediaType : mediaType // ignore: cast_nullable_to_non_nullable
 as RtcOutboundRtpStreamStatsMediaType,bytesSent: freezed == bytesSent ? _self.bytesSent : bytesSent // ignore: cast_nullable_to_non_nullable
 as BigInt?,packetsSent: freezed == packetsSent ? _self.packetsSent : packetsSent // ignore: cast_nullable_to_non_nullable
@@ -468,9 +481,20 @@ $RtcOutboundRtpStreamStatsMediaTypeCopyWith<$Res> get mediaType {
 
 
 class RtcStatsType_RtcInboundRtpStreamStats extends RtcStatsType {
-  const RtcStatsType_RtcInboundRtpStreamStats({this.remoteId, this.bytesReceived, this.packetsReceived, this.packetsLost, this.jitter, this.totalDecodeTime, this.jitterBufferEmittedCount, this.mediaType}): super._();
+  const RtcStatsType_RtcInboundRtpStreamStats({this.ssrc, this.kind, this.remoteId, this.bytesReceived, this.packetsReceived, this.packetsLost, this.jitter, this.totalDecodeTime, this.jitterBufferEmittedCount, this.mediaType}): super._();
   
 
+/// The synchronization source (SSRC) identifier is an unsigned
+/// integer value per [RFC3550] used to identify the stream of RTP
+/// packets that this stats object is describing.
+///
+/// [RFC3550]: https://www.rfc-editor.org/rfc/rfc3550
+ final  int? ssrc;
+/// Either "audio" or "video". This MUST match the kind attribute of
+/// the related [MediaStreamTrack][1].
+///
+/// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
+ final  String? kind;
 /// ID of the stats object representing the receiving track.
  final  String? remoteId;
 /// Total number of bytes received for this [SSRC].
@@ -525,16 +549,16 @@ $RtcStatsType_RtcInboundRtpStreamStatsCopyWith<RtcStatsType_RtcInboundRtpStreamS
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RtcStatsType_RtcInboundRtpStreamStats&&(identical(other.remoteId, remoteId) || other.remoteId == remoteId)&&(identical(other.bytesReceived, bytesReceived) || other.bytesReceived == bytesReceived)&&(identical(other.packetsReceived, packetsReceived) || other.packetsReceived == packetsReceived)&&(identical(other.packetsLost, packetsLost) || other.packetsLost == packetsLost)&&(identical(other.jitter, jitter) || other.jitter == jitter)&&(identical(other.totalDecodeTime, totalDecodeTime) || other.totalDecodeTime == totalDecodeTime)&&(identical(other.jitterBufferEmittedCount, jitterBufferEmittedCount) || other.jitterBufferEmittedCount == jitterBufferEmittedCount)&&(identical(other.mediaType, mediaType) || other.mediaType == mediaType));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RtcStatsType_RtcInboundRtpStreamStats&&(identical(other.ssrc, ssrc) || other.ssrc == ssrc)&&(identical(other.kind, kind) || other.kind == kind)&&(identical(other.remoteId, remoteId) || other.remoteId == remoteId)&&(identical(other.bytesReceived, bytesReceived) || other.bytesReceived == bytesReceived)&&(identical(other.packetsReceived, packetsReceived) || other.packetsReceived == packetsReceived)&&(identical(other.packetsLost, packetsLost) || other.packetsLost == packetsLost)&&(identical(other.jitter, jitter) || other.jitter == jitter)&&(identical(other.totalDecodeTime, totalDecodeTime) || other.totalDecodeTime == totalDecodeTime)&&(identical(other.jitterBufferEmittedCount, jitterBufferEmittedCount) || other.jitterBufferEmittedCount == jitterBufferEmittedCount)&&(identical(other.mediaType, mediaType) || other.mediaType == mediaType));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,remoteId,bytesReceived,packetsReceived,packetsLost,jitter,totalDecodeTime,jitterBufferEmittedCount,mediaType);
+int get hashCode => Object.hash(runtimeType,ssrc,kind,remoteId,bytesReceived,packetsReceived,packetsLost,jitter,totalDecodeTime,jitterBufferEmittedCount,mediaType);
 
 @override
 String toString() {
-  return 'RtcStatsType.rtcInboundRtpStreamStats(remoteId: $remoteId, bytesReceived: $bytesReceived, packetsReceived: $packetsReceived, packetsLost: $packetsLost, jitter: $jitter, totalDecodeTime: $totalDecodeTime, jitterBufferEmittedCount: $jitterBufferEmittedCount, mediaType: $mediaType)';
+  return 'RtcStatsType.rtcInboundRtpStreamStats(ssrc: $ssrc, kind: $kind, remoteId: $remoteId, bytesReceived: $bytesReceived, packetsReceived: $packetsReceived, packetsLost: $packetsLost, jitter: $jitter, totalDecodeTime: $totalDecodeTime, jitterBufferEmittedCount: $jitterBufferEmittedCount, mediaType: $mediaType)';
 }
 
 
@@ -545,7 +569,7 @@ abstract mixin class $RtcStatsType_RtcInboundRtpStreamStatsCopyWith<$Res> implem
   factory $RtcStatsType_RtcInboundRtpStreamStatsCopyWith(RtcStatsType_RtcInboundRtpStreamStats value, $Res Function(RtcStatsType_RtcInboundRtpStreamStats) _then) = _$RtcStatsType_RtcInboundRtpStreamStatsCopyWithImpl;
 @useResult
 $Res call({
- String? remoteId, BigInt? bytesReceived, int? packetsReceived, BigInt? packetsLost, double? jitter, double? totalDecodeTime, BigInt? jitterBufferEmittedCount, RtcInboundRtpStreamMediaType? mediaType
+ int? ssrc, String? kind, String? remoteId, BigInt? bytesReceived, int? packetsReceived, BigInt? packetsLost, double? jitter, double? totalDecodeTime, BigInt? jitterBufferEmittedCount, RtcInboundRtpStreamMediaType? mediaType
 });
 
 
@@ -562,9 +586,11 @@ class _$RtcStatsType_RtcInboundRtpStreamStatsCopyWithImpl<$Res>
 
 /// Create a copy of RtcStatsType
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? remoteId = freezed,Object? bytesReceived = freezed,Object? packetsReceived = freezed,Object? packetsLost = freezed,Object? jitter = freezed,Object? totalDecodeTime = freezed,Object? jitterBufferEmittedCount = freezed,Object? mediaType = freezed,}) {
+@pragma('vm:prefer-inline') $Res call({Object? ssrc = freezed,Object? kind = freezed,Object? remoteId = freezed,Object? bytesReceived = freezed,Object? packetsReceived = freezed,Object? packetsLost = freezed,Object? jitter = freezed,Object? totalDecodeTime = freezed,Object? jitterBufferEmittedCount = freezed,Object? mediaType = freezed,}) {
   return _then(RtcStatsType_RtcInboundRtpStreamStats(
-remoteId: freezed == remoteId ? _self.remoteId : remoteId // ignore: cast_nullable_to_non_nullable
+ssrc: freezed == ssrc ? _self.ssrc : ssrc // ignore: cast_nullable_to_non_nullable
+as int?,kind: freezed == kind ? _self.kind : kind // ignore: cast_nullable_to_non_nullable
+as String?,remoteId: freezed == remoteId ? _self.remoteId : remoteId // ignore: cast_nullable_to_non_nullable
 as String?,bytesReceived: freezed == bytesReceived ? _self.bytesReceived : bytesReceived // ignore: cast_nullable_to_non_nullable
 as BigInt?,packetsReceived: freezed == packetsReceived ? _self.packetsReceived : packetsReceived // ignore: cast_nullable_to_non_nullable
 as int?,packetsLost: freezed == packetsLost ? _self.packetsLost : packetsLost // ignore: cast_nullable_to_non_nullable
@@ -809,9 +835,20 @@ as IceRole?,
 
 
 class RtcStatsType_RtcRemoteInboundRtpStreamStats extends RtcStatsType {
-  const RtcStatsType_RtcRemoteInboundRtpStreamStats({this.localId, this.jitter, this.roundTripTime, this.fractionLost, this.reportsReceived, this.roundTripTimeMeasurements}): super._();
+  const RtcStatsType_RtcRemoteInboundRtpStreamStats({this.ssrc, this.kind, this.localId, this.jitter, this.roundTripTime, this.fractionLost, this.reportsReceived, this.roundTripTimeMeasurements}): super._();
   
 
+/// The synchronization source (SSRC) identifier is an unsigned
+/// integer value per [RFC3550] used to identify the stream of RTP
+/// packets that this stats object is describing.
+///
+/// [RFC3550]: https://www.rfc-editor.org/rfc/rfc3550
+ final  int? ssrc;
+/// Either "audio" or "video". This MUST match the kind attribute of
+/// the related [MediaStreamTrack][1].
+///
+/// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
+ final  String? kind;
 /// [localId] is used for looking up the local
 /// [RTCOutboundRtpStreamStats][1] object for the same [SSRC].
 ///
@@ -862,16 +899,16 @@ $RtcStatsType_RtcRemoteInboundRtpStreamStatsCopyWith<RtcStatsType_RtcRemoteInbou
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RtcStatsType_RtcRemoteInboundRtpStreamStats&&(identical(other.localId, localId) || other.localId == localId)&&(identical(other.jitter, jitter) || other.jitter == jitter)&&(identical(other.roundTripTime, roundTripTime) || other.roundTripTime == roundTripTime)&&(identical(other.fractionLost, fractionLost) || other.fractionLost == fractionLost)&&(identical(other.reportsReceived, reportsReceived) || other.reportsReceived == reportsReceived)&&(identical(other.roundTripTimeMeasurements, roundTripTimeMeasurements) || other.roundTripTimeMeasurements == roundTripTimeMeasurements));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RtcStatsType_RtcRemoteInboundRtpStreamStats&&(identical(other.ssrc, ssrc) || other.ssrc == ssrc)&&(identical(other.kind, kind) || other.kind == kind)&&(identical(other.localId, localId) || other.localId == localId)&&(identical(other.jitter, jitter) || other.jitter == jitter)&&(identical(other.roundTripTime, roundTripTime) || other.roundTripTime == roundTripTime)&&(identical(other.fractionLost, fractionLost) || other.fractionLost == fractionLost)&&(identical(other.reportsReceived, reportsReceived) || other.reportsReceived == reportsReceived)&&(identical(other.roundTripTimeMeasurements, roundTripTimeMeasurements) || other.roundTripTimeMeasurements == roundTripTimeMeasurements));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,localId,jitter,roundTripTime,fractionLost,reportsReceived,roundTripTimeMeasurements);
+int get hashCode => Object.hash(runtimeType,ssrc,kind,localId,jitter,roundTripTime,fractionLost,reportsReceived,roundTripTimeMeasurements);
 
 @override
 String toString() {
-  return 'RtcStatsType.rtcRemoteInboundRtpStreamStats(localId: $localId, jitter: $jitter, roundTripTime: $roundTripTime, fractionLost: $fractionLost, reportsReceived: $reportsReceived, roundTripTimeMeasurements: $roundTripTimeMeasurements)';
+  return 'RtcStatsType.rtcRemoteInboundRtpStreamStats(ssrc: $ssrc, kind: $kind, localId: $localId, jitter: $jitter, roundTripTime: $roundTripTime, fractionLost: $fractionLost, reportsReceived: $reportsReceived, roundTripTimeMeasurements: $roundTripTimeMeasurements)';
 }
 
 
@@ -882,7 +919,7 @@ abstract mixin class $RtcStatsType_RtcRemoteInboundRtpStreamStatsCopyWith<$Res> 
   factory $RtcStatsType_RtcRemoteInboundRtpStreamStatsCopyWith(RtcStatsType_RtcRemoteInboundRtpStreamStats value, $Res Function(RtcStatsType_RtcRemoteInboundRtpStreamStats) _then) = _$RtcStatsType_RtcRemoteInboundRtpStreamStatsCopyWithImpl;
 @useResult
 $Res call({
- String? localId, double? jitter, double? roundTripTime, double? fractionLost, BigInt? reportsReceived, int? roundTripTimeMeasurements
+ int? ssrc, String? kind, String? localId, double? jitter, double? roundTripTime, double? fractionLost, BigInt? reportsReceived, int? roundTripTimeMeasurements
 });
 
 
@@ -899,9 +936,11 @@ class _$RtcStatsType_RtcRemoteInboundRtpStreamStatsCopyWithImpl<$Res>
 
 /// Create a copy of RtcStatsType
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? localId = freezed,Object? jitter = freezed,Object? roundTripTime = freezed,Object? fractionLost = freezed,Object? reportsReceived = freezed,Object? roundTripTimeMeasurements = freezed,}) {
+@pragma('vm:prefer-inline') $Res call({Object? ssrc = freezed,Object? kind = freezed,Object? localId = freezed,Object? jitter = freezed,Object? roundTripTime = freezed,Object? fractionLost = freezed,Object? reportsReceived = freezed,Object? roundTripTimeMeasurements = freezed,}) {
   return _then(RtcStatsType_RtcRemoteInboundRtpStreamStats(
-localId: freezed == localId ? _self.localId : localId // ignore: cast_nullable_to_non_nullable
+ssrc: freezed == ssrc ? _self.ssrc : ssrc // ignore: cast_nullable_to_non_nullable
+as int?,kind: freezed == kind ? _self.kind : kind // ignore: cast_nullable_to_non_nullable
+as String?,localId: freezed == localId ? _self.localId : localId // ignore: cast_nullable_to_non_nullable
 as String?,jitter: freezed == jitter ? _self.jitter : jitter // ignore: cast_nullable_to_non_nullable
 as double?,roundTripTime: freezed == roundTripTime ? _self.roundTripTime : roundTripTime // ignore: cast_nullable_to_non_nullable
 as double?,fractionLost: freezed == fractionLost ? _self.fractionLost : fractionLost // ignore: cast_nullable_to_non_nullable
@@ -918,9 +957,20 @@ as int?,
 
 
 class RtcStatsType_RtcRemoteOutboundRtpStreamStats extends RtcStatsType {
-  const RtcStatsType_RtcRemoteOutboundRtpStreamStats({this.localId, this.remoteTimestamp, this.reportsSent}): super._();
+  const RtcStatsType_RtcRemoteOutboundRtpStreamStats({this.ssrc, this.kind, this.localId, this.remoteTimestamp, this.reportsSent}): super._();
   
 
+/// The synchronization source (SSRC) identifier is an unsigned
+/// integer value per [RFC3550] used to identify the stream of RTP
+/// packets that this stats object is describing.
+///
+/// [RFC3550]: https://www.rfc-editor.org/rfc/rfc3550
+ final  int? ssrc;
+/// Either "audio" or "video". This MUST match the kind attribute of
+/// the related [MediaStreamTrack][1].
+///
+/// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
+ final  String? kind;
 /// [localId] is used for looking up the local
 /// [RTCInboundRtpStreamStats][1] object for the same [SSRC].
 ///
@@ -955,16 +1005,16 @@ $RtcStatsType_RtcRemoteOutboundRtpStreamStatsCopyWith<RtcStatsType_RtcRemoteOutb
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RtcStatsType_RtcRemoteOutboundRtpStreamStats&&(identical(other.localId, localId) || other.localId == localId)&&(identical(other.remoteTimestamp, remoteTimestamp) || other.remoteTimestamp == remoteTimestamp)&&(identical(other.reportsSent, reportsSent) || other.reportsSent == reportsSent));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RtcStatsType_RtcRemoteOutboundRtpStreamStats&&(identical(other.ssrc, ssrc) || other.ssrc == ssrc)&&(identical(other.kind, kind) || other.kind == kind)&&(identical(other.localId, localId) || other.localId == localId)&&(identical(other.remoteTimestamp, remoteTimestamp) || other.remoteTimestamp == remoteTimestamp)&&(identical(other.reportsSent, reportsSent) || other.reportsSent == reportsSent));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,localId,remoteTimestamp,reportsSent);
+int get hashCode => Object.hash(runtimeType,ssrc,kind,localId,remoteTimestamp,reportsSent);
 
 @override
 String toString() {
-  return 'RtcStatsType.rtcRemoteOutboundRtpStreamStats(localId: $localId, remoteTimestamp: $remoteTimestamp, reportsSent: $reportsSent)';
+  return 'RtcStatsType.rtcRemoteOutboundRtpStreamStats(ssrc: $ssrc, kind: $kind, localId: $localId, remoteTimestamp: $remoteTimestamp, reportsSent: $reportsSent)';
 }
 
 
@@ -975,7 +1025,7 @@ abstract mixin class $RtcStatsType_RtcRemoteOutboundRtpStreamStatsCopyWith<$Res>
   factory $RtcStatsType_RtcRemoteOutboundRtpStreamStatsCopyWith(RtcStatsType_RtcRemoteOutboundRtpStreamStats value, $Res Function(RtcStatsType_RtcRemoteOutboundRtpStreamStats) _then) = _$RtcStatsType_RtcRemoteOutboundRtpStreamStatsCopyWithImpl;
 @useResult
 $Res call({
- String? localId, double? remoteTimestamp, BigInt? reportsSent
+ int? ssrc, String? kind, String? localId, double? remoteTimestamp, BigInt? reportsSent
 });
 
 
@@ -992,9 +1042,11 @@ class _$RtcStatsType_RtcRemoteOutboundRtpStreamStatsCopyWithImpl<$Res>
 
 /// Create a copy of RtcStatsType
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? localId = freezed,Object? remoteTimestamp = freezed,Object? reportsSent = freezed,}) {
+@pragma('vm:prefer-inline') $Res call({Object? ssrc = freezed,Object? kind = freezed,Object? localId = freezed,Object? remoteTimestamp = freezed,Object? reportsSent = freezed,}) {
   return _then(RtcStatsType_RtcRemoteOutboundRtpStreamStats(
-localId: freezed == localId ? _self.localId : localId // ignore: cast_nullable_to_non_nullable
+ssrc: freezed == ssrc ? _self.ssrc : ssrc // ignore: cast_nullable_to_non_nullable
+as int?,kind: freezed == kind ? _self.kind : kind // ignore: cast_nullable_to_non_nullable
+as String?,localId: freezed == localId ? _self.localId : localId // ignore: cast_nullable_to_non_nullable
 as String?,remoteTimestamp: freezed == remoteTimestamp ? _self.remoteTimestamp : remoteTimestamp // ignore: cast_nullable_to_non_nullable
 as double?,reportsSent: freezed == reportsSent ? _self.reportsSent : reportsSent // ignore: cast_nullable_to_non_nullable
 as BigInt?,

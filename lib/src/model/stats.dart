@@ -646,7 +646,15 @@ abstract class RtcSentRtpStreamStats extends RtcRtpStreamStats {
 /// [spec]: https://w3.org/TR/webrtc-stats#dom-rtcmediasourcestats
 /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
 abstract class RtcMediaSourceStats extends RtcStat {
-  RtcMediaSourceStats({this.trackIdentifier});
+  RtcMediaSourceStats({this.trackIdentifier, this.kind});
+
+  /// The value of the [MediaStreamTrack][1]'s `kind` attribute. This is
+  /// either "audio" or "video". If it is "audio" then this stats object is of
+  /// type [RtcAudioSourceStats]. If it is "video" then this stats object is
+  /// of type [RtcVideoSourceStats].
+  ///
+  /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
+  String? kind;
 
   /// [id` attribute][2] value of the [MediaStreamTrack][1].
   ///
@@ -660,6 +668,7 @@ abstract class RtcMediaSourceStats extends RtcStat {
 class RtcAudioSourceStats extends RtcMediaSourceStats {
   RtcAudioSourceStats({
     super.trackIdentifier,
+    super.kind,
     this.audioLevel,
     this.totalAudioEnergy,
     this.totalSamplesDuration,
@@ -676,6 +685,7 @@ class RtcAudioSourceStats extends RtcMediaSourceStats {
   ) {
     return RtcAudioSourceStats(
       trackIdentifier: trackIdentifier,
+      kind: 'audio',
       audioLevel: stats.audioLevel,
       totalAudioEnergy: stats.totalAudioEnergy,
       totalSamplesDuration: stats.totalSamplesDuration,
@@ -689,6 +699,7 @@ class RtcAudioSourceStats extends RtcMediaSourceStats {
   static RtcAudioSourceStats fromMap(dynamic stats) {
     return RtcAudioSourceStats(
       trackIdentifier: stats['trackIdentifier'],
+      kind: 'audio',
       audioLevel: stats['audioLevel'],
       totalAudioEnergy: stats['totalAudioEnergy'],
       totalSamplesDuration: stats['totalSamplesDuration'],
@@ -765,6 +776,7 @@ class RtcAudioSourceStats extends RtcMediaSourceStats {
 class RtcVideoSourceStats extends RtcMediaSourceStats {
   RtcVideoSourceStats({
     super.trackIdentifier,
+    super.kind,
     this.width,
     this.height,
     this.frames,
@@ -780,6 +792,7 @@ class RtcVideoSourceStats extends RtcMediaSourceStats {
   ) {
     return RtcVideoSourceStats(
       trackIdentifier: trackIdentifier,
+      kind: 'video',
       width: stats.width,
       height: stats.height,
       frames: stats.frames,
@@ -792,6 +805,7 @@ class RtcVideoSourceStats extends RtcMediaSourceStats {
   static RtcVideoSourceStats fromMap(dynamic stats) {
     return RtcVideoSourceStats(
       trackIdentifier: stats['trackIdentifier'],
+      kind: 'video',
       width: parseInt(stats['width']),
       height: parseInt(stats['height']),
       frames: parseInt(stats['frames']),
@@ -1798,6 +1812,8 @@ class RtcOutboundRtpStreamStats extends RtcSentRtpStreamStats {
     };
 
     return RtcOutboundRtpStreamStats(
+      ssrc: stats.ssrc,
+      kind: stats.kind,
       packetsSent: stats.packetsSent,
       bytesSent: stats.bytesSent?.toInt(),
       mediaType: mediaType,
@@ -1882,6 +1898,7 @@ class RtcOutboundRtpStreamStats extends RtcSentRtpStreamStats {
 
     return {
       ...map,
+      'mediaType': ?kind,
       ...switch (mediaType!) {
         RtcOutboundRtpStreamVideo v => v.toJson(),
         RtcOutboundRtpStreamAudio a => a.toJson(),
@@ -2527,6 +2544,8 @@ class RtcInboundRtpStreamStats extends RtcReceivedRtpStreamStats {
     };
 
     return RtcInboundRtpStreamStats(
+      ssrc: stats.ssrc,
+      kind: stats.kind,
       packetsReceived: stats.packetsReceived,
       mediaType: mediaType,
       remoteId: stats.remoteId,
@@ -2621,6 +2640,7 @@ class RtcInboundRtpStreamStats extends RtcReceivedRtpStreamStats {
 
     return {
       ...map,
+      'mediaType': ?kind,
       ...switch (mediaType!) {
         RtcInboundRtpStreamVideo v => v.toJson(),
         RtcInboundRtpStreamAudio a => a.toJson(),
@@ -3566,6 +3586,8 @@ class RtcRemoteInboundRtpStreamStats extends RtcReceivedRtpStreamStats {
     ffi.RtcStatsType_RtcRemoteInboundRtpStreamStats stats,
   ) {
     return RtcRemoteInboundRtpStreamStats(
+      ssrc: stats.ssrc,
+      kind: stats.kind,
       jitter: stats.jitter,
       localId: stats.localId,
       roundTripTime: stats.roundTripTime,
@@ -3712,6 +3734,8 @@ class RtcRemoteOutboundRtpStreamStats extends RtcSentRtpStreamStats {
     ffi.RtcStatsType_RtcRemoteOutboundRtpStreamStats stats,
   ) {
     return RtcRemoteOutboundRtpStreamStats(
+      ssrc: stats.ssrc,
+      kind: stats.kind,
       localId: stats.localId,
       remoteTimestamp: stats.remoteTimestamp,
       reportsSent: stats.reportsSent?.toInt(),

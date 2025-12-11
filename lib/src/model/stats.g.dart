@@ -43,6 +43,7 @@ Map<String, dynamic> _$RtcSentRtpStreamStatsToJson(
 Map<String, dynamic> _$RtcAudioSourceStatsToJson(
   RtcAudioSourceStats instance,
 ) => <String, dynamic>{
+  'kind': ?instance.kind,
   'trackIdentifier': ?instance.trackIdentifier,
   'audioLevel': ?instance.audioLevel,
   'totalAudioEnergy': ?instance.totalAudioEnergy,
@@ -54,6 +55,7 @@ Map<String, dynamic> _$RtcAudioSourceStatsToJson(
 Map<String, dynamic> _$RtcVideoSourceStatsToJson(
   RtcVideoSourceStats instance,
 ) => <String, dynamic>{
+  'kind': ?instance.kind,
   'trackIdentifier': ?instance.trackIdentifier,
   'width': ?instance.width,
   'height': ?instance.height,
