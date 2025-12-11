@@ -278,14 +278,17 @@ pub(crate) mod webrtc {
     /// Wrapper for C++ [`RTCOutboundRTPStreamStats`].
     pub struct RTCOutboundRTPStreamStatsWrap {
         /// The synchronization source (SSRC) identifier is an unsigned
-        /// integer value per [RFC3550] used to identify the stream of RTP
+        /// integer value per [RFC3550] used to identify the stream of [RTP]
         /// packets that this stats object is describing.
         ///
         /// [RFC3550]: https://www.rfc-editor.org/rfc/rfc3550
+        /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
         pub ssrc: Box<OptionU32>,
 
-        /// Either "audio" or "video". This MUST match the kind attribute of
-        /// the related [MediaStreamTrack][1].
+        /// Either `audio` or `video`.
+        ///
+        /// This MUST match the `kind` attribute of the related
+        /// [MediaStreamTrack][1].
         ///
         /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
         pub kind: Box<OptionString>,
@@ -340,14 +343,17 @@ pub(crate) mod webrtc {
     /// Wrapper for C++ [`RTCInboundRTPStreamStats`].
     pub struct RTCInboundRTPStreamStatsWrap {
         /// The synchronization source (SSRC) identifier is an unsigned
-        /// integer value per [RFC3550] used to identify the stream of RTP
+        /// integer value per [RFC3550] used to identify the stream of [RTP]
         /// packets that this stats object is describing.
         ///
         /// [RFC3550]: https://www.rfc-editor.org/rfc/rfc3550
+        /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
         pub ssrc: Box<OptionU32>,
 
-        /// Either "audio" or "video". This MUST match the kind attribute of
-        /// the related [MediaStreamTrack][1].
+        /// Either `audio` or `video`.
+        ///
+        /// This MUST match the `kind` attribute of the related
+        /// [MediaStreamTrack][1].
         ///
         /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
         pub kind: Box<OptionString>,
@@ -573,14 +579,17 @@ pub(crate) mod webrtc {
     /// Wrapper for C++ [`RTCRemoteInboundRtpStreamStats`].
     pub struct RTCRemoteInboundRtpStreamStatsWrap {
         /// The synchronization source (SSRC) identifier is an unsigned
-        /// integer value per [RFC3550] used to identify the stream of RTP
+        /// integer value per [RFC3550] used to identify the stream of [RTP]
         /// packets that this stats object is describing.
         ///
         /// [RFC3550]: https://www.rfc-editor.org/rfc/rfc3550
+        /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
         pub ssrc: Box<OptionU32>,
 
-        /// Either "audio" or "video". This MUST match the kind attribute of
-        /// the related [MediaStreamTrack][1].
+        /// Either `audio` or `video`.
+        ///
+        /// This MUST match the `kind` attribute of the related
+        /// [MediaStreamTrack][1].
         ///
         /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
         pub kind: Box<OptionString>,
@@ -623,14 +632,17 @@ pub(crate) mod webrtc {
     /// Wrapper for C++ [`RTCRemoteOutboundRtpStreamStats`].
     pub struct RTCRemoteOutboundRtpStreamStatsWrap {
         /// The synchronization source (SSRC) identifier is an unsigned
-        /// integer value per [RFC3550] used to identify the stream of RTP
+        /// integer value per [RFC3550] used to identify the stream of [RTP]
         /// packets that this stats object is describing.
         ///
         /// [RFC3550]: https://www.rfc-editor.org/rfc/rfc3550
+        /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
         pub ssrc: Box<OptionU32>,
 
-        /// Either "audio" or "video". This MUST match the kind attribute of
-        /// the related [MediaStreamTrack][1].
+        /// Either `audio` or `video`.
+        ///
+        /// This MUST match the `kind` attribute of the related
+        /// [MediaStreamTrack][1].
         ///
         /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
         pub kind: Box<OptionString>,

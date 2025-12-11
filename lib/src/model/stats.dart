@@ -84,8 +84,8 @@ class RtcStats {
 /// Indicates the type of the object that the [RtcStats] object represents.
 @JsonEnum(fieldRename: FieldRename.kebab)
 enum RtcStatsType {
-  /// Statistics for a codec that is currently used by [RTP stream]s being
-  /// sent or received by [RTCPeerConnection] object.
+  /// Statistics for a codec that is currently used by [RTP stream]s being sent
+  /// or received by [RTCPeerConnection] object.
   ///
   /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
   /// [RTP stream]: https://w3.org/TR/webrtc-stats#dfn-rtp-stream

@@ -3053,14 +3053,17 @@ pub enum RtcStatsType {
     /// [5]: https://w3.org/TR/webrtc-stats#dom-rtcoutboundrtpstreamstats
     RtcOutboundRtpStreamStats {
         /// The synchronization source (SSRC) identifier is an unsigned
-        /// integer value per [RFC3550] used to identify the stream of RTP
+        /// integer value per [RFC3550] used to identify the stream of [RTP]
         /// packets that this stats object is describing.
         ///
         /// [RFC3550]: https://www.rfc-editor.org/rfc/rfc3550
+        /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
         ssrc: Option<u32>,
 
-        /// Either "audio" or "video". This MUST match the kind attribute of
-        /// the related [MediaStreamTrack][1].
+        /// Either `audio` or `video`.
+        ///
+        /// This MUST match the `kind` attribute of the related
+        /// [MediaStreamTrack][1].
         ///
         /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
         kind: Option<String>,
@@ -3095,14 +3098,17 @@ pub enum RtcStatsType {
     /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
     RtcInboundRtpStreamStats {
         /// The synchronization source (SSRC) identifier is an unsigned
-        /// integer value per [RFC3550] used to identify the stream of RTP
+        /// integer value per [RFC3550] used to identify the stream of [RTP]
         /// packets that this stats object is describing.
         ///
         /// [RFC3550]: https://www.rfc-editor.org/rfc/rfc3550
+        /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
         ssrc: Option<u32>,
 
-        /// Either "audio" or "video". This MUST match the kind attribute of
-        /// the related [MediaStreamTrack][1].
+        /// Either `audio` or `video`.
+        ///
+        /// This MUST match the `kind` attribute of the related
+        /// [MediaStreamTrack][1].
         ///
         /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
         kind: Option<String>,
@@ -3252,14 +3258,17 @@ pub enum RtcStatsType {
     /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
     RtcRemoteInboundRtpStreamStats {
         /// The synchronization source (SSRC) identifier is an unsigned
-        /// integer value per [RFC3550] used to identify the stream of RTP
+        /// integer value per [RFC3550] used to identify the stream of [RTP]
         /// packets that this stats object is describing.
         ///
         /// [RFC3550]: https://www.rfc-editor.org/rfc/rfc3550
+        /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
         ssrc: Option<u32>,
 
-        /// Either "audio" or "video". This MUST match the kind attribute of
-        /// the related [MediaStreamTrack][1].
+        /// Either `audio` or `video`.
+        ///
+        /// This MUST match the `kind` attribute of the related
+        /// [MediaStreamTrack][1].
         ///
         /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
         kind: Option<String>,
@@ -3311,14 +3320,17 @@ pub enum RtcStatsType {
     /// [RTCPeerConnection]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
     RtcRemoteOutboundRtpStreamStats {
         /// The synchronization source (SSRC) identifier is an unsigned
-        /// integer value per [RFC3550] used to identify the stream of RTP
+        /// integer value per [RFC3550] used to identify the stream of [RTP]
         /// packets that this stats object is describing.
         ///
         /// [RFC3550]: https://www.rfc-editor.org/rfc/rfc3550
+        /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
         ssrc: Option<u32>,
 
-        /// Either "audio" or "video". This MUST match the kind attribute of
-        /// the related [MediaStreamTrack][1].
+        /// Either `audio` or `video`.
+        ///
+        /// This MUST match the `kind` attribute of the related
+        /// [MediaStreamTrack][1].
         ///
         /// [1]: https://w3.org/TR/mediacapture-streams#mediastreamtrack
         kind: Option<String>,
