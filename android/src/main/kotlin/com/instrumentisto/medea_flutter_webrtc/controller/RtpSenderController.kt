@@ -64,7 +64,8 @@ class RtpSenderController(messenger: BinaryMessenger, private val sender: RtpSen
             result.error(
                 "SenderException",
                 "Could not set parameters: failed to find encoding with rid = $rid",
-                null)
+                null,
+            )
             return
           }
 

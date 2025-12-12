@@ -16,7 +16,6 @@ enum class MediaType(val value: Int) {
      * Tries to create a [MediaType] based on the provided [Int].
      *
      * @param value [Int] value from which [MediaType] will be created.
-     *
      * @return [MediaType] based on the provided [Int].
      */
     fun fromInt(value: Int) = values().first { it.value == value }

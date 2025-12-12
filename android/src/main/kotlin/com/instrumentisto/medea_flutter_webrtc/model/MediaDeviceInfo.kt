@@ -82,7 +82,8 @@ enum class AudioDeviceKind(val value: Int) {
         AudioDeviceInfo.TYPE_BLE_SPEAKER -> {
           BLUETOOTH_HEADPHONES
         }
-        AudioDeviceInfo.TYPE_BLE_HEADSET, AudioDeviceInfo.TYPE_BLUETOOTH_SCO -> {
+        AudioDeviceInfo.TYPE_BLE_HEADSET,
+        AudioDeviceInfo.TYPE_BLUETOOTH_SCO -> {
           BLUETOOTH_HEADSET
         }
         else -> {
@@ -92,7 +93,8 @@ enum class AudioDeviceKind(val value: Int) {
                   "type = ${device.type}, " +
                   "name = ${device.productName}," +
                   "source = ${device.isSource}," +
-                  "sink = ${device.isSink}")
+                  "sink = ${device.isSink}",
+          )
           null
         }
       }
@@ -114,7 +116,7 @@ data class MediaDeviceInfo(
     val label: String,
     val kind: MediaDeviceKind,
     val audioKind: AudioDeviceKind?,
-    val isFailed: Boolean
+    val isFailed: Boolean,
 ) {
   /** Converts this [MediaDeviceInfo] into a [Map] which can be returned to the Flutter side. */
   fun asFlutterResult(): Map<String, Any> = buildMap {

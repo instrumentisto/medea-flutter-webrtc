@@ -109,7 +109,6 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
      * [SdpObserver.onCreateSuccess] or [SdpObserver.onCreateFailure] .
      *
      * @param continuation [Continuation] which will be resumed.
-     *
      * @return Newly created [SdpObserver].
      */
     private fun createSdpObserver(continuation: Continuation<SessionDescription>): SdpObserver {
@@ -141,7 +140,6 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
      * [SdpObserver.onSetSuccess] or [SdpObserver.onSetFailure].
      *
      * @param continuation [Continuation] which will be resumed.
-     *
      * @return Newly created [SdpObserver].
      */
     private fun setSdpObserver(continuation: Continuation<Unit>): SdpObserver {
@@ -370,7 +368,8 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
                     }
                     it.resumeWithException(AddIceCandidateException(message))
                   }
-                })
+                },
+            )
           } else {
             candidatesBuffer.add(candidate)
             it.resume(Unit)
@@ -383,10 +382,12 @@ class PeerConnectionProxy(val id: Int, peer: PeerConnection) : Proxy<PeerConnect
    * [IllegalStateException] if the underlying [PeerConnection] has been disposed.
    *
    * @param mediaType Initial [MediaType] of the newly created
+   *
    * ```
    *                   [RtpTransceiverProxy].
    * @param init
    * ```
+   *
    * Configuration of the newly created [RtpTransceiverProxy].
    *
    * @return Newly created [RtpTransceiverProxy].

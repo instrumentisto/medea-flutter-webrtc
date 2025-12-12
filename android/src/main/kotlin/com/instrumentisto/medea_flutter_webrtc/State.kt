@@ -33,11 +33,15 @@ class State(val context: Context) {
     PeerConnectionFactory.initialize(
         PeerConnectionFactory.InitializationOptions.builder(context)
             .setEnableInternalTracer(BuildConfig.DEBUG)
-            .createInitializationOptions())
+            .createInitializationOptions()
+    )
 
     encoder =
         WebrtcVideoEncoderFactory(
-            EglUtils.rootEglBaseContext, enableIntelVp8Encoder = true, enableH264HighProfile = true)
+            EglUtils.rootEglBaseContext,
+            enableIntelVp8Encoder = true,
+            enableH264HighProfile = true,
+        )
     decoder = WebrtcVideoDecoderFactory(EglUtils.rootEglBaseContext)
   }
 

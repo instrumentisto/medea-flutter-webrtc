@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
  */
 class PeerConnectionController(
     private val messenger: BinaryMessenger,
-    private val peer: PeerConnectionProxy
+    private val peer: PeerConnectionProxy,
 ) : EventChannel.StreamHandler, Controller {
   /** [CoroutineScope] for this [PeerConnectionController] */
   private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
@@ -52,32 +52,39 @@ class PeerConnectionController(
                   "event" to "onTrack",
                   "track" to MediaStreamTrackController(messenger, track).asFlutterResult(),
                   "transceiver" to
-                      RtpTransceiverController(messenger, transceiver).asFlutterResult()))
+                      RtpTransceiverController(messenger, transceiver).asFlutterResult(),
+              )
+          )
         }
 
         override fun onIceConnectionStateChange(iceConnectionState: IceConnectionState) {
           eventSink?.success(
-              mapOf("event" to "onIceConnectionStateChange", "state" to iceConnectionState.value))
+              mapOf("event" to "onIceConnectionStateChange", "state" to iceConnectionState.value)
+          )
         }
 
         override fun onSignalingStateChange(signalingState: SignalingState) {
           eventSink?.success(
-              mapOf("event" to "onSignalingStateChange", "state" to signalingState.value))
+              mapOf("event" to "onSignalingStateChange", "state" to signalingState.value)
+          )
         }
 
         override fun onConnectionStateChange(peerConnectionState: PeerConnectionState) {
           eventSink?.success(
-              mapOf("event" to "onConnectionStateChange", "state" to peerConnectionState.value))
+              mapOf("event" to "onConnectionStateChange", "state" to peerConnectionState.value)
+          )
         }
 
         override fun onIceGatheringStateChange(iceGatheringState: IceGatheringState) {
           eventSink?.success(
-              mapOf("event" to "onIceGatheringStateChange", "state" to iceGatheringState.value))
+              mapOf("event" to "onIceGatheringStateChange", "state" to iceGatheringState.value)
+          )
         }
 
         override fun onIceCandidate(candidate: IceCandidate) {
           eventSink?.success(
-              mapOf("event" to "onIceCandidate", "candidate" to candidate.asFlutterResult()))
+              mapOf("event" to "onIceCandidate", "candidate" to candidate.asFlutterResult())
+          )
         }
 
         override fun onNegotiationNeeded() {
@@ -170,9 +177,8 @@ class PeerConnectionController(
       }
       "getTransceivers" -> {
         result.success(
-            peer.getTransceivers().map {
-              RtpTransceiverController(messenger, it).asFlutterResult()
-            })
+            peer.getTransceivers().map { RtpTransceiverController(messenger, it).asFlutterResult() }
+        )
       }
       "restartIce" -> {
         peer.restartIce()

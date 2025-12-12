@@ -32,7 +32,8 @@ data class Encoding(
           map["maxBitrate"] as Int?,
           (map["maxFramerate"] as Int?)?.toDouble(),
           map["scaleResolutionDownBy"] as Double?,
-          map["scalabilityMode"] as String?)
+          map["scalabilityMode"] as String?,
+      )
     }
   }
 

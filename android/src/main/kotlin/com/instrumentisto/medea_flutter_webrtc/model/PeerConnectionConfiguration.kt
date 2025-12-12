@@ -31,7 +31,6 @@ enum class IceTransportType(val value: Int) {
      * Tries to create an [IceTransportType] based on the provided [Int].
      *
      * @param value [Int] value from which [IceTransportType] will be created.
-     *
      * @return [IceTransportType] based on the provided [Int].
      */
     fun fromInt(value: Int) = values().first { it.value == value }
@@ -81,13 +80,13 @@ data class IceServer(val urls: List<String>, val username: String?, val password
  * Representation of a [PeerConnection.RTCConfiguration].
  *
  * @property iceServers List of [IceServer]s, used by the [PeerConnection] created with this
- * [PeerConnectionConfiguration].
+ *   [PeerConnectionConfiguration].
  * @property iceTransportType Type of the ICE transport, used by the [PeerConnection] created with
- * this [PeerConnectionConfiguration].
+ *   this [PeerConnectionConfiguration].
  */
 data class PeerConnectionConfiguration(
     val iceServers: List<IceServer>,
-    val iceTransportType: IceTransportType
+    val iceTransportType: IceTransportType,
 ) {
   /**
    * Converts this [PeerConnectionConfiguration] into a [PeerConnection.RTCConfiguration].

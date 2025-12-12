@@ -51,7 +51,7 @@ private val videoTracks: HashMap<VideoConstraints, MediaStreamTrackProxy> = Hash
  * Processor for `getUserMedia` requests.
  *
  * @property state Global state used for enumerating devices and creation new
- * [MediaStreamTrackProxy]s.
+ *   [MediaStreamTrackProxy]s.
  */
 class MediaDevices(val state: State, val permissions: Permissions) {
   /**
@@ -80,7 +80,6 @@ class MediaDevices(val state: State, val permissions: Permissions) {
      * Creates a new [CameraEnumerator] instance based on the supported Camera API version.
      *
      * @param context Android context which needed for the [CameraEnumerator] creation.
-     *
      * @return [CameraEnumerator] based on the available Camera API version.
      */
     private fun getCameraEnumerator(context: Context): CameraEnumerator {
@@ -94,7 +93,6 @@ class MediaDevices(val state: State, val permissions: Permissions) {
 
   /**
    * Prepares for an ongoing VoIP session.
-   *
    * - Sets [AudioManager.mode] to [AudioManager.MODE_IN_COMMUNICATION].
    * - Requests audio focus.
    * - Starts a foreground service to keep audio/video capturing alive.
@@ -111,7 +109,6 @@ class MediaDevices(val state: State, val permissions: Permissions) {
 
   /**
    * Tears down VoIP-related audio state after a call ends.
-   *
    * - Abandons audio focus previously acquired by [startVoIP].
    * - Resets [AudioManager.mode] back to [AudioManager.MODE_NORMAL].
    * - Stops the foreground service started by [startVoIP].
@@ -126,7 +123,6 @@ class MediaDevices(val state: State, val permissions: Permissions) {
    * Creates local audio and video [MediaStreamTrackProxy]s based on the provided [Constraints].
    *
    * @param constraints Parameters based on which [MediaDevices] will select most suitable device.
-   *
    * @return List of [MediaStreamTrackProxy]s most suitable based on the provided [Constraints].
    */
   suspend fun getUserMedia(constraints: Constraints): List<MediaStreamTrackProxy> {
@@ -179,7 +175,7 @@ class MediaDevices(val state: State, val permissions: Permissions) {
 
   /**
    * @return Broadcast [OnDeviceChangeObs] sending events to all the [OnDeviceChangeObs]s of these
-   * [MediaDevices].
+   *   [MediaDevices].
    */
   private fun eventBroadcaster(): OnDeviceChangeObs {
     return object : OnDeviceChangeObs {
@@ -192,8 +188,7 @@ class MediaDevices(val state: State, val permissions: Permissions) {
 
   /** @return List of [MediaDeviceInfo]s for the currently available video devices. */
   private fun enumerateVideoDevices(): List<MediaDeviceInfo> {
-    return cameraEnumerator
-        .deviceNames
+    return cameraEnumerator.deviceNames
         .map { deviceId ->
           MediaDeviceInfo(deviceId, deviceId, MediaDeviceKind.VIDEO_INPUT, null, false)
         }
@@ -204,9 +199,8 @@ class MediaDevices(val state: State, val permissions: Permissions) {
    * Lookups ID of the video device most suitable basing on the provided [VideoConstraints].
    *
    * @param constraints [VideoConstraints] based on which lookup will be performed.
-   *
    * @return `null` if all devices are not suitable for the provided [VideoConstraints], or most
-   * suitable device ID for the provided [VideoConstraints].
+   *   suitable device ID for the provided [VideoConstraints].
    */
   private fun findDeviceMatchingConstraints(constraints: VideoConstraints): String? {
     val scoreTable = TreeMap<Int, String>()
@@ -224,7 +218,6 @@ class MediaDevices(val state: State, val permissions: Permissions) {
    * Creates a video [MediaStreamTrackProxy] for the provided [VideoConstraints].
    *
    * @param constraints [VideoConstraints] to perform the lookup with.
-   *
    * @return Most suitable [MediaStreamTrackProxy] for the provided [VideoConstraints].
    */
   private suspend fun getUserVideoTrack(constraints: VideoConstraints): MediaStreamTrackProxy {
@@ -232,7 +225,9 @@ class MediaDevices(val state: State, val permissions: Permissions) {
       permissions.requestPermission(Manifest.permission.CAMERA)
     } catch (e: PermissionException) {
       throw GetUserMediaException(
-          "Camera permission was not granted", GetUserMediaException.Kind.Video)
+          "Camera permission was not granted",
+          GetUserMediaException.Kind.Video,
+      )
     }
     val cachedTrack = videoTracks[constraints]
     if (cachedTrack != null) {
@@ -268,7 +263,8 @@ class MediaDevices(val state: State, val permissions: Permissions) {
             surfaceTextureRenderer,
             state.getPeerConnectionFactory(),
             facingMode,
-            deviceId)
+            deviceId,
+        )
 
     val track = videoTrackSource.newTrack()
     track.onStop { videoTracks.remove(constraints, track) }
@@ -281,7 +277,6 @@ class MediaDevices(val state: State, val permissions: Permissions) {
    * Creates an audio [MediaStreamTrackProxy] basing on the provided [AudioConstraints].
    *
    * @param constraints [AudioConstraints] to perform the lookup with.
-   *
    * @return Most suitable [MediaStreamTrackProxy] for the provided [AudioConstraints].
    */
   private suspend fun getUserAudioTrack(constraints: AudioConstraints): MediaStreamTrackProxy {
@@ -289,7 +284,9 @@ class MediaDevices(val state: State, val permissions: Permissions) {
       permissions.requestPermission(Manifest.permission.RECORD_AUDIO)
     } catch (e: PermissionException) {
       throw GetUserMediaException(
-          "Microphone permissions was not granted", GetUserMediaException.Kind.Audio)
+          "Microphone permissions was not granted",
+          GetUserMediaException.Kind.Audio,
+      )
     }
     val source = state.getPeerConnectionFactory().createAudioSource(constraints.intoWebRtc())
     val audioTrackSource = AudioMediaTrackSource(source, state.getPeerConnectionFactory())

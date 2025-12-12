@@ -19,7 +19,8 @@ interface Controller : MethodChannel.MethodCallHandler {
             RtpTransceiverController::class,
             PeerConnectionFactoryController::class,
             PeerConnectionController::class,
-            MediaDevicesController::class)
+            MediaDevicesController::class,
+        )
   }
 
   /** Returns the dispose order for this [Controller]. */

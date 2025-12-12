@@ -18,7 +18,10 @@ data class IceCandidate(val sdpMid: String, val sdpMLineIndex: Int, val sdp: Str
      */
     fun fromMap(map: Map<String, Any>): IceCandidate {
       return IceCandidate(
-          map["sdpMid"] as String, map["sdpMLineIndex"] as Int, map["candidate"] as String)
+          map["sdpMid"] as String,
+          map["sdpMLineIndex"] as Int,
+          map["candidate"] as String,
+      )
     }
 
     /**

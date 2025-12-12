@@ -16,7 +16,7 @@ import io.flutter.plugin.common.MethodChannel
  */
 class RtpTransceiverController(
     private val messenger: BinaryMessenger,
-    private val transceiver: RtpTransceiverProxy
+    private val transceiver: RtpTransceiverProxy,
 ) : Controller {
   /** Unique ID of the [MethodChannel] of this controller. */
   private val channelId = nextChannelId()
@@ -48,7 +48,8 @@ class RtpTransceiverController(
                   it["clockRate"] as Int,
                   it["numChannels"] as Int?,
                   it["parameters"] as Map<String, String>,
-                  it["mimeType"] as String)
+                  it["mimeType"] as String,
+              )
             }
         transceiver.setCodecPreferences(codecs)
         result.success(null)
@@ -103,6 +104,7 @@ class RtpTransceiverController(
     return mapOf(
         "channelId" to channelId,
         "sender" to RtpSenderController(messenger, transceiver.sender).asFlutterResult(),
-        "mid" to transceiver.mid as Any?)
+        "mid" to transceiver.mid as Any?,
+    )
   }
 }

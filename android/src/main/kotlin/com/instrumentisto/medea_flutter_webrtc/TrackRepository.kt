@@ -26,9 +26,8 @@ object TrackRepository {
    * Lookups [MediaStreamTrackProxy] with the provided unique ID.
    *
    * @param id Unique [MediaStreamTrackProxy] to perform the lookup via.
-   *
    * @return Found [MediaStreamTrackProxy] with the provided ID, or `null` if the
-   * [MediaStreamTrackProxy] isn't found or was disposed.
+   *   [MediaStreamTrackProxy] isn't found or was disposed.
    */
   fun getTrack(id: String): MediaStreamTrackProxy? {
     return tracks[id]?.get()

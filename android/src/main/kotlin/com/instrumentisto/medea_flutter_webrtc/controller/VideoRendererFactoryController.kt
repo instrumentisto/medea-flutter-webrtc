@@ -14,7 +14,7 @@ import io.flutter.view.TextureRegistry
  */
 class VideoRendererFactoryController(
     private val messenger: BinaryMessenger,
-    private val textureRegistry: TextureRegistry
+    private val textureRegistry: TextureRegistry,
 ) : Controller {
   /** Channel listened for the [MethodCall]s. */
   private val chan = MethodChannel(messenger, ChannelNameGenerator.name("VideoRendererFactory", 0))
@@ -27,7 +27,7 @@ class VideoRendererFactoryController(
   override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
     when (call.method) {
       "create" -> {
-        val renderer = FlutterRtcVideoRenderer(textureRegistry)
+        val renderer = FlutterRtcVideoRenderer(textureRegistry.createSurfaceProducer())
         result.success(VideoRendererController(messenger, renderer).asFlutterResult())
       }
       else -> result.notImplemented()

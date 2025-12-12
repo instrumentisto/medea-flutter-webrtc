@@ -21,7 +21,7 @@ import org.webrtc.MediaStreamTrack
  */
 class MediaStreamTrackController(
     private val messenger: BinaryMessenger,
-    val track: MediaStreamTrackProxy
+    val track: MediaStreamTrackProxy,
 ) : EventChannel.StreamHandler, Controller {
   /** [CoroutineScope] for this [MediaStreamTrackController] */
   private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
@@ -119,7 +119,8 @@ class MediaStreamTrackController(
               Pair("id", track.id),
               Pair("kind", track.kind.value),
               Pair("deviceId", track.deviceId),
-              Pair("facingMode", track.facingMode?.value))
+              Pair("facingMode", track.facingMode?.value),
+          )
           .mapNotNull { p -> p.second?.let { Pair(p.first, it) } }
           .toMap()
 

@@ -7,7 +7,6 @@ import org.webrtc.VideoTrack as WVideoTrack
  * Wrapper around a [MediaStreamTrackProxy] with a video kind.
  *
  * @property track Underlying [MediaStreamTrackProxy] with a video kind.
- *
  * @throws Exception If the provided [MediaStreamTrackProxy] isn't a video.
  */
 class VideoTrackProxy(private val track: MediaStreamTrackProxy) {

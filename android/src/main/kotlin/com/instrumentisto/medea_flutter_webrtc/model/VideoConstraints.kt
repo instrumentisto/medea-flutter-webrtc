@@ -25,7 +25,6 @@ enum class FacingMode(val value: Int) {
      * Tries to create a [FacingMode] based on the provided [Int].
      *
      * @param value [Int] value to create the [FacingMode] from.
-     *
      * @return [FacingMode] based on the provided [Int].
      */
     fun fromInt(value: Int) = values().first { it.value == value }
@@ -57,7 +56,6 @@ enum class ConstraintScore {
      * Calculates the total score based on which media devices will be sorted.
      *
      * @param scores List of [ConstraintScore]s of some device.
-     *
      * @return Total score calculated based on the provided list.
      */
     fun totalScore(scores: List<ConstraintScore>): Int? {
@@ -86,7 +84,6 @@ interface ConstraintChecker {
    *
    * @param enumerator Object for interaction with Camera API.
    * @param deviceId ID of the device which should be checked for this constraint.
-   *
    * @return [ConstraintScore] based on the underlying scoring algorithm.
    */
   fun score(enumerator: CameraEnumerator, deviceId: String): ConstraintScore {
@@ -109,7 +106,6 @@ interface ConstraintChecker {
    *
    * @param enumerator Object for an interaction with Camera API.
    * @param deviceId ID of device which suitability should be checked.
-   *
    * @return `true` if device is suitable, or `false` otherwise.
    */
   fun isFits(enumerator: CameraEnumerator, deviceId: String): Boolean
@@ -207,7 +203,8 @@ data class VideoConstraints(
               }
               "facingMode" -> {
                 constraintCheckers.add(
-                    FacingModeConstraint(FacingMode.fromInt(value as Int), false))
+                    FacingModeConstraint(FacingMode.fromInt(value as Int), false)
+                )
               }
               "width" -> {
                 width = value as Int

@@ -12,7 +12,6 @@ object ChannelNameGenerator {
    *
    * @param name Name of the controller to generate the channel name for (e.g. `PeerConnection`).
    * @param id Unique identifier of some concrete instance of some entity.
-   *
    * @return Generated channel name.
    */
   fun name(name: String, id: Long): String {

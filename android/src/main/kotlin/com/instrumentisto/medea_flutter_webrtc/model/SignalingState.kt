@@ -41,7 +41,7 @@ enum class SignalingState(val value: Int) {
      * Converts the provided [org.webrtc.PeerConnection.SignalingState] into a [SignalingState].
      *
      * @return [SignalingState] created based on the provided
-     * [org.webrtc.PeerConnection.SignalingState].
+     *   [org.webrtc.PeerConnection.SignalingState].
      */
     fun fromWebRtc(from: WSignalingState): SignalingState {
       return when (from) {

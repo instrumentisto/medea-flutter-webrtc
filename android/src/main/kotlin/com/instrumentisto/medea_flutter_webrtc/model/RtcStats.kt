@@ -12,7 +12,7 @@ data class RtcStats(
     val type: String,
     val id: String,
     val timestampUs: Long,
-    val kind: Map<String, Any>
+    val kind: Map<String, Any>,
 ) {
   companion object {
     /**

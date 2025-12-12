@@ -18,13 +18,13 @@ private val TAG = MediaStreamTrackProxy::class.java.simpleName
  * @param track Underlying [MediaStreamTrack].
  * @property deviceId Unique ID of device on which this [MediaStreamTrackProxy] is based.
  * @property source [MediaTrackSource] from which this [MediaStreamTrackProxy] is created. `null`
- * for [MediaStreamTrackProxy]s received from the remote side.
+ *   for [MediaStreamTrackProxy]s received from the remote side.
  */
 class MediaStreamTrackProxy(
     track: MediaStreamTrack,
     val facingMode: FacingMode? = null,
     val deviceId: String = "remote",
-    private val source: MediaTrackSource? = null
+    private val source: MediaTrackSource? = null,
 ) : Proxy<MediaStreamTrack>(track) {
   /**
    * Subscribers for the [onStop] callback.
@@ -166,9 +166,8 @@ class MediaStreamTrackProxy(
    *
    * Can be called only on local [MediaStreamTrackProxy]s.
    *
-   * @throws Exception If called on a remote [MediaStreamTrackProxy].
-   *
    * @return Created [MediaStreamTrackProxy].
+   * @throws Exception If called on a remote [MediaStreamTrackProxy].
    */
   fun fork(): MediaStreamTrackProxy {
     if (this.source == null) {
