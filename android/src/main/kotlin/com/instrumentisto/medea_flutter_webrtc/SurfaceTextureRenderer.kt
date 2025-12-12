@@ -184,7 +184,7 @@ class SurfaceTextureRenderer(name: String, private val producer: SurfaceProducer
    * Returns the current [Surface] to render into, creating or re-creating the EGL surface if
    * needed.
    *
-   * Must be called with [lock] held.
+   * Must be called with the [lock] held.
    */
   private fun getOrCreateSurface(): Surface? {
     val producedSurface = producer.surface
