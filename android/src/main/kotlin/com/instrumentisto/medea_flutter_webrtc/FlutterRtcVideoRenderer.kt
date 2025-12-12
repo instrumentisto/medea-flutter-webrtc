@@ -13,16 +13,9 @@ import org.webrtc.RendererCommon
  *
  * @param textureRegistry Registry to create a new [TextureRegistry.SurfaceTextureEntry] with.
  */
-class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
-  /** Texture entry on which the video will be rendered. */
-  private val surfaceTextureEntry: TextureRegistry.SurfaceTextureEntry =
-      textureRegistry.createSurfaceTexture()
-
-  /** Texture on which the video will be rendered. */
-  private val texture: SurfaceTexture = surfaceTextureEntry.surfaceTexture()
-
+class FlutterRtcVideoRenderer(val producer: TextureRegistry.SurfaceProducer) {
   /** Unique ID of the underlying texture. */
-  private val id: Long = surfaceTextureEntry.id()
+  private val id: Long = producer.id()
 
   /** Listener for the [renderer] events. */
   private var rendererEventsListener: RendererCommon.RendererEvents = rendererEventsListener()
@@ -32,7 +25,7 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
 
   /** Helper for rendering video on the surface. */
   private val renderer: SurfaceTextureRenderer =
-      SurfaceTextureRenderer("flutter-video-renderer-$id")
+      SurfaceTextureRenderer("flutter-video-renderer-$id", producer)
 
   /** [VideoTrackProxy] from which [FlutterRtcVideoRenderer] obtains video and renders it. */
   private var track: VideoTrackProxy? = null
@@ -61,12 +54,11 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
 
   init {
     renderer.init(EglUtils.rootEglBaseContext, rendererEventsListener)
-    renderer.surfaceCreated(texture)
   }
 
   /** @return Unique ID of the underlying texture. */
   fun textureId(): Long {
-    return surfaceTextureEntry.id()
+    return producer.id()
   }
 
   /**
@@ -92,7 +84,6 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
         renderer.release()
         rendererEventsListener = rendererEventsListener()
         renderer.init(sharedContext, rendererEventsListener)
-        renderer.surfaceCreated(texture)
       }
 
       newTrack.addSink(renderer)
@@ -110,8 +101,7 @@ class FlutterRtcVideoRenderer(textureRegistry: TextureRegistry) {
     eventListener = null
     track?.removeSink(renderer)
     renderer.release()
-    surfaceTextureEntry.release()
-    texture.release()
+    producer.release()
     renderer.surfaceDestroyed()
   }
 

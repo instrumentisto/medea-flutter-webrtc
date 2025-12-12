@@ -1,24 +1,50 @@
 package com.instrumentisto.medea_flutter_webrtc
 
-import android.graphics.SurfaceTexture
+import android.util.Log
+import android.view.Surface
+import io.flutter.view.TextureRegistry.SurfaceProducer
 import java.util.concurrent.CountDownLatch
-import org.webrtc.*
+import org.webrtc.EglBase
+import org.webrtc.EglRenderer
+import org.webrtc.GlRectDrawer
 import org.webrtc.RendererCommon.GlDrawer
 import org.webrtc.RendererCommon.RendererEvents
+import org.webrtc.ThreadUtils
+import org.webrtc.VideoFrame
+
+private val TAG = SurfaceTextureRenderer::class.java.simpleName
 
 /** Displays the video stream on a `Surface`. */
-class SurfaceTextureRenderer(name: String) : EglRenderer(name) {
+class SurfaceTextureRenderer(name: String, private val producer: SurfaceProducer) :
+    EglRenderer(name) {
   // Callback for reporting renderer events. Read-only after initialization,
   // so no lock is required.
   private var rendererEvents: RendererEvents? = null
-  private val layoutLock = Any()
+  private val lock = Any()
 
   @Volatile private var isRenderingPaused = false
   private var isFirstFrameRendered = false
   private var rotatedFrameWidth = 0
   private var rotatedFrameHeight = 0
   private var frameRotation = 0
-  private var texture: SurfaceTexture? = null
+  private var surfaceCache: Surface? = null
+
+  init {
+    ThreadUtils.checkIsOnMainThread()
+    val id = producer.id()
+    producer.setCallback(
+        object : SurfaceProducer.Callback {
+          override fun onSurfaceAvailable() {
+            Log.d(TAG, "onSurfaceAvailable for textureId $id")
+            // New surface will be used when the next frame arrives.
+          }
+
+          override fun onSurfaceCleanup() {
+            Log.d(TAG, "onSurfaceCleanup for textureId $id")
+            surfaceDestroyed()
+          }
+        })
+  }
 
   /**
    * Initialize this class, sharing resources with |sharedContext|. The custom |drawer| will be used
@@ -35,7 +61,7 @@ class SurfaceTextureRenderer(name: String) : EglRenderer(name) {
   ) {
     ThreadUtils.checkIsOnMainThread()
     this.rendererEvents = rendererEvents
-    synchronized(layoutLock) {
+    synchronized(lock) {
       isFirstFrameRendered = false
       rotatedFrameWidth = 0
       rotatedFrameHeight = 0
@@ -70,15 +96,9 @@ class SurfaceTextureRenderer(name: String) : EglRenderer(name) {
   }
 
   override fun onFrame(frame: VideoFrame) {
-    synchronized(layoutLock) {
+    synchronized(lock) {
       if (isRenderingPaused) {
         return
-      }
-      if (!isFirstFrameRendered) {
-        isFirstFrameRendered = true
-        if (rendererEvents != null) {
-          rendererEvents!!.onFirstFrameRendered()
-        }
       }
       if (rotatedFrameWidth != frame.rotatedWidth ||
           rotatedFrameHeight != frame.rotatedHeight ||
@@ -89,23 +109,47 @@ class SurfaceTextureRenderer(name: String) : EglRenderer(name) {
         }
         rotatedFrameWidth = frame.rotatedWidth
         rotatedFrameHeight = frame.rotatedHeight
-        texture!!.setDefaultBufferSize(rotatedFrameWidth, rotatedFrameHeight)
+        producer.setSize(rotatedFrameWidth, rotatedFrameHeight)
         frameRotation = frame.rotation
+      }
+      if (getOrCreateSurface() == null) {
+        return
+      }
+      if (!isFirstFrameRendered) {
+        isFirstFrameRendered = true
+        if (rendererEvents != null) {
+          rendererEvents!!.onFirstFrameRendered()
+        }
       }
     }
     super.onFrame(frame)
   }
 
-  fun surfaceCreated(texture: SurfaceTexture) {
-    ThreadUtils.checkIsOnMainThread()
-    this.texture = texture
-    createEglSurface(texture)
+  private fun getOrCreateSurface(): Surface? {
+    val producedSurface = producer.surface
+    if (producedSurface == null) {
+      if (surfaceCache != null) {
+        // destroy current surface and return null
+        surfaceDestroyed()
+      }
+    } else {
+      if (surfaceCache != producedSurface) {
+        // destroy cached surface and initialize provided one
+        surfaceDestroyed()
+        surfaceCache = producedSurface
+        createEglSurface(surfaceCache)
+      }
+    }
+
+    return surfaceCache
   }
 
   fun surfaceDestroyed() {
-    ThreadUtils.checkIsOnMainThread()
-    val completionLatch = CountDownLatch(1)
-    releaseEglSurface { completionLatch.countDown() }
-    ThreadUtils.awaitUninterruptibly(completionLatch)
+    synchronized(lock) {
+      val completionLatch = CountDownLatch(1)
+      releaseEglSurface { completionLatch.countDown() }
+      ThreadUtils.awaitUninterruptibly(completionLatch)
+      surfaceCache = null
+    }
   }
 }

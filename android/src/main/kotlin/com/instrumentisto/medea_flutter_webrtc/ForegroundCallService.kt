@@ -107,9 +107,9 @@ class ForegroundCallService : Service() {
      *
      * However, it can still be disabled via [Config.enabled] option.
      *
-     * This exists because the [ForegroundCallService.start] methid might be called before it's
+     * This exists because the [ForegroundCallService.start] method might be called before it's
      * allowed by the [Config]. In this case this [ForegroundCallService] will be started in the
-     * [ForegroundCallService.setup] menthod once the [Config] update is handled.
+     * [ForegroundCallService.setup] method once the [Config] update is handled.
      */
     private var shouldBeRunning: Boolean = false
 
@@ -164,7 +164,7 @@ class ForegroundCallService : Service() {
 
       shouldBeRunning = true
 
-      if (currentConfig == null || currentConfig!!.enabled == false) {
+      if (currentConfig == null || !currentConfig!!.enabled) {
         return
       }
 

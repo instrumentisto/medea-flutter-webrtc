@@ -27,7 +27,7 @@ class VideoRendererFactoryController(
   override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
     when (call.method) {
       "create" -> {
-        val renderer = FlutterRtcVideoRenderer(textureRegistry)
+        val renderer = FlutterRtcVideoRenderer(textureRegistry.createSurfaceProducer())
         result.success(VideoRendererController(messenger, renderer).asFlutterResult())
       }
       else -> result.notImplemented()
