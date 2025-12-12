@@ -2160,6 +2160,8 @@ impl SseDecode for crate::api::stats::RtcStatsType {
                 );
             }
             2 => {
+                let mut var_ssrc = <Option<u32>>::sse_decode(deserializer);
+                let mut var_kind = <Option<String>>::sse_decode(deserializer);
                 let mut var_trackId =
                     <Option<String>>::sse_decode(deserializer);
                 let mut var_mediaType = <crate::api::stats::rtc_outbound_rtp_stream_media_type::RtcOutboundRtpStreamStatsMediaType>::sse_decode(deserializer);
@@ -2168,9 +2170,11 @@ impl SseDecode for crate::api::stats::RtcStatsType {
                     <Option<u32>>::sse_decode(deserializer);
                 let mut var_mediaSourceId =
                     <Option<String>>::sse_decode(deserializer);
-                return crate::api::stats::RtcStatsType::RtcOutboundRtpStreamStats{track_id: var_trackId, media_type: var_mediaType, bytes_sent: var_bytesSent, packets_sent: var_packetsSent, media_source_id: var_mediaSourceId};
+                return crate::api::stats::RtcStatsType::RtcOutboundRtpStreamStats{ssrc: var_ssrc, kind: var_kind, track_id: var_trackId, media_type: var_mediaType, bytes_sent: var_bytesSent, packets_sent: var_packetsSent, media_source_id: var_mediaSourceId};
             }
             3 => {
+                let mut var_ssrc = <Option<u32>>::sse_decode(deserializer);
+                let mut var_kind = <Option<String>>::sse_decode(deserializer);
                 let mut var_remoteId =
                     <Option<String>>::sse_decode(deserializer);
                 let mut var_bytesReceived =
@@ -2185,7 +2189,7 @@ impl SseDecode for crate::api::stats::RtcStatsType {
                 let mut var_jitterBufferEmittedCount =
                     <Option<u64>>::sse_decode(deserializer);
                 let mut var_mediaType = <Option<crate::api::stats::rtc_inbound_rtp_stream_media_type::RtcInboundRtpStreamMediaType>>::sse_decode(deserializer);
-                return crate::api::stats::RtcStatsType::RtcInboundRtpStreamStats{remote_id: var_remoteId, bytes_received: var_bytesReceived, packets_received: var_packetsReceived, packets_lost: var_packetsLost, jitter: var_jitter, total_decode_time: var_totalDecodeTime, jitter_buffer_emitted_count: var_jitterBufferEmittedCount, media_type: var_mediaType};
+                return crate::api::stats::RtcStatsType::RtcInboundRtpStreamStats{ssrc: var_ssrc, kind: var_kind, remote_id: var_remoteId, bytes_received: var_bytesReceived, packets_received: var_packetsReceived, packets_lost: var_packetsLost, jitter: var_jitter, total_decode_time: var_totalDecodeTime, jitter_buffer_emitted_count: var_jitterBufferEmittedCount, media_type: var_mediaType};
             }
             4 => {
                 let mut var_state = <crate::api::stats::rtc_stats_ice_candidate_pair_state::RtcStatsIceCandidatePairState>::sse_decode(deserializer);
@@ -2223,6 +2227,8 @@ impl SseDecode for crate::api::stats::RtcStatsType {
                 };
             }
             6 => {
+                let mut var_ssrc = <Option<u32>>::sse_decode(deserializer);
+                let mut var_kind = <Option<String>>::sse_decode(deserializer);
                 let mut var_localId =
                     <Option<String>>::sse_decode(deserializer);
                 let mut var_jitter = <Option<f64>>::sse_decode(deserializer);
@@ -2234,16 +2240,18 @@ impl SseDecode for crate::api::stats::RtcStatsType {
                     <Option<u64>>::sse_decode(deserializer);
                 let mut var_roundTripTimeMeasurements =
                     <Option<i32>>::sse_decode(deserializer);
-                return crate::api::stats::RtcStatsType::RtcRemoteInboundRtpStreamStats{local_id: var_localId, jitter: var_jitter, round_trip_time: var_roundTripTime, fraction_lost: var_fractionLost, reports_received: var_reportsReceived, round_trip_time_measurements: var_roundTripTimeMeasurements};
+                return crate::api::stats::RtcStatsType::RtcRemoteInboundRtpStreamStats{ssrc: var_ssrc, kind: var_kind, local_id: var_localId, jitter: var_jitter, round_trip_time: var_roundTripTime, fraction_lost: var_fractionLost, reports_received: var_reportsReceived, round_trip_time_measurements: var_roundTripTimeMeasurements};
             }
             7 => {
+                let mut var_ssrc = <Option<u32>>::sse_decode(deserializer);
+                let mut var_kind = <Option<String>>::sse_decode(deserializer);
                 let mut var_localId =
                     <Option<String>>::sse_decode(deserializer);
                 let mut var_remoteTimestamp =
                     <Option<f64>>::sse_decode(deserializer);
                 let mut var_reportsSent =
                     <Option<u64>>::sse_decode(deserializer);
-                return crate::api::stats::RtcStatsType::RtcRemoteOutboundRtpStreamStats{local_id: var_localId, remote_timestamp: var_remoteTimestamp, reports_sent: var_reportsSent};
+                return crate::api::stats::RtcStatsType::RtcRemoteOutboundRtpStreamStats{ssrc: var_ssrc, kind: var_kind, local_id: var_localId, remote_timestamp: var_remoteTimestamp, reports_sent: var_reportsSent};
             }
             8 => {
                 return crate::api::stats::RtcStatsType::Unimplemented;
@@ -3656,13 +3664,17 @@ track_identifier.into_into_dart().into_dart(),
 kind.into_into_dart().into_dart()].into_dart() }
 crate::api::stats::RtcStatsType::RtcIceCandidateStats(field0) => { [1.into_dart(),
 field0.into_into_dart().into_dart()].into_dart() }
-crate::api::stats::RtcStatsType::RtcOutboundRtpStreamStats{track_id,media_type,bytes_sent,packets_sent,media_source_id} => { [2.into_dart(),
+crate::api::stats::RtcStatsType::RtcOutboundRtpStreamStats{ssrc,kind,track_id,media_type,bytes_sent,packets_sent,media_source_id} => { [2.into_dart(),
+ssrc.into_into_dart().into_dart(),
+kind.into_into_dart().into_dart(),
 track_id.into_into_dart().into_dart(),
 media_type.into_into_dart().into_dart(),
 bytes_sent.into_into_dart().into_dart(),
 packets_sent.into_into_dart().into_dart(),
 media_source_id.into_into_dart().into_dart()].into_dart() }
-crate::api::stats::RtcStatsType::RtcInboundRtpStreamStats{remote_id,bytes_received,packets_received,packets_lost,jitter,total_decode_time,jitter_buffer_emitted_count,media_type} => { [3.into_dart(),
+crate::api::stats::RtcStatsType::RtcInboundRtpStreamStats{ssrc,kind,remote_id,bytes_received,packets_received,packets_lost,jitter,total_decode_time,jitter_buffer_emitted_count,media_type} => { [3.into_dart(),
+ssrc.into_into_dart().into_dart(),
+kind.into_into_dart().into_dart(),
 remote_id.into_into_dart().into_dart(),
 bytes_received.into_into_dart().into_dart(),
 packets_received.into_into_dart().into_dart(),
@@ -3685,14 +3697,18 @@ packets_received.into_into_dart().into_dart(),
 bytes_sent.into_into_dart().into_dart(),
 bytes_received.into_into_dart().into_dart(),
 ice_role.into_into_dart().into_dart()].into_dart() }
-crate::api::stats::RtcStatsType::RtcRemoteInboundRtpStreamStats{local_id,jitter,round_trip_time,fraction_lost,reports_received,round_trip_time_measurements} => { [6.into_dart(),
+crate::api::stats::RtcStatsType::RtcRemoteInboundRtpStreamStats{ssrc,kind,local_id,jitter,round_trip_time,fraction_lost,reports_received,round_trip_time_measurements} => { [6.into_dart(),
+ssrc.into_into_dart().into_dart(),
+kind.into_into_dart().into_dart(),
 local_id.into_into_dart().into_dart(),
 jitter.into_into_dart().into_dart(),
 round_trip_time.into_into_dart().into_dart(),
 fraction_lost.into_into_dart().into_dart(),
 reports_received.into_into_dart().into_dart(),
 round_trip_time_measurements.into_into_dart().into_dart()].into_dart() }
-crate::api::stats::RtcStatsType::RtcRemoteOutboundRtpStreamStats{local_id,remote_timestamp,reports_sent} => { [7.into_dart(),
+crate::api::stats::RtcStatsType::RtcRemoteOutboundRtpStreamStats{ssrc,kind,local_id,remote_timestamp,reports_sent} => { [7.into_dart(),
+ssrc.into_into_dart().into_dart(),
+kind.into_into_dart().into_dart(),
 local_id.into_into_dart().into_dart(),
 remote_timestamp.into_into_dart().into_dart(),
 reports_sent.into_into_dart().into_dart()].into_dart() }
@@ -5413,13 +5429,17 @@ impl SseEncode for crate::api::stats::RtcStatsType {
  }
 crate::api::stats::RtcStatsType::RtcIceCandidateStats(field0) => { <i32>::sse_encode(1, serializer); <crate::api::stats::rtc_ice_candidate_stats::RtcIceCandidateStats>::sse_encode(field0, serializer);
  }
-crate::api::stats::RtcStatsType::RtcOutboundRtpStreamStats{track_id,media_type,bytes_sent,packets_sent,media_source_id} => { <i32>::sse_encode(2, serializer); <Option<String>>::sse_encode(track_id, serializer);
+crate::api::stats::RtcStatsType::RtcOutboundRtpStreamStats{ssrc,kind,track_id,media_type,bytes_sent,packets_sent,media_source_id} => { <i32>::sse_encode(2, serializer); <Option<u32>>::sse_encode(ssrc, serializer);
+<Option<String>>::sse_encode(kind, serializer);
+<Option<String>>::sse_encode(track_id, serializer);
 <crate::api::stats::rtc_outbound_rtp_stream_media_type::RtcOutboundRtpStreamStatsMediaType>::sse_encode(media_type, serializer);
 <Option<u64>>::sse_encode(bytes_sent, serializer);
 <Option<u32>>::sse_encode(packets_sent, serializer);
 <Option<String>>::sse_encode(media_source_id, serializer);
  }
-crate::api::stats::RtcStatsType::RtcInboundRtpStreamStats{remote_id,bytes_received,packets_received,packets_lost,jitter,total_decode_time,jitter_buffer_emitted_count,media_type} => { <i32>::sse_encode(3, serializer); <Option<String>>::sse_encode(remote_id, serializer);
+crate::api::stats::RtcStatsType::RtcInboundRtpStreamStats{ssrc,kind,remote_id,bytes_received,packets_received,packets_lost,jitter,total_decode_time,jitter_buffer_emitted_count,media_type} => { <i32>::sse_encode(3, serializer); <Option<u32>>::sse_encode(ssrc, serializer);
+<Option<String>>::sse_encode(kind, serializer);
+<Option<String>>::sse_encode(remote_id, serializer);
 <Option<u64>>::sse_encode(bytes_received, serializer);
 <Option<u32>>::sse_encode(packets_received, serializer);
 <Option<u64>>::sse_encode(packets_lost, serializer);
@@ -5442,14 +5462,18 @@ crate::api::stats::RtcStatsType::RtcTransportStats{packets_sent,packets_received
 <Option<u64>>::sse_encode(bytes_received, serializer);
 <Option<crate::api::stats::ice_role::IceRole>>::sse_encode(ice_role, serializer);
  }
-crate::api::stats::RtcStatsType::RtcRemoteInboundRtpStreamStats{local_id,jitter,round_trip_time,fraction_lost,reports_received,round_trip_time_measurements} => { <i32>::sse_encode(6, serializer); <Option<String>>::sse_encode(local_id, serializer);
+crate::api::stats::RtcStatsType::RtcRemoteInboundRtpStreamStats{ssrc,kind,local_id,jitter,round_trip_time,fraction_lost,reports_received,round_trip_time_measurements} => { <i32>::sse_encode(6, serializer); <Option<u32>>::sse_encode(ssrc, serializer);
+<Option<String>>::sse_encode(kind, serializer);
+<Option<String>>::sse_encode(local_id, serializer);
 <Option<f64>>::sse_encode(jitter, serializer);
 <Option<f64>>::sse_encode(round_trip_time, serializer);
 <Option<f64>>::sse_encode(fraction_lost, serializer);
 <Option<u64>>::sse_encode(reports_received, serializer);
 <Option<i32>>::sse_encode(round_trip_time_measurements, serializer);
  }
-crate::api::stats::RtcStatsType::RtcRemoteOutboundRtpStreamStats{local_id,remote_timestamp,reports_sent} => { <i32>::sse_encode(7, serializer); <Option<String>>::sse_encode(local_id, serializer);
+crate::api::stats::RtcStatsType::RtcRemoteOutboundRtpStreamStats{ssrc,kind,local_id,remote_timestamp,reports_sent} => { <i32>::sse_encode(7, serializer); <Option<u32>>::sse_encode(ssrc, serializer);
+<Option<String>>::sse_encode(kind, serializer);
+<Option<String>>::sse_encode(local_id, serializer);
 <Option<f64>>::sse_encode(remote_timestamp, serializer);
 <Option<u64>>::sse_encode(reports_sent, serializer);
  }

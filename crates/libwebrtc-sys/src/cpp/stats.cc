@@ -96,6 +96,16 @@ RTCOutboundRTPStreamStatsWrap cast_to_rtc_outbound_rtp_stream_stats(
     auto cast = std::unique_ptr<RTCOutboundRTPStreamStats>(
         static_cast<RTCOutboundRTPStreamStats*>(stats.release()));
 
+    auto ssrc = init_option_u32();
+    if (cast->ssrc.has_value()) {
+      ssrc->set_value(*cast->ssrc);
+    }
+
+    auto kind = init_option_string();
+    if (cast->kind.has_value()) {
+      kind->set_value(rust::String(*cast->kind));
+    }
+
     auto track_id = init_option_string();
     if (cast->remote_id.has_value()) {
       track_id->set_value(rust::String(*cast->remote_id));
@@ -119,30 +129,28 @@ RTCOutboundRTPStreamStatsWrap cast_to_rtc_outbound_rtp_stream_stats(
     auto frame_width = init_option_u32();
     auto frame_height = init_option_u32();
     auto frames_per_second = init_option_f64();
-    MediaKind kind;
-    if (*cast->kind == "audio") {
-      kind = MediaKind::Audio;
-    } else {
-      kind = MediaKind::Video;
+    if (cast->frame_width.has_value()) {
+      frame_width->set_value(*cast->frame_width);
+    }
 
-      if (cast->frame_width.has_value()) {
-        frame_width->set_value(*cast->frame_width);
-      }
+    if (cast->frame_height.has_value()) {
+      frame_height->set_value(*cast->frame_height);
+    }
 
-      if (cast->frame_height.has_value()) {
-        frame_height->set_value(*cast->frame_height);
-      }
-
-      if (cast->frames_per_second.has_value()) {
-        frames_per_second->set_value(*cast->frames_per_second);
-      }
+    if (cast->frames_per_second.has_value()) {
+      frames_per_second->set_value(*cast->frames_per_second);
     }
 
     return RTCOutboundRTPStreamStatsWrap{
-        std::move(track_id),          kind,
-        std::move(frame_width),       std::move(frame_height),
-        std::move(frames_per_second), std::move(bytes_sent),
-        std::move(packets_sent),      std::move(media_source_id),
+        std::move(ssrc),
+        std::move(kind),
+        std::move(track_id),
+        std::move(frame_width),
+        std::move(frame_height),
+        std::move(frames_per_second),
+        std::move(bytes_sent),
+        std::move(packets_sent),
+        std::move(media_source_id),
     };
   }
   throw std::invalid_argument(
@@ -157,11 +165,9 @@ RTCInboundRTPStreamStatsWrap cast_to_rtc_inbound_rtp_stream_stats(
     auto cast = std::unique_ptr<RTCInboundRTPStreamStats>(
         static_cast<RTCInboundRTPStreamStats*>(stats.release()));
 
+    auto ssrc = init_option_u32();
+    auto kind = init_option_string();
     auto remote_id = init_option_string();
-    if (cast->remote_id.has_value()) {
-      remote_id->set_value(rust::String(*cast->remote_id));
-    }
-
     auto total_samples_received = init_option_u64();
     auto concealed_samples = init_option_u64();
     auto silent_concealed_samples = init_option_u64();
@@ -253,6 +259,18 @@ RTCInboundRTPStreamStatsWrap cast_to_rtc_inbound_rtp_stream_stats(
       }
     }
 
+    if (cast->ssrc.has_value()) {
+      ssrc->set_value(*cast->ssrc);
+    }
+
+    if (cast->kind.has_value()) {
+      kind->set_value(rust::String(*cast->kind));
+    }
+
+    if (cast->remote_id.has_value()) {
+      remote_id->set_value(rust::String(*cast->remote_id));
+    }
+
     if (cast->bytes_received.has_value()) {
       bytes_received->set_value(*cast->bytes_received);
     }
@@ -270,6 +288,8 @@ RTCInboundRTPStreamStatsWrap cast_to_rtc_inbound_rtp_stream_stats(
     }
 
     return RTCInboundRTPStreamStatsWrap{
+        std::move(ssrc),
+        std::move(kind),
         std::move(remote_id),
         media_type,
         std::move(total_samples_received),
@@ -411,6 +431,16 @@ RTCRemoteInboundRtpStreamStatsWrap cast_to_rtc_remote_inbound_rtp_stream_stats(
   if (type == "remote-inbound-rtp") {
     auto cast = std::unique_ptr<RTCRemoteInboundRtpStreamStats>(
         static_cast<RTCRemoteInboundRtpStreamStats*>(stats.release()));
+    auto ssrc = init_option_u32();
+    if (cast->ssrc.has_value()) {
+      ssrc->set_value(*cast->ssrc);
+    }
+
+    auto kind = init_option_string();
+    if (cast->kind.has_value()) {
+      kind->set_value(rust::String(*cast->kind));
+    }
+
     auto local_id = init_option_string();
     if (cast->local_id.has_value()) {
       local_id->set_value(rust::String(*cast->local_id));
@@ -433,6 +463,8 @@ RTCRemoteInboundRtpStreamStatsWrap cast_to_rtc_remote_inbound_rtp_stream_stats(
     }
 
     return RTCRemoteInboundRtpStreamStatsWrap{
+        std::move(ssrc),
+        std::move(kind),
         std::move(local_id),
         std::move(round_trip_time),
         std::move(fraction_lost),
@@ -450,6 +482,15 @@ cast_to_rtc_remote_outbound_rtp_stream_stats(std::unique_ptr<RTCStats> stats) {
   if (type == "remote-outbound-rtp") {
     auto cast = std::unique_ptr<RTCRemoteOutboundRtpStreamStats>(
         static_cast<RTCRemoteOutboundRtpStreamStats*>(stats.release()));
+    auto ssrc = init_option_u32();
+    if (cast->ssrc.has_value()) {
+      ssrc->set_value(*cast->ssrc);
+    }
+
+    auto kind = init_option_string();
+    if (cast->kind.has_value()) {
+      kind->set_value(rust::String(*cast->kind));
+    }
 
     auto local_id = init_option_string();
     if (cast->local_id.has_value()) {
@@ -465,6 +506,8 @@ cast_to_rtc_remote_outbound_rtp_stream_stats(std::unique_ptr<RTCStats> stats) {
     }
 
     return RTCRemoteOutboundRtpStreamStatsWrap{
+        std::move(ssrc),
+        std::move(kind),
         std::move(local_id),
         std::move(remote_timestamp),
         std::move(reports_sent),

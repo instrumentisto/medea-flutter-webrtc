@@ -1460,19 +1460,19 @@ void main() {
       var senderStats = await pc1.getStats();
 
       hasOutboundTransport = senderStats.any(
-        (s) => s.type is RtcTransportStats,
+        (s) => s.type == RtcStatsType.transport,
       );
       hasOutboundAudio = senderStats.any(
         (s) =>
-            (s.type is RtcOutboundRtpStreamStats &&
-            (s.type as RtcOutboundRtpStreamStats).mediaType
-                is RtcOutboundRtpStreamStatsAudio),
+            (s.type == RtcStatsType.outboundRtp &&
+            (s.stat as RtcOutboundRtpStreamStats).mediaType
+                is RtcOutboundRtpStreamAudio),
       );
       hasOutboundVideo = senderStats.any(
         (s) =>
-            (s.type is RtcOutboundRtpStreamStats &&
-            (s.type as RtcOutboundRtpStreamStats).mediaType
-                is RtcOutboundRtpStreamStatsVideo),
+            (s.type == RtcStatsType.outboundRtp &&
+            (s.stat as RtcOutboundRtpStreamStats).mediaType
+                is RtcOutboundRtpStreamVideo),
       );
 
       if (hasOutboundTransport && hasOutboundAudio && hasOutboundVideo) {
@@ -1492,18 +1492,18 @@ void main() {
       var receiverStats = await pc2.getStats();
 
       hasInboundTransport = receiverStats.any(
-        (s) => s.type is RtcTransportStats,
+        (s) => s.type == RtcStatsType.transport,
       );
       hasInboundAudio = receiverStats.any(
         (s) =>
-            (s.type is RtcInboundRtpStreamStats &&
-            (s.type as RtcInboundRtpStreamStats).mediaType
+            (s.type == RtcStatsType.inboundRtp &&
+            (s.stat as RtcInboundRtpStreamStats).mediaType
                 is RtcInboundRtpStreamAudio),
       );
       hasInboundVideo = receiverStats.any(
         (s) =>
-            (s.type is RtcInboundRtpStreamStats &&
-            (s.type as RtcInboundRtpStreamStats).mediaType
+            (s.type == RtcStatsType.inboundRtp &&
+            (s.stat as RtcInboundRtpStreamStats).mediaType
                 is RtcInboundRtpStreamVideo),
       );
 

@@ -3052,27 +3052,31 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         );
       case 2:
         return RtcStatsType_RtcOutboundRtpStreamStats(
-          trackId: dco_decode_opt_String(raw[1]),
+          ssrc: dco_decode_opt_box_autoadd_u_32(raw[1]),
+          kind: dco_decode_opt_String(raw[2]),
+          trackId: dco_decode_opt_String(raw[3]),
           mediaType:
               dco_decode_box_autoadd_rtc_outbound_rtp_stream_stats_media_type(
-                raw[2],
+                raw[4],
               ),
-          bytesSent: dco_decode_opt_box_autoadd_u_64(raw[3]),
-          packetsSent: dco_decode_opt_box_autoadd_u_32(raw[4]),
-          mediaSourceId: dco_decode_opt_String(raw[5]),
+          bytesSent: dco_decode_opt_box_autoadd_u_64(raw[5]),
+          packetsSent: dco_decode_opt_box_autoadd_u_32(raw[6]),
+          mediaSourceId: dco_decode_opt_String(raw[7]),
         );
       case 3:
         return RtcStatsType_RtcInboundRtpStreamStats(
-          remoteId: dco_decode_opt_String(raw[1]),
-          bytesReceived: dco_decode_opt_box_autoadd_u_64(raw[2]),
-          packetsReceived: dco_decode_opt_box_autoadd_u_32(raw[3]),
-          packetsLost: dco_decode_opt_box_autoadd_u_64(raw[4]),
-          jitter: dco_decode_opt_box_autoadd_f_64(raw[5]),
-          totalDecodeTime: dco_decode_opt_box_autoadd_f_64(raw[6]),
-          jitterBufferEmittedCount: dco_decode_opt_box_autoadd_u_64(raw[7]),
+          ssrc: dco_decode_opt_box_autoadd_u_32(raw[1]),
+          kind: dco_decode_opt_String(raw[2]),
+          remoteId: dco_decode_opt_String(raw[3]),
+          bytesReceived: dco_decode_opt_box_autoadd_u_64(raw[4]),
+          packetsReceived: dco_decode_opt_box_autoadd_u_32(raw[5]),
+          packetsLost: dco_decode_opt_box_autoadd_u_64(raw[6]),
+          jitter: dco_decode_opt_box_autoadd_f_64(raw[7]),
+          totalDecodeTime: dco_decode_opt_box_autoadd_f_64(raw[8]),
+          jitterBufferEmittedCount: dco_decode_opt_box_autoadd_u_64(raw[9]),
           mediaType:
               dco_decode_opt_box_autoadd_rtc_inbound_rtp_stream_media_type(
-                raw[8],
+                raw[10],
               ),
         );
       case 4:
@@ -3095,18 +3099,22 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         );
       case 6:
         return RtcStatsType_RtcRemoteInboundRtpStreamStats(
-          localId: dco_decode_opt_String(raw[1]),
-          jitter: dco_decode_opt_box_autoadd_f_64(raw[2]),
-          roundTripTime: dco_decode_opt_box_autoadd_f_64(raw[3]),
-          fractionLost: dco_decode_opt_box_autoadd_f_64(raw[4]),
-          reportsReceived: dco_decode_opt_box_autoadd_u_64(raw[5]),
-          roundTripTimeMeasurements: dco_decode_opt_box_autoadd_i_32(raw[6]),
+          ssrc: dco_decode_opt_box_autoadd_u_32(raw[1]),
+          kind: dco_decode_opt_String(raw[2]),
+          localId: dco_decode_opt_String(raw[3]),
+          jitter: dco_decode_opt_box_autoadd_f_64(raw[4]),
+          roundTripTime: dco_decode_opt_box_autoadd_f_64(raw[5]),
+          fractionLost: dco_decode_opt_box_autoadd_f_64(raw[6]),
+          reportsReceived: dco_decode_opt_box_autoadd_u_64(raw[7]),
+          roundTripTimeMeasurements: dco_decode_opt_box_autoadd_i_32(raw[8]),
         );
       case 7:
         return RtcStatsType_RtcRemoteOutboundRtpStreamStats(
-          localId: dco_decode_opt_String(raw[1]),
-          remoteTimestamp: dco_decode_opt_box_autoadd_f_64(raw[2]),
-          reportsSent: dco_decode_opt_box_autoadd_u_64(raw[3]),
+          ssrc: dco_decode_opt_box_autoadd_u_32(raw[1]),
+          kind: dco_decode_opt_String(raw[2]),
+          localId: dco_decode_opt_String(raw[3]),
+          remoteTimestamp: dco_decode_opt_box_autoadd_f_64(raw[4]),
+          reportsSent: dco_decode_opt_box_autoadd_u_64(raw[5]),
         );
       case 8:
         return RtcStatsType_Unimplemented();
@@ -4670,6 +4678,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         );
         return RtcStatsType_RtcIceCandidateStats(var_field0);
       case 2:
+        var var_ssrc = sse_decode_opt_box_autoadd_u_32(deserializer);
+        var var_kind = sse_decode_opt_String(deserializer);
         var var_trackId = sse_decode_opt_String(deserializer);
         var var_mediaType =
             sse_decode_box_autoadd_rtc_outbound_rtp_stream_stats_media_type(
@@ -4679,6 +4689,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         var var_packetsSent = sse_decode_opt_box_autoadd_u_32(deserializer);
         var var_mediaSourceId = sse_decode_opt_String(deserializer);
         return RtcStatsType_RtcOutboundRtpStreamStats(
+          ssrc: var_ssrc,
+          kind: var_kind,
           trackId: var_trackId,
           mediaType: var_mediaType,
           bytesSent: var_bytesSent,
@@ -4686,6 +4698,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           mediaSourceId: var_mediaSourceId,
         );
       case 3:
+        var var_ssrc = sse_decode_opt_box_autoadd_u_32(deserializer);
+        var var_kind = sse_decode_opt_String(deserializer);
         var var_remoteId = sse_decode_opt_String(deserializer);
         var var_bytesReceived = sse_decode_opt_box_autoadd_u_64(deserializer);
         var var_packetsReceived = sse_decode_opt_box_autoadd_u_32(deserializer);
@@ -4700,6 +4714,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
               deserializer,
             );
         return RtcStatsType_RtcInboundRtpStreamStats(
+          ssrc: var_ssrc,
+          kind: var_kind,
           remoteId: var_remoteId,
           bytesReceived: var_bytesReceived,
           packetsReceived: var_packetsReceived,
@@ -4748,6 +4764,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           iceRole: var_iceRole,
         );
       case 6:
+        var var_ssrc = sse_decode_opt_box_autoadd_u_32(deserializer);
+        var var_kind = sse_decode_opt_String(deserializer);
         var var_localId = sse_decode_opt_String(deserializer);
         var var_jitter = sse_decode_opt_box_autoadd_f_64(deserializer);
         var var_roundTripTime = sse_decode_opt_box_autoadd_f_64(deserializer);
@@ -4757,6 +4775,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           deserializer,
         );
         return RtcStatsType_RtcRemoteInboundRtpStreamStats(
+          ssrc: var_ssrc,
+          kind: var_kind,
           localId: var_localId,
           jitter: var_jitter,
           roundTripTime: var_roundTripTime,
@@ -4765,10 +4785,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           roundTripTimeMeasurements: var_roundTripTimeMeasurements,
         );
       case 7:
+        var var_ssrc = sse_decode_opt_box_autoadd_u_32(deserializer);
+        var var_kind = sse_decode_opt_String(deserializer);
         var var_localId = sse_decode_opt_String(deserializer);
         var var_remoteTimestamp = sse_decode_opt_box_autoadd_f_64(deserializer);
         var var_reportsSent = sse_decode_opt_box_autoadd_u_64(deserializer);
         return RtcStatsType_RtcRemoteOutboundRtpStreamStats(
+          ssrc: var_ssrc,
+          kind: var_kind,
           localId: var_localId,
           remoteTimestamp: var_remoteTimestamp,
           reportsSent: var_reportsSent,
@@ -6279,6 +6303,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         sse_encode_i_32(1, serializer);
         sse_encode_box_autoadd_rtc_ice_candidate_stats(field0, serializer);
       case RtcStatsType_RtcOutboundRtpStreamStats(
+        ssrc: final ssrc,
+        kind: final kind,
         trackId: final trackId,
         mediaType: final mediaType,
         bytesSent: final bytesSent,
@@ -6286,6 +6312,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         mediaSourceId: final mediaSourceId,
       ):
         sse_encode_i_32(2, serializer);
+        sse_encode_opt_box_autoadd_u_32(ssrc, serializer);
+        sse_encode_opt_String(kind, serializer);
         sse_encode_opt_String(trackId, serializer);
         sse_encode_box_autoadd_rtc_outbound_rtp_stream_stats_media_type(
           mediaType,
@@ -6295,6 +6323,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         sse_encode_opt_box_autoadd_u_32(packetsSent, serializer);
         sse_encode_opt_String(mediaSourceId, serializer);
       case RtcStatsType_RtcInboundRtpStreamStats(
+        ssrc: final ssrc,
+        kind: final kind,
         remoteId: final remoteId,
         bytesReceived: final bytesReceived,
         packetsReceived: final packetsReceived,
@@ -6305,6 +6335,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         mediaType: final mediaType,
       ):
         sse_encode_i_32(3, serializer);
+        sse_encode_opt_box_autoadd_u_32(ssrc, serializer);
+        sse_encode_opt_String(kind, serializer);
         sse_encode_opt_String(remoteId, serializer);
         sse_encode_opt_box_autoadd_u_64(bytesReceived, serializer);
         sse_encode_opt_box_autoadd_u_32(packetsReceived, serializer);
@@ -6347,6 +6379,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         sse_encode_opt_box_autoadd_u_64(bytesReceived, serializer);
         sse_encode_opt_box_autoadd_ice_role(iceRole, serializer);
       case RtcStatsType_RtcRemoteInboundRtpStreamStats(
+        ssrc: final ssrc,
+        kind: final kind,
         localId: final localId,
         jitter: final jitter,
         roundTripTime: final roundTripTime,
@@ -6355,6 +6389,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         roundTripTimeMeasurements: final roundTripTimeMeasurements,
       ):
         sse_encode_i_32(6, serializer);
+        sse_encode_opt_box_autoadd_u_32(ssrc, serializer);
+        sse_encode_opt_String(kind, serializer);
         sse_encode_opt_String(localId, serializer);
         sse_encode_opt_box_autoadd_f_64(jitter, serializer);
         sse_encode_opt_box_autoadd_f_64(roundTripTime, serializer);
@@ -6362,11 +6398,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         sse_encode_opt_box_autoadd_u_64(reportsReceived, serializer);
         sse_encode_opt_box_autoadd_i_32(roundTripTimeMeasurements, serializer);
       case RtcStatsType_RtcRemoteOutboundRtpStreamStats(
+        ssrc: final ssrc,
+        kind: final kind,
         localId: final localId,
         remoteTimestamp: final remoteTimestamp,
         reportsSent: final reportsSent,
       ):
         sse_encode_i_32(7, serializer);
+        sse_encode_opt_box_autoadd_u_32(ssrc, serializer);
+        sse_encode_opt_String(kind, serializer);
         sse_encode_opt_String(localId, serializer);
         sse_encode_opt_box_autoadd_f_64(remoteTimestamp, serializer);
         sse_encode_opt_box_autoadd_u_64(reportsSent, serializer);
