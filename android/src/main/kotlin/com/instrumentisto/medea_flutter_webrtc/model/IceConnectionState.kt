@@ -62,7 +62,7 @@ enum class IceConnectionState(val value: Int) {
      * [IceConnectionState].
      *
      * @return [IceConnectionState] created based on the provided
-     * [org.webrtc.PeerConnection.IceConnectionState].
+     *   [org.webrtc.PeerConnection.IceConnectionState].
      */
     fun fromWebRtc(from: WIceConnectionState): IceConnectionState {
       return when (from) {

@@ -17,7 +17,7 @@ data class HeaderExtensionCapability(
      * Converts the provided [org.webrtc.RtpCapabilities.HeaderExtensionCapability] into [RtcStats].
      *
      * @return [HeaderExtensionCapability] created based on the provided
-     * [org.webrtc.RtpCapabilities.HeaderExtensionCapability].
+     *   [org.webrtc.RtpCapabilities.HeaderExtensionCapability].
      */
     fun fromWebRtc(
         header: org.webrtc.RtpCapabilities.HeaderExtensionCapability
@@ -34,7 +34,8 @@ data class HeaderExtensionCapability(
     return mapOf(
         "uri" to uri,
         "preferredId" to preferredId as Any?,
-        "preferredEncrypted" to preferredEncrypted)
+        "preferredEncrypted" to preferredEncrypted,
+    )
   }
 }
 
@@ -63,7 +64,7 @@ data class CodecCapability(
      * Converts the provided [org.webrtc.RtpCapabilities.CodecCapability] into a [CodecCapability].
      *
      * @return [CodecCapability] created based on the provided
-     * [org.webrtc.RtpCapabilities.CodecCapability].
+     *   [org.webrtc.RtpCapabilities.CodecCapability].
      */
     fun fromWebRtc(codec: org.webrtc.RtpCapabilities.CodecCapability): CodecCapability {
       var parameters = codec.parameters
@@ -74,7 +75,8 @@ data class CodecCapability(
           codec.clockRate,
           codec.numChannels,
           codec.parameters,
-          codec.mimeType)
+          codec.mimeType,
+      )
     }
   }
 
@@ -87,7 +89,8 @@ data class CodecCapability(
         "clockRate" to clockRate,
         "numChannels" to numChannels as Any?,
         "parameters" to parameters,
-        "mimeType" to mimeType)
+        "mimeType" to mimeType,
+    )
   }
 }
 
@@ -118,6 +121,7 @@ data class RtpCapabilities(
   fun asFlutterResult(): Map<String, Any> {
     return mapOf(
         "codecs" to codecs.map { it.asFlutterResult() },
-        "headerExtensions" to headerExtensions.map { it.asFlutterResult() })
+        "headerExtensions" to headerExtensions.map { it.asFlutterResult() },
+    )
   }
 }

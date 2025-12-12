@@ -10,7 +10,7 @@ import org.webrtc.RtpTransceiver.RtpTransceiverInit as WRtpTransceiverInit
  */
 data class RtpTransceiverInit(
     val direction: RtpTransceiverDirection,
-    var encodings: List<Encoding>
+    var encodings: List<Encoding>,
 ) {
   companion object {
     /**
@@ -24,7 +24,8 @@ data class RtpTransceiverInit(
           RtpTransceiverDirection.fromInt(map["direction"] as Int),
           (map["sendEncodings"] as List<Map<String, Map<String, Any>>>).map { encoding ->
             Encoding.fromMap(encoding)
-          })
+          },
+      )
     }
   }
 
@@ -32,10 +33,13 @@ data class RtpTransceiverInit(
    * Converts this [RtpTransceiverInit] into an [org.webrtc.RtpTransceiver.RtpTransceiverInit].
    *
    * @return [org.webrtc.RtpTransceiver.RtpTransceiverInit] created based on this
-   * [RtpTransceiverInit].
+   *   [RtpTransceiverInit].
    */
   fun intoWebRtc(): WRtpTransceiverInit {
     return WRtpTransceiverInit(
-        direction.intoWebRtc(), listOf(), encodings.map { e -> e.intoWebRtc() })
+        direction.intoWebRtc(),
+        listOf(),
+        encodings.map { e -> e.intoWebRtc() },
+    )
   }
 }

@@ -186,8 +186,10 @@ abstract class AudioFocusCompat private constructor(state: State) {
       }
 
       result = audioManager.requestAudioFocus(delayedRequest!!)
-      if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED ||
-          result == AudioManager.AUDIOFOCUS_REQUEST_DELAYED) {
+      if (
+          result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED ||
+              result == AudioManager.AUDIOFOCUS_REQUEST_DELAYED
+      ) {
         activeAudioFocusRequest = delayedRequest
       }
 
@@ -223,7 +225,8 @@ abstract class AudioFocusCompat private constructor(state: State) {
       return audioManager.requestAudioFocus(
           onAudioFocusChangeListener,
           AudioManager.STREAM_VOICE_CALL,
-          AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE)
+          AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE,
+      )
     }
 
     override fun abandonAudioFocus() {

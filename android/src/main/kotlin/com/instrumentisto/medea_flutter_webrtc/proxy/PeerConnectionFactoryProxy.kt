@@ -14,7 +14,7 @@ import org.webrtc.PeerConnectionFactory
 class PeerConnectionFactoryProxy(
     private val state: State,
     private val mediaDevices: MediaDevices,
-    private val permissions: Permissions
+    private val permissions: Permissions,
 ) {
   /** Counter for generating new [PeerConnectionProxy] IDs. */
   private var lastPeerConnectionId: Int = 0
@@ -33,7 +33,6 @@ class PeerConnectionFactoryProxy(
    * Creates a new [PeerConnectionProxy] based on the provided [PeerConnectionConfiguration].
    *
    * @param config Config with which new [PeerConnectionProxy] will be created.
-   *
    * @return Newly created [PeerConnectionProxy].
    */
   suspend fun create(config: PeerConnectionConfiguration): PeerConnectionProxy {

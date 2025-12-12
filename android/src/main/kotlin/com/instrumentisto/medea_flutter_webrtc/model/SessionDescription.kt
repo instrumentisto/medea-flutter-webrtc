@@ -39,7 +39,6 @@ enum class SessionDescriptionType(val value: Int) {
      * Tries to create a [SessionDescriptionType] based on the provided [Int].
      *
      * @param value [Int] value from which a [SessionDescriptionType] will be created.
-     *
      * @return [SessionDescriptionType] based on the provided [Int].
      */
     fun fromInt(value: Int) = values().first { it.value == value }

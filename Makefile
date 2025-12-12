@@ -23,7 +23,7 @@ FLUTTER_RUST_BRIDGE_VER ?= $(strip \
 	        | grep -v 'flutter_rust_bridge' \
 	        | cut -d'"' -f2))
 
-KTFMT_VER ?= 0.33
+KTFMT_VER ?= 0.59
 
 CURRENT_OS ?= $(strip $(or $(os),\
 	$(if $(call eq,$(OS),Windows_NT),windows,\
@@ -380,7 +380,7 @@ kt.fmt:
 ifeq ($(wildcard $(kt-fmt-bin)),)
 	@mkdir -p $(dir $(kt-fmt-bin))
 	curl -fL -o $(kt-fmt-bin) \
-	     https://search.maven.org/remotecontent?filepath=com/facebook/ktfmt/$(KTFMT_VER)/ktfmt-$(KTFMT_VER)-jar-with-dependencies.jar
+	     https://search.maven.org/remotecontent?filepath=com/facebook/ktfmt/$(KTFMT_VER)/ktfmt-$(KTFMT_VER)-with-dependencies.jar
 endif
 	java -jar $(kt-fmt-bin) \
 	     $(if $(call eq,$(check),yes),--set-exit-if-changed,) \

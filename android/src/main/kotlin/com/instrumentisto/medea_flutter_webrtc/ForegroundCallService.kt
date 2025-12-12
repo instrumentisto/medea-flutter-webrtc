@@ -180,7 +180,10 @@ class ForegroundCallService : Service() {
       if (notificationChannel == null && Build.VERSION.SDK_INT >= 26) {
         notificationChannel =
             NotificationChannel(
-                    NOTIFICATION_CHAN_ID, "Ongoing call", NotificationManager.IMPORTANCE_LOW)
+                    NOTIFICATION_CHAN_ID,
+                    "Ongoing call",
+                    NotificationManager.IMPORTANCE_LOW,
+                )
                 .apply {
                   enableLights(false)
                   enableVibration(false)
@@ -196,11 +199,15 @@ class ForegroundCallService : Service() {
         grantedObserver =
             object : Permissions.Companion.GrantedObserver {
               override fun onGranted(granted: String) {
-                if (granted == Manifest.permission.RECORD_AUDIO ||
-                    granted == Manifest.permission.CAMERA &&
-                        currentForegroundServiceType != serviceType(context)) {
+                if (
+                    granted == Manifest.permission.RECORD_AUDIO ||
+                        granted == Manifest.permission.CAMERA &&
+                            currentForegroundServiceType != serviceType(context)
+                ) {
                   ContextCompat.startForegroundService(
-                      context, Intent(context, ForegroundCallService::class.java))
+                      context,
+                      Intent(context, ForegroundCallService::class.java),
+                  )
                 }
               }
             }
@@ -208,7 +215,9 @@ class ForegroundCallService : Service() {
       }
 
       ContextCompat.startForegroundService(
-          context, Intent(context, ForegroundCallService::class.java))
+          context,
+          Intent(context, ForegroundCallService::class.java),
+      )
     }
 
     /** Stops [ForegroundCallService] if it's running. */
@@ -251,12 +260,16 @@ class ForegroundCallService : Service() {
         // `FOREGROUND_SERVICE_TYPE_CAMERA` and `FOREGROUND_SERVICE_TYPE_MICROPHONE` were added in
         // API 30.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-          if (ctx.checkSelfPermission(Manifest.permission.CAMERA) ==
-              PackageManager.PERMISSION_GRANTED) {
+          if (
+              ctx.checkSelfPermission(Manifest.permission.CAMERA) ==
+                  PackageManager.PERMISSION_GRANTED
+          ) {
             serviceType = serviceType or ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA
           }
-          if (ctx.checkSelfPermission(Manifest.permission.RECORD_AUDIO) ==
-              PackageManager.PERMISSION_GRANTED) {
+          if (
+              ctx.checkSelfPermission(Manifest.permission.RECORD_AUDIO) ==
+                  PackageManager.PERMISSION_GRANTED
+          ) {
             serviceType = serviceType or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
           }
         }
@@ -298,7 +311,11 @@ class ForegroundCallService : Service() {
     // Once the service has been created, it must call its `startForeground()` method within
     // 5 seconds.
     ServiceCompat.startForeground(
-        this, FG_CALL_NOTIFICATION_ID, notification, currentForegroundServiceType!!)
+        this,
+        FG_CALL_NOTIFICATION_ID,
+        notification,
+        currentForegroundServiceType!!,
+    )
 
     return START_NOT_STICKY
   }

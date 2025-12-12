@@ -110,12 +110,13 @@ class Permissions(private val activity: Activity) :
   override fun onRequestPermissionsResult(
       requestCode: Int,
       permissions: Array<out String>,
-      grantResults: IntArray
+      grantResults: IntArray,
   ): Boolean {
     return if (requestCode == PERMISSIONS_REQUEST_ID) {
       if (permissions.isEmpty()) {
         permissionRequest?.resumeWithException(
-            PermissionException("Permission request interrupted"))
+            PermissionException("Permission request interrupted")
+        )
         permissionRequest = null
       } else {
         for (entry in permissions.withIndex()) {
@@ -124,7 +125,8 @@ class Permissions(private val activity: Activity) :
             permissionRequest?.resume(Unit)
           } else {
             permissionRequest?.resumeWithException(
-                PermissionException("Permission `${entry.value}` not granted"))
+                PermissionException("Permission `${entry.value}` not granted")
+            )
           }
           permissionRequest = null
         }

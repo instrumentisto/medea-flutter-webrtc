@@ -33,7 +33,7 @@ class PeerConnectionFactoryController(
     private val messenger: BinaryMessenger,
     private val state: State,
     mediaDevices: MediaDevices,
-    permissions: Permissions
+    permissions: Permissions,
 ) : Controller {
   /** [CoroutineScope] for this [PeerConnectionFactoryController] */
   private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
@@ -83,7 +83,8 @@ class PeerConnectionFactoryController(
             RtpCapabilities.fromWebRtc(
                 factory
                     .getPeerConnectionFactory()
-                    .getRtpSenderCapabilities(MediaStreamTrack.MediaType.values()[kind!!]))
+                    .getRtpSenderCapabilities(MediaStreamTrack.MediaType.values()[kind!!])
+            )
         result.success(capabilities.asFlutterResult())
       }
       "getRtpReceiverCapabilities" -> {
@@ -92,7 +93,8 @@ class PeerConnectionFactoryController(
             RtpCapabilities.fromWebRtc(
                 factory
                     .getPeerConnectionFactory()
-                    .getRtpReceiverCapabilities(MediaStreamTrack.MediaType.values()[kind!!]))
+                    .getRtpReceiverCapabilities(MediaStreamTrack.MediaType.values()[kind!!])
+            )
         result.success(capabilities.asFlutterResult())
       }
       "videoEncoders" -> {

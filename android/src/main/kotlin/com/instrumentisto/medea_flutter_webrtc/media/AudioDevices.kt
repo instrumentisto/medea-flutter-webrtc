@@ -78,7 +78,7 @@ sealed class AudioDevices(val state: State, val obs: OnDeviceChangeObs) : AudioD
    * Implementations may suspend until the system confirms routing or times out.
    *
    * @param deviceId Device identifier ([AudioDeviceInfo.id] on SDK >= 31 or [LegacyAudioDevice.id]
-   * otherwise).
+   *   otherwise).
    */
   abstract suspend fun setOutputAudioId(deviceId: String)
 
@@ -138,7 +138,9 @@ private class AudioDevicesSdk31(state: State, obs: OnDeviceChangeObs) :
               d.productName.toString(),
               MediaDeviceKind.AUDIO_OUTPUT,
               AudioDeviceKind.fromSystem(d),
-              failedDeviceIds.contains(d.id)))
+              failedDeviceIds.contains(d.id),
+          )
+      )
     }
 
     return result
@@ -186,7 +188,8 @@ private class AudioDevicesSdk31(state: State, obs: OnDeviceChangeObs) :
                 "id = ${newDevice.id}, " +
                 "type = ${newDevice.type}, " +
                 "productName = ${newDevice.productName}",
-            GetUserMediaException.Kind.Audio)
+            GetUserMediaException.Kind.Audio,
+        )
       }
 
       try {
@@ -195,7 +198,9 @@ private class AudioDevicesSdk31(state: State, obs: OnDeviceChangeObs) :
           withTimeout(DEVICE_CHANGE_TIMEOUT_MS) { deferred.await() }
         } catch (e: Exception) {
           throw GetUserMediaException(
-              "Timeout changing communication device", GetUserMediaException.Kind.Audio)
+              "Timeout changing communication device",
+              GetUserMediaException.Kind.Audio,
+          )
         }
         // Mark as selected after confirmation.
         selectedDeviceId = desiredDeviceId
@@ -337,7 +342,9 @@ private class AudioDevicesLegacy(state: State, obs: OnDeviceChangeObs) : AudioDe
             if (AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED == intent.action) {
               val state =
                   intent.getIntExtra(
-                      AudioManager.EXTRA_SCO_AUDIO_STATE, AudioManager.SCO_AUDIO_STATE_DISCONNECTED)
+                      AudioManager.EXTRA_SCO_AUDIO_STATE,
+                      AudioManager.SCO_AUDIO_STATE_DISCONNECTED,
+                  )
               when (state) {
                 AudioManager.SCO_AUDIO_STATE_CONNECTED -> {
                   Log.d(TAG, "SCO connected")
@@ -357,7 +364,9 @@ private class AudioDevicesLegacy(state: State, obs: OnDeviceChangeObs) : AudioDe
                   bluetoothScoDeferred?.completeExceptionally(
                       GetUserMediaException(
                           "Bluetooth headset is unavailable at this moment",
-                          GetUserMediaException.Kind.Audio))
+                          GetUserMediaException.Kind.Audio,
+                      )
+                  )
                   bluetoothScoDeferred = null
                   Handler(Looper.getMainLooper()).post { obs.onDeviceChange() }
                 }
@@ -370,7 +379,9 @@ private class AudioDevicesLegacy(state: State, obs: OnDeviceChangeObs) : AudioDe
   init {
     // Register for SCO audio state changes and prime initial state.
     state.context.registerReceiver(
-        scoReceiver, IntentFilter(AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED))
+        scoReceiver,
+        IntentFilter(AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED),
+    )
     synchronizeHeadsetState()
   }
 
@@ -387,7 +398,9 @@ private class AudioDevicesLegacy(state: State, obs: OnDeviceChangeObs) : AudioDe
                 "Speakerphone",
                 MediaDeviceKind.AUDIO_OUTPUT,
                 AudioDeviceKind.SPEAKERPHONE,
-                false))
+                false,
+            )
+        )
 
     var bluetoothDevice: AudioDeviceInfo? = null
     for (device in audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS)) {
@@ -406,7 +419,9 @@ private class AudioDevicesLegacy(state: State, obs: OnDeviceChangeObs) : AudioDe
               bluetoothDevice.productName.toString(),
               MediaDeviceKind.AUDIO_OUTPUT,
               AudioDeviceKind.BLUETOOTH_HEADSET,
-              isBluetoothScoFailed))
+              isBluetoothScoFailed,
+          )
+      )
     }
 
     result +=
@@ -416,14 +431,16 @@ private class AudioDevicesLegacy(state: State, obs: OnDeviceChangeObs) : AudioDe
               "Wired headset",
               MediaDeviceKind.AUDIO_OUTPUT,
               AudioDeviceKind.WIRED_HEADSET,
-              false)
+              false,
+          )
         } else {
           MediaDeviceInfo(
               LegacyAudioDevice.EAR_SPEAKER.id,
               "Ear-speaker",
               MediaDeviceKind.AUDIO_OUTPUT,
               AudioDeviceKind.EAR_SPEAKER,
-              false)
+              false,
+          )
         }
 
     result.add(MediaDeviceInfo("default", "default", MediaDeviceKind.AUDIO_INPUT, null, false))
@@ -441,7 +458,8 @@ private class AudioDevicesLegacy(state: State, obs: OnDeviceChangeObs) : AudioDe
 
     setOutputAudioMutex.withLock {
       when (device) {
-        LegacyAudioDevice.WIRED_HEADSET, LegacyAudioDevice.EAR_SPEAKER -> {
+        LegacyAudioDevice.WIRED_HEADSET,
+        LegacyAudioDevice.EAR_SPEAKER -> {
           if (scoAudioStateConnected) {
             stopBluetoothSco()
           }
@@ -473,16 +491,22 @@ private class AudioDevicesLegacy(state: State, obs: OnDeviceChangeObs) : AudioDe
               audioManager.stopBluetoothSco()
               isBluetoothScoFailed = true
               throw GetUserMediaException(
-                  "Timeout connecting bluetooth headset", GetUserMediaException.Kind.Audio)
+                  "Timeout connecting bluetooth headset",
+                  GetUserMediaException.Kind.Audio,
+              )
             }
           } else {
             throw GetUserMediaException(
-                "Bluetooth headset is not connected", GetUserMediaException.Kind.Audio)
+                "Bluetooth headset is not connected",
+                GetUserMediaException.Kind.Audio,
+            )
           }
         }
         else -> {
           throw GetUserMediaException(
-              "Unknown output device: $deviceId", GetUserMediaException.Kind.Audio)
+              "Unknown output device: $deviceId",
+              GetUserMediaException.Kind.Audio,
+          )
         }
       }
     }
@@ -496,7 +520,10 @@ private class AudioDevicesLegacy(state: State, obs: OnDeviceChangeObs) : AudioDe
     audioManager.isBluetoothScoOn = false
     bluetoothScoDeferred?.completeExceptionally(
         GetUserMediaException(
-            "Bluetooth headset connection request was cancelled", GetUserMediaException.Kind.Audio))
+            "Bluetooth headset connection request was cancelled",
+            GetUserMediaException.Kind.Audio,
+        )
+    )
     bluetoothScoDeferred = null
   }
 

@@ -51,9 +51,12 @@ class VideoRendererController(
                     "id" to id,
                     "width" to width,
                     "height" to height,
-                    "rotation" to rotation))
+                    "rotation" to rotation,
+                )
+            )
           }
-        })
+        }
+    )
   }
 
   override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {

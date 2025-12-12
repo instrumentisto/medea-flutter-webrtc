@@ -11,7 +11,7 @@ import org.webrtc.RendererCommon
 /**
  * Renders video from a track to a [SurfaceTexture] which can be shown by the Flutter side.
  *
- * @param textureRegistry Registry to create a new [TextureRegistry.SurfaceTextureEntry] with.
+ * @param producer Responsible for creating new [SurfaceTexture]s.
  */
 class FlutterRtcVideoRenderer(val producer: TextureRegistry.SurfaceProducer) {
   /** Unique ID of the underlying texture. */
@@ -107,7 +107,7 @@ class FlutterRtcVideoRenderer(val producer: TextureRegistry.SurfaceProducer) {
 
   /**
    * @return Listener for all renderer events, which will pass this events to the current
-   * [EventListener].
+   *   [EventListener].
    */
   private fun rendererEventsListener(): RendererCommon.RendererEvents {
     return object : RendererCommon.RendererEvents {

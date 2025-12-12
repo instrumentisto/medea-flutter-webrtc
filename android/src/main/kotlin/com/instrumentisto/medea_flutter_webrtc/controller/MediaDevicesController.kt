@@ -30,7 +30,7 @@ class MediaDevicesController(
     private val messenger: BinaryMessenger,
     private val mediaDevices: MediaDevices,
     state: State,
-    permissions: Permissions
+    permissions: Permissions,
 ) : EventChannel.StreamHandler, Controller {
   /** [CoroutineScope] for this [MediaDevicesController] */
   private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
@@ -74,7 +74,8 @@ class MediaDevicesController(
           try {
             val tracks = mediaDevices.getUserMedia(Constraints.fromMap(constraintsArg))
             result.success(
-                tracks.map { MediaStreamTrackController(messenger, it).asFlutterResult() })
+                tracks.map { MediaStreamTrackController(messenger, it).asFlutterResult() }
+            )
           } catch (e: GetUserMediaException) {
             when (e.kind) {
               GetUserMediaException.Kind.Audio ->
@@ -102,7 +103,10 @@ class MediaDevicesController(
             val configArg: Map<String, Any> = call.argument("config")!!
             val config = ForegroundCallService.Config.fromMap(configArg)
             ForegroundCallService.setup(
-                config, mediaDevices.state.context, mediaDevices.permissions)
+                config,
+                mediaDevices.state.context,
+                mediaDevices.permissions,
+            )
 
             result.success(null)
           } catch (e: Exception) {

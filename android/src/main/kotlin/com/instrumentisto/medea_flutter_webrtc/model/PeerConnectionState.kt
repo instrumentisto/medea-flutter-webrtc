@@ -45,7 +45,7 @@ enum class PeerConnectionState(val value: Int) {
      * [PeerConnectionState].
      *
      * @return [PeerConnectionState] created based on the provided
-     * [org.webrtc.PeerConnection.PeerConnectionState].
+     *   [org.webrtc.PeerConnection.PeerConnectionState].
      */
     fun fromWebRtc(from: WPeerConnectionState): PeerConnectionState {
       return when (from) {

@@ -8,6 +8,6 @@ package com.instrumentisto.medea_flutter_webrtc.exception
 class GetUserMediaException(message: String?, val kind: Kind) : Exception(message) {
   enum class Kind {
     Audio,
-    Video
+    Video,
   }
 }

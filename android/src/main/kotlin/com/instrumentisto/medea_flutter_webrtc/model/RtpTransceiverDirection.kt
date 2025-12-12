@@ -38,7 +38,7 @@ enum class RtpTransceiverDirection(val value: Int) {
      * [RtpTransceiverDirection].
      *
      * @return [RtpTransceiverDirection] created based on the provided
-     * [RtpTransceiver.RtpTransceiverDirection].
+     *   [RtpTransceiver.RtpTransceiverDirection].
      */
     fun fromWebRtc(direction: RtpTransceiver): RtpTransceiverDirection {
       return when (direction.direction) {
@@ -54,7 +54,6 @@ enum class RtpTransceiverDirection(val value: Int) {
      * Tries to create an [RtpTransceiverDirection] based on the provided [Int].
      *
      * @param value [Int] value from which [RtpTransceiverDirection] will be created.
-     *
      * @return [RtpTransceiverDirection] based on the provided [Int].
      */
     fun fromInt(value: Int) = values().first { it.value == value }

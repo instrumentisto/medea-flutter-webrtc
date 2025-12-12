@@ -27,7 +27,7 @@ enum class IceGatheringState(val value: Int) {
      * [IceGatheringState].
      *
      * @return [IceGatheringState] created based on the provided
-     * [org.webrtc.PeerConnection.IceGatheringState].
+     *   [org.webrtc.PeerConnection.IceGatheringState].
      */
     fun fromWebRtc(from: WIceGatheringState): IceGatheringState {
       return when (from) {
