@@ -19,7 +19,7 @@ use crate::{copy_dir_all, get_target};
 
 /// URL for downloading `openal-soft` source code.
 static OPENAL_URL: &str =
-    "https://github.com/kcat/openal-soft/archive/refs/tags/1.24.3";
+    "https://github.com/kcat/openal-soft/archive/refs/tags/1.25.0";
 
 /// Downloads and compiles [OpenAL] dynamic library.
 ///
