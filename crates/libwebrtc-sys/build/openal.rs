@@ -10,6 +10,7 @@ use std::{
     process::Command,
 };
 
+use anyhow::bail;
 use flate2::read::GzDecoder;
 use tar::Archive;
 
@@ -96,6 +97,19 @@ pub(super) fn compile() -> anyhow::Result<()> {
             .output()?,
     );
 
+    let build_result = Command::new("cmake")
+        .current_dir(&openal_src_path)
+        .args(["--build", ".", "--config", "Release"])
+        .output()?;
+
+    if !build_result.status.success() || !build_result.stderr.is_empty() {
+        bail!(
+            "openal cmake build failed with status \"{}\"; stderr: \"{}\"",
+            build_result.status,
+            String::from_utf8_lossy(&build_result.stderr)
+        );
+    }
+
     fs::create_dir_all(&openal_path)?;
 
     match get_target()?.as_str() {
@@ -115,7 +129,8 @@ pub(super) fn compile() -> anyhow::Result<()> {
             fs::copy(
                 openal_src_path.join("libopenal.so.1"),
                 openal_path.join("libopenal.so.1"),
-            )?;
+            )
+            .unwrap();
         }
         "x86_64-pc-windows-msvc" => {
             fs::copy(
