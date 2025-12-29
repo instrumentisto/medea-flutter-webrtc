@@ -45,12 +45,7 @@ class RtpSenderController {
         track = nil
       }
 
-      do {
-        self.rtpSender.replaceTrack(t: track)
-      } catch {
-        result(getFlutterError(error))
-      }
-
+      self.rtpSender.replaceTrack(t: track)
       result(nil)
     case "getParameters":
       let encodings = self.rtpSender.getParameters().encodings
@@ -98,11 +93,7 @@ class RtpSenderController {
         }
       }
 
-      do {
-        self.rtpSender.setParameters(params: params)
-      } catch {
-        result(getFlutterError(error))
-      }
+      self.rtpSender.setParameters(params: params)
 
       result(nil)
     case "dispose":
