@@ -28,7 +28,7 @@ SPEC CHECKSUMS:
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   instrumentisto-libwebrtc-bin: bd275aa9a0b142dda3b660e8bf41e8448165ea6e
   integration_test: 252f60fa39af5e17c3aa9899d35d908a0721b573
-  medea_flutter_webrtc: 8489acfa131a7b5e95a701cf77842a81205deb3e
+  medea_flutter_webrtc: 4834daa958ecd39285724e6fb2c8f72bcade6dbd
 
 PODFILE CHECKSUM: 96cbd66feeeb9e49d88210ea2b661316b312dda7
 
