@@ -12,9 +12,15 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Changed
 
-- Upgraded [libwebrtc] to [143.0.7499.169] version. ([todo])
+- Upgraded [libwebrtc] to [143.0.7499.169] version. ([6a6fd756])
+
+### Fixed
+
+- Error when calling `RtpSender.getParameters()` caused by a null rid ([#276])
 
 [143.0.7499.169]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/143.0.7499.169
+[#276]: https://github.com/instrumentisto/medea-flutter-webrtc/issues/276
+[6a6fd756]: https://github.com/instrumentisto/medea-flutter-webrtc/commit/6a6fd7560a82a4d87a27c2567017e92e22e9705c
 
 
 
