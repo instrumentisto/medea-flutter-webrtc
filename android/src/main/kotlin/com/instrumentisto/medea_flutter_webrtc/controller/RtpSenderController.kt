@@ -59,7 +59,7 @@ class RtpSenderController(messenger: BinaryMessenger, private val sender: RtpSen
 
         for (e in encodings) {
           val rid = e["rid"] as String
-          val enc = params.encodings.find { encoding -> encoding.rid == rid }
+          val enc = params.encodings.find { e -> (e.rid ?: "") == rid }
           if (enc == null) {
             result.error(
                 "SenderException",

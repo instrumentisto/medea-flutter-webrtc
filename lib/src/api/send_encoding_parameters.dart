@@ -57,7 +57,7 @@ abstract class SendEncodingParameters {
   /// native side.
   static SendEncodingParameters fromMap(dynamic e) {
     return _SendEncodingParametersChannel(
-      e['rid'],
+      e['rid'] ?? '',
       e['active'],
       maxBitrate: e['maxBitrate'],
       maxFramerate: (e['maxFramerate'] as int?)?.toDouble(),
