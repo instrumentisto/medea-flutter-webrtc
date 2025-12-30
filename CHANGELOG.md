@@ -6,9 +6,10 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## main
+## [0.16.1] · 2025-12-18
+[0.16.1]: https://github.com/instrumentisto/medea-flutter-webrtc/tree/0.16.1
 
-[Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.16.0...main)
+[Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.16.0...0.16.1)
 
 ### Changed
 
@@ -16,7 +17,7 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Fixed
 
-- Error when calling `RtpSender.getParameters()` caused by a null rid ([#276])
+- Error when calling `RtpSender.getParameters()` caused by a null `rid` ([#276])
 
 [143.0.7499.169]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/143.0.7499.169
 [#276]: https://github.com/instrumentisto/medea-flutter-webrtc/issues/276
