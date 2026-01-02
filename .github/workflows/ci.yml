@@ -229,13 +229,15 @@ jobs:
                   cmake curl \
                   libgtk-3-dev liblzma-dev libpulse-dev libudev-dev \
                   libssl-dev ninja-build lld-19 binutils build-essential clang \
-                  gcc-13
+                  gcc-13 g++-13
           sudo update-alternatives --install /usr/bin/lld lld /usr/bin/lld-19 100
           sudo update-alternatives --config lld
           sudo update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-19 100
           sudo update-alternatives --config ld.lld
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 130
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100
           sudo update-alternatives --config gcc
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 100
+          sudo update-alternatives --config g++
 
       - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@v1
