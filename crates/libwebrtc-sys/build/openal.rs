@@ -10,6 +10,7 @@ use std::{
     process::Command,
 };
 
+use anyhow::bail;
 use flate2::read::GzDecoder;
 use tar::Archive;
 
@@ -19,7 +20,7 @@ use crate::{copy_dir_all, get_target};
 
 /// URL for downloading `openal-soft` source code.
 static OPENAL_URL: &str =
-    "https://github.com/kcat/openal-soft/archive/refs/tags/1.24.3";
+    "https://github.com/kcat/openal-soft/archive/refs/tags/1.25.0";
 
 /// Downloads and compiles [OpenAL] dynamic library.
 ///
@@ -80,6 +81,7 @@ pub(super) fn compile() -> anyhow::Result<()> {
     cmake_cmd.current_dir(&openal_src_path).args([
         ".",
         ".",
+        "-DCMAKE_CXX_STANDARD=20",
         "-DCMAKE_BUILD_TYPE=Release",
     ]);
     #[cfg(target_os = "macos")]
@@ -95,6 +97,19 @@ pub(super) fn compile() -> anyhow::Result<()> {
             .args(["--build", ".", "--config", "Release"])
             .output()?,
     );
+
+    let build_result = Command::new("cmake")
+        .current_dir(&openal_src_path)
+        .args(["--build", ".", "--config", "Release"])
+        .output()?;
+
+    if !build_result.status.success() || !build_result.stderr.is_empty() {
+        bail!(
+            "openal cmake build failed with status \"{}\"; stderr: \"{}\"",
+            build_result.status,
+            String::from_utf8_lossy(&build_result.stderr)
+        );
+    }
 
     fs::create_dir_all(&openal_path)?;
 
@@ -115,7 +130,8 @@ pub(super) fn compile() -> anyhow::Result<()> {
             fs::copy(
                 openal_src_path.join("libopenal.so.1"),
                 openal_path.join("libopenal.so.1"),
-            )?;
+            )
+            .unwrap();
         }
         "x86_64-pc-windows-msvc" => {
             fs::copy(
