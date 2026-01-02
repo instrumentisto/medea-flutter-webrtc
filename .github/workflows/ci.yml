@@ -214,7 +214,7 @@ jobs:
     steps:
       - name: Install `linux` platform dependencies
         run: |
-          sudo set -ex
+          set -ex
 
           sudo apt-get update
           sudo apt-get install -y \
