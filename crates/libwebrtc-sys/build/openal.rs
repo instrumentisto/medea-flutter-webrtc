@@ -81,6 +81,7 @@ pub(super) fn compile() -> anyhow::Result<()> {
     cmake_cmd.current_dir(&openal_src_path).args([
         ".",
         ".",
+        "-DCMAKE_CXX_STANDARD=20",
         "-DCMAKE_BUILD_TYPE=Release",
     ]);
     #[cfg(target_os = "macos")]
