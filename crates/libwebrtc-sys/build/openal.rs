@@ -48,8 +48,7 @@ pub(super) fn build() -> anyhow::Result<()> {
         return Ok(());
     }
 
-    let openal_src =
-        openal_download(&manifest_path, &temp_dir, openal_version)?;
+    let openal_src = openal_download(&manifest_path, &temp_dir)?;
     cmake_configure(&openal_src)?;
     cmake_build(&openal_src)?;
     openal_copy(&openal_src, &manifest_path, &openal_path)?;
@@ -105,7 +104,7 @@ fn openal_download(
     Ok(openal_src_path)
 }
 
-/// Runs CMake configure step for `OpenAL` in the provided `openal_src_path`.
+/// Runs `CMake` configure step for `OpenAL` in the provided `openal_src_path`.
 fn cmake_configure(openal_src_path: &Path) -> anyhow::Result<()> {
     let mut cmake_cmd = Command::new("cmake");
     cmake_cmd.current_dir(openal_src_path).args([
@@ -141,7 +140,7 @@ fn cmake_configure(openal_src_path: &Path) -> anyhow::Result<()> {
     Ok(())
 }
 
-/// Runs CMake build step for OpenAL in the provided `openal_src_path`.
+/// Runs `CMake` build step for OpenAL in the provided `openal_src_path`.
 fn cmake_build(openal_src_path: &Path) -> anyhow::Result<()> {
     let build_result = Command::new("cmake")
         .current_dir(openal_src_path)
