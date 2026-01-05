@@ -81,7 +81,6 @@ pub(super) fn compile() -> anyhow::Result<()> {
     cmake_cmd.current_dir(&openal_src_path).args([
         ".",
         ".",
-        "-DCMAKE_CXX_STANDARD=20",
         "-DCMAKE_BUILD_TYPE=Release",
     ]);
     #[cfg(target_os = "macos")]
@@ -89,21 +88,25 @@ pub(super) fn compile() -> anyhow::Result<()> {
         cmake_cmd.arg("-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64");
         cmake_cmd.arg(format!("-DCMAKE_OSX_DEPLOYMENT_TARGET={MACOS_MIN_VER}"));
     }
-    drop(cmake_cmd.output()?);
+    #[cfg(target_os = "linux")]
+    {
+        // TODO: Remove when https://github.com/kcat/openal-soft/pull/1214
+        //       is released.
+        cmake_cmd.arg("-DCMAKE_CXX_FLAGS='-include cstdint'");
 
-    drop(
-        Command::new("cmake")
-            .current_dir(&openal_src_path)
-            .args(["--build", ".", "--config", "Release"])
-            .output()?,
-    );
+        // TODO: Remove when migrating to newer toolchain.
+        //       ld v2.42 and g++ 13.3.0 work fine.
+        cmake_cmd.arg("-DHAVE_GCC_PROTECTED_VISIBILITY=OFF");
+        cmake_cmd.arg("-DHAVE_GCC_DEFAULT_VISIBILITY=ON");
+    }
+    drop(cmake_cmd.output()?);
 
     let build_result = Command::new("cmake")
         .current_dir(&openal_src_path)
         .args(["--build", ".", "--config", "Release"])
         .output()?;
 
-    if !build_result.status.success() || !build_result.stderr.is_empty() {
+    if !build_result.status.success() {
         bail!(
             "openal cmake build failed with status \"{}\"; stderr: \"{}\"",
             build_result.status,
@@ -130,8 +133,7 @@ pub(super) fn compile() -> anyhow::Result<()> {
             fs::copy(
                 openal_src_path.join("libopenal.so.1"),
                 openal_path.join("libopenal.so.1"),
-            )
-            .unwrap();
+            )?;
         }
         "x86_64-pc-windows-msvc" => {
             fs::copy(
