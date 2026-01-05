@@ -67,7 +67,7 @@ class RtpSenderController {
 
       for e in encodings!! {
         let rid = e["rid"] as! String
-        let enc = params.encodings.first(where: { $0.rid == rid })
+        let enc = params.encodings.first(where: { ($0.rid ?? "") == rid })
         if enc == nil {
           result(FlutterError(
             code: "SenderError",
