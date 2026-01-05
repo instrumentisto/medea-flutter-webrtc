@@ -6,7 +6,7 @@ use std::{
     env, fs,
     fs::File,
     io::{self, Write as _},
-    path::PathBuf,
+    path::{Path, PathBuf},
     process::Command,
 };
 
@@ -28,13 +28,10 @@ static OPENAL_URL: &str =
 /// locations.
 ///
 /// [OpenAL]: https://github.com/kcat/openal-soft
-pub(super) fn compile() -> anyhow::Result<()> {
-    let openal_version = OPENAL_URL.split('/').next_back().unwrap_or_default();
+pub(super) fn build() -> anyhow::Result<()> {
     let manifest_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
     let temp_dir = manifest_path.join("temp");
     let openal_path = get_path_to_openal()?;
-
-    let archive = temp_dir.join(format!("{openal_version}.tar.gz"));
 
     let is_already_installed = fs::metadata(
         manifest_path
@@ -51,10 +48,32 @@ pub(super) fn compile() -> anyhow::Result<()> {
         return Ok(());
     }
 
-    if temp_dir.exists() {
-        fs::remove_dir_all(&temp_dir)?;
+    let openal_src =
+        openal_download(&manifest_path, &temp_dir, openal_version)?;
+    cmake_configure(&openal_src)?;
+    cmake_build(&openal_src)?;
+    openal_copy(&openal_src, &manifest_path, &openal_path)?;
+
+    fs::remove_dir_all(&temp_dir)?;
+
+    Ok(())
+}
+
+/// Downloads and unpacks `OpenAL` sources into provided `dst_dir`.
+///
+/// Returns path to the unpacked OpenAL source directory.
+fn openal_download(
+    manifest_path: &Path,
+    dst_dir: &Path,
+) -> anyhow::Result<PathBuf> {
+    let openal_version = OPENAL_URL.split('/').next_back().unwrap_or_default();
+
+    let archive = dst_dir.join(format!("{openal_version}.tar.gz"));
+
+    if dst_dir.exists() {
+        fs::remove_dir_all(dst_dir)?;
     }
-    fs::create_dir_all(&temp_dir)?;
+    fs::create_dir_all(dst_dir)?;
 
     {
         let mut resp = reqwest::blocking::get(format!(
@@ -67,18 +86,29 @@ pub(super) fn compile() -> anyhow::Result<()> {
     }
 
     let mut archive = Archive::new(GzDecoder::new(File::open(archive)?));
-    archive.unpack(&temp_dir)?;
+    archive.unpack(dst_dir)?;
 
-    let openal_src_path =
-        temp_dir.join(format!("openal-soft-{openal_version}"));
+    let openal_src_path = dst_dir.join(format!("openal-soft-{openal_version}"));
+    if !openal_src_path.exists() {
+        bail!(
+            "openal sources weren't unpacked to expected path `{}`",
+            openal_src_path.display()
+        );
+    }
 
+    // Copy OpenAL headers (needed by libwebrtc bindings compilation).
     copy_dir_all(
         openal_src_path.join("include"),
         manifest_path.join("lib").join(get_target()?.as_str()).join("include"),
     )?;
 
+    Ok(openal_src_path)
+}
+
+/// Runs CMake configure step for `OpenAL` in the provided `openal_src_path`.
+fn cmake_configure(openal_src_path: &Path) -> anyhow::Result<()> {
     let mut cmake_cmd = Command::new("cmake");
-    cmake_cmd.current_dir(&openal_src_path).args([
+    cmake_cmd.current_dir(openal_src_path).args([
         ".",
         ".",
         "-DCMAKE_BUILD_TYPE=Release",
@@ -99,10 +129,22 @@ pub(super) fn compile() -> anyhow::Result<()> {
         cmake_cmd.arg("-DHAVE_GCC_PROTECTED_VISIBILITY=OFF");
         cmake_cmd.arg("-DHAVE_GCC_DEFAULT_VISIBILITY=ON");
     }
-    drop(cmake_cmd.output()?);
+    let configure_result = cmake_cmd.output()?;
+    if !configure_result.status.success() {
+        bail!(
+            "openal cmake configure failed with status \"{}\"; stderr: \"{}\"",
+            configure_result.status,
+            String::from_utf8_lossy(&configure_result.stderr)
+        );
+    }
 
+    Ok(())
+}
+
+/// Runs CMake build step for OpenAL in the provided `openal_src_path`.
+fn cmake_build(openal_src_path: &Path) -> anyhow::Result<()> {
     let build_result = Command::new("cmake")
-        .current_dir(&openal_src_path)
+        .current_dir(openal_src_path)
         .args(["--build", ".", "--config", "Release"])
         .output()?;
 
@@ -114,7 +156,16 @@ pub(super) fn compile() -> anyhow::Result<()> {
         );
     }
 
-    fs::create_dir_all(&openal_path)?;
+    Ok(())
+}
+
+/// Copies the built OpenAL library artifacts into the Flutter project layout.
+fn openal_copy(
+    openal_src_path: &Path,
+    manifest_path: &Path,
+    openal_path: &Path,
+) -> anyhow::Result<()> {
+    fs::create_dir_all(openal_path)?;
 
     match get_target()?.as_str() {
         "aarch64-apple-darwin" | "x86_64-apple-darwin" => {
@@ -127,7 +178,7 @@ pub(super) fn compile() -> anyhow::Result<()> {
             drop(
                 Command::new("strip")
                     .arg("libopenal.so.1")
-                    .current_dir(&openal_src_path)
+                    .current_dir(openal_src_path)
                     .output()?,
             );
             fs::copy(
@@ -156,8 +207,6 @@ pub(super) fn compile() -> anyhow::Result<()> {
         }
         _ => (),
     }
-
-    fs::remove_dir_all(&temp_dir)?;
 
     Ok(())
 }
