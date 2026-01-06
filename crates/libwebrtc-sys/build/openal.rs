@@ -63,10 +63,7 @@ pub(super) fn build() -> anyhow::Result<()> {
 /// Returns [`Path`] to the unpacked [OpenAL] source directory.
 ///
 /// [OpenAL]: https://github.com/kcat/openal-soft
-fn download(
-    manifest_path: &Path,
-    dest_dir: &Path,
-) -> anyhow::Result<PathBuf> {
+fn download(manifest_path: &Path, dest_dir: &Path) -> anyhow::Result<PathBuf> {
     let openal_version = OPENAL_URL.split('/').next_back().unwrap_or_default();
 
     let archive = dest_dir.join(format!("{openal_version}.tar.gz"));
@@ -89,7 +86,8 @@ fn download(
     let mut archive = Archive::new(GzDecoder::new(File::open(archive)?));
     archive.unpack(dest_dir)?;
 
-    let openal_src_path = dest_dir.join(format!("openal-soft-{openal_version}"));
+    let openal_src_path =
+        dest_dir.join(format!("openal-soft-{openal_version}"));
     if !openal_src_path.exists() {
         bail!(
             "OpenAL sources weren't unpacked to expected path `{}`",
