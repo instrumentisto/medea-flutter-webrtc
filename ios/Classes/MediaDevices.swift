@@ -6,6 +6,9 @@ class MediaDevices {
   /// Global state used for creation of new `MediaStreamTrackProxy`s.
   private var state: State
 
+  /// Wrapper around `AVAudioSession` calls that can disable auto-management.
+  private var audioSession: AudioSession = AudioSession()
+
   /// Subscribers for `onDeviceChange` callback of these `MediaDevices`.
   private var onDeviceChange: [() -> Void] = []
 
@@ -17,6 +20,16 @@ class MediaDevices {
 
   /// Indicator of whether `AVAudioSession` is currently "captured".
   private var isAudioSessionActive: Bool = false
+
+  /// Enables/disables automatic `AVAudioSession` management.
+  ///
+  /// When disabled, this plugin will not call into `AVAudioSession` for category
+  /// configuration / activation / deactivation. Device enumeration and explicit
+  /// switching still works.
+  func setupAudioSessionManagement(auto: Bool) {
+    self.audioSession.autoManagementEnabled = auto
+    self.updateAudioSession()
+  }
 
   /// Initializes new `MediaDevices` with the provided `State`.
   ///
@@ -86,33 +99,33 @@ class MediaDevices {
   private func updateAudioSession() {
     assert(Thread.isMainThread)
 
+    if !self.audioSession.autoManagementEnabled {
+      return
+    }
+
     let shouldBeActive = !self.activePeers.isEmpty || !self.activeAudioTracks
       .isEmpty
     if shouldBeActive, !self.isAudioSessionActive {
-      try? AVAudioSession.sharedInstance().setCategory(
-        AVAudioSession.Category.playAndRecord,
-        options: AVAudioSession.CategoryOptions.allowBluetooth
+      try? self.audioSession.setCategory(
+        .playAndRecord,
+        options: .allowBluetooth
       )
-      try? AVAudioSession.sharedInstance().setActive(true)
+      try? self.audioSession.setActive(true)
       self.isAudioSessionActive = true
     } else {
       if self.isAudioSessionActive {
-        try? AVAudioSession.sharedInstance().setActive(
-          false,
-          options: .notifyOthersOnDeactivation
-        )
+        try? self.audioSession.setActive(false, notifyOthersOnDeactivation: true)
         self.isAudioSessionActive = false
       }
     }
   }
 
   /// Switches current input device to the iPhone's microphone.
-  func setBuiltInMicAsInput() {
-    if let routes = AVAudioSession.sharedInstance().availableInputs {
+  func setBuiltInMicAsInput() throws {
+    if let routes = self.audioSession.availableInputs {
       for route in routes {
         if route.portType == .builtInMic {
-          _ = try? AVAudioSession.sharedInstance()
-            .setPreferredInput(route)
+          try self.audioSession.setPreferredInput(route)
           break
         }
       }
@@ -120,23 +133,23 @@ class MediaDevices {
   }
 
   /// Switches current audio output device to a device with the provided ID.
-  func setOutputAudioId(id: String) {
-    let session = AVAudioSession.sharedInstance()
-    try! AVAudioSession.sharedInstance().setCategory(
-      AVAudioSession.Category.playAndRecord,
-      options: AVAudioSession.CategoryOptions.allowBluetooth
+  func setOutputAudioId(id: String) throws {
+    // Category management is only done when auto-management is enabled.
+    try self.audioSession.setCategory(
+      .playAndRecord,
+      options: .allowBluetooth
     )
     if id == "speaker" {
-      self.setBuiltInMicAsInput()
-      try! AVAudioSession.sharedInstance().overrideOutputAudioPort(.speaker)
+      try self.setBuiltInMicAsInput()
+      try self.audioSession.overrideOutputAudioPort(.speaker)
     } else if id == "ear-piece" {
-      self.setBuiltInMicAsInput()
-      try! AVAudioSession.sharedInstance().overrideOutputAudioPort(.none)
+      try self.setBuiltInMicAsInput()
+      try self.audioSession.overrideOutputAudioPort(.none)
     } else {
-      let selectedInput = AVAudioSession.sharedInstance().availableInputs?
+      let selectedInput = self.audioSession.availableInputs?
         .first(where: { $0.portName == id })
       if selectedInput != nil {
-        try! session.setPreferredInput(selectedInput!)
+        try self.audioSession.setPreferredInput(selectedInput!)
       }
     }
   }
@@ -171,8 +184,7 @@ class MediaDevices {
     }
     devices.append(contentsOf: videoDevices)
 
-    let session = AVAudioSession.sharedInstance()
-    guard let availableInputs = session.availableInputs else {
+    guard let availableInputs = self.audioSession.availableInputs else {
       return devices
     }
 
@@ -192,13 +204,13 @@ class MediaDevices {
 
   /// Creates local audio and video `MediaStreamTrackProxy`s based on the
   /// provided `Constraints`.
-  func getUserMedia(constraints: Constraints) -> [MediaStreamTrackProxy] {
+  func getUserMedia(constraints: Constraints) throws -> [MediaStreamTrackProxy] {
     var tracks: [MediaStreamTrackProxy] = []
     if constraints.audio != nil {
       tracks.append(self.getUserAudio())
     }
     if constraints.video != nil {
-      tracks.append(self.getUserVideo(constraints: constraints.video!))
+      tracks.append(try self.getUserVideo(constraints: constraints.video!))
     }
 
     return tracks
@@ -244,19 +256,32 @@ class MediaDevices {
 
   /// Creates a video `MediaStreamTrackProxy` for the provided
   /// `VideoConstraints`.
-  private func getUserVideo(constraints: VideoConstraints)
+  private func getUserVideo(constraints: VideoConstraints) throws
     -> MediaStreamTrackProxy
   {
     let source = self.state.getPeerFactory().videoSource()
     let capturer = RTCCameraVideoCapturer(delegate: source)
+
     #if targetEnvironment(simulator)
       let deviceId = "fake-camera"
       let position = AVCaptureDevice.Position.front
     #else
-      let videoDevice = self
-        .findVideoDeviceForConstraints(constraints: constraints)!
+
+      guard
+        let videoDevice = self.findVideoDeviceForConstraints(
+          constraints: constraints
+        )
+      else {
+        throw NSError(
+          domain: "MediaDevices",
+          code: 1,
+          userInfo: [
+            NSLocalizedDescriptionKey: "No suitable video device found."
+          ]
+        )
+      }
       let position = videoDevice.position
-      let selectedFormat = self.selectFormatForDevice(
+      let selectedFormat = try self.selectFormatForDevice(
         device: videoDevice,
         constraints: constraints
       )
@@ -301,7 +326,7 @@ class MediaDevices {
     device: AVCaptureDevice,
     constraints: VideoConstraints
   )
-    -> AVCaptureDevice.Format
+    throws -> AVCaptureDevice.Format
   {
     var bestFoundFormat: AVCaptureDevice.Format?
     var currentDiff = Int.max
@@ -323,6 +348,15 @@ class MediaDevices {
         currentDiff = diff
       }
     }
-    return bestFoundFormat!
+    guard let bestFoundFormat else {
+      throw NSError(
+        domain: "MediaDevices",
+        code: 2,
+        userInfo: [
+          NSLocalizedDescriptionKey: "No suitable capture format found."
+        ]
+      )
+    }
+    return bestFoundFormat
   }
 }
