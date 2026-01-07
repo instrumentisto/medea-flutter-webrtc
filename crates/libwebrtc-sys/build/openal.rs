@@ -6,10 +6,11 @@ use std::{
     env, fs,
     fs::File,
     io::{self, Write as _},
-    path::PathBuf,
+    path::{Path, PathBuf},
     process::Command,
 };
 
+use anyhow::bail;
 use flate2::read::GzDecoder;
 use tar::Archive;
 
@@ -19,21 +20,18 @@ use crate::{copy_dir_all, get_target};
 
 /// URL for downloading `openal-soft` source code.
 static OPENAL_URL: &str =
-    "https://github.com/kcat/openal-soft/archive/refs/tags/1.24.3";
+    "https://github.com/kcat/openal-soft/archive/refs/tags/1.25.0";
 
-/// Downloads and compiles [OpenAL] dynamic library.
+/// Downloads and builds [OpenAL] dynamic library.
 ///
 /// Copies [OpenAL] headers and moves the compiled library to the required
 /// locations.
 ///
 /// [OpenAL]: https://github.com/kcat/openal-soft
-pub(super) fn compile() -> anyhow::Result<()> {
-    let openal_version = OPENAL_URL.split('/').next_back().unwrap_or_default();
+pub(super) fn build() -> anyhow::Result<()> {
     let manifest_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
     let temp_dir = manifest_path.join("temp");
     let openal_path = get_path_to_openal()?;
-
-    let archive = temp_dir.join(format!("{openal_version}.tar.gz"));
 
     let is_already_installed = fs::metadata(
         manifest_path
@@ -50,10 +48,30 @@ pub(super) fn compile() -> anyhow::Result<()> {
         return Ok(());
     }
 
-    if temp_dir.exists() {
-        fs::remove_dir_all(&temp_dir)?;
+    let openal_src = download(&manifest_path, &temp_dir)?;
+    cmake_configure(&openal_src)?;
+    cmake_build(&openal_src)?;
+    copy_artifacts(&openal_src, &manifest_path, &openal_path)?;
+
+    fs::remove_dir_all(&temp_dir)?;
+
+    Ok(())
+}
+
+/// Downloads and unpacks [OpenAL] sources into provided `dest_dir`.
+///
+/// Returns [`Path`] to the unpacked [OpenAL] source directory.
+///
+/// [OpenAL]: https://github.com/kcat/openal-soft
+fn download(manifest_path: &Path, dest_dir: &Path) -> anyhow::Result<PathBuf> {
+    let openal_version = OPENAL_URL.split('/').next_back().unwrap_or_default();
+
+    let archive = dest_dir.join(format!("{openal_version}.tar.gz"));
+
+    if dest_dir.exists() {
+        fs::remove_dir_all(dest_dir)?;
     }
-    fs::create_dir_all(&temp_dir)?;
+    fs::create_dir_all(dest_dir)?;
 
     {
         let mut resp = reqwest::blocking::get(format!(
@@ -66,18 +84,33 @@ pub(super) fn compile() -> anyhow::Result<()> {
     }
 
     let mut archive = Archive::new(GzDecoder::new(File::open(archive)?));
-    archive.unpack(&temp_dir)?;
+    archive.unpack(dest_dir)?;
 
     let openal_src_path =
-        temp_dir.join(format!("openal-soft-{openal_version}"));
+        dest_dir.join(format!("openal-soft-{openal_version}"));
+    if !openal_src_path.exists() {
+        bail!(
+            "OpenAL sources weren't unpacked to expected path `{}`",
+            openal_src_path.display(),
+        );
+    }
 
+    // Copy OpenAL headers (needed by `libwebrtc` bindings compilation).
     copy_dir_all(
         openal_src_path.join("include"),
         manifest_path.join("lib").join(get_target()?.as_str()).join("include"),
     )?;
 
+    Ok(openal_src_path)
+}
+
+/// Runs [CMake] configure step for [OpenAL] in the provided `src_path`.
+///
+/// [CMake]: https://cmake.org
+/// [OpenAL]: https://github.com/kcat/openal-soft
+fn cmake_configure(src_path: &Path) -> anyhow::Result<()> {
     let mut cmake_cmd = Command::new("cmake");
-    cmake_cmd.current_dir(&openal_src_path).args([
+    cmake_cmd.current_dir(src_path).args([
         ".",
         ".",
         "-DCMAKE_BUILD_TYPE=Release",
@@ -87,16 +120,60 @@ pub(super) fn compile() -> anyhow::Result<()> {
         cmake_cmd.arg("-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64");
         cmake_cmd.arg(format!("-DCMAKE_OSX_DEPLOYMENT_TARGET={MACOS_MIN_VER}"));
     }
-    drop(cmake_cmd.output()?);
+    #[cfg(target_os = "linux")]
+    {
+        // TODO: Remove once kcat/openal-soft#1214 is released:
+        //       https://github.com/kcat/openal-soft/pull/1214
+        cmake_cmd.arg("-DCMAKE_CXX_FLAGS='-include cstdint'");
 
-    drop(
-        Command::new("cmake")
-            .current_dir(&openal_src_path)
-            .args(["--build", ".", "--config", "Release"])
-            .output()?,
-    );
+        // TODO: Remove on migrating to newer toolchain.
+        //       ld v2.42 and g++ 13.3.0 work fine.
+        cmake_cmd.arg("-DHAVE_GCC_PROTECTED_VISIBILITY=OFF");
+        cmake_cmd.arg("-DHAVE_GCC_DEFAULT_VISIBILITY=ON");
+    }
+    let configure_result = cmake_cmd.output()?;
+    if !configure_result.status.success() {
+        bail!(
+            "OpenAL `cmake` configure failed with status `{}` and stderr:\n{}",
+            configure_result.status,
+            String::from_utf8_lossy(&configure_result.stderr),
+        );
+    }
 
-    fs::create_dir_all(&openal_path)?;
+    Ok(())
+}
+
+/// Runs [CMake] build step for [OpenAL] in the provided `src_path`.
+///
+/// [CMake]: https://cmake.org
+/// [OpenAL]: https://github.com/kcat/openal-soft
+fn cmake_build(src_path: &Path) -> anyhow::Result<()> {
+    let build_result = Command::new("cmake")
+        .current_dir(src_path)
+        .args(["--build", ".", "--config", "Release"])
+        .output()?;
+
+    if !build_result.status.success() {
+        bail!(
+            "OpenAL `cmake` build failed with status `{}` and stderr:\n{}",
+            build_result.status,
+            String::from_utf8_lossy(&build_result.stderr),
+        );
+    }
+
+    Ok(())
+}
+
+/// Copies the built [OpenAL] library artifacts to the [Flutter] project layout.
+///
+/// [Flutter]: https://www.flutter.dev
+/// [OpenAL]: https://github.com/kcat/openal-soft
+fn copy_artifacts(
+    openal_src_path: &Path,
+    manifest_path: &Path,
+    openal_path: &Path,
+) -> anyhow::Result<()> {
+    fs::create_dir_all(openal_path)?;
 
     match get_target()?.as_str() {
         "aarch64-apple-darwin" | "x86_64-apple-darwin" => {
@@ -109,7 +186,7 @@ pub(super) fn compile() -> anyhow::Result<()> {
             drop(
                 Command::new("strip")
                     .arg("libopenal.so.1")
-                    .current_dir(&openal_src_path)
+                    .current_dir(openal_src_path)
                     .output()?,
             );
             fs::copy(
@@ -138,8 +215,6 @@ pub(super) fn compile() -> anyhow::Result<()> {
         }
         _ => (),
     }
-
-    fs::remove_dir_all(&temp_dir)?;
 
     Ok(())
 }

@@ -184,7 +184,7 @@ fn main() -> anyhow::Result<()> {
     webrtc::download()?;
     #[cfg(target_os = "windows")]
     wil::download()?;
-    openal::compile()?;
+    openal::build()?;
 
     let path = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
     let libpath = libpath()?;

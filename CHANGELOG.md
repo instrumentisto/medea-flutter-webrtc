@@ -6,6 +6,20 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## main
+
+[Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.16.1...main)
+
+### Changed
+
+- Upgraded [OpenAL] library to [1.25.0][openal-1.25.0] version. ([#275])
+
+[#275]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/275
+[openal-1.25.0]: https://github.com/kcat/openal-soft/releases/tag/1.25.0
+
+
+
+
 ## [0.16.1] · 2026-01-05
 [0.16.1]: https://github.com/instrumentisto/medea-flutter-webrtc/tree/0.16.1
 
