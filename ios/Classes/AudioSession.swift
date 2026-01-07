@@ -28,7 +28,9 @@ final class AudioSession {
   }
 
   /// Overrides the output audio port (e.g. speaker vs default route).
-  func overrideOutputAudioPort(_ portOverride: AVAudioSession.PortOverride) throws {
+  func overrideOutputAudioPort(_ portOverride: AVAudioSession
+    .PortOverride) throws
+  {
     try self.session.overrideOutputAudioPort(portOverride)
   }
 
@@ -62,9 +64,13 @@ final class AudioSession {
   /// Activates or deactivates the audio session.
   ///
   /// Mirrors `AVAudioSession.setActive(_:)` and
-  /// `AVAudioSession.setActive(_:options:)`. If `autoManagementEnabled == false`,
+  /// `AVAudioSession.setActive(_:options:)`. If `autoManagementEnabled ==
+  /// false`,
   /// this is a no-op.
-  func setActive(_ active: Bool, notifyOthersOnDeactivation: Bool = false) throws {
+  func setActive(
+    _ active: Bool,
+    notifyOthersOnDeactivation: Bool = false
+  ) throws {
     guard self.autoManagementEnabled else { return }
 
     if active {
@@ -76,5 +82,3 @@ final class AudioSession {
     }
   }
 }
-
-

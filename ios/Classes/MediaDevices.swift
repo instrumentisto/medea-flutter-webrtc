@@ -7,7 +7,7 @@ class MediaDevices {
   private var state: State
 
   /// Wrapper around `AVAudioSession` calls that can disable auto-management.
-  private var audioSession: AudioSession = AudioSession()
+  private var audioSession: AudioSession = .init()
 
   /// Subscribers for `onDeviceChange` callback of these `MediaDevices`.
   private var onDeviceChange: [() -> Void] = []
@@ -23,7 +23,8 @@ class MediaDevices {
 
   /// Enables/disables automatic `AVAudioSession` management.
   ///
-  /// When disabled, this plugin will not call into `AVAudioSession` for category
+  /// When disabled, this plugin will not call into `AVAudioSession` for
+  /// category
   /// configuration / activation / deactivation. Device enumeration and explicit
   /// switching still works.
   func setupAudioSessionManagement(auto: Bool) {
@@ -114,7 +115,10 @@ class MediaDevices {
       self.isAudioSessionActive = true
     } else {
       if self.isAudioSessionActive {
-        try? self.audioSession.setActive(false, notifyOthersOnDeactivation: true)
+        try? self.audioSession.setActive(
+          false,
+          notifyOthersOnDeactivation: true
+        )
         self.isAudioSessionActive = false
       }
     }
@@ -204,13 +208,15 @@ class MediaDevices {
 
   /// Creates local audio and video `MediaStreamTrackProxy`s based on the
   /// provided `Constraints`.
-  func getUserMedia(constraints: Constraints) throws -> [MediaStreamTrackProxy] {
+  func getUserMedia(constraints: Constraints) throws
+    -> [MediaStreamTrackProxy]
+  {
     var tracks: [MediaStreamTrackProxy] = []
     if constraints.audio != nil {
       tracks.append(self.getUserAudio())
     }
     if constraints.video != nil {
-      tracks.append(try self.getUserVideo(constraints: constraints.video!))
+      try tracks.append(self.getUserVideo(constraints: constraints.video!))
     }
 
     return tracks
@@ -276,7 +282,7 @@ class MediaDevices {
           domain: "MediaDevices",
           code: 1,
           userInfo: [
-            NSLocalizedDescriptionKey: "No suitable video device found."
+            NSLocalizedDescriptionKey: "No suitable video device found.",
           ]
         )
       }
@@ -353,7 +359,7 @@ class MediaDevices {
         domain: "MediaDevices",
         code: 2,
         userInfo: [
-          NSLocalizedDescriptionKey: "No suitable capture format found."
+          NSLocalizedDescriptionKey: "No suitable capture format found.",
         ]
       )
     }
