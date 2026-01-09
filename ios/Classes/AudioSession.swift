@@ -37,7 +37,7 @@ final class AudioSession {
   /// Sets the audio session category with the provided options.
   ///
   /// Mirrors `AVAudioSession.setCategory(_:options:)`. If
-  /// `autoManagementEnabled == false`, this is a no-op.
+  /// `autoManagementEnabled` is false, this is a no-op.
   func setCategory(
     _ category: AVAudioSession.Category,
     options: AVAudioSession.CategoryOptions = []
@@ -50,7 +50,7 @@ final class AudioSession {
   /// Sets the audio session category, mode, and options.
   ///
   /// Mirrors `AVAudioSession.setCategory(_:mode:options:)`. If
-  /// `autoManagementEnabled == false`, this is a no-op.
+  /// `autoManagementEnabled` is false, this is a no-op.
   func setCategory(
     _ category: AVAudioSession.Category,
     mode: AVAudioSession.Mode,
@@ -64,9 +64,8 @@ final class AudioSession {
   /// Activates or deactivates the audio session.
   ///
   /// Mirrors `AVAudioSession.setActive(_:)` and
-  /// `AVAudioSession.setActive(_:options:)`. If `autoManagementEnabled ==
-  /// false`,
-  /// this is a no-op.
+  /// `AVAudioSession.setActive(_:options:)`. If `autoManagementEnabled` is
+  /// false, this is a no-op.
   func setActive(
     _ active: Bool,
     notifyOthersOnDeactivation: Bool = false

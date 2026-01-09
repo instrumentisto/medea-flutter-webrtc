@@ -138,7 +138,6 @@ class MediaDevices {
 
   /// Switches current audio output device to a device with the provided ID.
   func setOutputAudioId(id: String) throws {
-    // Category management is only done when auto-management is enabled.
     try self.audioSession.setCategory(
       .playAndRecord,
       options: .allowBluetooth
