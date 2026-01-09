@@ -14,7 +14,12 @@ All user visible changes to this project will be documented in this file. This p
 
 - Upgraded [OpenAL] library to [1.25.0][openal-1.25.0] version. ([#275])
 
+### Added
+
+- `setupAudioSessionManagement()` function that can enable or disable automatic audio session management on [iOS]. ([#277])
+
 [#275]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/275
+[#277]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/277
 [openal-1.25.0]: https://github.com/kcat/openal-soft/releases/tag/1.25.0
 
 
