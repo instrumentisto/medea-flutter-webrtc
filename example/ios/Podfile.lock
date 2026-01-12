@@ -1,11 +1,11 @@
 PODS:
   - Flutter (1.0.0)
-  - instrumentisto-libwebrtc-bin (143.0.7499.169)
+  - instrumentisto-libwebrtc-bin (143.0.7499.192)
   - integration_test (0.0.1):
     - Flutter
   - medea_flutter_webrtc (0.16.2-dev):
     - Flutter
-    - instrumentisto-libwebrtc-bin (= 143.0.7499.169)
+    - instrumentisto-libwebrtc-bin (= 143.0.7499.192)
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
@@ -26,9 +26,9 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
-  instrumentisto-libwebrtc-bin: bd275aa9a0b142dda3b660e8bf41e8448165ea6e
-  integration_test: 252f60fa39af5e17c3aa9899d35d908a0721b573
-  medea_flutter_webrtc: 38d72fe7eb6bd3162bfd85c446b05a3322f89aa5
+  instrumentisto-libwebrtc-bin: ff0b3dd8b21daaa123e3ac6ac504cf6e10c4961e
+  integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
+  medea_flutter_webrtc: 840ea54e9d00052c8bedc85d6c3fabfc1cd4afd1
 
 PODFILE CHECKSUM: 96cbd66feeeb9e49d88210ea2b661316b312dda7
 
