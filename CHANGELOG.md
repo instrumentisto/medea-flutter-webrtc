@@ -10,11 +10,16 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.16.1...main)
 
+### Added
+
+- `setupAudioSessionManagement()` function for enabling/disabling automatic audio session management on [iOS]. ([#277])
+
 ### Changed
 
 - Upgraded [OpenAL] library to [1.25.0][openal-1.25.0] version. ([#275])
 
 [#275]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/275
+[#277]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/277
 [openal-1.25.0]: https://github.com/kcat/openal-soft/releases/tag/1.25.0
 
 
