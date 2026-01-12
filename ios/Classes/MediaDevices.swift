@@ -21,11 +21,10 @@ class MediaDevices {
   /// Indicator of whether `AVAudioSession` is currently "captured".
   private var isAudioSessionActive: Bool = false
 
-  /// Enables/disables automatic `AVAudioSession` management.
+  /// Enables/disables `AVAudioSession` auto-management.
   ///
-  /// When disabled, this plugin will not call into `AVAudioSession` for
-  /// category
-  /// configuration / activation / deactivation. Device enumeration and explicit
+  /// When disabled, this plugin won't call into `AVAudioSession` for category
+  /// configuration/activation/deactivation. Device enumeration and explicit
   /// switching still works.
   func setupAudioSessionManagement(auto: Bool) {
     self.audioSession.autoManagementEnabled = auto

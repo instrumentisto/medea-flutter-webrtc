@@ -484,10 +484,10 @@ Future<void> setupForegroundService(ForegroundServiceConfig config) async {
 /// Configures whether the plugin should automatically manage the iOS
 /// `AVAudioSession`.
 ///
-/// On iOS this toggles automatic `AVAudioSession` interactions performed by
-/// the plugin (such as setting category/mode and activating/deactivating the
-/// session). When [auto] is set to `false`, these management calls become
-/// no-ops.
+/// On iOS this toggles automatic `AVAudioSession` interactions performed by the
+/// plugin (such as setting category/mode and activating/deactivating the
+/// session). When [auto] is set to `false`, these management calls become a
+/// no-op.
 ///
 /// This does **not** affect:
 /// - device enumeration (e.g. listing available inputs/outputs)

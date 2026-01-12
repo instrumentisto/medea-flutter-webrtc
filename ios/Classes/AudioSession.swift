@@ -1,15 +1,15 @@
 import AVFoundation
 
-/// Small wrapper around `AVAudioSession` that can disable all automatic session
-/// management (category/activation/etc.) while still allowing device
-/// enumeration and explicit device switching.
+/// Wrapper around `AVAudioSession` that can disable all auto-management
+/// (category/activation/etc.) while still allowing device enumeration and
+/// explicit device switching.
 final class AudioSession {
   private let session: AVAudioSession
 
-  /// Whether automatic `AVAudioSession` management is enabled.
+  /// Indicator whether `AVAudioSession` auto-management is enabled.
   ///
-  /// If `false`, this wrapper will not call any "management" APIs like
-  /// `setCategory` / `setActive`.
+  /// If `false`, then this wrapper won't call any "management" APIs like
+  /// `setCategory()`/`setActive()`.
   var autoManagementEnabled: Bool = true
 
   /// Creates a new `AVAudioSession`.
@@ -36,8 +36,9 @@ final class AudioSession {
 
   /// Sets the audio session category with the provided options.
   ///
-  /// Mirrors `AVAudioSession.setCategory(_:options:)`. If
-  /// `autoManagementEnabled` is false, this is a no-op.
+  /// Mirrors `AVAudioSession.setCategory(_:options:)`.
+  ///
+  /// If `autoManagementEnabled` is `false`, this is a no-op.
   func setCategory(
     _ category: AVAudioSession.Category,
     options: AVAudioSession.CategoryOptions = []
@@ -49,8 +50,9 @@ final class AudioSession {
 
   /// Sets the audio session category, mode, and options.
   ///
-  /// Mirrors `AVAudioSession.setCategory(_:mode:options:)`. If
-  /// `autoManagementEnabled` is false, this is a no-op.
+  /// Mirrors `AVAudioSession.setCategory(_:mode:options:)`.
+  ///
+  /// If `autoManagementEnabled` is `false`, this is a no-op.
   func setCategory(
     _ category: AVAudioSession.Category,
     mode: AVAudioSession.Mode,
@@ -64,8 +66,9 @@ final class AudioSession {
   /// Activates or deactivates the audio session.
   ///
   /// Mirrors `AVAudioSession.setActive(_:)` and
-  /// `AVAudioSession.setActive(_:options:)`. If `autoManagementEnabled` is
-  /// false, this is a no-op.
+  /// `AVAudioSession.setActive(_:options:)`.
+  ///
+  /// If `autoManagementEnabled` is `false`, this is a no-op.
   func setActive(
     _ active: Bool,
     notifyOthersOnDeactivation: Bool = false
