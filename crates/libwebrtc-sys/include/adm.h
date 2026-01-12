@@ -79,6 +79,9 @@ class ExtendedADM : public webrtc::AudioDeviceModule {
 
   // Returns the inner `PlayoutDelegatingAPM`.
   virtual webrtc::scoped_refptr<PlayoutDelegatingAPM> AudioProcessing() = 0;
+
+  // Changes the used playout device.
+  virtual int32_t SetPlayoutDeviceIndex(uint16_t index) = 0;
 };
 
 class OpenALAudioDeviceModule : public ExtendedADM {
@@ -114,6 +117,7 @@ class OpenALAudioDeviceModule : public ExtendedADM {
   // Playout control.
   int16_t PlayoutDevices() override;
   int32_t SetPlayoutDevice(uint16_t index) override;
+  int32_t SetPlayoutDeviceIndex(uint16_t index) override;
   int32_t SetPlayoutDevice(WindowsDeviceType device) override;
   int32_t PlayoutDeviceName(uint16_t index,
                             char name[webrtc::kAdmMaxDeviceNameSize],
@@ -208,24 +212,15 @@ class OpenALAudioDeviceModule : public ExtendedADM {
   bool quit = false;
 
  private:
-  int restartPlayout();
-  void openPlayoutDevice();
-
-  void startPlayingOnThread();
   void ensureThreadStarted();
   void closePlayoutDevice();
   bool validatePlayoutDeviceId();
 
-  void clearProcessedBuffers();
   bool clearProcessedBuffer();
 
   void unqueueAllBuffers();
 
   bool processPlayout();
-
-  // NB! closePlayoutDevice should be called after this, so that next time
-  // we start playing, we set the thread local context and event callback.
-  void stopPlayingOnThread();
 
   void processPlayoutQueued();
 
