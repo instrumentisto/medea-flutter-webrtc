@@ -7,6 +7,8 @@ pub mod video_codec_info;
 
 use std::sync::{Arc, mpsc};
 
+use libwebrtc_sys as sys;
+
 pub use self::{
     events::{
         IceConnectionState, IceGatheringState, PeerConnectionEvent,
@@ -28,6 +30,42 @@ use crate::{
     api::{RX_TIMEOUT, WEBRTC},
     frb_generated::{RustOpaque, StreamSink},
 };
+
+/// `libwebrtc` global log level.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum WebrtcLogLevel {
+    /// Verbose.
+    Verbose,
+    /// Info.
+    Info,
+    /// Warning.
+    Warning,
+    /// Error.
+    Error,
+}
+
+impl From<WebrtcLogLevel> for i32 {
+    fn from(level: WebrtcLogLevel) -> Self {
+        match level {
+            WebrtcLogLevel::Verbose => 0,
+            WebrtcLogLevel::Info => 1,
+            WebrtcLogLevel::Warning => 2,
+            WebrtcLogLevel::Error => 3,
+        }
+    }
+}
+
+/// Sets `libwebrtc` global log level.
+pub fn set_webrtc_log_level(level: WebrtcLogLevel) -> anyhow::Result<()> {
+    let severity = match level {
+        WebrtcLogLevel::Verbose => sys::LoggingSeverity::LS_VERBOSE,
+        WebrtcLogLevel::Info => sys::LoggingSeverity::LS_INFO,
+        WebrtcLogLevel::Warning => sys::LoggingSeverity::LS_WARNING,
+        WebrtcLogLevel::Error => sys::LoggingSeverity::LS_ERROR,
+    };
+    sys::set_webrtc_log_level(severity);
+    Ok(())
+}
 
 /// Creates a new [`PeerConnection`] and returns its ID.
 #[expect(clippy::needless_pass_by_value, reason = "FFI")]

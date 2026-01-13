@@ -28,6 +28,11 @@
 
 namespace bridge {
 
+void set_webrtc_log_level(LoggingSeverity severity) {
+  webrtc::LogMessage::SetLogToStderr(severity != webrtc::LS_NONE);
+  webrtc::LogMessage::LogToDebug(severity);
+}
+
 // Indicates whether system audio capture is available on this platform.
 bool sys_audio_capture_is_available() { return SysAudioCaptureIsAvailable(); }
 

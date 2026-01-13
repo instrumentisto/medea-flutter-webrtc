@@ -36,6 +36,7 @@
 #include "media/base/fake_frame_source.h"
 #include "modules/audio_device/include/test_audio_device.h"
 #include "pc/test/fake_video_track_source.h"
+#include "rtc_base/logging.h"
 
 namespace bridge {
 
@@ -124,12 +125,16 @@ using RtcpFeedback = webrtc::RtcpFeedback;
 using RtcpFeedbackType = webrtc::RtcpFeedbackType;
 using RtcpFeedbackMessageType = webrtc::RtcpFeedbackMessageType;
 using ScalabilityMode = webrtc::ScalabilityMode;
+using LoggingSeverity = webrtc::LoggingSeverity;
 using NoiseSuppressionLevel =
     webrtc::AudioProcessing::Config::NoiseSuppression::Level;
 using RtpCapabilities = webrtc::RtpCapabilities;
 using RtpHeaderExtensionCapability = webrtc::RtpHeaderExtensionCapability;
 using RuntimeSetting = webrtc::AudioProcessing::RuntimeSetting;
 using AudioProcessingConfig = webrtc::AudioProcessing::Config;
+
+// Sets `libwebrtc` global log level.
+void set_webrtc_log_level(LoggingSeverity level);
 
 // Indicates whether system audio capture is available on this platform.
 bool sys_audio_capture_is_available();

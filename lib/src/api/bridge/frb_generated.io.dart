@@ -510,6 +510,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   VideoConstraints dco_decode_video_constraints(dynamic raw);
 
   @protected
+  WebrtcLogLevel dco_decode_webrtc_log_level(dynamic raw);
+
+  @protected
   AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
 
   @protected
@@ -1045,6 +1048,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   VideoConstraints sse_decode_video_constraints(SseDeserializer deserializer);
+
+  @protected
+  WebrtcLogLevel sse_decode_webrtc_log_level(SseDeserializer deserializer);
 
   @protected
   void sse_encode_AnyhowException(
@@ -1696,6 +1702,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_video_constraints(
     VideoConstraints self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_webrtc_log_level(
+    WebrtcLogLevel self,
     SseSerializer serializer,
   );
 }

@@ -1,4 +1,5 @@
 import Flutter
+import WebRTC
 
 /// Controller of a `PeerConnection` factory management.
 class PeerConnectionFactoryController {
@@ -124,6 +125,24 @@ class PeerConnectionFactoryController {
         $0.asFlutterResult()
       }
       result(res)
+    case "setLogLevel":
+      let level = argsMap?["level"] as? Int
+      let severity: RTCLoggingSeverity
+      switch level {
+      case 0:
+        severity = .verbose
+      case 1:
+        severity = .info
+      case 2:
+        severity = .warning
+      case 3:
+        severity = .error
+      default:
+        severity = .warning
+      }
+
+      RTCSetMinDebugLogLevel(severity)
+      result(nil)
     case "dispose":
       self.channel.setMethodCallHandler(nil)
       result(nil)

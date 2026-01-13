@@ -1538,6 +1538,22 @@ pub(crate) mod webrtc {
         kVeryHigh,
     }
 
+    /// Possible logging levels supported by `libwebrtc`.
+    #[derive(Debug, Eq, Hash, PartialEq)]
+    #[repr(i32)]
+    pub enum LoggingSeverity {
+        /// Verbose logging.
+        LS_VERBOSE,
+        /// Info logging.
+        LS_INFO,
+        /// Warning logging.
+        LS_WARNING,
+        /// Error logging.
+        LS_ERROR,
+        /// Disable logging.
+        LS_NONE,
+    }
+
     #[rustfmt::skip]
     unsafe extern "C++" {
         include!("libwebrtc-sys/include/bridge.h");
@@ -1546,6 +1562,10 @@ pub(crate) mod webrtc {
         pub type Environment;
         pub type Thread;
         pub type PeerConnectionFactoryInterface;
+        pub type LoggingSeverity;
+
+        /// Sets `libwebrtc` global log level.
+        pub fn set_webrtc_log_level(level: LoggingSeverity);
 
         /// Creates a new [`Environment`].
         pub fn create_environment() -> UniquePtr<Environment>;

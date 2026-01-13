@@ -170,13 +170,13 @@ use self::bridge::webrtc;
 pub use crate::webrtc::{
     AudioLayer, BundlePolicy, Candidate, CandidatePairChangeEvent,
     CandidateType, IceConnectionState, IceGatheringState, IceTransportsType,
-    MediaType, NoiseSuppressionLevel, PeerConnectionState,
+    LoggingSeverity, MediaType, NoiseSuppressionLevel, PeerConnectionState,
     RTCStatsIceCandidatePairState, RtcpFeedbackMessageType, RtcpFeedbackType,
     RtpTransceiverDirection, ScalabilityMode, SdpType, SignalingState,
     TrackState, VideoFrame, VideoRotation, candidate_to_string,
     get_candidate_pair, get_estimated_disconnected_time_ms,
-    get_last_data_received_ms, get_reason, video_frame_to_abgr,
-    video_frame_to_argb,
+    get_last_data_received_ms, get_reason, set_webrtc_log_level,
+    video_frame_to_abgr, video_frame_to_argb,
 };
 
 /// Handler of events firing from a [`MediaStreamTrackInterface`].

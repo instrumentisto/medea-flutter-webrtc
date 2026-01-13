@@ -23,6 +23,12 @@ import 'peer/rtc_session_description.dart';
 import 'transceiver.dart';
 import 'transceiver/direction.dart';
 
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `clone`, `eq`, `fmt`, `from`
+
+/// Sets `libwebrtc` global log level.
+Future<void> setWebrtcLogLevel({required WebrtcLogLevel level}) =>
+    RustLib.instance.api.crateApiPeerSetWebrtcLogLevel(level: level);
+
 /// Creates a new [`PeerConnection`] and returns its ID.
 Stream<PeerConnectionEvent> createPeerConnection({
   required RtcConfiguration configuration,
@@ -78,3 +84,18 @@ Future<void> disposePeerConnection({required ArcPeerConnection peer}) =>
 /// Tells the [`PeerConnection`] that ICE should be restarted.
 Future<void> restartIce({required ArcPeerConnection peer}) =>
     RustLib.instance.api.crateApiPeerRestartIce(peer: peer);
+
+/// `libwebrtc` global log level.
+enum WebrtcLogLevel {
+  /// Verbose.
+  verbose,
+
+  /// Info.
+  info,
+
+  /// Warning.
+  warning,
+
+  /// Error.
+  error,
+}

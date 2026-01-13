@@ -33,6 +33,21 @@ import 'transceiver.dart';
 /// Checks whether the running platform is a desktop.
 bool isDesktop = Platform.isWindows || Platform.isLinux || Platform.isMacOS;
 
+/// `libwebrtc` global log level.
+enum LibwebrtcLogLevel {
+  /// Verbose.
+  verbose,
+
+  /// Info.
+  info,
+
+  /// Warning.
+  warning,
+
+  /// Error.
+  error,
+}
+
 /// Opens the dynamic library and instantiates FFI bridge to Rust side.
 Future<void> initFfiBridge() async {
   if (!isDesktop) {
@@ -49,6 +64,17 @@ Future<void> initFfiBridge() async {
       : ExternalLibrary.open(path);
 
   await RustLib.init(externalLibrary: lib);
+}
+
+/// Sets `libwebrtc` global log level.
+Future<void> setLibwebrtcLogLevel(LibwebrtcLogLevel level) async {
+  if (isDesktop) {
+    await ffi.setWebrtcLogLevel(level: ffi.WebrtcLogLevel.values[level.index]);
+  } else {
+    await _peerConnectionFactoryMethodChannel.invokeMethod('setLogLevel', {
+      'level': level.index,
+    });
+  }
 }
 
 /// Shortcut for the `on_track` callback.
