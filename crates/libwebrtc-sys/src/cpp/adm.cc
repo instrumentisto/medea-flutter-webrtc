@@ -278,12 +278,13 @@ int32_t OpenALAudioDeviceModule::SetPlayoutDevice(WindowsDeviceType device) {
 
 int32_t OpenALAudioDeviceModule::SetPlayoutDeviceIndex(uint16_t index) {
   // Ensure playout is stopped before switching device id.
+  std::lock_guard<std::recursive_mutex> lk(_playout_mutex);
+
   if (Playing()) {
     RTC_LOG(LS_INFO) << "Stopping playout before changing playout device";
     return -1;
   }
 
-  std::lock_guard<std::recursive_mutex> lk(_playout_mutex);
   const auto result =
       DeviceName(ALC_ALL_DEVICES_SPECIFIER, index, nullptr, &_playoutDeviceId);
 
