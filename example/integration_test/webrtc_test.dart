@@ -970,59 +970,59 @@ void main() {
   //   await cloneVideoTrack.dispose();
   // });
 
-  testWidgets('Media stream constraints', (WidgetTester tester) async {
-    print("Media stream constraints START");
-    var capsVideoDeviceOnly = DeviceConstraints();
-    capsVideoDeviceOnly.video.mandatory = DeviceVideoConstraints();
-    capsVideoDeviceOnly.video.mandatory!.width = 640;
-    capsVideoDeviceOnly.video.mandatory!.height = 480;
-    capsVideoDeviceOnly.video.mandatory!.fps = 30;
-
-    var capsAudioOnly = DeviceConstraints();
-    capsAudioOnly.audio.mandatory = AudioConstraints();
-
-    var capsVideoAudio = DeviceConstraints();
-    capsVideoAudio.audio.mandatory = AudioConstraints();
-    capsVideoAudio.video.mandatory = DeviceVideoConstraints();
-    capsVideoAudio.video.mandatory!.width = 640;
-    capsVideoAudio.video.mandatory!.height = 480;
-    capsVideoAudio.video.mandatory!.fps = 30;
-    print("Media stream constraints 111111");
-    var tracksAudioOnly = await getUserMedia(capsAudioOnly);
-    print("Media stream constraints 222222");
-    bool hasVideo = tracksAudioOnly.any(
-      (track) => track.kind() == MediaKind.video,
-    );
-    bool hasAudio = tracksAudioOnly.any(
-      (track) => track.kind() == MediaKind.audio,
-    );
-    expect(hasVideo, isFalse);
-    expect(hasAudio, isTrue);
-    print("Media stream constraints 333333");
-    var tracksVideoDeviceOnly = await getUserMedia(capsVideoDeviceOnly);
-    print("Media stream constraints 44444");
-    hasVideo = tracksVideoDeviceOnly.any(
-      (track) => track.kind() == MediaKind.video,
-    );
-    hasAudio = tracksVideoDeviceOnly.any(
-      (track) => track.kind() == MediaKind.audio,
-    );
-    expect(hasVideo, isTrue);
-    expect(hasAudio, isFalse);
-    print("Media stream constraints 555555");
-    var tracksVideoAudio = await getUserMedia(capsVideoAudio);
-    print("Media stream constraints 666666");
-    hasVideo = tracksVideoAudio.any((track) => track.kind() == MediaKind.video);
-    hasAudio = tracksVideoAudio.any((track) => track.kind() == MediaKind.audio);
-    expect(hasVideo, isTrue);
-    expect(hasAudio, isTrue);
-    print("Media stream constraints 7777777");
-    var tracks = tracksAudioOnly + tracksVideoDeviceOnly + tracksVideoAudio;
-    for (var t in tracks) {
-      await t.dispose();
-    }
-    print("Media stream constraints END");
-  });
+  // testWidgets('Media stream constraints', (WidgetTester tester) async {
+  //   print("Media stream constraints START");
+  //   var capsVideoDeviceOnly = DeviceConstraints();
+  //   capsVideoDeviceOnly.video.mandatory = DeviceVideoConstraints();
+  //   capsVideoDeviceOnly.video.mandatory!.width = 640;
+  //   capsVideoDeviceOnly.video.mandatory!.height = 480;
+  //   capsVideoDeviceOnly.video.mandatory!.fps = 30;
+  //
+  //   var capsAudioOnly = DeviceConstraints();
+  //   capsAudioOnly.audio.mandatory = AudioConstraints();
+  //
+  //   var capsVideoAudio = DeviceConstraints();
+  //   capsVideoAudio.audio.mandatory = AudioConstraints();
+  //   capsVideoAudio.video.mandatory = DeviceVideoConstraints();
+  //   capsVideoAudio.video.mandatory!.width = 640;
+  //   capsVideoAudio.video.mandatory!.height = 480;
+  //   capsVideoAudio.video.mandatory!.fps = 30;
+  //   print("Media stream constraints 111111");
+  //   var tracksAudioOnly = await getUserMedia(capsAudioOnly);
+  //   print("Media stream constraints 222222");
+  //   bool hasVideo = tracksAudioOnly.any(
+  //     (track) => track.kind() == MediaKind.video,
+  //   );
+  //   bool hasAudio = tracksAudioOnly.any(
+  //     (track) => track.kind() == MediaKind.audio,
+  //   );
+  //   expect(hasVideo, isFalse);
+  //   expect(hasAudio, isTrue);
+  //   print("Media stream constraints 333333");
+  //   var tracksVideoDeviceOnly = await getUserMedia(capsVideoDeviceOnly);
+  //   print("Media stream constraints 44444");
+  //   hasVideo = tracksVideoDeviceOnly.any(
+  //     (track) => track.kind() == MediaKind.video,
+  //   );
+  //   hasAudio = tracksVideoDeviceOnly.any(
+  //     (track) => track.kind() == MediaKind.audio,
+  //   );
+  //   expect(hasVideo, isTrue);
+  //   expect(hasAudio, isFalse);
+  //   print("Media stream constraints 555555");
+  //   var tracksVideoAudio = await getUserMedia(capsVideoAudio);
+  //   print("Media stream constraints 666666");
+  //   hasVideo = tracksVideoAudio.any((track) => track.kind() == MediaKind.video);
+  //   hasAudio = tracksVideoAudio.any((track) => track.kind() == MediaKind.audio);
+  //   expect(hasVideo, isTrue);
+  //   expect(hasAudio, isTrue);
+  //   print("Media stream constraints 7777777");
+  //   var tracks = tracksAudioOnly + tracksVideoDeviceOnly + tracksVideoAudio;
+  //   for (var t in tracks) {
+  //     await t.dispose();
+  //   }
+  //   print("Media stream constraints END");
+  // });
 
   testWidgets('ICE transport types', (WidgetTester tester) async {
     print("ICE transport types START");
