@@ -971,6 +971,7 @@ void main() {
   // });
 
   testWidgets('Media stream constraints', (WidgetTester tester) async {
+    print("Media stream constraints START");
     var capsVideoDeviceOnly = DeviceConstraints();
     capsVideoDeviceOnly.video.mandatory = DeviceVideoConstraints();
     capsVideoDeviceOnly.video.mandatory!.width = 640;
@@ -986,8 +987,9 @@ void main() {
     capsVideoAudio.video.mandatory!.width = 640;
     capsVideoAudio.video.mandatory!.height = 480;
     capsVideoAudio.video.mandatory!.fps = 30;
-
+    print("Media stream constraints 111111");
     var tracksAudioOnly = await getUserMedia(capsAudioOnly);
+    print("Media stream constraints 222222");
     bool hasVideo = tracksAudioOnly.any(
       (track) => track.kind() == MediaKind.video,
     );
@@ -996,8 +998,9 @@ void main() {
     );
     expect(hasVideo, isFalse);
     expect(hasAudio, isTrue);
-
+    print("Media stream constraints 333333");
     var tracksVideoDeviceOnly = await getUserMedia(capsVideoDeviceOnly);
+    print("Media stream constraints 44444");
     hasVideo = tracksVideoDeviceOnly.any(
       (track) => track.kind() == MediaKind.video,
     );
@@ -1006,20 +1009,23 @@ void main() {
     );
     expect(hasVideo, isTrue);
     expect(hasAudio, isFalse);
-
+    print("Media stream constraints 555555");
     var tracksVideoAudio = await getUserMedia(capsVideoAudio);
+    print("Media stream constraints 666666");
     hasVideo = tracksVideoAudio.any((track) => track.kind() == MediaKind.video);
     hasAudio = tracksVideoAudio.any((track) => track.kind() == MediaKind.audio);
     expect(hasVideo, isTrue);
     expect(hasAudio, isTrue);
-
+    print("Media stream constraints 7777777");
     var tracks = tracksAudioOnly + tracksVideoDeviceOnly + tracksVideoAudio;
     for (var t in tracks) {
       await t.dispose();
     }
+    print("Media stream constraints END");
   });
 
   testWidgets('ICE transport types', (WidgetTester tester) async {
+    print("ICE transport types START");
     // IceTransportType.all, STUN server
     {
       var server = IceServer(
@@ -1115,9 +1121,13 @@ void main() {
       await t1.dispose();
       await t2.dispose();
     }
+
+    print("ICE transport types END");
   });
 
   testWidgets('Set recv direction', (WidgetTester tester) async {
+    print("Set recv direction START");
+
     var pc = await PeerConnection.create(IceTransportType.all, []);
     // ignore: prefer_function_declarations_over_variables
     var testEnableRecv = (beforeDirection, afterDirection) async {
@@ -1174,6 +1184,8 @@ void main() {
     }
 
     await pc.close();
+
+    print("Set recv direction END");
   });
 
   testWidgets('Set send direction', (WidgetTester tester) async {
