@@ -56,17 +56,29 @@ class MediaDevicesController {
       result(self.mediaDevices.enumerateDevices().map { $0.asFlutterResult() })
     case "getUserMedia":
       let constraintsArg = argsMap!["constraints"] as? [String: Any]
-      let tracks = self.mediaDevices
-        .getUserMedia(constraints: Constraints(map: constraintsArg!))
-      return result(
-        tracks.map {
-          MediaStreamTrackController(messenger: self.messenger, track: $0)
-            .asFlutterResult()
-        }
-      )
+      do {
+        let tracks = try self.mediaDevices
+          .getUserMedia(constraints: Constraints(map: constraintsArg!))
+        return result(
+          tracks.map {
+            MediaStreamTrackController(messenger: self.messenger, track: $0)
+              .asFlutterResult()
+          }
+        )
+      } catch {
+        return result(getFlutterError(error))
+      }
     case "setOutputAudioId":
       let deviceId = argsMap!["deviceId"] as? String
-      self.mediaDevices.setOutputAudioId(id: deviceId!)
+      do {
+        try self.mediaDevices.setOutputAudioId(id: deviceId!)
+        return result(nil)
+      } catch {
+        return result(getFlutterError(error))
+      }
+    case "setupAudioSessionManagement":
+      let auto = argsMap?["auto"] as? Bool ?? true
+      self.mediaDevices.setupAudioSessionManagement(auto: auto)
       result(nil)
     default:
       result(FlutterMethodNotImplemented)
