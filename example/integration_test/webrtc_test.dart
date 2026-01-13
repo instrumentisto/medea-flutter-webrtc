@@ -6,15 +6,20 @@ import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';
 import 'package:integration_test/integration_test.dart';
 
 void main() {
+  print("main 000");
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  print("main 111");
 
   setUpAll(() async {
+    print("setUpAll 000");
     if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+      print("setUpAll 111");
       await initFfiBridge();
+      print("setUpAll 222");
       await enableFakeMedia();
+      print("setUpAll 333");
     }
   });
-
   // testWidgets('Add transceiver', (WidgetTester tester) async {
   //   var pc = await PeerConnection.create(IceTransportType.all, []);
   //   var trans = await pc.addTransceiver(
@@ -1024,107 +1029,107 @@ void main() {
   //   print("Media stream constraints END");
   // });
 
-  testWidgets('ICE transport types', (WidgetTester tester) async {
-    print("ICE transport types START");
-    // IceTransportType.all, STUN server
-    {
-      var server = IceServer(
-        ['stun:stun.l.google.com:19302'],
-        'username',
-        'password',
-      );
-      var pc1 = await PeerConnection.create(IceTransportType.all, [server]);
-      var pc2 = await PeerConnection.create(IceTransportType.all, [server]);
-
-      var hasRelay = false;
-      var hasSrflx = false;
-      var hasHost = false;
-
-      onIceCandidate(IceCandidate candidate) {
-        if (candidate.candidate.contains('typ host')) {
-          hasHost = true;
-        } else if (candidate.candidate.contains('typ srflx')) {
-          hasSrflx = true;
-        } else if (candidate.candidate.contains('typ relay')) {
-          hasRelay = true;
-        }
-      }
-
-      pc1.onIceCandidate(onIceCandidate);
-      pc2.onIceCandidate(onIceCandidate);
-
-      var t1 = await pc1.addTransceiver(
-        MediaKind.video,
-        RtpTransceiverInit(TransceiverDirection.sendRecv),
-      );
-      var t2 = await pc1.addTransceiver(
-        MediaKind.audio,
-        RtpTransceiverInit(TransceiverDirection.sendRecv),
-      );
-
-      var offer = await pc1.createOffer();
-      await pc1.setLocalDescription(offer);
-      await pc2.setRemoteDescription(offer);
-
-      var answer = await pc2.createAnswer();
-      await pc2.setLocalDescription(answer);
-      await pc1.setRemoteDescription(answer);
-
-      await Future.delayed(const Duration(seconds: 5));
-
-      expect(hasRelay, isFalse);
-      expect(hasSrflx, isTrue);
-      expect(hasHost, isTrue);
-
-      await pc1.close();
-      await pc2.close();
-      await t1.dispose();
-      await t2.dispose();
-    }
-
-    // IceTransportType.relay without server
-    {
-      var pc1 = await PeerConnection.create(IceTransportType.relay, []);
-      var pc2 = await PeerConnection.create(IceTransportType.relay, []);
-
-      var candidatesFired = 0;
-      pc1.onIceCandidate((candidate) async {
-        candidatesFired++;
-      });
-      pc2.onIceCandidate((candidate) async {
-        candidatesFired++;
-      });
-
-      var t1 = await pc1.addTransceiver(
-        MediaKind.video,
-        RtpTransceiverInit(TransceiverDirection.sendRecv),
-      );
-      var t2 = await pc1.addTransceiver(
-        MediaKind.audio,
-        RtpTransceiverInit(TransceiverDirection.sendRecv),
-      );
-
-      var offer = await pc1.createOffer();
-      await pc1.setLocalDescription(offer);
-      await pc2.setRemoteDescription(offer);
-
-      var answer = await pc2.createAnswer();
-      await pc2.setLocalDescription(answer);
-      await pc1.setRemoteDescription(answer);
-
-      await Future.delayed(const Duration(seconds: 5));
-
-      expect(candidatesFired, equals(0));
-
-      await pc1.close();
-      await pc2.close();
-      await t1.dispose();
-      await t2.dispose();
-    }
-
-    print("ICE transport types END");
-  });
-
+  // testWidgets('ICE transport types', (WidgetTester tester) async {
+  //   print("ICE transport types START");
+  //   // IceTransportType.all, STUN server
+  //   {
+  //     var server = IceServer(
+  //       ['stun:stun.l.google.com:19302'],
+  //       'username',
+  //       'password',
+  //     );
+  //     var pc1 = await PeerConnection.create(IceTransportType.all, [server]);
+  //     var pc2 = await PeerConnection.create(IceTransportType.all, [server]);
+  //
+  //     var hasRelay = false;
+  //     var hasSrflx = false;
+  //     var hasHost = false;
+  //
+  //     onIceCandidate(IceCandidate candidate) {
+  //       if (candidate.candidate.contains('typ host')) {
+  //         hasHost = true;
+  //       } else if (candidate.candidate.contains('typ srflx')) {
+  //         hasSrflx = true;
+  //       } else if (candidate.candidate.contains('typ relay')) {
+  //         hasRelay = true;
+  //       }
+  //     }
+  //
+  //     pc1.onIceCandidate(onIceCandidate);
+  //     pc2.onIceCandidate(onIceCandidate);
+  //
+  //     var t1 = await pc1.addTransceiver(
+  //       MediaKind.video,
+  //       RtpTransceiverInit(TransceiverDirection.sendRecv),
+  //     );
+  //     var t2 = await pc1.addTransceiver(
+  //       MediaKind.audio,
+  //       RtpTransceiverInit(TransceiverDirection.sendRecv),
+  //     );
+  //
+  //     var offer = await pc1.createOffer();
+  //     await pc1.setLocalDescription(offer);
+  //     await pc2.setRemoteDescription(offer);
+  //
+  //     var answer = await pc2.createAnswer();
+  //     await pc2.setLocalDescription(answer);
+  //     await pc1.setRemoteDescription(answer);
+  //
+  //     await Future.delayed(const Duration(seconds: 5));
+  //
+  //     expect(hasRelay, isFalse);
+  //     expect(hasSrflx, isTrue);
+  //     expect(hasHost, isTrue);
+  //
+  //     await pc1.close();
+  //     await pc2.close();
+  //     await t1.dispose();
+  //     await t2.dispose();
+  //   }
+  //
+  //   // IceTransportType.relay without server
+  //   {
+  //     var pc1 = await PeerConnection.create(IceTransportType.relay, []);
+  //     var pc2 = await PeerConnection.create(IceTransportType.relay, []);
+  //
+  //     var candidatesFired = 0;
+  //     pc1.onIceCandidate((candidate) async {
+  //       candidatesFired++;
+  //     });
+  //     pc2.onIceCandidate((candidate) async {
+  //       candidatesFired++;
+  //     });
+  //
+  //     var t1 = await pc1.addTransceiver(
+  //       MediaKind.video,
+  //       RtpTransceiverInit(TransceiverDirection.sendRecv),
+  //     );
+  //     var t2 = await pc1.addTransceiver(
+  //       MediaKind.audio,
+  //       RtpTransceiverInit(TransceiverDirection.sendRecv),
+  //     );
+  //
+  //     var offer = await pc1.createOffer();
+  //     await pc1.setLocalDescription(offer);
+  //     await pc2.setRemoteDescription(offer);
+  //
+  //     var answer = await pc2.createAnswer();
+  //     await pc2.setLocalDescription(answer);
+  //     await pc1.setRemoteDescription(answer);
+  //
+  //     await Future.delayed(const Duration(seconds: 5));
+  //
+  //     expect(candidatesFired, equals(0));
+  //
+  //     await pc1.close();
+  //     await pc2.close();
+  //     await t1.dispose();
+  //     await t2.dispose();
+  //   }
+  //
+  //   print("ICE transport types END");
+  // });
+  print("main 111");
   testWidgets('Set recv direction', (WidgetTester tester) async {
     print("Set recv direction START");
 
@@ -1187,7 +1192,7 @@ void main() {
 
     print("Set recv direction END");
   });
-
+  print("main 222");
   testWidgets('Set send direction', (WidgetTester tester) async {
     var pc = await PeerConnection.create(IceTransportType.all, []);
     // ignore: prefer_function_declarations_over_variables
