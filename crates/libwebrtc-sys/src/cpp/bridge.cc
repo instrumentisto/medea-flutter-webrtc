@@ -246,10 +246,11 @@ int32_t start_playout(const AudioDeviceModule& audio_device_module) {
   return audio_device_module->StartPlayout();
 }
 
-// Calls `AudioDeviceModule->SetPlayoutDevice()` with the provided device index.
+// Calls `AudioDeviceModule->SetPlayoutDeviceIndex()` with the provided device
+// index.
 int32_t set_audio_playout_device(const AudioDeviceModule& audio_device_module,
                                  uint16_t index) {
-  return audio_device_module->SetPlayoutDevice(index);
+  return audio_device_module->SetPlayoutDeviceIndex(index);
 }
 
 // Calls `BuiltinAudioProcessingBuilder().Create()`.
