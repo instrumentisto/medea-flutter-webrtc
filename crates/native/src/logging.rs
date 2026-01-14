@@ -2,7 +2,7 @@
 
 use std::sync::OnceLock;
 
-/// Installs a basic logger if the host didn't install one.
+/// Installs a basic logger if the host didn't install the one.
 ///
 /// This is safe to call multiple times.
 pub(crate) fn ensure_logger_installed() {
@@ -37,11 +37,7 @@ impl log::Log for StderrLogger {
         metadata.level() <= log::max_level()
     }
 
-    #[expect(
-        clippy::print_stdout,
-        clippy::print_stderr,
-        reason = "intentional"
-    )]
+    #[expect(clippy::print_stdout, clippy::print_stderr, reason = "intended")]
     fn log(&self, record: &log::Record<'_>) {
         if !self.enabled(record.metadata()) {
             return;

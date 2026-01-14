@@ -20,18 +20,21 @@ enum LogLevel {
   error,
 }
 
-/// Checks whether the running platform is a desktop.
+/// Indicator whether the running platform is a desktop.
 final bool _isDesktop =
     Platform.isWindows || Platform.isLinux || Platform.isMacOS;
 
 /// [MethodChannel] used for the logging-related messaging with a native side.
 final MethodChannel _loggingMethodChannel = methodChannel('logging', 0);
 
-/// Sets the logging level for the native-side.
+/// Sets the [LogLevel] for the native side.
 ///
-/// Default logging level for the Rust-side is [LogLevel.warning].
-/// Logging in `libwebrtc` is disabled in release builds and is [LogLevel.info]
-/// in debug builds by default.
+/// Default [LogLevel] for the Rust side is [LogLevel.warning].
+///
+/// Logging in [`libwebrtc`] is disabled in release builds and is
+/// [LogLevel.info] in debug builds by default.
+///
+/// [`libwebrtc`]: https://webrtc.googlesource.com/src
 Future<void> setLogLevel(LogLevel level) async {
   if (_isDesktop) {
     await ffi.setLogLevel(level: ffi.LogLevel.values[level.index]);

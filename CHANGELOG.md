@@ -13,7 +13,7 @@ All user visible changes to this project will be documented in this file. This p
 ### Added
 
 - `setupAudioSessionManagement()` function for enabling/disabling automatic audio session management on [iOS]. ([#277])
-- `LogLevel` enum and `setLogLevel` function to allow configuring native-side logging. ([#279])
+- `LogLevel` enum and `setLogLevel()` function to allow configuring native-side logging. ([#279])
 
 ### Fixed
 

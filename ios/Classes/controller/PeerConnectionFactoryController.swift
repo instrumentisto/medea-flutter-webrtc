@@ -140,7 +140,6 @@ class PeerConnectionFactoryController {
       default:
         severity = .warning
       }
-
       RTCSetMinDebugLogLevel(severity)
       result(nil)
     case "dispose":
