@@ -236,7 +236,7 @@ impl Webrtc {
                     );
                     log::error!(
                         "Cannot find requested(`{device_id}`) video input \
-                        device. Currently available devices are: {available:?}"
+                         device. Currently available devices are: {available:?}"
                     );
                     bail!(
                         "Cannot find video device with the specified ID: \
@@ -351,7 +351,7 @@ impl Webrtc {
                     );
                 log::error!(
                     "Cannot find requested(`{device_id}`) audio input device. \
-                     Currently available devices are: {available:?}"
+                     Currently available devices are: {available:?}",
                 );
                 bail!(
                     "Cannot find audio device with the specified ID: \

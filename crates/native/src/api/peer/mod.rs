@@ -32,7 +32,9 @@ use crate::{
     logging,
 };
 
-/// Global log level for both `Rust` side and `libwebrtc`.
+/// Global log level for both Rust side and [`libwebrtc`].
+///
+/// [`libwebrtc`]: libwebrtc_sys
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum LogLevel {
     /// Verbose.
@@ -48,7 +50,9 @@ pub enum LogLevel {
     Error,
 }
 
-/// Sets `libwebrtc` global log level.
+/// Sets [`libwebrtc`] global [`LogLevel`].
+///
+/// [`libwebrtc`]: libwebrtc_sys
 pub fn set_log_level(level: LogLevel) {
     let (webrtc_level, rust_level) = match level {
         LogLevel::Verbose => {

@@ -20,7 +20,7 @@ pub(crate) fn ensure_logger_installed() {
     });
 }
 
-/// Sets the Rust-side max log level (filter).
+/// Sets the Rust-side max [`log::LevelFilter`].
 pub(crate) fn set_max_level(level: log::LevelFilter) {
     ensure_logger_installed();
     log::set_max_level(level);

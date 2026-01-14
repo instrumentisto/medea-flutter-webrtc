@@ -1538,7 +1538,9 @@ pub(crate) mod webrtc {
         kVeryHigh,
     }
 
-    /// Possible logging levels supported by `libwebrtc`.
+    /// Possible logging levels supported by [`libwebrtc`].
+    ///
+    /// [`libwebrtc`]: https://webrtc.googlesource.com/src
     #[derive(Debug, Eq, Hash, PartialEq)]
     #[repr(i32)]
     pub enum LoggingSeverity {
@@ -1568,7 +1570,9 @@ pub(crate) mod webrtc {
         pub type PeerConnectionFactoryInterface;
         pub type LoggingSeverity;
 
-        /// Sets `libwebrtc` global log level.
+        /// Sets [`libwebrtc`] global log level.
+        ///
+        /// [`libwebrtc`]: https://webrtc.googlesource.com/src
         pub fn set_webrtc_log_level(level: LoggingSeverity);
 
         /// Creates a new [`Environment`].
