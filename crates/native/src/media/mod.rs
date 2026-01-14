@@ -220,6 +220,24 @@ impl Webrtc {
                 {
                     (index, device_id)
                 } else {
+                    let available = self.enumerate_video_input_devices()
+                        .map_or_else(
+                        |e| {
+                            vec![format!(
+                                "<failed to enumerate video input devices: {e}>"
+                            )]
+                        },
+                        |devices| {
+                            devices
+                                .into_iter()
+                                .map(|(label, id)| format!("{label} ({id})"))
+                                .collect::<Vec<_>>()
+                        },
+                    );
+                    log::error!(
+                        "Cannot find requested(`{device_id}`) video input \
+                        device. Currently available devices are: {available:?}"
+                    );
                     bail!(
                         "Cannot find video device with the specified ID: \
                          {device_id}",
@@ -317,6 +335,24 @@ impl Webrtc {
             let Some(device_index) =
                 self.get_index_of_audio_recording_device(&device_id)?
             else {
+                let available =
+                    self.enumerate_audio_input_devices().map_or_else(
+                        |e| {
+                            vec![format!(
+                                "<failed to enumerate audio input devices: {e}>"
+                            )]
+                        },
+                        |devices| {
+                            devices
+                                .into_iter()
+                                .map(|(label, id)| format!("{label} ({id})"))
+                                .collect::<Vec<_>>()
+                        },
+                    );
+                log::error!(
+                    "Cannot find requested(`{device_id}`) audio input device. \
+                     Currently available devices are: {available:?}"
+                );
                 bail!(
                     "Cannot find audio device with the specified ID: \
                      `{device_id}`",

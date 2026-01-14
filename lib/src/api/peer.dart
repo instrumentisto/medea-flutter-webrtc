@@ -33,21 +33,6 @@ import 'transceiver.dart';
 /// Checks whether the running platform is a desktop.
 bool isDesktop = Platform.isWindows || Platform.isLinux || Platform.isMacOS;
 
-/// `libwebrtc` global log level.
-enum LibwebrtcLogLevel {
-  /// Verbose.
-  verbose,
-
-  /// Info.
-  info,
-
-  /// Warning.
-  warning,
-
-  /// Error.
-  error,
-}
-
 /// Opens the dynamic library and instantiates FFI bridge to Rust side.
 Future<void> initFfiBridge() async {
   if (!isDesktop) {
@@ -64,17 +49,6 @@ Future<void> initFfiBridge() async {
       : ExternalLibrary.open(path);
 
   await RustLib.init(externalLibrary: lib);
-}
-
-/// Sets `libwebrtc` global log level.
-Future<void> setLibwebrtcLogLevel(LibwebrtcLogLevel level) async {
-  if (isDesktop) {
-    await ffi.setWebrtcLogLevel(level: ffi.WebrtcLogLevel.values[level.index]);
-  } else {
-    await _peerConnectionFactoryMethodChannel.invokeMethod('setLogLevel', {
-      'level': level.index,
-    });
-  }
 }
 
 /// Shortcut for the `on_track` callback.
@@ -100,6 +74,21 @@ typedef OnSignalingStateChangeCallback = void Function(SignalingState);
 
 /// Shortcut for the `on_ice_candidate_error` callback.
 typedef OnIceCandidateErrorCallback = void Function(IceCandidateErrorEvent);
+
+/// Supported logging levels.
+enum LogLevel {
+  /// Verbose.
+  verbose,
+
+  /// Info.
+  info,
+
+  /// Warning.
+  warning,
+
+  /// Error.
+  error,
+}
 
 /// [RTCPeerConnection][1] representation.
 ///
@@ -775,5 +764,20 @@ class _PeerConnectionFFI extends PeerConnection {
     }
 
     return result;
+  }
+}
+
+/// Sets the logging level for the native-side.
+///
+/// Default logging level for the Rust-side is [LogLevel.warning].
+/// Logging in `libwebrtc` is disabled in release builds and is [LogLevel.info]
+/// in debug builds by default.
+Future<void> setLogLevel(LogLevel level) async {
+  if (isDesktop) {
+    await ffi.setLogLevel(level: ffi.LogLevel.values[level.index]);
+  } else {
+    await _peerConnectionFactoryMethodChannel.invokeMethod('setLogLevel', {
+      'level': level.index,
+    });
   }
 }

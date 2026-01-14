@@ -1544,12 +1544,16 @@ pub(crate) mod webrtc {
     pub enum LoggingSeverity {
         /// Verbose logging.
         LS_VERBOSE,
+
         /// Info logging.
         LS_INFO,
+
         /// Warning logging.
         LS_WARNING,
+
         /// Error logging.
         LS_ERROR,
+
         /// Disable logging.
         LS_NONE,
     }

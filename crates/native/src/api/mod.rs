@@ -77,6 +77,7 @@ use crate::{
     Webrtc,
     frb::{FrbHandler, new_frb_handler},
     frb_generated::{FLUTTER_RUST_BRIDGE_CODEGEN_VERSION, RustOpaque},
+    logging::ensure_logger_installed,
 };
 
 /// Custom [`Handler`] for executing Rust code called from Dart.
@@ -98,8 +99,10 @@ pub static FLUTTER_RUST_BRIDGE_HANDLER: LazyLock<FrbHandler> =
         new_frb_handler()
     });
 
-pub(crate) static WEBRTC: LazyLock<Mutex<Webrtc>> =
-    LazyLock::new(|| Mutex::new(Webrtc::new().unwrap()));
+pub(crate) static WEBRTC: LazyLock<Mutex<Webrtc>> = LazyLock::new(|| {
+    ensure_logger_installed();
+    Mutex::new(Webrtc::new().unwrap())
+});
 
 /// Timeout for [`mpsc::Receiver::recv_timeout()`] operations.
 pub static RX_TIMEOUT: Duration = Duration::from_secs(5);

@@ -13,6 +13,7 @@ void main() {
       await initFfiBridge();
       await enableFakeMedia();
     }
+    await setLogLevel(LogLevel.verbose);
   });
 
   testWidgets('Add transceiver', (WidgetTester tester) async {

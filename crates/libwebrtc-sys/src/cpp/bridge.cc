@@ -28,8 +28,8 @@
 
 namespace bridge {
 
+// Sets `libwebrtc` global log level.
 void set_webrtc_log_level(LoggingSeverity severity) {
-  webrtc::LogMessage::SetLogToStderr(severity != webrtc::LS_NONE);
   webrtc::LogMessage::LogToDebug(severity);
 }
 

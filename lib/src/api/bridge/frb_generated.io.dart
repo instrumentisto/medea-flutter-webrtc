@@ -304,6 +304,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<VideoCodecInfo> dco_decode_list_video_codec_info(dynamic raw);
 
   @protected
+  LogLevel dco_decode_log_level(dynamic raw);
+
+  @protected
   MediaDeviceInfo dco_decode_media_device_info(dynamic raw);
 
   @protected
@@ -508,9 +511,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   VideoConstraints dco_decode_video_constraints(dynamic raw);
-
-  @protected
-  WebrtcLogLevel dco_decode_webrtc_log_level(dynamic raw);
 
   @protected
   AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
@@ -802,6 +802,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  LogLevel sse_decode_log_level(SseDeserializer deserializer);
+
+  @protected
   MediaDeviceInfo sse_decode_media_device_info(SseDeserializer deserializer);
 
   @protected
@@ -1048,9 +1051,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   VideoConstraints sse_decode_video_constraints(SseDeserializer deserializer);
-
-  @protected
-  WebrtcLogLevel sse_decode_webrtc_log_level(SseDeserializer deserializer);
 
   @protected
   void sse_encode_AnyhowException(
@@ -1396,6 +1396,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_log_level(LogLevel self, SseSerializer serializer);
+
+  @protected
   void sse_encode_media_device_info(
     MediaDeviceInfo self,
     SseSerializer serializer,
@@ -1702,12 +1705,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_video_constraints(
     VideoConstraints self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_webrtc_log_level(
-    WebrtcLogLevel self,
     SseSerializer serializer,
   );
 }

@@ -42,7 +42,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.11.1";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1240836150;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1365216885;
 
 // Section: executor
 
@@ -592,6 +592,21 @@ let api_sdp = <String>::sse_decode(&mut deserializer);deserializer.end(); move |
                     })())
                 } })
 }
+fn wire__crate__api__peer__set_log_level_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec,_,_>(flutter_rust_bridge::for_generated::TaskInfo{ debug_name: "set_log_level", port: Some(port_), mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal }, move || { 
+            let message = unsafe { flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(ptr_, rust_vec_len_, data_len_) };
+            let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_level = <crate::api::peer::LogLevel>::sse_decode(&mut deserializer);deserializer.end(); move |context|  {
+                    transform_result_sse::<_, ()>((move ||  {
+                         let output_ok = Result::<_,()>::Ok({ crate::api::peer::set_log_level(api_level); })?;   Ok(output_ok)
+                    })())
+                } })
+}
 fn wire__crate__api__media__set_microphone_volume_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -702,21 +717,6 @@ fn wire__crate__api__transceiver__set_transceiver_send_impl(
 let api_send = <bool>::sse_decode(&mut deserializer);deserializer.end(); move |context|  {
                     transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>((move ||  {
                          let output_ok = crate::api::transceiver::set_transceiver_send(api_transceiver, api_send)?;   Ok(output_ok)
-                    })())
-                } })
-}
-fn wire__crate__api__peer__set_webrtc_log_level_impl(
-    port_: flutter_rust_bridge::for_generated::MessagePort,
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
-) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec,_,_>(flutter_rust_bridge::for_generated::TaskInfo{ debug_name: "set_webrtc_log_level", port: Some(port_), mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal }, move || { 
-            let message = unsafe { flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(ptr_, rust_vec_len_, data_len_) };
-            let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_level = <crate::api::peer::WebrtcLogLevel>::sse_decode(&mut deserializer);deserializer.end(); move |context|  {
-                    transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>((move ||  {
-                         let output_ok = crate::api::peer::set_webrtc_log_level(api_level)?;   Ok(output_ok)
                     })())
                 } })
 }
@@ -1498,6 +1498,22 @@ impl SseDecode for Vec<crate::api::peer::video_codec_info::VideoCodecInfo> {
             ans_.push(<crate::api::peer::video_codec_info::VideoCodecInfo>::sse_decode(deserializer));
         }
         return ans_;
+    }
+}
+
+impl SseDecode for crate::api::peer::LogLevel {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(
+        deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer,
+    ) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::api::peer::LogLevel::Verbose,
+            1 => crate::api::peer::LogLevel::Info,
+            2 => crate::api::peer::LogLevel::Warning,
+            3 => crate::api::peer::LogLevel::Error,
+            _ => unreachable!("Invalid variant for LogLevel: {}", inner),
+        };
     }
 }
 
@@ -2684,22 +2700,6 @@ impl SseDecode for crate::api::media::constraints::video::VideoConstraints {
     }
 }
 
-impl SseDecode for crate::api::peer::WebrtcLogLevel {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_decode(
-        deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer,
-    ) -> Self {
-        let mut inner = <i32>::sse_decode(deserializer);
-        return match inner {
-            0 => crate::api::peer::WebrtcLogLevel::Verbose,
-            1 => crate::api::peer::WebrtcLogLevel::Info,
-            2 => crate::api::peer::WebrtcLogLevel::Warning,
-            3 => crate::api::peer::WebrtcLogLevel::Error,
-            _ => unreachable!("Invalid variant for WebrtcLogLevel: {}", inner),
-        };
-    }
-}
-
 fn pde_ffi_dispatcher_primary_impl(
     func_id: i32,
     port: flutter_rust_bridge::for_generated::MessagePort,
@@ -2743,14 +2743,14 @@ fn pde_ffi_dispatcher_primary_impl(
 32 => wire__crate__api__media__set_audio_playout_device_impl(port, ptr, rust_vec_len, data_len),
 33 => wire__crate__api__capability__rtp_codec__set_codec_preferences_impl(port, ptr, rust_vec_len, data_len),
 34 => wire__crate__api__peer__rtc_session_description__set_local_description_impl(port, ptr, rust_vec_len, data_len),
-35 => wire__crate__api__media__set_microphone_volume_impl(port, ptr, rust_vec_len, data_len),
-36 => wire__crate__api__media__set_on_device_changed_impl(port, ptr, rust_vec_len, data_len),
-37 => wire__crate__api__peer__rtc_session_description__set_remote_description_impl(port, ptr, rust_vec_len, data_len),
-38 => wire__crate__api__media_stream_track__set_track_enabled_impl(port, ptr, rust_vec_len, data_len),
-39 => wire__crate__api__transceiver__set_transceiver_direction_impl(port, ptr, rust_vec_len, data_len),
-40 => wire__crate__api__transceiver__set_transceiver_recv_impl(port, ptr, rust_vec_len, data_len),
-41 => wire__crate__api__transceiver__set_transceiver_send_impl(port, ptr, rust_vec_len, data_len),
-42 => wire__crate__api__peer__set_webrtc_log_level_impl(port, ptr, rust_vec_len, data_len),
+35 => wire__crate__api__peer__set_log_level_impl(port, ptr, rust_vec_len, data_len),
+36 => wire__crate__api__media__set_microphone_volume_impl(port, ptr, rust_vec_len, data_len),
+37 => wire__crate__api__media__set_on_device_changed_impl(port, ptr, rust_vec_len, data_len),
+38 => wire__crate__api__peer__rtc_session_description__set_remote_description_impl(port, ptr, rust_vec_len, data_len),
+39 => wire__crate__api__media_stream_track__set_track_enabled_impl(port, ptr, rust_vec_len, data_len),
+40 => wire__crate__api__transceiver__set_transceiver_direction_impl(port, ptr, rust_vec_len, data_len),
+41 => wire__crate__api__transceiver__set_transceiver_recv_impl(port, ptr, rust_vec_len, data_len),
+42 => wire__crate__api__transceiver__set_transceiver_send_impl(port, ptr, rust_vec_len, data_len),
 43 => wire__crate__api__transceiver__stop_transceiver_impl(port, ptr, rust_vec_len, data_len),
 44 => wire__crate__api__media__sys_audio_capture_is_available_impl(port, ptr, rust_vec_len, data_len),
 45 => wire__crate__api__media_stream_track__track_height_impl(port, ptr, rust_vec_len, data_len),
@@ -3106,6 +3106,29 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::peer::rtc_configuration::ice_
                 self
             }
         }
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::peer::LogLevel {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Verbose => 0.into_dart(),
+            Self::Info => 1.into_dart(),
+            Self::Warning => 2.into_dart(),
+            Self::Error => 3.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::peer::LogLevel
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::peer::LogLevel>
+    for crate::api::peer::LogLevel
+{
+    fn into_into_dart(self) -> crate::api::peer::LogLevel {
+        self
+    }
+}
 // Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::api::media_info::MediaDeviceInfo {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
@@ -4287,29 +4310,6 @@ impl
         self
     }
 }
-// Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for crate::api::peer::WebrtcLogLevel {
-    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
-        match self {
-            Self::Verbose => 0.into_dart(),
-            Self::Info => 1.into_dart(),
-            Self::Warning => 2.into_dart(),
-            Self::Error => 3.into_dart(),
-            _ => unreachable!(),
-        }
-    }
-}
-impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
-    for crate::api::peer::WebrtcLogLevel
-{
-}
-impl flutter_rust_bridge::IntoIntoDart<crate::api::peer::WebrtcLogLevel>
-    for crate::api::peer::WebrtcLogLevel
-{
-    fn into_into_dart(self) -> crate::api::peer::WebrtcLogLevel {
-        self
-    }
-}
 
 impl SseEncode for flutter_rust_bridge::for_generated::anyhow::Error {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -4903,6 +4903,27 @@ impl SseEncode for Vec<crate::api::peer::video_codec_info::VideoCodecInfo> {
                 item, serializer,
             );
         }
+    }
+}
+
+impl SseEncode for crate::api::peer::LogLevel {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(
+        self,
+        serializer: &mut flutter_rust_bridge::for_generated::SseSerializer,
+    ) {
+        <i32>::sse_encode(
+            match self {
+                crate::api::peer::LogLevel::Verbose => 0,
+                crate::api::peer::LogLevel::Info => 1,
+                crate::api::peer::LogLevel::Warning => 2,
+                crate::api::peer::LogLevel::Error => 3,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
     }
 }
 
@@ -5885,27 +5906,6 @@ impl SseEncode for crate::api::media::constraints::video::VideoConstraints {
         <u32>::sse_encode(self.height, serializer);
         <u32>::sse_encode(self.frame_rate, serializer);
         <bool>::sse_encode(self.is_display, serializer);
-    }
-}
-
-impl SseEncode for crate::api::peer::WebrtcLogLevel {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_encode(
-        self,
-        serializer: &mut flutter_rust_bridge::for_generated::SseSerializer,
-    ) {
-        <i32>::sse_encode(
-            match self {
-                crate::api::peer::WebrtcLogLevel::Verbose => 0,
-                crate::api::peer::WebrtcLogLevel::Info => 1,
-                crate::api::peer::WebrtcLogLevel::Warning => 2,
-                crate::api::peer::WebrtcLogLevel::Error => 3,
-                _ => {
-                    unimplemented!("");
-                }
-            },
-            serializer,
-        );
     }
 }
 

@@ -29,42 +29,44 @@ use crate::{
     PeerConnection,
     api::{RX_TIMEOUT, WEBRTC},
     frb_generated::{RustOpaque, StreamSink},
+    logging,
 };
 
-/// `libwebrtc` global log level.
+/// Global log level for both `Rust` side and `libwebrtc`.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum WebrtcLogLevel {
+pub enum LogLevel {
     /// Verbose.
     Verbose,
+
     /// Info.
     Info,
+
     /// Warning.
     Warning,
+
     /// Error.
     Error,
 }
 
-impl From<WebrtcLogLevel> for i32 {
-    fn from(level: WebrtcLogLevel) -> Self {
-        match level {
-            WebrtcLogLevel::Verbose => 0,
-            WebrtcLogLevel::Info => 1,
-            WebrtcLogLevel::Warning => 2,
-            WebrtcLogLevel::Error => 3,
-        }
-    }
-}
-
 /// Sets `libwebrtc` global log level.
-pub fn set_webrtc_log_level(level: WebrtcLogLevel) -> anyhow::Result<()> {
-    let severity = match level {
-        WebrtcLogLevel::Verbose => sys::LoggingSeverity::LS_VERBOSE,
-        WebrtcLogLevel::Info => sys::LoggingSeverity::LS_INFO,
-        WebrtcLogLevel::Warning => sys::LoggingSeverity::LS_WARNING,
-        WebrtcLogLevel::Error => sys::LoggingSeverity::LS_ERROR,
+pub fn set_log_level(level: LogLevel) {
+    let (webrtc_level, rust_level) = match level {
+        LogLevel::Verbose => {
+            (sys::LoggingSeverity::LS_VERBOSE, log::LevelFilter::Trace)
+        }
+        LogLevel::Info => {
+            (sys::LoggingSeverity::LS_INFO, log::LevelFilter::Info)
+        }
+        LogLevel::Warning => {
+            (sys::LoggingSeverity::LS_WARNING, log::LevelFilter::Warn)
+        }
+        LogLevel::Error => {
+            (sys::LoggingSeverity::LS_ERROR, log::LevelFilter::Error)
+        }
     };
-    sys::set_webrtc_log_level(severity);
-    Ok(())
+
+    sys::set_webrtc_log_level(webrtc_level);
+    logging::set_max_level(rust_level);
 }
 
 /// Creates a new [`PeerConnection`] and returns its ID.
