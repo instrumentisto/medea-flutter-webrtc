@@ -226,6 +226,10 @@ class OpenALAudioDeviceModule : public ExtendedADM {
 
   bool processPlayout();
 
+  // NB! closePlayoutDevice should be called after this, so that next time
+  // we start playing, we set the thread local context and event callback.
+  void stopPlayingOnThread();
+
   void processPlayoutQueued();
 
   void startCaptureOnThread();
