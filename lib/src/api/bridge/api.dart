@@ -11,7 +11,13 @@ import 'frb_generated.dart';
 import 'lib.dart';
 
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `TrackKind`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `clone`, `eq`, `fmt`, `from`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `clone`, `clone`, `eq`, `eq`, `fmt`, `fmt`, `from`
+
+/// Sets [`libwebrtc`] global [`LogLevel`].
+///
+/// [`libwebrtc`]: libwebrtc_sys
+Future<void> setLogLevel({required LogLevel level}) =>
+    RustLib.instance.api.crateApiSetLogLevel(level: level);
 
 /// Replaces the specified [`AudioTrack`] (or [`VideoTrack`]) on the
 /// [`sys::RtpTransceiverInterface`]'s `sender`.
@@ -42,3 +48,20 @@ Future<void> senderSetParameters({
   transceiver: transceiver,
   params: params,
 );
+
+/// Global log level for both Rust side and [`libwebrtc`].
+///
+/// [`libwebrtc`]: libwebrtc_sys
+enum LogLevel {
+  /// Verbose.
+  verbose,
+
+  /// Info.
+  info,
+
+  /// Warning.
+  warning,
+
+  /// Error.
+  error,
+}

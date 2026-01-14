@@ -2,6 +2,7 @@ package com.instrumentisto.medea_flutter_webrtc
 
 import android.util.Log
 import com.instrumentisto.medea_flutter_webrtc.controller.ControllerRegistry
+import com.instrumentisto.medea_flutter_webrtc.controller.LoggingController
 import com.instrumentisto.medea_flutter_webrtc.controller.MediaDevicesController
 import com.instrumentisto.medea_flutter_webrtc.controller.PeerConnectionFactoryController
 import com.instrumentisto.medea_flutter_webrtc.controller.VideoRendererFactoryController
@@ -18,6 +19,7 @@ class MedeaFlutterWebrtcPlugin : FlutterPlugin, ActivityAware {
   private var peerConnectionFactory: PeerConnectionFactoryController? = null
   private var mediaDevices: MediaDevicesController? = null
   private var videoRendererFactory: VideoRendererFactoryController? = null
+  private var loggingController: LoggingController? = null
   private var messenger: BinaryMessenger? = null
   private var state: State? = null
   private var textureRegistry: TextureRegistry? = null
@@ -45,6 +47,7 @@ class MedeaFlutterWebrtcPlugin : FlutterPlugin, ActivityAware {
     mediaDevices = null
     peerConnectionFactory = null
     videoRendererFactory = null
+    loggingController = null
   }
 
   override fun onAttachedToActivity(registrar: ActivityPluginBinding) {
@@ -58,6 +61,7 @@ class MedeaFlutterWebrtcPlugin : FlutterPlugin, ActivityAware {
     peerConnectionFactory =
         PeerConnectionFactoryController(messenger!!, state!!, media, permissions!!)
     videoRendererFactory = VideoRendererFactoryController(messenger!!, textureRegistry!!)
+    loggingController = LoggingController(messenger!!)
   }
 
   override fun onDetachedFromActivityForConfigChanges() {}

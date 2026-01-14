@@ -20,6 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import org.webrtc.Logging
 import org.webrtc.MediaStreamTrack
 
 /**
@@ -120,6 +121,19 @@ class PeerConnectionFactoryController(
         }
 
         result.success(map.values.map { it.asFlutterResult() })
+      }
+      "setLogLevel" -> {
+        val level: Int? = call.argument("level")
+        val severity =
+            when (level) {
+              0 -> Logging.Severity.LS_VERBOSE
+              1 -> Logging.Severity.LS_INFO
+              2 -> Logging.Severity.LS_WARNING
+              3 -> Logging.Severity.LS_ERROR
+              else -> Logging.Severity.LS_WARNING
+            }
+        Logging.enableLogToDebugOutput(severity)
+        result.success(null)
       }
       "dispose" -> {
         dispose()

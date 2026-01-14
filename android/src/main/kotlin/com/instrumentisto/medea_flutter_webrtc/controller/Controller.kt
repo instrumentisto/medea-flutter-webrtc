@@ -17,6 +17,7 @@ interface Controller : MethodChannel.MethodCallHandler {
             MediaStreamTrackController::class,
             RtpSenderController::class,
             RtpTransceiverController::class,
+            LoggingController::class,
             PeerConnectionFactoryController::class,
             PeerConnectionController::class,
             MediaDevicesController::class,

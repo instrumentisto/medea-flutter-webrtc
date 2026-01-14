@@ -304,6 +304,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<VideoCodecInfo> dco_decode_list_video_codec_info(dynamic raw);
 
   @protected
+  LogLevel dco_decode_log_level(dynamic raw);
+
+  @protected
   MediaDeviceInfo dco_decode_media_device_info(dynamic raw);
 
   @protected
@@ -797,6 +800,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<VideoCodecInfo> sse_decode_list_video_codec_info(
     SseDeserializer deserializer,
   );
+
+  @protected
+  LogLevel sse_decode_log_level(SseDeserializer deserializer);
 
   @protected
   MediaDeviceInfo sse_decode_media_device_info(SseDeserializer deserializer);
@@ -1388,6 +1394,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     List<VideoCodecInfo> self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_log_level(LogLevel self, SseSerializer serializer);
 
   @protected
   void sse_encode_media_device_info(

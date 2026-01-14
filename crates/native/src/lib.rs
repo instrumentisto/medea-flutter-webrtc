@@ -188,6 +188,7 @@ pub mod api;
 mod frb_generated;
 mod devices;
 pub mod frb;
+mod logging;
 mod media;
 mod pc;
 mod renderer;

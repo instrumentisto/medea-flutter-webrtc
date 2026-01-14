@@ -77,6 +77,7 @@ use crate::{
     Webrtc,
     frb::{FrbHandler, new_frb_handler},
     frb_generated::{FLUTTER_RUST_BRIDGE_CODEGEN_VERSION, RustOpaque},
+    logging,
 };
 
 /// Custom [`Handler`] for executing Rust code called from Dart.
@@ -98,8 +99,10 @@ pub static FLUTTER_RUST_BRIDGE_HANDLER: LazyLock<FrbHandler> =
         new_frb_handler()
     });
 
-pub(crate) static WEBRTC: LazyLock<Mutex<Webrtc>> =
-    LazyLock::new(|| Mutex::new(Webrtc::new().unwrap()));
+pub(crate) static WEBRTC: LazyLock<Mutex<Webrtc>> = LazyLock::new(|| {
+    logging::ensure_logger_installed();
+    Mutex::new(Webrtc::new().unwrap())
+});
 
 /// Timeout for [`mpsc::Receiver::recv_timeout()`] operations.
 pub static RX_TIMEOUT: Duration = Duration::from_secs(5);
@@ -123,6 +126,47 @@ impl From<sys::TrackKind> for TrackKind {
             sys::TrackKind::Video => Self::Video,
         }
     }
+}
+
+/// Global log level for both Rust side and [`libwebrtc`].
+///
+/// [`libwebrtc`]: libwebrtc_sys
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum LogLevel {
+    /// Verbose.
+    Verbose,
+
+    /// Info.
+    Info,
+
+    /// Warning.
+    Warning,
+
+    /// Error.
+    Error,
+}
+
+/// Sets [`libwebrtc`] global [`LogLevel`].
+///
+/// [`libwebrtc`]: libwebrtc_sys
+pub fn set_log_level(level: LogLevel) {
+    let (webrtc_level, rust_level) = match level {
+        LogLevel::Verbose => {
+            (sys::LoggingSeverity::LS_VERBOSE, log::LevelFilter::Trace)
+        }
+        LogLevel::Info => {
+            (sys::LoggingSeverity::LS_INFO, log::LevelFilter::Info)
+        }
+        LogLevel::Warning => {
+            (sys::LoggingSeverity::LS_WARNING, log::LevelFilter::Warn)
+        }
+        LogLevel::Error => {
+            (sys::LoggingSeverity::LS_ERROR, log::LevelFilter::Error)
+        }
+    };
+
+    sys::set_webrtc_log_level(webrtc_level);
+    logging::set_max_level(rust_level);
 }
 
 /// Replaces the specified [`AudioTrack`] (or [`VideoTrack`]) on the
