@@ -9,6 +9,7 @@ public class MedeaFlutterWebrtcPlugin: NSObject, FlutterPlugin {
   var peerConnectionFactory: PeerConnectionFactoryController
   var mediaDevices: MediaDevicesController
   var videoRendererFactory: VideoRendererFactoryController
+  var logging: LoggingController
   var textures: FlutterTextureRegistry
   var state: State
 
@@ -30,6 +31,7 @@ public class MedeaFlutterWebrtcPlugin: NSObject, FlutterPlugin {
     self.videoRendererFactory = VideoRendererFactoryController(
       messenger: self.messenger, registry: self.textures
     )
+    self.logging = LoggingController(messenger: self.messenger)
   }
 
   /// Registers this `MedeaFlutterWebrtcPlugin` in the provided

@@ -76,21 +76,6 @@ typedef OnSignalingStateChangeCallback = void Function(SignalingState);
 /// Shortcut for the `on_ice_candidate_error` callback.
 typedef OnIceCandidateErrorCallback = void Function(IceCandidateErrorEvent);
 
-/// Supported logging levels.
-enum LogLevel {
-  /// Verbose.
-  verbose,
-
-  /// Info.
-  info,
-
-  /// Warning.
-  warning,
-
-  /// Error.
-  error,
-}
-
 /// [RTCPeerConnection][1] representation.
 ///
 /// [1]: https://w3.org/TR/webrtc#dom-rtcpeerconnection
@@ -765,20 +750,5 @@ class _PeerConnectionFFI extends PeerConnection {
     }
 
     return result;
-  }
-}
-
-/// Sets the logging level for the native-side.
-///
-/// Default logging level for the Rust-side is [LogLevel.warning].
-/// Logging in `libwebrtc` is disabled in release builds and is [LogLevel.info]
-/// in debug builds by default.
-Future<void> setLogLevel(LogLevel level) async {
-  if (isDesktop) {
-    await ffi.setLogLevel(level: ffi.LogLevel.values[level.index]);
-  } else {
-    await _peerConnectionFactoryMethodChannel.invokeMethod('setLogLevel', {
-      'level': level.index,
-    });
   }
 }
