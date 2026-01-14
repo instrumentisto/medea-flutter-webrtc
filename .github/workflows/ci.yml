@@ -201,7 +201,7 @@ jobs:
                   --switch /Applications/Xcode_16.4.0.app/Contents/Developer
         if: ${{ matrix.platform == 'macos' }}
 
-      - run: make cargo.build platform=${{ matrix.platform }} debug=yes
+      - run: make cargo.build platform=${{ matrix.platform }} debug=no
 
       - uses: actions/upload-artifact@v6
         with:
