@@ -91,7 +91,7 @@ struct OpenALAudioDeviceModule::Data {
   std::array<ALuint, kBuffersFullCount> buffers = {{0}};
   std::array<bool, kBuffersFullCount> queuedBuffers = {{false}};
   int playBufferSize = kPlayoutPart * sizeof(int16_t) * 2;
-  std::vector<char>* playoutSamples = new std::vector<char>(playBufferSize, 0);
+  std::vector<char> playoutSamples = std::vector<char>(playBufferSize, 0);
   int64_t exactDeviceTimeCounter = 0;
   int64_t lastExactDeviceTime = 0;
   std::int64_t lastExactDeviceTimeWhen = 0;
@@ -260,37 +260,35 @@ int DeviceName(ALCenum specifier,
 }
 
 int32_t OpenALAudioDeviceModule::SetPlayoutDevice(uint16_t index) {
-  const auto result =
-      DeviceName(ALC_ALL_DEVICES_SPECIFIER, index, nullptr, &_playoutDeviceId);
+  // Does nothing, because it's called by `libwebrtc` and we don't want that.
+  RTC_LOG(LS_ERROR)
+      << "Use `SetPlayoutDeviceIndex` instead of `SetPlayoutDevice`";
 
-  return result ? result : restartPlayout();
+  // Don`t error so libwebrtc would think that everything is ok.
+  return 0;
 }
 
 int32_t OpenALAudioDeviceModule::SetPlayoutDevice(WindowsDeviceType device) {
-  _playoutDeviceId = GetDefaultDeviceId(ALC_DEFAULT_DEVICE_SPECIFIER);
-
-  return _playoutDeviceId.empty() ? -1 : restartPlayout();
-}
-
-int OpenALAudioDeviceModule::restartPlayout() {
-  if (!_data || !_data->playing) {
-    return 0;
-  }
-  stopPlayingOnThread();
-  closePlayoutDevice();
-  if (!validatePlayoutDeviceId()) {
-    std::lock_guard<std::recursive_mutex> lk(_playout_mutex);
-
-    _data->playing = true;
-    _playoutFailed = true;
-
-    return 0;
-  }
-  _playoutFailed = false;
-  openPlayoutDevice();
-  startPlayingOnThread();
+  // Does nothing, because it's called by `libwebrtc` and we don't want that.
+  RTC_LOG(LS_ERROR)
+      << "Use `SetPlayoutDeviceIndex` instead of `SetPlayoutDevice`";
 
   return 0;
+}
+
+int32_t OpenALAudioDeviceModule::SetPlayoutDeviceIndex(uint16_t index) {
+  // Ensure playout is stopped before switching the device id.
+  std::lock_guard<std::recursive_mutex> lk(_playout_mutex);
+
+  if (Playing()) {
+    RTC_LOG(LS_INFO) << "Stopping playout before changing playout device";
+    return -1;
+  }
+
+  const auto result =
+      DeviceName(ALC_ALL_DEVICES_SPECIFIER, index, nullptr, &_playoutDeviceId);
+
+  return result;
 }
 
 int16_t OpenALAudioDeviceModule::PlayoutDevices() {
@@ -330,9 +328,7 @@ int32_t OpenALAudioDeviceModule::StartPlayout() {
     return 0;
   }
 
-  if (_playoutFailed) {
-    _playoutFailed = false;
-  }
+  _playoutFailed = false;
 
   _data->_playoutThread->Start();
   openPlayoutDevice();
@@ -529,7 +525,26 @@ void OpenALAudioDeviceModule::unqueueAllBuffers() {
 
 int32_t OpenALAudioDeviceModule::RegisterAudioCallback(
     webrtc::AudioTransport* audioCallback) {
-  return audio_device_buffer_->RegisterAudioCallback(audioCallback);
+  std::lock_guard<std::recursive_mutex> lk(_playout_mutex);
+
+  // If the playout is started already, we need to restart the audio device
+  // buffer with the new `AudioTransport`, since WebRTC's `AudioDeviceBuffer`
+  // doesn't allow registering a callback after the `StartPlayout` has been
+  // called.
+  bool was_playing = Playing();
+  if (was_playing) {
+    audio_device_buffer_->StopPlayout();
+  }
+
+  int32_t result = audio_device_buffer_->RegisterAudioCallback(audioCallback);
+
+  if (was_playing && result == 0) {
+    audio_device_buffer_->SetPlayoutSampleRate(kPlayoutFrequency);
+    audio_device_buffer_->SetPlayoutChannels(_playoutChannels);
+    audio_device_buffer_->StartPlayout();
+  }
+
+  return result;
 }
 
 bool OpenALAudioDeviceModule::processPlayout() {
@@ -555,10 +570,9 @@ bool OpenALAudioDeviceModule::processPlayout() {
     const auto available =
         audio_device_buffer_->RequestPlayoutData(kPlayoutPart);
     if (available == kPlayoutPart) {
-      audio_device_buffer_->GetPlayoutData(_data->playoutSamples->data());
+      audio_device_buffer_->GetPlayoutData(_data->playoutSamples.data());
     } else {
-      std::fill(_data->playoutSamples->begin(), _data->playoutSamples->end(),
-                0);
+      std::fill(_data->playoutSamples.begin(), _data->playoutSamples.end(), 0);
       break;
     }
 
@@ -571,7 +585,7 @@ bool OpenALAudioDeviceModule::processPlayout() {
     alBufferData(
         _data->buffers[index],
         (_playoutChannels == 2) ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16,
-        _data->playoutSamples->data(), _data->playoutSamples->size(),
+        _data->playoutSamples.data(), _data->playoutSamples.size(),
         kPlayoutFrequency);
 
     _data->queuedBuffers[index] = true;
@@ -684,8 +698,6 @@ void OpenALAudioDeviceModule::stopPlayingOnThread() {
 
     if (!_data->playing) {
       _data->_playoutThread->PostTask([this] {
-        std::lock_guard<std::recursive_mutex> lk(_playout_mutex);
-
         alcSetThreadContext(nullptr);
       });
       return;
@@ -693,8 +705,6 @@ void OpenALAudioDeviceModule::stopPlayingOnThread() {
     _data->playing = false;
     if (_playoutFailed) {
       _data->_playoutThread->PostTask([this] {
-        std::lock_guard<std::recursive_mutex> lk(_playout_mutex);
-
         alcSetThreadContext(nullptr);
       });
       return;

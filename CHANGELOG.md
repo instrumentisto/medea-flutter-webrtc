@@ -15,14 +15,20 @@ All user visible changes to this project will be documented in this file. This p
 - `setupAudioSessionManagement()` function for enabling/disabling automatic audio session management on [iOS]. ([#277])
 - `LogLevel` enum and `setLogLevel` function to allow configuring native-side logging. ([#279])
 
+### Fixed
+
+- Audio playout not working if calling `setOutputAudioId()` before a call established. ([#278])
+
 ### Changed
 
 - Upgraded [OpenAL] library to [1.25.0][openal-1.25.0] version. ([#275])
-- Upgraded [libwebrtc] to [143.0.7499.192] version. ([todo])
+- Upgraded [libwebrtc] to [143.0.7499.192] version. ([16049300])
 
 [#275]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/275
 [#277]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/277
+[#278]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/278
 [#279]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/279
+[16049300]: https://github.com/instrumentisto/medea-flutter-webrtc/commit/16049300183691fbbfafda26d39a263e6a89e1e0
 [143.0.7499.192]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/143.0.7499.192
 [openal-1.25.0]: https://github.com/kcat/openal-soft/releases/tag/1.25.0
 
