@@ -109,7 +109,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.11.1';
 
   @override
-  int get rustContentHash => -1365216885;
+  int get rustContentHash => 2084919011;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -269,7 +269,7 @@ abstract class RustLibApi extends BaseApi {
     required String sdp,
   });
 
-  Future<void> crateApiPeerSetLogLevel({required LogLevel level});
+  Future<void> crateApiSetLogLevel({required LogLevel level});
 
   Future<void> crateApiMediaSetMicrophoneVolume({required int level});
 
@@ -1542,7 +1542,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<void> crateApiPeerSetLogLevel({required LogLevel level}) {
+  Future<void> crateApiSetLogLevel({required LogLevel level}) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
@@ -1559,14 +1559,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiPeerSetLogLevelConstMeta,
+        constMeta: kCrateApiSetLogLevelConstMeta,
         argValues: [level],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiPeerSetLogLevelConstMeta =>
+  TaskConstMeta get kCrateApiSetLogLevelConstMeta =>
       const TaskConstMeta(debugName: "set_log_level", argNames: ["level"]);
 
   @override
