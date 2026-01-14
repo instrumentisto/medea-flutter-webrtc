@@ -260,7 +260,7 @@ int DeviceName(ALCenum specifier,
 }
 
 int32_t OpenALAudioDeviceModule::SetPlayoutDevice(uint16_t index) {
-  // Does nothing cause it is called by libwebrtc and we don't want that.
+  // Does nothing, because it's called by `libwebrtc` and we don't want that.
   RTC_LOG(LS_ERROR)
       << "Use `SetPlayoutDeviceIndex` instead of `SetPlayoutDevice`";
 
@@ -269,7 +269,7 @@ int32_t OpenALAudioDeviceModule::SetPlayoutDevice(uint16_t index) {
 }
 
 int32_t OpenALAudioDeviceModule::SetPlayoutDevice(WindowsDeviceType device) {
-  // Does nothing cause it is called by libwebrtc and we don't want that.
+  // Does nothing, because it's called by `libwebrtc` and we don't want that.
   RTC_LOG(LS_ERROR)
       << "Use `SetPlayoutDeviceIndex` instead of `SetPlayoutDevice`";
 
@@ -277,7 +277,7 @@ int32_t OpenALAudioDeviceModule::SetPlayoutDevice(WindowsDeviceType device) {
 }
 
 int32_t OpenALAudioDeviceModule::SetPlayoutDeviceIndex(uint16_t index) {
-  // Ensure playout is stopped before switching device id.
+  // Ensure playout is stopped before switching the device id.
   std::lock_guard<std::recursive_mutex> lk(_playout_mutex);
 
   if (Playing()) {
@@ -527,9 +527,10 @@ int32_t OpenALAudioDeviceModule::RegisterAudioCallback(
     webrtc::AudioTransport* audioCallback) {
   std::lock_guard<std::recursive_mutex> lk(_playout_mutex);
 
-  // If playout is already started, we need to restart the audio device buffer
-  // with the new AudioTransport, since WebRTC's AudioDeviceBuffer does not
-  // allow registering a callback after StartPlayout has been called.
+  // If the playout is started already, we need to restart the audio device
+  // buffer with the new `AudioTransport`, since WebRTC's `AudioDeviceBuffer`
+  // doesn't allow registering a callback after the `StartPlayout` has been
+  // called.
   bool was_playing = Playing();
   if (was_playing) {
     audio_device_buffer_->StopPlayout();
