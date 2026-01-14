@@ -9,30 +9,13 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   setUpAll(() async {
-    print("setUpAll 000");
     if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
-      print("setUpAll 111");
       await initFfiBridge();
-      print("setUpAll 222");
       await enableFakeMedia();
-      print("setUpAll 333");
     }
   });
 
-  setUp(() async {
-    print("setUp 000");
-  });
-
-  tearDownAll(() async {
-    print("tearDownAll 000");
-  });
-
-  tearDown(() async {
-    print("tearDown 000");
-  });
-
   testWidgets('Add transceiver', (WidgetTester tester) async {
-    print("0 start");
     var pc = await PeerConnection.create(IceTransportType.all, []);
     var trans = await pc.addTransceiver(
       MediaKind.video,
@@ -48,11 +31,9 @@ void main() {
 
     await pc.close();
     await trans.dispose();
-    print("0 end");
   });
 
   testWidgets('Add transceiver with simulcast', (WidgetTester tester) async {
-    print("1 start");
     var pc = await PeerConnection.create(IceTransportType.all, []);
 
     var videoInit1 = RtpTransceiverInit(TransceiverDirection.sendOnly);
@@ -113,11 +94,9 @@ void main() {
 
     await pc.close();
     await videoTrans1.dispose();
-    print("1 end");
   });
 
   testWidgets('Get/set sender parameters', (WidgetTester tester) async {
-    print("2 start");
     var pc = await PeerConnection.create(IceTransportType.all, []);
 
     var videoInit1 = RtpTransceiverInit(TransceiverDirection.sendOnly);
@@ -223,11 +202,9 @@ void main() {
 
     await pc.close();
     await videoTrans1.dispose();
-    print("2 end");
   });
 
   testWidgets('Correct codecs', (WidgetTester tester) async {
-    print("3 start");
     var server = IceServer(['stun:stun.l.google.com:19302']);
     var pc1 = await PeerConnection.create(IceTransportType.all, [server]);
 
@@ -265,11 +242,9 @@ void main() {
 
     await pc1.close();
     await videoTransceiver.dispose();
-    print("3 end");
   });
 
   testWidgets('Video codec info', (WidgetTester tester) async {
-    print("4 start");
     var decoders = await PeerConnection.videoDecoders();
     expect(
       decoders.where((dec) => dec.codec == VideoCodec.VP8).length,
@@ -317,11 +292,9 @@ void main() {
         isZero,
       );
     }
-    print("4 end");
   });
 
   testWidgets('Get video capabilities', (WidgetTester tester) async {
-    print("5 start");
     var senderCapabilities = await RtpSender.getCapabilities(MediaKind.video);
     var receiverCapabilities = await RtpReceiver.getCapabilities(
       MediaKind.video,
@@ -377,11 +350,9 @@ void main() {
         isNotNull,
       );
     }
-    print("5 end");
   });
 
   testWidgets('Get audio capabilities', (WidgetTester tester) async {
-    print("6 start");
     var senderCapabilities = await RtpSender.getCapabilities(MediaKind.audio);
     var receiverCapabilities = await RtpReceiver.getCapabilities(
       MediaKind.audio,
@@ -411,11 +382,9 @@ void main() {
         isNotNull,
       );
     }
-    print("6 end");
   });
 
   testWidgets('SetCodecPreferences', (WidgetTester tester) async {
-    print("7 start");
     var pc1 = await PeerConnection.create(IceTransportType.all, []);
     var pc2 = await PeerConnection.create(IceTransportType.all, []);
 
@@ -460,11 +429,9 @@ void main() {
     await pc1.close();
     await pc2.close();
     await vtrans.dispose();
-    print("7 end");
   });
 
   testWidgets('Get transceivers', (WidgetTester tester) async {
-    print("8 start");
     var pc = await PeerConnection.create(IceTransportType.all, []);
     var t1 = await pc.addTransceiver(
       MediaKind.video,
@@ -503,11 +470,9 @@ void main() {
     for (var e in after) {
       await e.dispose();
     }
-    print("8 end");
   });
 
   testWidgets('Get transceiver direction', (WidgetTester tester) async {
-    print("9 start");
     var pc = await PeerConnection.create(IceTransportType.all, []);
     var trans = await pc.addTransceiver(
       MediaKind.video,
@@ -519,11 +484,9 @@ void main() {
 
     await pc.close();
     await trans.dispose();
-    print("9 end");
   });
 
   testWidgets('Set transceiver direction', (WidgetTester tester) async {
-    print("10 start");
     var pc = await PeerConnection.create(IceTransportType.all, []);
     var trans = await pc.addTransceiver(
       MediaKind.video,
@@ -548,11 +511,9 @@ void main() {
 
     await pc.close();
     await trans.dispose();
-    print("10 end");
   });
 
   testWidgets('Stop transceiver', (WidgetTester tester) async {
-    print("11 start");
     var pc = await PeerConnection.create(IceTransportType.all, []);
     var trans = await pc.addTransceiver(
       MediaKind.video,
@@ -571,11 +532,9 @@ void main() {
 
     await pc.close();
     await trans.dispose();
-    print("11 end");
   });
 
   testWidgets('Get transceiver mid', (WidgetTester tester) async {
-    print("12 start");
     var pc = await PeerConnection.create(IceTransportType.all, []);
     var trans = await pc.addTransceiver(
       MediaKind.video,
@@ -591,11 +550,9 @@ void main() {
 
     await pc.close();
     await trans.dispose();
-    print("12 end");
   });
 
   testWidgets('Add Ice Candidate', (WidgetTester tester) async {
-    print("13 start");
     var pc1 = await PeerConnection.create(IceTransportType.all, []);
     var pc2 = await PeerConnection.create(IceTransportType.all, []);
     final completer = Completer<void>();
@@ -635,11 +592,9 @@ void main() {
     await pc1.close();
     await pc2.close();
     await t.dispose();
-    print("13 end");
   });
 
   testWidgets('Restart Ice', (WidgetTester tester) async {
-    print("14 start");
     var pc1 = await PeerConnection.create(IceTransportType.all, []);
     var pc2 = await PeerConnection.create(IceTransportType.all, []);
 
@@ -688,11 +643,9 @@ void main() {
     await pc1.close();
     await pc2.close();
     await t.dispose();
-    print("14 end");
   });
 
   testWidgets('Ice state PeerConnection', (WidgetTester tester) async {
-    print("15 start");
     var pc1 = await PeerConnection.create(IceTransportType.all, []);
     var pc2 = await PeerConnection.create(IceTransportType.all, []);
 
@@ -740,11 +693,9 @@ void main() {
 
     await pc2.close();
     await t.dispose();
-    print("15 end");
   });
 
   testWidgets('Peer connection event on track', (WidgetTester tester) async {
-    print("16 start");
     var pc1 = await PeerConnection.create(IceTransportType.all, []);
     var t = await pc1.addTransceiver(
       MediaKind.video,
@@ -764,11 +715,9 @@ void main() {
     await pc1.close();
     await pc2.close();
     await t.dispose();
-    print("16 end");
   });
 
   testWidgets('Track Onended', (WidgetTester tester) async {
-    print("17 start");
     var pc1 = await PeerConnection.create(IceTransportType.all, []);
     var tr = await pc1.addTransceiver(
       MediaKind.video,
@@ -796,13 +745,11 @@ void main() {
     await pc1.close();
     await pc2.close();
     await tr.dispose();
-    print("17 end");
   });
 
   testWidgets('Track Onended not working after stop()', (
     WidgetTester tester,
   ) async {
-    print("18 start");
     var capsAudioOnly = DeviceConstraints();
     capsAudioOnly.audio.mandatory = AudioConstraints();
 
@@ -863,11 +810,9 @@ void main() {
     await pc2.close();
     await audioTransceiver.dispose();
     await track.dispose();
-    print("18 end");
   });
 
   testWidgets('Connect two peers', (WidgetTester tester) async {
-    print("19 start");
     var caps = DeviceConstraints();
     caps.audio.mandatory = AudioConstraints();
     caps.video.mandatory = DeviceVideoConstraints();
@@ -961,11 +906,9 @@ void main() {
     await audioTrack.dispose();
     await videoTransceiver.dispose();
     await audioTransceiver.dispose();
-    print("19 end");
   });
 
   testWidgets('Clone track', (WidgetTester tester) async {
-    print("20 start");
     var caps = DeviceConstraints();
     caps.video.mandatory = DeviceVideoConstraints();
     caps.video.mandatory!.width = 640;
@@ -1025,11 +968,9 @@ void main() {
       await t.dispose();
     }
     await cloneVideoTrack.dispose();
-    print("20 end");
   });
 
   testWidgets('Media stream constraints', (WidgetTester tester) async {
-    print("21 start");
     var capsVideoDeviceOnly = DeviceConstraints();
     capsVideoDeviceOnly.video.mandatory = DeviceVideoConstraints();
     capsVideoDeviceOnly.video.mandatory!.width = 640;
@@ -1076,11 +1017,9 @@ void main() {
     for (var t in tracks) {
       await t.dispose();
     }
-    print("21 end");
   });
 
   testWidgets('ICE transport types', (WidgetTester tester) async {
-    print("22 start");
     // IceTransportType.all, STUN server
     {
       var server = IceServer(
@@ -1176,11 +1115,9 @@ void main() {
       await t1.dispose();
       await t2.dispose();
     }
-    print("22 end");
   });
 
   testWidgets('Set recv direction', (WidgetTester tester) async {
-    print("23 start");
     var pc = await PeerConnection.create(IceTransportType.all, []);
     // ignore: prefer_function_declarations_over_variables
     var testEnableRecv = (beforeDirection, afterDirection) async {
@@ -1237,11 +1174,9 @@ void main() {
     }
 
     await pc.close();
-    print("23 end");
   });
 
   testWidgets('Set send direction', (WidgetTester tester) async {
-    print("24 start");
     var pc = await PeerConnection.create(IceTransportType.all, []);
     // ignore: prefer_function_declarations_over_variables
     var testEnableRecv = (beforeDirection, afterDirection) async {
@@ -1298,13 +1233,11 @@ void main() {
     }
 
     await pc.close();
-    print("24 end");
   });
 
   testWidgets('Handles still work after Peer close', (
     WidgetTester tester,
   ) async {
-    print("25 start");
     var caps = DeviceConstraints();
     caps.audio.mandatory = AudioConstraints();
     caps.video.mandatory = DeviceVideoConstraints();
@@ -1378,11 +1311,9 @@ void main() {
     for (var track in tracks) {
       await track.dispose();
     }
-    print("25 end");
   });
 
   testWidgets('Video dimensions', (WidgetTester tester) async {
-    print("26 start");
     // iOS simulator does not have camera
     if (!Platform.isIOS) {
       var caps = DeviceConstraints();
@@ -1418,11 +1349,9 @@ void main() {
 
       await track.dispose();
     }
-    print("26 end");
   });
 
   testWidgets('Display audio', (WidgetTester tester) async {
-    print("27 start");
     // Display audio tracks are implemented only on Windows and macOS.
     if (!(Platform.isWindows || Platform.isMacOS)) {
       return;
@@ -1445,13 +1374,11 @@ void main() {
     for (var track in tracks) {
       await track.dispose();
     }
-    print("27 end");
   });
 
   testWidgets('on_track when peer has transceiver.', (
     WidgetTester tester,
   ) async {
-    print("28 start");
     var pc1 = await PeerConnection.create(IceTransportType.all, []);
     var pc2 = await PeerConnection.create(IceTransportType.all, []);
 
@@ -1472,11 +1399,9 @@ void main() {
     await pc2.close();
     await t1.dispose();
     await t2.dispose();
-    print("28 end");
   });
 
   testWidgets('Peer connection get stats.', (WidgetTester tester) async {
-    print("29 start");
     var caps = DeviceConstraints();
     caps.audio.mandatory = AudioConstraints();
     caps.video.mandatory = DeviceVideoConstraints();
@@ -1602,7 +1527,6 @@ void main() {
     await tAudio.dispose();
     await videoTrack.dispose();
     await audioTrack.dispose();
-    print("29 end");
   });
 
   testWidgets('setLocalDescription', (WidgetTester tester) async {
@@ -1612,7 +1536,6 @@ void main() {
     // to be included in an SDP offer and rejected in the `setLocalDescription`.
     // Performs 2 negotiations and changes transceiver direction to hit certain
     // branches in `libwebrtc` source code.
-    print("30 start");
     var pc1 = await PeerConnection.create(IceTransportType.all, []);
     var tv = await pc1.addTransceiver(
       MediaKind.video,
@@ -1637,13 +1560,11 @@ void main() {
     await ta.dispose();
     await tv.dispose();
     await pc1.close();
-    print("30 end");
   });
 
   testWidgets('Audio processing in get user media', (
     WidgetTester tester,
   ) async {
-    print("31 start");
     if (Platform.isAndroid || Platform.isIOS) {
       // Only supported on desktop.
 
@@ -1783,6 +1704,5 @@ void main() {
 
       await track.dispose();
     }
-    print("31 end");
   });
 }
