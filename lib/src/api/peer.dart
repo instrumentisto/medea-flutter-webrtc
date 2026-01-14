@@ -12,7 +12,6 @@ import '/src/model/sdp.dart';
 import '/src/model/track.dart';
 import '/src/model/transceiver.dart';
 import '/src/platform/native/media_stream_track.dart';
-import 'bridge/api.dart' as ffi;
 import 'bridge/api/media_stream_track/media_type.dart' as ffi;
 import 'bridge/api/peer.dart' as ffi;
 import 'bridge/api/peer/events.dart' as ffi;
