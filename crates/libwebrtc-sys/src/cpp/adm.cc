@@ -328,9 +328,7 @@ int32_t OpenALAudioDeviceModule::StartPlayout() {
     return 0;
   }
 
-  if (_playoutFailed) {
-    _playoutFailed = false;
-  }
+  _playoutFailed = false;
 
   _data->_playoutThread->Start();
   openPlayoutDevice();
@@ -699,8 +697,6 @@ void OpenALAudioDeviceModule::stopPlayingOnThread() {
 
     if (!_data->playing) {
       _data->_playoutThread->PostTask([this] {
-        std::lock_guard<std::recursive_mutex> lk(_playout_mutex);
-
         alcSetThreadContext(nullptr);
       });
       return;
@@ -708,8 +704,6 @@ void OpenALAudioDeviceModule::stopPlayingOnThread() {
     _data->playing = false;
     if (_playoutFailed) {
       _data->_playoutThread->PostTask([this] {
-        std::lock_guard<std::recursive_mutex> lk(_playout_mutex);
-
         alcSetThreadContext(nullptr);
       });
       return;

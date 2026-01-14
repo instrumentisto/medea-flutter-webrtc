@@ -212,6 +212,10 @@ class OpenALAudioDeviceModule : public ExtendedADM {
   bool quit = false;
 
  private:
+  int restartPlayout();
+  void openPlayoutDevice();
+
+  void startPlayingOnThread();
   void ensureThreadStarted();
   void closePlayoutDevice();
   bool validatePlayoutDeviceId();
