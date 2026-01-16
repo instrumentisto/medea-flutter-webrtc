@@ -136,6 +136,10 @@ using AudioProcessingConfig = webrtc::AudioProcessing::Config;
 // Sets `libwebrtc` global log level.
 void set_webrtc_log_level(LoggingSeverity level);
 
+#if defined(WEBRTC_MAC)
+void SetWebRTCLogSink(LoggingSeverity severity);
+#endif
+
 // Indicates whether system audio capture is available on this platform.
 bool sys_audio_capture_is_available();
 

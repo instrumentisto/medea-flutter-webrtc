@@ -15,7 +15,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
-  medea_flutter_webrtc: be56a8b009566e159bdb73856df552574c59c157
+  medea_flutter_webrtc: 1e69849692db7f7378a98dbdf800f803a57cdb2a
 
 PODFILE CHECKSUM: 1b29b575031b812e1e7a7cf698aec84e8b2cab1e
 

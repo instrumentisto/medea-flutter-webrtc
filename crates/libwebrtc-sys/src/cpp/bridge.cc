@@ -30,6 +30,9 @@ namespace bridge {
 
 // Sets `libwebrtc` global log level.
 void set_webrtc_log_level(LoggingSeverity severity) {
+#if defined(WEBRTC_MAC)
+  SetWebRTCLogSink(severity);
+#endif
   webrtc::LogMessage::LogToDebug(severity);
   webrtc::LogMessage::LogTimestamps();
 }
