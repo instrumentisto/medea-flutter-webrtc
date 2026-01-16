@@ -31,6 +31,7 @@ namespace bridge {
 // Sets `libwebrtc` global log level.
 void set_webrtc_log_level(LoggingSeverity severity) {
   webrtc::LogMessage::LogToDebug(severity);
+  webrtc::LogMessage::LogTimestamps();
 }
 
 // Indicates whether system audio capture is available on this platform.
