@@ -30,7 +30,8 @@ namespace bridge {
 
 // Sets `libwebrtc` global log level.
 void set_webrtc_log_level(LoggingSeverity severity) {
-#if defined(WEBRTC_MAC)
+#if defined(WEBRTC_MAC) && defined(NDEBUG)
+  // Make macos log to std outputs in release builds.
   SetWebRTCLogSink(severity);
 #endif
   webrtc::LogMessage::LogToDebug(severity);

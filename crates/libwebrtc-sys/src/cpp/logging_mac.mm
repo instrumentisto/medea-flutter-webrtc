@@ -43,8 +43,9 @@ SysLogSink* g_sys_log_sink = nullptr;
 //
 // This function initializes a custom log sink that redirects WebRTC
 // logs to stdout or stderr based on the log severity.
-void SetWebRTCLogSink(webrtc::LoggingSeverity severity) {
+void  SetWebRTCLogSink(webrtc::LoggingSeverity severity) {
   std::lock_guard<std::mutex> lock(g_sys_log_sink_mutex);
+
   if (severity != webrtc::LS_NONE && !g_sys_log_sink) {
     g_sys_log_sink = new SysLogSink();
     webrtc::LogMessage::AddLogToStream(g_sys_log_sink, severity);
