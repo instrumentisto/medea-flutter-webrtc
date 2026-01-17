@@ -256,6 +256,7 @@ class OpenALAudioDeviceModule : public ExtendedADM {
   std::chrono::milliseconds _playoutLatency = std::chrono::milliseconds(0);
   ALCcontext* _playoutContext = nullptr;
   int _playoutChannels = 2;
+  bool _playoutCallbackRegistered = false;
 };
 
 // Creates and registers a fake sine-wave audio source.

@@ -6,14 +6,15 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## main
+## [0.17.0] · 2026-01-19
+[0.17.0]: https://github.com/instrumentisto/medea-flutter-webrtc/tree/0.17.0
 
-[Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.16.1...main)
+[Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.16.1...0.17.0)
 
 ### Added
 
 - `setupAudioSessionManagement()` function for enabling/disabling automatic audio session management on [iOS]. ([#277])
-- `LogLevel` enum and `setLogLevel()` function to allow configuring native-side logging. ([#279])
+- `LogLevel` enum and `setLogLevel()` function to allow configuring native-side logging. ([#279], [#280])
 
 ### Fixed
 
@@ -28,6 +29,7 @@ All user visible changes to this project will be documented in this file. This p
 [#277]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/277
 [#278]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/278
 [#279]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/279
+[#280]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/280
 [16049300]: https://github.com/instrumentisto/medea-flutter-webrtc/commit/16049300183691fbbfafda26d39a263e6a89e1e0
 [143.0.7499.192]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/143.0.7499.192
 [openal-1.25.0]: https://github.com/kcat/openal-soft/releases/tag/1.25.0

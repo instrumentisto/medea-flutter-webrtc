@@ -478,7 +478,7 @@ void OpenALAudioDeviceModule::processPlayoutQueued() {
       [=] {
         std::lock_guard<std::recursive_mutex> lk(_playout_mutex);
 
-        if (alcGetThreadContext()) {
+        if (_playoutCallbackRegistered && alcGetThreadContext()) {
           processPlayout();
         }
         processPlayoutQueued();
@@ -537,6 +537,7 @@ int32_t OpenALAudioDeviceModule::RegisterAudioCallback(
   }
 
   int32_t result = audio_device_buffer_->RegisterAudioCallback(audioCallback);
+  _playoutCallbackRegistered = (audioCallback != nullptr);
 
   if (was_playing && result == 0) {
     audio_device_buffer_->SetPlayoutSampleRate(kPlayoutFrequency);
