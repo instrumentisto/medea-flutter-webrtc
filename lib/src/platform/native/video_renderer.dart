@@ -107,6 +107,8 @@ class _NativeVideoRendererChannel extends NativeVideoRenderer {
       _channelId,
     ).receiveBroadcastStream().listen(eventListener, onError: errorListener);
     _chan = methodChannel('VideoRenderer', _channelId);
+    // Propagate `_textureId` change manually.
+    notifyListeners();
   }
 
   @override
@@ -117,6 +119,8 @@ class _NativeVideoRendererChannel extends NativeVideoRenderer {
     if (track != null && track.kind() != MediaKind.video) {
       throw 'VideoRenderer do not supports MediaStreamTrack with audio kind!';
     }
+
+    // This change is propagated by changing `value` later in thin function.
     _srcObject = track;
 
     await _chan.invokeMethod('setSrcObject', {'trackId': track?.id()});
@@ -193,6 +197,8 @@ class _NativeVideoRendererFFI extends NativeVideoRenderer {
     final response = await _rendererFactoryChannel.invokeMethod('create');
     _textureId = response['textureId'];
     _chan = methodChannel('VideoRendererFactory', 0);
+    // Propagate `_textureId` change manually.
+    notifyListeners();
   }
 
   @override
@@ -206,6 +212,7 @@ class _NativeVideoRendererFFI extends NativeVideoRenderer {
       throw 'VideoRenderer do not supports MediaStreamTrack with audio kind!';
     }
 
+    // This change is propagated by changing `value` later in thin function.
     _srcObject = track;
     if (track == null) {
       ffi.disposeVideoSink(sinkId: textureId!);

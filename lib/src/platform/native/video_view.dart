@@ -55,7 +55,14 @@ class VideoView extends StatelessWidget {
                     Widget result = SizedBox(
                       width: constraints.maxHeight * value.aspectRatio,
                       height: constraints.maxHeight,
-                      child: child,
+                      child:
+                          videoRenderer.textureId != null &&
+                              videoRenderer.srcObject != null
+                          ? Texture(
+                              textureId: videoRenderer.textureId!,
+                              filterQuality: filterQuality,
+                            )
+                          : Container(),
                     );
                     if (_autoRotate) {
                       result = RotatedBox(
@@ -70,14 +77,6 @@ class VideoView extends StatelessWidget {
                       child: result,
                     );
                   },
-              child:
-                  videoRenderer.textureId != null &&
-                      videoRenderer.srcObject != null
-                  ? Texture(
-                      textureId: videoRenderer.textureId!,
-                      filterQuality: filterQuality,
-                    )
-                  : Container(),
             ),
           ),
         ),
