@@ -137,6 +137,7 @@ using AudioProcessingConfig = webrtc::AudioProcessing::Config;
 void set_webrtc_log_level(LoggingSeverity level);
 
 #if defined(WEBRTC_MAC)
+// Configures `libwebrtc` logging sink for macOS/iOS.
 void SetWebRTCLogSink(LoggingSeverity severity);
 #endif
 
