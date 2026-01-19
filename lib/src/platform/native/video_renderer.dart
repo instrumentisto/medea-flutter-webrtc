@@ -120,7 +120,7 @@ class _NativeVideoRendererChannel extends NativeVideoRenderer {
       throw 'VideoRenderer do not supports MediaStreamTrack with audio kind!';
     }
 
-    // This change is propagated by changing `value` later in thin function.
+    // This change is propagated by changing `value` later in this function.
     _srcObject = track;
 
     await _chan.invokeMethod('setSrcObject', {'trackId': track?.id()});
@@ -212,7 +212,7 @@ class _NativeVideoRendererFFI extends NativeVideoRenderer {
       throw 'VideoRenderer do not supports MediaStreamTrack with audio kind!';
     }
 
-    // This change is propagated by changing `value` later in thin function.
+    // This change is propagated by changing `value` later in this function.
     _srcObject = track;
     if (track == null) {
       ffi.disposeVideoSink(sinkId: textureId!);
