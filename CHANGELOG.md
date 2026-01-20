@@ -12,7 +12,7 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Fixed
 
-- Fix native video renderer might not trigger flutter redraw when ready. ([#281])
+- Native video renderer not triggering [Flutter] redraw when ready. ([#281])
 
 [#281]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/281
 
