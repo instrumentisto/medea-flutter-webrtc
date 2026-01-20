@@ -6,6 +6,19 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## main
+
+[Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.17.0...main)
+
+### Fixed
+
+- Native video renderer not triggering [Flutter] redraw when ready. ([#281])
+
+[#281]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/281
+
+
+
+
 ## [0.17.0] · 2026-01-19
 [0.17.0]: https://github.com/instrumentisto/medea-flutter-webrtc/tree/0.17.0
 
