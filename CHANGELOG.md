@@ -14,7 +14,12 @@ All user visible changes to this project will be documented in this file. This p
 
 - Native video renderer not triggering [Flutter] redraw when ready. ([#281])
 
+### Changed
+
+- Upgraded [OpenAL] library to [1.25.1][openal-1.25.1] version. ([todo])
+
 [#281]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/281
+[openal-1.25.1]: https://github.com/kcat/openal-soft/releases/tag/1.25.1
 
 
 
