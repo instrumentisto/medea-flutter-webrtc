@@ -22,6 +22,11 @@ final class AudioSession {
     return self.session.availableInputs
   }
 
+  /// Returns the current audio route.
+  var currentRoute: AVAudioSessionRouteDescription {
+    return self.session.currentRoute
+  }
+
   /// Selects the preferred input device.
   func setPreferredInput(_ input: AVAudioSessionPortDescription) throws {
     try self.session.setPreferredInput(input)
