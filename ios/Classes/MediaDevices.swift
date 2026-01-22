@@ -150,7 +150,7 @@ class MediaDevices {
   ///
   /// Detects whether the system broke your routing and reapplies it only if
   /// needed.
-  private func handleRouteChange(_ notification: Notification) {
+  private func handleRouteChange(_: Notification) {
     NSLog("handleRouteChange")
     self.onDeviceChange.forEach { $0() }
 
