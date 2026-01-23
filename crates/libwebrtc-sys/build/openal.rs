@@ -122,10 +122,6 @@ fn cmake_configure(src_path: &Path) -> anyhow::Result<()> {
     }
     #[cfg(target_os = "linux")]
     {
-        // TODO: Remove once kcat/openal-soft#1214 is released:
-        //       https://github.com/kcat/openal-soft/pull/1214
-        cmake_cmd.arg("-DCMAKE_CXX_FLAGS='-include cstdint'");
-
         // TODO: Remove on migrating to newer toolchain.
         //       ld v2.42 and g++ 13.3.0 work fine.
         cmake_cmd.arg("-DHAVE_GCC_PROTECTED_VISIBILITY=OFF");

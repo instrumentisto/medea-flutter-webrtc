@@ -13,12 +13,18 @@ All user visible changes to this project will be documented in this file. This p
 ### Fixed
 
 - Native video renderer not triggering [Flutter] redraw when ready. ([#281])
+- `setupAudioSessionManagement(false)` not disabling `AVAudioSession` management in [libwebrtc] on [iOS]. ([#283])
+- `setOutputAudioId()` silently failing without any errors if failed to find requested audio device on [iOS]. ([#283])
 
 ### Changed
 
-- Upgraded [OpenAL] library to [1.25.1][openal-1.25.1] version. ([todo])
+- Upgraded [OpenAL] library to [1.25.1][openal-1.25.1] version. ([4d3a5a11])
+- Upgraded [libwebrtc] to [144.0.7559.59] version. ([#283])
 
 [#281]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/281
+[#283]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/283
+[4d3a5a11]: https://github.com/instrumentisto/medea-flutter-webrtc/commit/4d3a5a11ac1c72ea1f01dcb8b21582cf5c34bb63
+[144.0.7559.59]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/144.0.7559.59
 [openal-1.25.1]: https://github.com/kcat/openal-soft/releases/tag/1.25.1
 
 

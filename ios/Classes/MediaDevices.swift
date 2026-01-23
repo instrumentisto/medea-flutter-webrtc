@@ -28,6 +28,12 @@ class MediaDevices {
   /// switching still works.
   func setupAudioSessionManagement(auto: Bool) {
     self.audioSession.autoManagementEnabled = auto
+
+    let session = RTCAudioSession.sharedInstance()
+    session.lockForConfiguration()
+    session.autoManagementEnabled = auto
+    session.unlockForConfiguration()
+
     self.updateAudioSession()
   }
 
@@ -108,6 +114,7 @@ class MediaDevices {
     if shouldBeActive, !self.isAudioSessionActive {
       try? self.audioSession.setCategory(
         .playAndRecord,
+        mode: .voiceChat,
         options: .allowBluetooth
       )
       try? self.audioSession.setActive(true)
@@ -139,6 +146,7 @@ class MediaDevices {
   func setOutputAudioId(id: String) throws {
     try self.audioSession.setCategory(
       .playAndRecord,
+      mode: .voiceChat,
       options: .allowBluetooth
     )
     if id == "speaker" {
@@ -147,12 +155,18 @@ class MediaDevices {
     } else if id == "ear-piece" {
       try self.setBuiltInMicAsInput()
       try self.audioSession.overrideOutputAudioPort(.none)
+    } else if let input = audioSession.availableInputs?
+      .first(where: { $0.uid == id })
+    {
+      try self.audioSession.setPreferredInput(input)
     } else {
-      let selectedInput = self.audioSession.availableInputs?
-        .first(where: { $0.portName == id })
-      if selectedInput != nil {
-        try self.audioSession.setPreferredInput(selectedInput!)
-      }
+      throw NSError(
+        domain: "MediaDevices",
+        code: 3,
+        userInfo: [
+          NSLocalizedDescriptionKey: "Audio device with id '\(id)' not found.",
+        ]
+      )
     }
   }
 
@@ -194,7 +208,7 @@ class MediaDevices {
       .filter { $0.portType == AVAudioSession.Port.bluetoothHFP }.last
     if bluetoothOutput != nil {
       devices.append(MediaDeviceInfo(
-        deviceId: bluetoothOutput!.portName,
+        deviceId: bluetoothOutput!.uid,
         label: bluetoothOutput!.portName,
         kind: MediaDeviceKind.audioOutput,
         audioKind: AudioDeviceKind.bluetoothHeadset
