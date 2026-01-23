@@ -250,6 +250,10 @@ mod frame_handler {
 /// renderer.
 ///
 /// cbindgen:ignore
+#[expect( // `cbindgen` directive
+    clippy::doc_paragraphs_missing_punctuation,
+    reason = "`cbindgen` directive"
+)]
 mod frame_handler {
     use cxx::UniquePtr;
     use libwebrtc_sys as sys;
