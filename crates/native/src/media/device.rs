@@ -256,9 +256,9 @@ impl AudioDeviceModule {
     /// # Errors
     ///
     /// If fails on:
-    ///     - [`sys::AudioDeviceModule::microphone_volume()`] call
-    ///     - [`sys::AudioDeviceModule::min_microphone_volume()`] call
-    ///     - [`sys::AudioDeviceModule::max_microphone_volume()`] call
+    /// - [`sys::AudioDeviceModule::microphone_volume()`] call;
+    /// - [`sys::AudioDeviceModule::min_microphone_volume()`] call;
+    /// - [`sys::AudioDeviceModule::max_microphone_volume()`] call.
     pub fn microphone_volume(&self) -> anyhow::Result<u32> {
         let volume = self.inner.microphone_volume()?;
         let min_volume = self.inner.min_microphone_volume()?;

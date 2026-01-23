@@ -1038,7 +1038,7 @@ struct PeerConnectionObserver {
     observer: Arc<Mutex<StreamSink<api::PeerConnectionEvent>>>,
 
     /// [`InnerPeer`] of the [`PeerConnection`] internally used in
-    /// [`sys::PeerConnectionObserver::on_track()`][1]
+    /// [`sys::PeerConnectionObserver::on_track()`][1].
     ///
     /// Tasks with [`InnerPeer`] must be offloaded to a separate [`ThreadPool`],
     /// so the signalling thread wouldn't be blocked.

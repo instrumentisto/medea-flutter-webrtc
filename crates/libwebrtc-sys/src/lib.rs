@@ -25,6 +25,7 @@
     clippy::default_union_representation,
     clippy::derive_partial_eq_without_eq,
     clippy::doc_include_without_cfg,
+    clippy::doc_paragraphs_missing_punctuation,
     clippy::empty_drop,
     clippy::empty_structs_with_brackets,
     clippy::equatable_if_let,
@@ -940,12 +941,12 @@ impl Default for IceServer {
 }
 
 /// Member of [`PeerConnectionDependencies`] containing functions called on
-/// events in a [`PeerConnectionInterface`]
+/// events in a [`PeerConnectionInterface`].
 pub struct PeerConnectionObserver(UniquePtr<webrtc::PeerConnectionObserver>);
 
 impl PeerConnectionObserver {
     /// Creates a new [`PeerConnectionObserver`] backed by the provided
-    /// [`PeerConnectionEventsHandler`]
+    /// [`PeerConnectionEventsHandler`].
     #[must_use]
     pub fn new(cb: Box<dyn PeerConnectionEventsHandler>) -> Self {
         Self(webrtc::create_peer_connection_observer(Box::new(cb)))
