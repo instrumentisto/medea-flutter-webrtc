@@ -22,11 +22,6 @@ final class AudioSession {
     return self.session.availableInputs
   }
 
-  /// Returns the current audio route.
-  var currentRoute: AVAudioSessionRouteDescription {
-    return self.session.currentRoute
-  }
-
   /// Selects the preferred input device.
   func setPreferredInput(_ input: AVAudioSessionPortDescription) throws {
     try self.session.setPreferredInput(input)
@@ -37,20 +32,6 @@ final class AudioSession {
     .PortOverride) throws
   {
     try self.session.overrideOutputAudioPort(portOverride)
-  }
-
-  /// Sets the audio session category with the provided options.
-  ///
-  /// Mirrors `AVAudioSession.setCategory(_:options:)`.
-  ///
-  /// If `autoManagementEnabled` is `false`, this is a no-op.
-  func setCategory(
-    _ category: AVAudioSession.Category,
-    options: AVAudioSession.CategoryOptions = []
-  ) throws {
-    guard self.autoManagementEnabled else { return }
-
-    try self.session.setCategory(category, options: options)
   }
 
   /// Sets the audio session category, mode, and options.
@@ -64,6 +45,12 @@ final class AudioSession {
     options: AVAudioSession.CategoryOptions = []
   ) throws {
     guard self.autoManagementEnabled else { return }
+
+    if self.session.category == category, self.session.mode == mode,
+       self.session.categoryOptions == options
+    {
+      return
+    }
 
     try self.session.setCategory(category, mode: mode, options: options)
   }

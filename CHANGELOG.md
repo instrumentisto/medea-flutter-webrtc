@@ -14,15 +14,12 @@ All user visible changes to this project will be documented in this file. This p
 
 - Native video renderer not triggering [Flutter] redraw when ready. ([#281])
 - `setupAudioSessionManagement(false)` not disabling `AVAudioSession` management in [libwebrtc] on [iOS]. ([#283])
+- `setOutputAudioId()` silently failing without any errors if failed to find requested audio device on [iOS]. ([#283])
 
 ### Changed
 
 - Upgraded [OpenAL] library to [1.25.1][openal-1.25.1] version. ([4d3a5a11])
 - Upgraded [libwebrtc] to [144.0.7559.59] version. ([#283])
-
-### Added
-
-- Reapply audio devices selection after audio routing change on [iOS] (if automatic audio session management is enabled). ([#283])
 
 [#281]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/281
 [#283]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/283

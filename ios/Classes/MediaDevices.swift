@@ -1,13 +1,6 @@
 import AVFoundation
 import WebRTC
 
-/// Defines the user's intended audio routing behavior.
-enum AudioRouteIntent: Equatable {
-  case speaker
-  case earpiece
-  case input(portUID: String)
-}
-
 /// Processor for `getUserMedia()` requests.
 class MediaDevices {
   /// Global state used for creation of new `MediaStreamTrackProxy`s.
@@ -15,9 +8,6 @@ class MediaDevices {
 
   /// Wrapper around `AVAudioSession` calls that can disable auto-management.
   private var audioSession: AudioSession = .init()
-
-  /// Stores the user's desired audio routing intent.
-  private var desiredRoute: AudioRouteIntent?
 
   /// Subscribers for `onDeviceChange` callback of these `MediaDevices`.
   private var onDeviceChange: [() -> Void] = []
@@ -38,22 +28,28 @@ class MediaDevices {
   /// switching still works.
   func setupAudioSessionManagement(auto: Bool) {
     self.audioSession.autoManagementEnabled = auto
-    RTCAudioSession.sharedInstance().autoManagementEnabled = auto
+
+    let session = RTCAudioSession.sharedInstance()
+    session.lockForConfiguration()
+    session.autoManagementEnabled = auto
+    session.unlockForConfiguration()
+
     self.updateAudioSession()
   }
 
   /// Initializes new `MediaDevices` with the provided `State`.
   ///
   /// Subscribes on `AVAudioSession.routeChangeNotification` notifications for
-  /// `onDeviceChange` callback firing and route reconciliation.
+  /// `onDeviceChange` callback firing.
   init(state: State) {
     self.state = state
     NotificationCenter.default.addObserver(
       forName: AVAudioSession.routeChangeNotification, object: nil,
       queue: OperationQueue.main,
-      using: { [weak self] notification in
-        guard let self else { return }
-        self.handleRouteChange(notification)
+      using: { (_: Notification) in
+        for cb in self.onDeviceChange {
+          cb()
+        }
       }
     )
   }
@@ -146,58 +142,6 @@ class MediaDevices {
     }
   }
 
-  /// Route change handler with reconciliation logic.
-  ///
-  /// Detects whether the system broke your routing and reapplies it only if
-  /// needed.
-  private func handleRouteChange(_: Notification) {
-    NSLog("handleRouteChange")
-    self.onDeviceChange.forEach { $0() }
-
-    guard self.audioSession.autoManagementEnabled else { return }
-    guard let desiredRoute else { return }
-
-    let session = self.audioSession
-    let outputs = session.currentRoute.outputs
-    let inputs = session.currentRoute.inputs
-
-    do {
-      switch desiredRoute {
-      case .speaker:
-        let isSpeakerActive = outputs.contains {
-          $0.portType == .builtInSpeaker
-        }
-
-        if !isSpeakerActive {
-          try self.setBuiltInMicAsInput()
-          try session.overrideOutputAudioPort(.speaker)
-        }
-
-      case .earpiece:
-        let isReceiverActive = outputs.contains {
-          $0.portType == .builtInReceiver
-        }
-
-        if !isReceiverActive {
-          try self.setBuiltInMicAsInput()
-          try session.overrideOutputAudioPort(.none)
-        }
-
-      case let .input(uid):
-        let isCorrectInput = inputs.contains { $0.uid == uid }
-
-        if !isCorrectInput,
-           let input = session.availableInputs?
-           .first(where: { $0.uid == uid })
-        {
-          try session.setPreferredInput(input)
-        }
-      }
-    } catch {
-      NSLog("Audio route reapply failed: %@", error.localizedDescription)
-    }
-  }
-
   /// Switches current audio output device to a device with the provided ID.
   func setOutputAudioId(id: String) throws {
     try self.audioSession.setCategory(
@@ -206,18 +150,23 @@ class MediaDevices {
       options: .allowBluetooth
     )
     if id == "speaker" {
-      self.desiredRoute = .speaker
       try self.setBuiltInMicAsInput()
       try self.audioSession.overrideOutputAudioPort(.speaker)
     } else if id == "ear-piece" {
-      self.desiredRoute = .earpiece
       try self.setBuiltInMicAsInput()
       try self.audioSession.overrideOutputAudioPort(.none)
     } else if let input = audioSession.availableInputs?
       .first(where: { $0.uid == id })
     {
-      self.desiredRoute = .input(portUID: id)
       try self.audioSession.setPreferredInput(input)
+    } else {
+      throw NSError(
+        domain: "MediaDevices",
+        code: 3,
+        userInfo: [
+          NSLocalizedDescriptionKey: "Audio device with id '\(id)' not found.",
+        ]
+      )
     }
   }
 
