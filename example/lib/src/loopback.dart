@@ -92,8 +92,8 @@ class _LoopbackState extends State<Loopback> {
   void _makeCall() async {
     await setLogLevel(LogLevel.info);
     // Correct place for testing these APIs.
-    // await setupAudioSessionManagement(false);
-    // await setOutputAudioId("speaker");
+    //await setupAudioSessionManagement(false);
+    //await setOutputAudioId("speaker");
 
     var caps = DeviceConstraints();
     caps.audio.mandatory = AudioConstraints();
