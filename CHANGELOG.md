@@ -12,8 +12,11 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Changed
 
-- Upgraded [libwebrtc] to [144.0.7559.96] version. ([todo])
+- Upgraded [libwebrtc] to [144.0.7559.96] version. ([bf57ffe4])
+- Upgraded [WIL] to [1.0.260126.7] version. ([todo])
 
+[bf57ffe4]: https://github.com/instrumentisto/medea-flutter-webrtc/commit/bf57ffe46761cfa9c3ea566aea4aa525039b5452
+[1.0.260126.7]: https://github.com/microsoft/wil/releases/tag/v1.0.260126.7
 [144.0.7559.96]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/144.0.7559.96
 
 
@@ -664,6 +667,7 @@ See [changelog in upstream repository](https://github.com/flutter-webrtc/flutter
 [OpenAL]: https://github.com/kcat/openal-soft
 [Semantic Versioning 2.0.0]: https://semver.org
 [Swift]: https://developer.apple.com/swift
+[WIL]: https://github.com/microsoft/wil
 [Windows]: https://www.microsoft.com/windows
 [iOS]: https://www.apple.com/ios
 [libwebrtc]: https://github.com/instrumentisto/libwebrtc-bin

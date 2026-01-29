@@ -14,13 +14,11 @@ use tar::Archive;
 
 use crate::{copy_dir_all, get_target};
 
-// TODO: Skip `v1.0.250325.1` cause https://github.com/microsoft/wil/issues/512
-//       Wait for https://github.com/microsoft/wil/pull/516 being released.
 /// URL for downloading [WIL] library.
 ///
 /// [WIL]: https://github.com/microsoft/wil
 static WIL_URL: &str =
-    "https://github.com/microsoft/wil/archive/refs/tags/v1.0.240803.1";
+    "https://github.com/microsoft/wil/archive/refs/tags/v1.0.260126.7";
 
 /// Downloads [WIL] header-only library.
 ///
