@@ -72,6 +72,11 @@ ScreenVideoCapturer::ScreenVideoCapturer(
       max_height_(max_height),
       requested_frame_duration_((int) (1000.0f / target_fps)),
       quit_(false) {
+
+  RTC_LOG(LS_INFO)
+    << "ScreenVideoCapturer created with max_width = " << max_width
+    << ", max_height = " << max_height << ", target_fps " << target_fps;
+
   if (capture_thread_.empty()) {
     capture_thread_ = webrtc::PlatformThread::SpawnJoinable(
         [this, source_id] {
