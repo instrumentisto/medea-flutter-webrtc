@@ -10,11 +10,16 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.17.1...main)
 
+### Fixed
+
+- Fix camera/screensharing capture resolution calculation on desktop platforms. ([#284])
+
 ### Changed
 
 - Upgraded [libwebrtc] to [144.0.7559.132] version. ([todo])
 - Upgraded [WIL] to [1.0.260126.7] version. ([49e3d400])
 
+[#284]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/284
 [49e3d400]: https://github.com/instrumentisto/medea-flutter-webrtc/commit/49e3d400eb5eca222642ef3f7c609e9ff47d61cf
 [1.0.260126.7]: https://github.com/microsoft/wil/releases/tag/v1.0.260126.7
 [144.0.7559.132]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/144.0.7559.132

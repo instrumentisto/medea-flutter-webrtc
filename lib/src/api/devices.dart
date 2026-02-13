@@ -25,8 +25,43 @@ const defaultDisplayMediaWidth = 1280;
 /// Default video height when capturing user's display.
 const defaultDisplayMediaHeight = 720;
 
+/// Default aspect ratio for display media (16:9) used to derive the other
+/// dimension when only width or only height is specified.
+const _displayAspectRatioWidth = 16;
+const _displayAspectRatioHeight = 9;
+
+/// Default aspect ratio for camera/user media (4:3) used to derive the other
+/// dimension when only width or only height is specified.
+const _userMediaAspectRatioWidth = 4;
+const _userMediaAspectRatioHeight = 3;
+
 /// Default video framerate.
 const defaultFrameRate = 30;
+
+/// Resolves (width, height) from optional requested dimensions.
+///
+/// When both are set, returns them as-is. When only one is set, derives the
+/// other from [aspectRatio]. When neither is set, returns the
+/// [defaultResolution].
+(int, int) calculateResolution(
+  (int?, int?) requestedResolution,
+  (int, int) aspectRatio,
+  (int, int) defaultResolution,
+) {
+  final (requestedWidth, requestedHeight) = requestedResolution;
+  final (aspectWidth, aspectHeight) = aspectRatio;
+  final (defaultWidth, defaultHeight) = defaultResolution;
+
+  if (requestedHeight != null && requestedWidth != null) {
+    return (requestedWidth, requestedHeight);
+  } else if (requestedHeight != null) {
+    return (requestedHeight * aspectWidth ~/ aspectHeight, requestedHeight);
+  } else if (requestedWidth != null) {
+    return (requestedWidth, requestedWidth * aspectHeight ~/ aspectWidth);
+  } else {
+    return (defaultWidth, defaultHeight);
+  }
+}
 
 /// Shortcut for the `on_device_change` callback.
 typedef OnDeviceChangeCallback = void Function();
@@ -264,20 +299,23 @@ Future<List<NativeMediaStreamTrack>> _getUserMediaFFI(
         )
       : null;
 
+  final (userMediaWidth, userMediaHeight) = calculateResolution(
+    (
+      constraints.video.mandatory?.width ?? constraints.video.optional?.width,
+      constraints.video.mandatory?.height ?? constraints.video.optional?.height,
+    ),
+    (_userMediaAspectRatioWidth, _userMediaAspectRatioHeight),
+    (defaultUserMediaWidth, defaultUserMediaHeight),
+  );
+
   var videoConstraints =
       constraints.video.mandatory != null || constraints.video.optional != null
       ? ffi.VideoConstraints(
           deviceId:
               constraints.video.mandatory?.deviceId ??
               constraints.video.optional?.deviceId,
-          height:
-              constraints.video.mandatory?.height ??
-              constraints.video.optional?.height ??
-              defaultUserMediaHeight,
-          width:
-              constraints.video.mandatory?.width ??
-              constraints.video.optional?.width ??
-              defaultUserMediaWidth,
+          height: userMediaHeight,
+          width: userMediaWidth,
           frameRate:
               constraints.video.mandatory?.fps ??
               constraints.video.optional?.fps ??
@@ -340,18 +378,21 @@ Future<List<NativeMediaStreamTrack>> _getDisplayMediaFFI(
         )
       : null;
 
+  final (displayWidth, displayHeight) = calculateResolution(
+    (
+      constraints.video.mandatory?.width ?? constraints.video.optional?.width,
+      constraints.video.mandatory?.height ?? constraints.video.optional?.height,
+    ),
+    (_displayAspectRatioWidth, _displayAspectRatioHeight),
+    (defaultDisplayMediaWidth, defaultDisplayMediaHeight),
+  );
+
   var videoConstraints =
       constraints.video.mandatory != null || constraints.video.optional != null
       ? ffi.VideoConstraints(
           deviceId: constraints.video.mandatory?.deviceId,
-          height:
-              constraints.video.mandatory?.height ??
-              constraints.video.optional?.height ??
-              defaultDisplayMediaHeight,
-          width:
-              constraints.video.mandatory?.width ??
-              constraints.video.optional?.width ??
-              defaultDisplayMediaWidth,
+          height: displayHeight,
+          width: displayWidth,
           frameRate:
               constraints.video.mandatory?.fps ??
               constraints.video.optional?.fps ??
