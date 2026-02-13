@@ -41,7 +41,8 @@ const defaultFrameRate = 30;
 /// Resolves (width, height) from optional requested dimensions.
 ///
 /// When both are set, returns them as-is. When only one is set, derives the
-/// other from [aspectRatio]. When neither is set, returns [defaultResolution].
+/// other from [aspectRatio]. When neither is set, returns the
+/// [defaultResolution].
 (int, int) calculateResolution(
   (int?, int?) requestedResolution,
   (int, int) aspectRatio,
