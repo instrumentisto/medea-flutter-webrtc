@@ -231,7 +231,7 @@ jobs:
                        cmake curl \
                        libgtk-3-dev liblzma-dev libpulse-dev libudev-dev \
                        libssl-dev \
-                       ninja-build lld-19 binutils build-essential clang \
+                       ninja-build lld-19 binutils build-essential clang-19 \
                        gcc-13 g++-13
           sudo update-alternatives --install /usr/bin/lld lld /usr/bin/lld-19 100
           sudo update-alternatives --config lld
