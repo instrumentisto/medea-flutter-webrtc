@@ -86,9 +86,9 @@ jobs:
                        ninja-build lld-19 binutils build-essential clang
           # TODO: Remove once lld-19 becomes the default in Ubuntu repositories
           sudo update-alternatives --install /usr/bin/lld lld /usr/bin/lld-19 100
-          sudo update-alternatives --config lld
+          sudo update-alternatives --set lld /usr/bin/lld-19
           sudo update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-19 100
-          sudo update-alternatives --config ld.lld
+          sudo update-alternatives --set ld.lld /usr/bin/ld.lld-19
         if: ${{ matrix.platform == 'linux' }}
 
       - run: make cargo.lint
@@ -112,9 +112,9 @@ jobs:
                        ninja-build lld-19 binutils build-essential clang
           # TODO: Remove once lld-19 becomes the default in Ubuntu repositories
           sudo update-alternatives --install /usr/bin/lld lld /usr/bin/lld-19 100
-          sudo update-alternatives --config lld
+          sudo update-alternatives --set lld /usr/bin/lld-19
           sudo update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-19 100
-          sudo update-alternatives --config ld.lld
+          sudo update-alternatives --set ld.lld /usr/bin/ld.lld-19
 
       - run: cargo install cargo-expand
 
@@ -234,17 +234,17 @@ jobs:
                        ninja-build lld-19 binutils build-essential clang-19 \
                        gcc-13 g++-13
           sudo update-alternatives --install /usr/bin/lld lld /usr/bin/lld-19 100
-          sudo update-alternatives --config lld
+          sudo update-alternatives --set lld /usr/bin/lld-19
           sudo update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-19 100
-          sudo update-alternatives --config ld.lld
+          sudo update-alternatives --set ld.lld /usr/bin/ld.lld-19
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100
-          sudo update-alternatives --config gcc
+          sudo update-alternatives --set gcc /usr/bin/gcc-13
           sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 100
-          sudo update-alternatives --config g++
+          sudo update-alternatives --set g++ /usr/bin/g++-13
           sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-19 100
-          sudo update-alternatives --config clang
+          sudo update-alternatives --set clang /usr/bin/clang-19
           sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-19 100
-          sudo update-alternatives --config clang++
+          sudo update-alternatives --set clang++ /usr/bin/clang++-19
 
       - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@v1
@@ -475,9 +475,9 @@ jobs:
                        ninja-build lld-19 binutils build-essential
           # TODO: Remove once lld-19 becomes the default in Ubuntu repositories
           sudo update-alternatives --install /usr/bin/lld lld /usr/bin/lld-19 100
-          sudo update-alternatives --config lld
+          sudo update-alternatives --set lld /usr/bin/lld-19
           sudo update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-19 100
-          sudo update-alternatives --config ld.lld
+          sudo update-alternatives --set ld.lld /usr/bin/ld.lld-19
         if: ${{ matrix.platform == 'linux' }}
 
       - run: make cargo.doc
