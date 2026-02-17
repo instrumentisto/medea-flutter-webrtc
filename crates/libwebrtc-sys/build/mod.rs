@@ -182,7 +182,7 @@ fn main() -> anyhow::Result<()> {
     if lib_dir.exists() {
         fs::create_dir_all(&lib_dir)?;
     }
-    // webrtc::download()?;
+    webrtc::download()?;
     #[cfg(target_os = "windows")]
     wil::download()?;
     openal::build()?;
