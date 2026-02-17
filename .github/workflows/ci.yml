@@ -241,6 +241,10 @@ jobs:
           sudo update-alternatives --config gcc
           sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 100
           sudo update-alternatives --config g++
+          sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-19 100
+          sudo update-alternatives --config clang
+          sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-19 100
+          sudo update-alternatives --config clang++
 
       - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@v1
