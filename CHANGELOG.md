@@ -10,11 +10,6 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.17.1...main)
 
-### BC Breaks
-
-- Bumped up minimum supported [Flutter] version to 3.41. ([#285])
-- Bumped up minimum supported [Dart] version to 3.11. ([#285])
-
 ### Fixed
 
 - Fix camera/screensharing capture resolution calculation on desktop platforms. ([#284])
