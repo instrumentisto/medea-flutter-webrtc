@@ -929,6 +929,7 @@ pub(crate) mod webrtc {
     #[derive(Debug, Eq, Hash, PartialEq)]
     #[repr(i32)]
     pub enum RtcpFeedbackType {
+        /// No value.
         NONE,
 
         /// Codec control messages.
@@ -946,7 +947,9 @@ pub(crate) mod webrtc {
         /// Transport wide congestion control.
         TRANSPORT_CC,
 
-        /// RTP Congestion Control Feedback Packet.
+        /// [RTP] Congestion Control Feedback Packet.
+        ///
+        /// [RTP]: https://en.wikipedia.org/wiki/Real-time_Transport_Protocol
         CCFB,
     }
 
