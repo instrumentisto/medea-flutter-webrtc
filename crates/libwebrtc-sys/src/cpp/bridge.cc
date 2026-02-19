@@ -74,9 +74,12 @@ std::unique_ptr<VideoTrackSourceInterface> create_fake_device_video_source(
   auto src = webrtc::FakeVideoTrackSource::Create();
 
   int fps_ms = 1000 / fps;
-  int timestamp_offset_us = 1000000 / fps;
   auto th = std::thread([=] {
-    auto frame = webrtc::FakeFrameSource(width, height, timestamp_offset_us);
+    auto frame = webrtc::FakeFrameSource(
+        width,
+        height,
+        webrtc::TimeDelta::Millis(fps_ms),
+        webrtc::Timestamp::Zero());
     while (true) {
       src->InjectFrame(frame.GetFrame());
       std::this_thread::sleep_for(std::chrono::milliseconds(fps_ms));
