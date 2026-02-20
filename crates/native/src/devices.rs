@@ -147,7 +147,10 @@ impl Webrtc {
         let mut result = Vec::with_capacity(count_recording as usize);
 
         for i in 0..i16::try_from(count_recording)? {
-            result.push(self.audio_device_module.recording_device_name(i)?);
+            result.push(
+                self.audio_device_module
+                    .recording_device_name_with_format(i)?,
+            );
         }
 
         Ok(result)
@@ -207,32 +210,6 @@ impl Webrtc {
         Ok(None)
     }
 
-    /// Returns an index of the specific audio input device identified by the
-    /// provided [`AudioDeviceId`].
-    ///
-    /// # Errors
-    ///
-    /// Whenever [`AudioDeviceModule::recording_devices()`][1] or
-    /// [`AudioDeviceModule::recording_device_name()`][2] returns an error.
-    ///
-    /// [1]: libwebrtc_sys::AudioDeviceModule::recording_devices
-    /// [2]: libwebrtc_sys::AudioDeviceModule::recording_device_name_with_format
-    pub fn get_index_of_audio_recording_device(
-        &mut self,
-        device_id: &AudioDeviceId,
-    ) -> anyhow::Result<Option<u16>> {
-        let count: i16 =
-            self.audio_device_module.recording_devices().try_into()?;
-        for i in 0..count {
-            let info = self.audio_device_module.recording_device_name(i)?;
-            if info.device_id == *device_id {
-                #[expect(clippy::cast_sign_loss, reason = "never negative")]
-                return Ok(Some(i as u16));
-            }
-        }
-        Ok(None)
-    }
-
     /// Sets the specified `audio playout` device by its stable device ID.
     pub fn set_audio_playout_device(
         &mut self,
@@ -242,7 +219,24 @@ impl Webrtc {
 
         let adm = &self.audio_device_module;
         adm.stop_playout()?;
-        adm.set_playout_device(device_id)?;
+        if let Err(e) = adm.set_playout_device(device_id) {
+            // Device not found or rejected; restore playout so the ADM is not
+            // left in a permanently-stopped state.
+            if let Err(err) = adm.init_playout() {
+                log::error!(
+                    "Failed to restore playout after device switch \
+                             failure (init_playout): {err}"
+                );
+            }
+            if let Err(err) = adm.start_playout() {
+                log::error!(
+                    "Failed to restore playout after device switch \
+                             failure (start_playout): {err}"
+                );
+            }
+
+            return Err(e);
+        }
         adm.init_playout()?;
         adm.start_playout()?;
 
@@ -276,20 +270,22 @@ impl Webrtc {
 
     /// Triggers the device change event.
     fn on_device_changed(&mut self) {
-        let new_audio_ins = match self.enumerate_audio_input_devices() {
-            Ok(ais) => ais,
-            Err(e) => {
-                log::error!("Failed to enumerate audio inputs: {e}");
-                return;
-            }
-        };
-        let new_audio_outs = match self.enumerate_audio_output_devices() {
-            Ok(ais) => ais,
-            Err(e) => {
-                log::error!("Failed to enumerate audio outputs: {e}");
-                return;
-            }
-        };
+        let new_audio_ins: Vec<AudioDeviceId> =
+            match self.enumerate_audio_input_devices() {
+                Ok(ais) => ais.into_iter().map(|d| d.device_id).collect(),
+                Err(e) => {
+                    log::error!("Failed to enumerate audio inputs: {e}");
+                    return;
+                }
+            };
+        let new_audio_outs: Vec<AudioDeviceId> =
+            match self.enumerate_audio_output_devices() {
+                Ok(ais) => ais.into_iter().map(|d| d.device_id).collect(),
+                Err(e) => {
+                    log::error!("Failed to enumerate audio outputs: {e}");
+                    return;
+                }
+            };
         let new_video_ins = match self.enumerate_video_input_devices() {
             Ok(ais) => ais,
             Err(e) => {
@@ -313,20 +309,16 @@ impl Webrtc {
         let mut old_audio_ins = mem::take(&mut self.devices_state.audio_inputs);
         let mut old_video_ins = mem::take(&mut self.devices_state.video_inputs);
 
-        // If some audio or video inputs wre disconnected we drop corresponding
+        // If some audio or video inputs were disconnected we drop corresponding
         // audio/video sources and tracks sourced from these sources.
         let mut tracks_to_remove: Vec<(String, api::MediaType)> = Vec::new();
         if audio_ins_changed && old_audio_ins.len() > new_audio_ins.len() {
-            old_audio_ins.retain(|e| {
-                !new_audio_ins
-                    .iter()
-                    .any(|n| n.name == e.name && n.device_id == e.device_id)
-            });
+            old_audio_ins.retain(|id| !new_audio_ins.contains(id));
 
             for removed in old_audio_ins {
                 for track in self.audio_tracks.iter() {
                     if let MediaTrackSource::Local(s) = track.source()
-                        && s.device_id() == &removed.device_id
+                        && s.device_id() == &removed
                     {
                         tracks_to_remove
                             .push((track.id().into(), api::MediaType::Audio));
@@ -370,10 +362,10 @@ pub struct DevicesState {
     pub on_device_change: Option<StreamSink<()>>,
 
     /// List of all available audio input devices.
-    pub audio_inputs: Vec<AudioDeviceInfo>,
+    pub audio_inputs: Vec<AudioDeviceId>,
 
     /// List of all available audio output devices.
-    pub audio_outputs: Vec<AudioDeviceInfo>,
+    pub audio_outputs: Vec<AudioDeviceId>,
 
     /// List of all available video input devices.
     pub video_inputs: Vec<(String, VideoDeviceId)>,

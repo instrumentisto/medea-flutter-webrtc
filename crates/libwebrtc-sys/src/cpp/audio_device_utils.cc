@@ -147,14 +147,22 @@ HRESULT GetDeviceFormatInternal(EDataFlow flow,
   }
 
   wil::com_ptr_nothrow<IAudioClient> client;
-  RETURN_IF_FAILED(device->Activate(__uuidof(IAudioClient),
-                       CLSCTX_ALL,
-                       nullptr,
-                       reinterpret_cast<void**>(client.put()))
-  );
+  HRESULT act_hr = device->Activate(__uuidof(IAudioClient),
+                                    CLSCTX_ALL,
+                                    nullptr,
+                                    reinterpret_cast<void**>(client.put()));
+  if (FAILED(act_hr)) {
+    RTC_LOG(LS_ERROR) << "IAudioClient activation failed: hr=0x"
+                      << std::hex << act_hr;
+    return S_OK;
+  }
 
   wil::unique_cotaskmem_ptr<WAVEFORMATEX> mix_format;
-  RETURN_IF_FAILED(client->GetMixFormat(wil::out_param(mix_format)));
+  HRESULT fmt_hr = client->GetMixFormat(wil::out_param(mix_format));
+  if (FAILED(fmt_hr)) {
+    RTC_LOG(LS_ERROR) << "GetMixFormat failed: hr=0x" << std::hex << fmt_hr;
+    return S_OK;
+  }
 
   // typedef struct tWAVEFORMATEX {
   //   WORD  nChannels;

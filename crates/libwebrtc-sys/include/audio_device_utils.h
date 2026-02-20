@@ -6,7 +6,7 @@
 
 /// Audio device information.
 struct DeviceNameWithFormat {
-  /// Unique identifier for the represented device.
+  /// Human-readable device name.
   std::string name;
 
   /// Unique identifier for the represented device.

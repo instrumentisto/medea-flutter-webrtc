@@ -512,19 +512,20 @@ impl AudioDeviceModule {
     /// Creates a new [`AudioSourceInterface`].
     pub fn create_audio_source(
         &self,
-        device_index: u16,
+        device_id: String,
         audio_processing: &AudioProcessing,
     ) -> anyhow::Result<AudioSourceInterface> {
         let ptr = webrtc::create_audio_source(
             &self.0,
-            device_index,
+            device_id,
             &audio_processing.0,
         );
 
         if ptr.is_null() {
             bail!(
                 "`null` pointer returned from \
-                 `webrtc::PeerConnectionFactoryInterface::CreateAudioSource()`",
+                 `AudioDeviceModule::CreateMicAudioSource()` (device not found \
+                 or failed to start capture)",
             );
         }
         Ok(AudioSourceInterface(ptr))
@@ -565,7 +566,7 @@ impl AudioDeviceModule {
 
         if result != 0 {
             bail!(
-                "`AudioDeviceModule::SetPlayoutDevice()` failed with \
+                "`AudioDeviceModule::SetPlayoutDeviceId()` failed with \
                  `{result}` code (device not found or failed)",
             );
         }

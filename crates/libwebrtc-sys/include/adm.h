@@ -67,7 +67,7 @@ class ExtendedADM : public webrtc::AudioDeviceModule {
   // Creates a new `bridge::LocalAudioSource` that will record audio from the
   // device with the provided ID.
   virtual webrtc::scoped_refptr<bridge::LocalAudioSource> CreateMicAudioSource(
-      uint32_t device_index,
+      const std::string& device_id,
       webrtc::scoped_refptr<webrtc::AudioProcessing> audio_processing) = 0;
 
   // Creates a new `bridge::LocalAudioSource` that will record audio from the
@@ -109,7 +109,7 @@ class OpenALAudioDeviceModule : public ExtendedADM {
   // Creates a new `bridge::LocalAudioSource` that will record audio from the
   // device with the provided ID.
   webrtc::scoped_refptr<bridge::LocalAudioSource> CreateMicAudioSource(
-      uint32_t device_index,
+      const std::string& device_id,
       webrtc::scoped_refptr<webrtc::AudioProcessing> ap) override;
 
   // Creates a new `bridge::LocalAudioSource` that will record audio from the

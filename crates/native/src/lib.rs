@@ -295,10 +295,16 @@ impl Webrtc {
             video_sinks: HashMap::new(),
         };
 
-        this.devices_state.audio_inputs =
-            this.enumerate_audio_input_devices()?;
-        this.devices_state.audio_outputs =
-            this.enumerate_audio_output_devices()?;
+        this.devices_state.audio_inputs = this
+            .enumerate_audio_input_devices()?
+            .into_iter()
+            .map(|d| d.device_id)
+            .collect();
+        this.devices_state.audio_outputs = this
+            .enumerate_audio_output_devices()?
+            .into_iter()
+            .map(|d| d.device_id)
+            .collect();
         this.devices_state.video_inputs =
             this.enumerate_video_input_devices()?;
 

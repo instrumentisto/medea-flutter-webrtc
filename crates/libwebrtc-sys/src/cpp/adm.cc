@@ -749,14 +749,19 @@ void OpenALAudioDeviceModule::stopPlayingOnThread() {
 
 webrtc::scoped_refptr<bridge::LocalAudioSource>
 OpenALAudioDeviceModule::CreateMicAudioSource(
-    uint32_t device_index,
+    const std::string& device_id,
     webrtc::scoped_refptr<webrtc::AudioProcessing> ap) {
   std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
 
-  std::string device_id;
-  const auto result = DeviceName(ALC_CAPTURE_DEVICE_SPECIFIER, device_index,
-                                 nullptr, &device_id);
-  if (result != 0) {
+  bool has_requested_device = false;
+  EnumerateDevices(ALC_CAPTURE_DEVICE_SPECIFIER, [&](const char* device) {
+    if (std::string(device) == device_id) {
+      has_requested_device = true;
+    }
+  });
+  if (!has_requested_device) {
+    RTC_LOG(LS_ERROR) << "CreateMicAudioSource: device not found: "
+                      << device_id;
     return nullptr;
   }
 

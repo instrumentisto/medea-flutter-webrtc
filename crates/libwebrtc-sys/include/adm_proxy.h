@@ -20,7 +20,7 @@ PROXY_METHOD0(int32_t, Terminate)
 PROXY_CONSTMETHOD0(bool, Initialized)
 PROXY_METHOD2(webrtc::scoped_refptr<bridge::LocalAudioSource>,
               CreateMicAudioSource,
-              uint32_t,
+              const std::string&,
               webrtc::scoped_refptr<webrtc::AudioProcessing>)
 PROXY_METHOD1(webrtc::scoped_refptr<bridge::LocalAudioSource>,
               CreateSysAudioSource,

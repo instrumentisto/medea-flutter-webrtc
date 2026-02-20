@@ -2856,7 +2856,7 @@ pub(crate) mod webrtc {
         /// Creates a new [`AudioSourceInterface`].
         pub fn create_audio_source(
             audio_device_module: &AudioDeviceModule,
-            device_index: u16,
+            device_id: String,
             ap: &UniquePtr<AudioProcessing>,
         ) -> UniquePtr<AudioSourceInterface>;
 

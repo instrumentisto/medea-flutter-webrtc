@@ -125,7 +125,7 @@ impl AudioDeviceModule {
     ///
     /// If [`sys::AudioDeviceModule::recording_device_name_with_format()`]
     /// call fails.
-    pub fn recording_device_name(
+    pub fn recording_device_name_with_format(
         &self,
         index: i16,
     ) -> anyhow::Result<AudioDeviceInfo> {
@@ -170,20 +170,20 @@ impl AudioDeviceModule {
     }
 
     /// Creates a new [`sys::AudioSourceInterface`] based on the provided
-    /// `device_index`.
+    /// `device_id`.
     ///
     /// # Errors
     ///
-    /// If [`sys::AudioDeviceModule::recording_devices()`] call fails.
+    /// If [`sys::AudioDeviceModule::create_audio_source()`] call fails.
     pub fn create_audio_source(
         &mut self,
-        device_index: u16,
+        device_id: &AudioDeviceId,
         ap: &AudioProcessing,
     ) -> anyhow::Result<sys::AudioSourceInterface> {
         if api::is_fake_media() {
             self.inner.create_fake_audio_source()
         } else {
-            self.inner.create_audio_source(device_index, ap)
+            self.inner.create_audio_source(device_id.to_string(), ap)
         }
     }
 

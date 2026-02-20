@@ -190,12 +190,6 @@ int16_t playout_devices(const AudioDeviceModule& audio_device_module);
 int16_t recording_devices(const AudioDeviceModule& audio_device_module);
 
 // Obtains information regarding the specified audio playout device.
-int32_t playout_device_name(const AudioDeviceModule& audio_device_module,
-                            int16_t index,
-                            rust::String& name,
-                            rust::String& guid);
-
-// Obtains information regarding the specified audio playout device.
 int32_t playout_device_name_with_format(
     const AudioDeviceModule& audio_device_module,
     int16_t index,
@@ -294,7 +288,7 @@ std::unique_ptr<VideoTrackSourceInterface> create_display_video_source(
 // Creates a new `AudioSourceInterface`.
 std::unique_ptr<AudioSourceInterface> create_audio_source(
     const AudioDeviceModule& audio_device_module,
-    uint16_t device_index,
+    rust::String device_id,
     const std::unique_ptr<AudioProcessing>& ap);
 
 // Creates a new `AudioSourceInterface` for display audio.

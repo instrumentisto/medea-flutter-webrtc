@@ -360,9 +360,10 @@ std::unique_ptr<VideoTrackSourceInterface> create_display_video_source(
 // Creates a new `AudioSource` with the provided `AudioDeviceModule`.
 std::unique_ptr<AudioSourceInterface> create_audio_source(
     const AudioDeviceModule& audio_device_module,
-    uint16_t device_index,
+    rust::String device_id,
     const std::unique_ptr<AudioProcessing>& ap) {
-  auto src = audio_device_module->CreateMicAudioSource(device_index, *ap);
+  auto src = audio_device_module->CreateMicAudioSource(
+      std::string(device_id), *ap);
   if (src == nullptr) {
     return nullptr;
   }
