@@ -7,7 +7,6 @@ use std::{
     thread,
 };
 
-use anyhow::anyhow;
 use libwebrtc_sys as sys;
 
 use crate::{
@@ -16,6 +15,26 @@ use crate::{
     frb_generated::StreamSink,
     media::{AudioDeviceId, MediaTrackSource, TrackOrigin, VideoDeviceId},
 };
+
+/// Enumerated audio device with optional format/container info. Used for both
+/// inputs and outputs in device lists and change detection.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct AudioDeviceInfo {
+    /// Human-readable device name.
+    pub name: String,
+
+    /// Unique device identifier.
+    pub device_id: AudioDeviceId,
+
+    /// Physical device identifier if available.
+    pub container_id: Option<String>,
+
+    /// Audio sample rate in `Hz` if available.
+    pub sample_rate: Option<u32>,
+
+    /// Audio channels count if available.
+    pub num_channels: Option<u16>,
+}
 
 /// Returns a list of all available displays that can be used for screen
 /// capturing.
@@ -84,19 +103,25 @@ impl Webrtc {
         let audio_inputs = self
             .enumerate_audio_input_devices()?
             .into_iter()
-            .map(|(label, id)| api::MediaDeviceInfo {
-                device_id: id.into(),
+            .map(|d| api::MediaDeviceInfo {
+                device_id: d.device_id.into(),
                 kind: api::MediaDeviceKind::AudioInput,
-                label,
+                label: d.name,
+                sample_rate: d.sample_rate,
+                num_channels: d.num_channels,
+                container_id: d.container_id,
             });
 
         let audio_outputs = self
             .enumerate_audio_output_devices()?
             .into_iter()
-            .map(|(label, id)| api::MediaDeviceInfo {
-                device_id: id.into(),
+            .map(|d| api::MediaDeviceInfo {
+                device_id: d.device_id.into(),
                 kind: api::MediaDeviceKind::AudioOutput,
-                label,
+                label: d.name,
+                sample_rate: d.sample_rate,
+                num_channels: d.num_channels,
+                container_id: d.container_id,
             });
 
         let video_inputs = self
@@ -106,6 +131,9 @@ impl Webrtc {
                 device_id: id.into(),
                 kind: api::MediaDeviceKind::VideoInput,
                 label,
+                sample_rate: None,
+                num_channels: None,
+                container_id: None,
             });
 
         Ok(audio_inputs.chain(audio_outputs).chain(video_inputs).collect())
@@ -114,15 +142,12 @@ impl Webrtc {
     /// Returns a list of all available audio input devices.
     pub fn enumerate_audio_input_devices(
         &self,
-    ) -> anyhow::Result<Vec<(String, AudioDeviceId)>> {
+    ) -> anyhow::Result<Vec<AudioDeviceInfo>> {
         let count_recording = self.audio_device_module.recording_devices();
         let mut result = Vec::with_capacity(count_recording as usize);
 
         for i in 0..i16::try_from(count_recording)? {
-            let (label, device_id) =
-                self.audio_device_module.recording_device_name(i)?;
-
-            result.push((label, AudioDeviceId::from(device_id)));
+            result.push(self.audio_device_module.recording_device_name(i)?);
         }
 
         Ok(result)
@@ -131,15 +156,14 @@ impl Webrtc {
     /// Returns a list of all available audio output devices.
     pub fn enumerate_audio_output_devices(
         &self,
-    ) -> anyhow::Result<Vec<(String, AudioDeviceId)>> {
+    ) -> anyhow::Result<Vec<AudioDeviceInfo>> {
         let count_playout = self.audio_device_module.playout_devices();
         let mut result = Vec::with_capacity(count_playout as usize);
 
         for i in 0..i16::try_from(count_playout)? {
-            let (label, device_id) =
-                self.audio_device_module.playout_device_name(i)?;
-
-            result.push((label, AudioDeviceId::from(device_id)));
+            result.push(
+                self.audio_device_module.playout_device_name_with_format(i)?,
+            );
         }
 
         Ok(result)
@@ -192,7 +216,7 @@ impl Webrtc {
     /// [`AudioDeviceModule::recording_device_name()`][2] returns an error.
     ///
     /// [1]: libwebrtc_sys::AudioDeviceModule::recording_devices
-    /// [2]: libwebrtc_sys::AudioDeviceModule::recording_device_name
+    /// [2]: libwebrtc_sys::AudioDeviceModule::recording_device_name_with_format
     pub fn get_index_of_audio_recording_device(
         &mut self,
         device_id: &AudioDeviceId,
@@ -200,8 +224,8 @@ impl Webrtc {
         let count: i16 =
             self.audio_device_module.recording_devices().try_into()?;
         for i in 0..count {
-            let (_, id) = self.audio_device_module.recording_device_name(i)?;
-            if id == device_id.to_string() {
+            let info = self.audio_device_module.recording_device_name(i)?;
+            if info.device_id == *device_id {
                 #[expect(clippy::cast_sign_loss, reason = "never negative")]
                 return Ok(Some(i as u16));
             }
@@ -209,50 +233,20 @@ impl Webrtc {
         Ok(None)
     }
 
-    /// Returns an index of the specific audio input device identified by the
-    /// provided [`AudioDeviceId`].
-    ///
-    /// # Errors
-    ///
-    /// Whenever [`AudioDeviceModule::playout_devices()`][1] or
-    /// [`AudioDeviceModule::playout_device_name()`][2] returns an error.
-    ///
-    /// [1]: libwebrtc_sys::AudioDeviceModule::playout_devices
-    /// [2]: libwebrtc_sys::AudioDeviceModule::playout_device_name
-    pub fn get_index_of_audio_playout_device(
-        &mut self,
-        device_id: &AudioDeviceId,
-    ) -> anyhow::Result<Option<u16>> {
-        let count: i16 =
-            self.audio_device_module.playout_devices().try_into()?;
-        for i in 0..count {
-            let (_, id) = self.audio_device_module.playout_device_name(i)?;
-            if id == device_id.to_string() {
-                #[expect(clippy::cast_sign_loss, reason = "never negative")]
-                return Ok(Some(i as u16));
-            }
-        }
-        Ok(None)
-    }
-
-    /// Sets the specified `audio playout` device.
+    /// Sets the specified `audio playout` device by its stable device ID.
     pub fn set_audio_playout_device(
         &mut self,
         device_id: String,
     ) -> anyhow::Result<()> {
         let device_id = AudioDeviceId::from(device_id);
-        let index = self.get_index_of_audio_playout_device(&device_id)?;
 
-        if let Some(index) = index {
-            let adm = &self.audio_device_module;
-            adm.stop_playout()?;
-            adm.set_playout_device(index)?;
-            adm.init_playout()?;
-            adm.start_playout()?;
-            Ok(())
-        } else {
-            Err(anyhow!("Cannot find playout device with ID `{device_id}`"))
-        }
+        let adm = &self.audio_device_module;
+        adm.stop_playout()?;
+        adm.set_playout_device(device_id)?;
+        adm.init_playout()?;
+        adm.start_playout()?;
+
+        Ok(())
     }
 
     /// Sets the microphone system volume according to the specified `level` in
@@ -323,12 +317,16 @@ impl Webrtc {
         // audio/video sources and tracks sourced from these sources.
         let mut tracks_to_remove: Vec<(String, api::MediaType)> = Vec::new();
         if audio_ins_changed && old_audio_ins.len() > new_audio_ins.len() {
-            old_audio_ins.retain(|e| !new_audio_ins.contains(e));
+            old_audio_ins.retain(|e| {
+                !new_audio_ins
+                    .iter()
+                    .any(|n| n.name == e.name && n.device_id == e.device_id)
+            });
 
-            for (_, delete_ai) in old_audio_ins {
+            for removed in old_audio_ins {
                 for track in self.audio_tracks.iter() {
                     if let MediaTrackSource::Local(s) = track.source()
-                        && s.device_id() == &delete_ai
+                        && s.device_id() == &removed.device_id
                     {
                         tracks_to_remove
                             .push((track.id().into(), api::MediaType::Audio));
@@ -372,10 +370,10 @@ pub struct DevicesState {
     pub on_device_change: Option<StreamSink<()>>,
 
     /// List of all available audio input devices.
-    pub audio_inputs: Vec<(String, AudioDeviceId)>,
+    pub audio_inputs: Vec<AudioDeviceInfo>,
 
     /// List of all available audio output devices.
-    pub audio_outputs: Vec<(String, AudioDeviceId)>,
+    pub audio_outputs: Vec<AudioDeviceInfo>,
 
     /// List of all available video input devices.
     pub video_inputs: Vec<(String, VideoDeviceId)>,

@@ -201,37 +201,52 @@ int16_t recording_devices(const AudioDeviceModule& audio_device_module) {
   return audio_device_module->RecordingDevices();
 }
 
-// Calls `AudioDeviceModule->PlayoutDeviceName()` with the provided arguments.
-int32_t playout_device_name(const AudioDeviceModule& audio_device_module,
-                            int16_t index,
-                            rust::String& name,
-                            rust::String& guid) {
-  char name_buff[webrtc::kAdmMaxDeviceNameSize];
-  char guid_buff[webrtc::kAdmMaxGuidSize];
+// Calls `AudioDeviceModule->PlayoutDeviceNameWithFormat()` to get name, guid,
+// sample rate, channel count and container ID.
+int32_t playout_device_name_with_format(
+    const AudioDeviceModule& audio_device_module,
+    int16_t index,
+    rust::String& name,
+    rust::String& guid,
+    uint32_t& sample_rate,
+    uint16_t& num_channels,
+    rust::String& container_id) {
+  const auto info = audio_device_module->PlayoutDeviceNameWithFormat(index);
+  if (!info.has_value()) {
+    return -1;
+  }
 
-  const int32_t result =
-      audio_device_module->PlayoutDeviceName(index, name_buff, guid_buff);
-  name = name_buff;
-  guid = guid_buff;
+  name = info->name;
+  guid = info->guid;
+  sample_rate = info->sample_rate;
+  num_channels = info->num_channels;
+  container_id = info->container_id;
 
-  return result;
+  return 0;
 }
 
-// Calls `AudioDeviceModule->RecordingDeviceName()` with the provided arguments.
-int32_t recording_device_name(const AudioDeviceModule& audio_device_module,
-                              int16_t index,
-                              rust::String& name,
-                              rust::String& guid) {
-  char name_buff[webrtc::kAdmMaxDeviceNameSize];
-  char guid_buff[webrtc::kAdmMaxGuidSize];
+// Calls `AudioDeviceModule->RecordingDeviceNameWithFormat()` to get name, guid,
+// sample rate, channel count and container ID.
+int32_t recording_device_name_with_format(
+    const AudioDeviceModule& audio_device_module,
+    int16_t index,
+    rust::String& name,
+    rust::String& guid,
+    uint32_t& sample_rate,
+    uint16_t& num_channels,
+    rust::String& container_id) {
+  const auto info = audio_device_module->RecordingDeviceNameWithFormat(index);
+  if (!info.has_value()) {
+    return -1;
+  }
 
-  const int32_t result =
-      audio_device_module->RecordingDeviceName(index, name_buff, guid_buff);
+  name = info->name;
+  guid = info->guid;
+  sample_rate = info->sample_rate;
+  num_channels = info->num_channels;
+  container_id = info->container_id;
 
-  name = name_buff;
-  guid = guid_buff;
-
-  return result;
+  return 0;
 }
 
 // Stops playout of audio on the specified device.
@@ -256,11 +271,11 @@ int32_t start_playout(const AudioDeviceModule& audio_device_module) {
   return audio_device_module->StartPlayout();
 }
 
-// Calls `AudioDeviceModule->SetPlayoutDeviceIndex()` with the provided device
-// index.
+// Calls `AudioDeviceModule->SetPlayoutDeviceId()` with the provided device
+// ID.
 int32_t set_audio_playout_device(const AudioDeviceModule& audio_device_module,
-                                 uint16_t index) {
-  return audio_device_module->SetPlayoutDeviceIndex(index);
+                                 rust::String device_id) {
+  return audio_device_module->SetPlayoutDeviceId(std::string(device_id));
 }
 
 // Calls `BuiltinAudioProcessingBuilder().Create()`.

@@ -1526,10 +1526,16 @@ impl SseDecode for crate::api::media_info::MediaDeviceInfo {
         let mut var_kind =
             <crate::api::media_info::MediaDeviceKind>::sse_decode(deserializer);
         let mut var_label = <String>::sse_decode(deserializer);
+        let mut var_sampleRate = <Option<u32>>::sse_decode(deserializer);
+        let mut var_numChannels = <Option<u16>>::sse_decode(deserializer);
+        let mut var_containerId = <Option<String>>::sse_decode(deserializer);
         return crate::api::media_info::MediaDeviceInfo {
             device_id: var_deviceId,
             kind: var_kind,
             label: var_label,
+            sample_rate: var_sampleRate,
+            num_channels: var_numChannels,
+            container_id: var_containerId,
         };
     }
 }
@@ -1787,6 +1793,19 @@ impl SseDecode for Option<crate::api::capability::rtp_codec::rtcp_feedback::Rtcp
                 return None;
             }}
                 }
+
+impl SseDecode for Option<u16> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(
+        deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer,
+    ) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<u16>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
 
 impl SseDecode for Option<u32> {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -2602,6 +2621,15 @@ impl SseDecode for crate::api::media_stream_track::track_state::TrackState {
     }
 }
 
+impl SseDecode for u16 {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(
+        deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer,
+    ) -> Self {
+        deserializer.cursor.read_u16::<NativeEndian>().unwrap()
+    }
+}
+
 impl SseDecode for u32 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(
@@ -3136,6 +3164,9 @@ impl flutter_rust_bridge::IntoDart for crate::api::media_info::MediaDeviceInfo {
             self.device_id.into_into_dart().into_dart(),
             self.kind.into_into_dart().into_dart(),
             self.label.into_into_dart().into_dart(),
+            self.sample_rate.into_into_dart().into_dart(),
+            self.num_channels.into_into_dart().into_dart(),
+            self.container_id.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -4938,6 +4969,9 @@ impl SseEncode for crate::api::media_info::MediaDeviceInfo {
             self.kind, serializer,
         );
         <String>::sse_encode(self.label, serializer);
+        <Option<u32>>::sse_encode(self.sample_rate, serializer);
+        <Option<u16>>::sse_encode(self.num_channels, serializer);
+        <Option<String>>::sse_encode(self.container_id, serializer);
     }
 }
 
@@ -5174,6 +5208,19 @@ impl SseEncode for Option<crate::api::capability::rtp_codec::rtcp_feedback::Rtcp
                     <crate::api::capability::rtp_codec::rtcp_feedback::RtcpFeedbackMessageType>::sse_encode(value, serializer);
                 }}
                 }
+
+impl SseEncode for Option<u16> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(
+        self,
+        serializer: &mut flutter_rust_bridge::for_generated::SseSerializer,
+    ) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <u16>::sse_encode(value, serializer);
+        }
+    }
+}
 
 impl SseEncode for Option<u32> {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -5808,6 +5855,16 @@ impl SseEncode for crate::api::media_stream_track::track_state::TrackState {
         <i32>::sse_encode(match self {crate::api::media_stream_track::track_state::TrackState::Live => { 0 }
 crate::api::media_stream_track::track_state::TrackState::Ended => { 1 }
  _ => { unimplemented!(""); }}, serializer);
+    }
+}
+
+impl SseEncode for u16 {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(
+        self,
+        serializer: &mut flutter_rust_bridge::for_generated::SseSerializer,
+    ) {
+        serializer.cursor.write_u16::<NativeEndian>(self).unwrap();
     }
 }
 

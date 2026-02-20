@@ -20,14 +20,34 @@ class MediaDeviceInfo {
   /// Label describing the represented device.
   final String label;
 
+  /// For audio devices: native sample rate. `None` video or if unavailable.
+  final int? sampleRate;
+
+  /// For audio devices: number of channels. `None` for video or if
+  /// unavailable.
+  final int? numChannels;
+
+  /// For audio devices: platform container ID (physical device identifier).
+  /// `None` for video or if unavailable.
+  final String? containerId;
+
   const MediaDeviceInfo({
     required this.deviceId,
     required this.kind,
     required this.label,
+    this.sampleRate,
+    this.numChannels,
+    this.containerId,
   });
 
   @override
-  int get hashCode => deviceId.hashCode ^ kind.hashCode ^ label.hashCode;
+  int get hashCode =>
+      deviceId.hashCode ^
+      kind.hashCode ^
+      label.hashCode ^
+      sampleRate.hashCode ^
+      numChannels.hashCode ^
+      containerId.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -36,7 +56,10 @@ class MediaDeviceInfo {
           runtimeType == other.runtimeType &&
           deviceId == other.deviceId &&
           kind == other.kind &&
-          label == other.label;
+          label == other.label &&
+          sampleRate == other.sampleRate &&
+          numChannels == other.numChannels &&
+          containerId == other.containerId;
 }
 
 /// Possible kinds of media devices.

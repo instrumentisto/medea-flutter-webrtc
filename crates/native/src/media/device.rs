@@ -4,9 +4,8 @@ use anyhow::bail;
 use derive_more::with_trait::{AsRef, Display, From, Into};
 use libwebrtc_sys as sys;
 use sys::AudioProcessing;
-use xxhash::xxh3::xxh3_64;
 
-use crate::api;
+use crate::{api, devices::AudioDeviceInfo};
 
 /// ID of a video input device that provides data to some [`VideoSource`].
 ///
@@ -88,63 +87,66 @@ impl AudioDeviceModule {
         Ok(Self { inner })
     }
 
-    /// Returns the `(label, id)` tuple for the given audio playout device
-    /// `index`.
+    /// Returns device name and optional format for the given audio playout
+    /// device `index`.
     ///
     /// # Errors
     ///
-    /// If [`sys::AudioDeviceModule::playout_device_name()`] call fails.
-    pub fn playout_device_name(
+    /// If [`sys::AudioDeviceModule::playout_device_name_with_format()`] call
+    /// fails.
+    pub fn playout_device_name_with_format(
         &self,
         index: i16,
-    ) -> anyhow::Result<(String, String)> {
+    ) -> anyhow::Result<AudioDeviceInfo> {
         if api::is_fake_media() {
-            return Ok((
-                String::from("fake headset"),
-                String::from("fake headset id"),
-            ));
+            return Ok(AudioDeviceInfo {
+                name: String::from("fake headset"),
+                device_id: AudioDeviceId(String::from("fake headset id")),
+                container_id: None,
+                sample_rate: None,
+                num_channels: None,
+            });
         }
 
-        let (label, mut device_id) = self.inner.playout_device_name(index)?;
-
-        if device_id.is_empty() {
-            let hash = xxh3_64(
-                [label.as_bytes(), &[api::MediaDeviceKind::AudioOutput as u8]]
-                    .concat()
-                    .as_slice(),
-            );
-            device_id = hash.to_string();
-        }
-
-        Ok((label, device_id))
+        let info = self.inner.playout_device_name_with_format(index)?;
+        Ok(AudioDeviceInfo {
+            name: info.name,
+            device_id: AudioDeviceId(info.id),
+            container_id: info.container_id,
+            sample_rate: info.sample_rate,
+            num_channels: info.num_channels,
+        })
     }
 
-    /// Returns the `(label, id)` tuple for the given audio recording device
-    /// `index`.
+    /// Returns device name and optional format for the given audio recording
+    /// device `index`.
     ///
     /// # Errors
     ///
-    /// If [`sys::AudioDeviceModule::recording_device_name()`] call fails.
+    /// If [`sys::AudioDeviceModule::recording_device_name_with_format()`]
+    /// call fails.
     pub fn recording_device_name(
         &self,
         index: i16,
-    ) -> anyhow::Result<(String, String)> {
+    ) -> anyhow::Result<AudioDeviceInfo> {
         if api::is_fake_media() {
-            return Ok((String::from("fake mic"), String::from("fake mic id")));
+            return Ok(AudioDeviceInfo {
+                name: String::from("fake mic"),
+                device_id: AudioDeviceId(String::from("fake mic id")),
+                container_id: None,
+                sample_rate: None,
+                num_channels: None,
+            });
         }
 
-        let (label, mut device_id) = self.inner.recording_device_name(index)?;
-
-        if device_id.is_empty() {
-            let hash = xxh3_64(
-                [label.as_bytes(), &[api::MediaDeviceKind::AudioOutput as u8]]
-                    .concat()
-                    .as_slice(),
-            );
-            device_id = hash.to_string();
-        }
-
-        Ok((label, device_id))
+        let info = self.inner.recording_device_name_with_format(index)?;
+        Ok(AudioDeviceInfo {
+            name: info.name,
+            device_id: AudioDeviceId(info.id),
+            container_id: info.container_id,
+            sample_rate: info.sample_rate,
+            num_channels: info.num_channels,
+        })
     }
 
     /// Returns count of available audio playout devices.
@@ -281,8 +283,11 @@ impl AudioDeviceModule {
     /// # Errors
     ///
     /// If [`sys::AudioDeviceModule::set_playout_device()`] call fails.
-    pub fn set_playout_device(&self, index: u16) -> anyhow::Result<()> {
-        self.inner.set_playout_device(index)?;
+    pub fn set_playout_device(
+        &self,
+        device_id: AudioDeviceId,
+    ) -> anyhow::Result<()> {
+        self.inner.set_playout_device(device_id.0)?;
 
         Ok(())
     }

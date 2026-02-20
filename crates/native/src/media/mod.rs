@@ -230,7 +230,8 @@ impl Webrtc {
                         |devices| {
                             devices
                                 .into_iter()
-                                .map(|(label, id)| format!("{label} ({id})"))
+                                .map(|(label, id, ..)|
+                                    format!("{label} ({id})"))
                                 .collect::<Vec<_>>()
                         },
                     );
@@ -329,7 +330,7 @@ impl Webrtc {
                     bail!("Cannot find any available audio input device");
                 }
 
-                self.audio_device_module.recording_device_name(0)?.1.into()
+                self.audio_device_module.recording_device_name(0)?.device_id
             };
 
             let Some(device_index) =
@@ -345,7 +346,9 @@ impl Webrtc {
                         |devices| {
                             devices
                                 .into_iter()
-                                .map(|(label, id)| format!("{label} ({id})"))
+                                .map(|d| {
+                                    format!("{} ({})", d.name, d.device_id)
+                                })
                                 .collect::<Vec<_>>()
                         },
                     );

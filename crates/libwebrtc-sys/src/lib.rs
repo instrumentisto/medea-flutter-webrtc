@@ -338,6 +338,26 @@ pub trait AddIceCandidateCallback {
     fn on_fail(&mut self, error: &CxxString);
 }
 
+/// Result of an audio device name query including optional format and container
+/// ID.
+#[derive(Clone, Debug)]
+pub struct AudioDeviceNameWithFormat {
+    /// Unique device identifier.
+    pub id: String,
+
+    /// Human-readable device name.
+    pub name: String,
+
+    /// Physical device identifier if available.
+    pub container_id: Option<String>,
+
+    /// Audio sample rate in `Hz` if available.
+    pub sample_rate: Option<u32>,
+
+    /// Audio channels count if available.
+    pub num_channels: Option<u16>,
+}
+
 /// Available audio devices manager that is responsible for driving input
 /// (microphone) and output (speaker) audio in WebRTC.
 ///
@@ -389,17 +409,27 @@ impl AudioDeviceModule {
         webrtc::recording_devices(&self.0).try_into().unwrap_or_default()
     }
 
-    /// Returns the `(label, id)` tuple for the given audio playout device
-    /// `index`.
-    pub fn playout_device_name(
+    /// Returns [`AudioDeviceNameWithFormat`] for the audio playout device by
+    /// its `index`.
+    pub fn playout_device_name_with_format(
         &self,
         index: i16,
-    ) -> anyhow::Result<(String, String)> {
+    ) -> anyhow::Result<AudioDeviceNameWithFormat> {
         let mut name = String::new();
         let mut guid = String::new();
+        let mut sample_rate = 0u32;
+        let mut num_channels = 0u16;
+        let mut container_id = String::new();
 
-        let result =
-            webrtc::playout_device_name(&self.0, index, &mut name, &mut guid);
+        let result = webrtc::playout_device_name_with_format(
+            &self.0,
+            index,
+            &mut name,
+            &mut guid,
+            &mut sample_rate,
+            &mut num_channels,
+            &mut container_id,
+        );
 
         if result != 0 {
             bail!(
@@ -408,20 +438,40 @@ impl AudioDeviceModule {
             );
         }
 
-        Ok((name, guid))
+        Ok(AudioDeviceNameWithFormat {
+            name,
+            id: guid,
+            container_id: if container_id.is_empty() {
+                None
+            } else {
+                Some(container_id)
+            },
+            sample_rate: (sample_rate > 0).then_some(sample_rate),
+            num_channels: (num_channels > 0).then_some(num_channels),
+        })
     }
 
-    /// Returns the `(label, id)` tuple for the given audio recording device
-    /// `index`.
-    pub fn recording_device_name(
+    /// Returns [`AudioDeviceNameWithFormat`] for the audio recording device
+    /// by its `index`.
+    pub fn recording_device_name_with_format(
         &self,
         index: i16,
-    ) -> anyhow::Result<(String, String)> {
+    ) -> anyhow::Result<AudioDeviceNameWithFormat> {
         let mut name = String::new();
         let mut guid = String::new();
+        let mut sample_rate = 0u32;
+        let mut num_channels = 0u16;
+        let mut container_id = String::new();
 
-        let result =
-            webrtc::recording_device_name(&self.0, index, &mut name, &mut guid);
+        let result = webrtc::recording_device_name_with_format(
+            &self.0,
+            index,
+            &mut name,
+            &mut guid,
+            &mut sample_rate,
+            &mut num_channels,
+            &mut container_id,
+        );
 
         if result != 0 {
             bail!(
@@ -430,7 +480,17 @@ impl AudioDeviceModule {
             );
         }
 
-        Ok((name, guid))
+        Ok(AudioDeviceNameWithFormat {
+            name,
+            id: guid,
+            container_id: if container_id.is_empty() {
+                None
+            } else {
+                Some(container_id)
+            },
+            sample_rate: (sample_rate > 0).then_some(sample_rate),
+            num_channels: (num_channels > 0).then_some(num_channels),
+        })
     }
 
     /// Creates a new fake [`AudioSourceInterface`].
@@ -499,14 +559,14 @@ impl AudioDeviceModule {
         webrtc::dispose_audio_source(&self.0, device_id);
     }
 
-    /// Sets the playout audio device according to the given `index`.
-    pub fn set_playout_device(&self, index: u16) -> anyhow::Result<()> {
-        let result = webrtc::set_audio_playout_device(&self.0, index);
+    /// Sets the playout audio device by its `device_id`.
+    pub fn set_playout_device(&self, device_id: String) -> anyhow::Result<()> {
+        let result = webrtc::set_audio_playout_device(&self.0, device_id);
 
         if result != 0 {
             bail!(
                 "`AudioDeviceModule::SetPlayoutDevice()` failed with \
-                 `{result}` code",
+                 `{result}` code (device not found or failed)",
             );
         }
 

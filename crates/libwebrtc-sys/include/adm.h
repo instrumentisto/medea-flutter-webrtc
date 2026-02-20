@@ -53,6 +53,7 @@
 #include <AL/alc.h>
 
 #include "libwebrtc-sys/include/audio_device_recorder.h"
+#include "libwebrtc-sys/include/audio_device_utils.h"
 #include "libwebrtc-sys/include/delegating_apm.h"
 #include "libwebrtc-sys/include/local_audio_source.h"
 #include "libwebrtc-sys/include/sys_audio_capture/capture.h"
@@ -80,8 +81,16 @@ class ExtendedADM : public webrtc::AudioDeviceModule {
   // Returns the inner `PlayoutDelegatingAPM`.
   virtual webrtc::scoped_refptr<PlayoutDelegatingAPM> AudioProcessing() = 0;
 
-  // Changes the used playout device.
-  virtual int32_t SetPlayoutDeviceIndex(uint16_t index) = 0;
+  // Changes the used playout device by its device ID.
+  virtual int32_t SetPlayoutDeviceId(const std::string& device_id) = 0;
+
+  // Returns `DeviceNameWithFormat` for the given playout device index.
+  virtual std::optional<DeviceNameWithFormat> PlayoutDeviceNameWithFormat(
+      uint16_t index) = 0;
+
+  // Returns `DeviceNameWithFormat` for the given recording device index.
+  virtual std::optional<DeviceNameWithFormat> RecordingDeviceNameWithFormat(
+      uint16_t index) = 0;
 };
 
 class OpenALAudioDeviceModule : public ExtendedADM {
@@ -117,11 +126,13 @@ class OpenALAudioDeviceModule : public ExtendedADM {
   // Playout control.
   int16_t PlayoutDevices() override;
   int32_t SetPlayoutDevice(uint16_t index) override;
-  int32_t SetPlayoutDeviceIndex(uint16_t index) override;
+  int32_t SetPlayoutDeviceId(const std::string& device_id) override;
   int32_t SetPlayoutDevice(WindowsDeviceType device) override;
   int32_t PlayoutDeviceName(uint16_t index,
                             char name[webrtc::kAdmMaxDeviceNameSize],
                             char guid[webrtc::kAdmMaxGuidSize]) override;
+  std::optional<DeviceNameWithFormat> PlayoutDeviceNameWithFormat(
+      uint16_t index) override;
   int32_t InitPlayout() override;
   bool PlayoutIsInitialized() const override;
   int32_t StartPlayout() override;
@@ -150,6 +161,8 @@ class OpenALAudioDeviceModule : public ExtendedADM {
   int32_t RecordingDeviceName(uint16_t index,
                               char name[webrtc::kAdmMaxDeviceNameSize],
                               char guid[webrtc::kAdmMaxGuidSize]) override;
+  std::optional<DeviceNameWithFormat> RecordingDeviceNameWithFormat(
+      uint16_t index) override;
   int32_t SetRecordingDevice(uint16_t index) override;
   int32_t SetRecordingDevice(WindowsDeviceType device) override;
   int32_t RecordingIsAvailable(bool* available) override;
