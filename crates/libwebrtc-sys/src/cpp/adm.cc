@@ -30,6 +30,7 @@
 #include <vector>
 
 #include "adm.h"
+#include "audio_device_utils.h"
 #include "api/make_ref_counted.h"
 #include "common_audio/wav_file.h"
 #include "modules/audio_device/include/test_audio_device.h"
@@ -262,7 +263,7 @@ int DeviceName(ALCenum specifier,
 int32_t OpenALAudioDeviceModule::SetPlayoutDevice(uint16_t index) {
   // Does nothing, because it's called by `libwebrtc` and we don't want that.
   RTC_LOG(LS_ERROR)
-      << "Use `SetPlayoutDeviceIndex` instead of `SetPlayoutDevice`";
+      << "Use `SetPlayoutDeviceId` instead of `SetPlayoutDevice`";
 
   // Don`t error so libwebrtc would think that everything is ok.
   return 0;
@@ -271,12 +272,13 @@ int32_t OpenALAudioDeviceModule::SetPlayoutDevice(uint16_t index) {
 int32_t OpenALAudioDeviceModule::SetPlayoutDevice(WindowsDeviceType device) {
   // Does nothing, because it's called by `libwebrtc` and we don't want that.
   RTC_LOG(LS_ERROR)
-      << "Use `SetPlayoutDeviceIndex` instead of `SetPlayoutDevice`";
+      << "Use `SetPlayoutDeviceId` instead of `SetPlayoutDevice`";
 
   return 0;
 }
 
-int32_t OpenALAudioDeviceModule::SetPlayoutDeviceIndex(uint16_t index) {
+int32_t OpenALAudioDeviceModule::SetPlayoutDeviceId(
+    const std::string& device_id) {
   // Ensure playout is stopped before switching the device id.
   std::lock_guard<std::recursive_mutex> lk(_playout_mutex);
 
@@ -285,10 +287,19 @@ int32_t OpenALAudioDeviceModule::SetPlayoutDeviceIndex(uint16_t index) {
     return -1;
   }
 
-  const auto result =
-      DeviceName(ALC_ALL_DEVICES_SPECIFIER, index, nullptr, &_playoutDeviceId);
+  bool has_requested_device = false;
+  EnumerateDevices(ALC_ALL_DEVICES_SPECIFIER, [&](const char* device) {
+    if (std::string(device) == device_id) {
+      has_requested_device = true;
+    }
+  });
 
-  return result;
+  if (has_requested_device) {
+    _playoutDeviceId = device_id;
+    return 0;
+  } else {
+    return -1;
+  }
 }
 
 int16_t OpenALAudioDeviceModule::PlayoutDevices() {
@@ -300,6 +311,19 @@ int32_t OpenALAudioDeviceModule::PlayoutDeviceName(
     char name[webrtc::kAdmMaxDeviceNameSize],
     char guid[webrtc::kAdmMaxGuidSize]) {
   return DeviceName(ALC_ALL_DEVICES_SPECIFIER, index, name, guid);
+}
+
+std::optional<DeviceNameWithFormat>
+OpenALAudioDeviceModule::PlayoutDeviceNameWithFormat(uint16_t index) {
+  DeviceNameWithFormat info{};
+  const int32_t result = DeviceName(ALC_ALL_DEVICES_SPECIFIER, index,
+                                    &info.name, &info.guid);
+  if (result != 0) {
+    return std::nullopt;
+  }
+  GetPlayoutDeviceFormat(info.name, info);
+
+  return info;
 }
 
 int32_t OpenALAudioDeviceModule::InitPlayout() {
@@ -725,14 +749,19 @@ void OpenALAudioDeviceModule::stopPlayingOnThread() {
 
 webrtc::scoped_refptr<bridge::LocalAudioSource>
 OpenALAudioDeviceModule::CreateMicAudioSource(
-    uint32_t device_index,
+    const std::string& device_id,
     webrtc::scoped_refptr<webrtc::AudioProcessing> ap) {
   std::lock_guard<std::recursive_mutex> lk(_recording_mutex);
 
-  std::string device_id;
-  const auto result = DeviceName(ALC_CAPTURE_DEVICE_SPECIFIER, device_index,
-                                 nullptr, &device_id);
-  if (result != 0) {
+  bool has_requested_device = false;
+  EnumerateDevices(ALC_CAPTURE_DEVICE_SPECIFIER, [&](const char* device) {
+    if (std::string(device) == device_id) {
+      has_requested_device = true;
+    }
+  });
+  if (!has_requested_device) {
+    RTC_LOG(LS_ERROR) << "CreateMicAudioSource: device not found: "
+                      << device_id;
     return nullptr;
   }
 
@@ -858,6 +887,19 @@ int32_t OpenALAudioDeviceModule::RecordingDeviceName(
     char name[webrtc::kAdmMaxDeviceNameSize],
     char guid[webrtc::kAdmMaxGuidSize]) {
   return DeviceName(ALC_CAPTURE_DEVICE_SPECIFIER, index, name, guid);
+}
+
+std::optional<DeviceNameWithFormat>
+OpenALAudioDeviceModule::RecordingDeviceNameWithFormat(uint16_t index) {
+  DeviceNameWithFormat info{};
+  const int32_t result =
+      DeviceName(ALC_CAPTURE_DEVICE_SPECIFIER, index, &info.name, &info.guid);
+  if (result != 0) {
+    return std::nullopt;
+  }
+  GetRecordingDeviceFormat(info.name, info);
+
+  return info;
 }
 
 int32_t OpenALAudioDeviceModule::RecordingIsAvailable(bool* available) {

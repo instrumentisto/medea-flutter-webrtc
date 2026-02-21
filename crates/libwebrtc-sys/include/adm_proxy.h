@@ -20,7 +20,7 @@ PROXY_METHOD0(int32_t, Terminate)
 PROXY_CONSTMETHOD0(bool, Initialized)
 PROXY_METHOD2(webrtc::scoped_refptr<bridge::LocalAudioSource>,
               CreateMicAudioSource,
-              uint32_t,
+              const std::string&,
               webrtc::scoped_refptr<webrtc::AudioProcessing>)
 PROXY_METHOD1(webrtc::scoped_refptr<bridge::LocalAudioSource>,
               CreateSysAudioSource,
@@ -30,9 +30,15 @@ PROXY_METHOD0(webrtc::scoped_refptr<PlayoutDelegatingAPM>, AudioProcessing)
 PROXY_METHOD0(int16_t, PlayoutDevices)
 PROXY_METHOD0(int16_t, RecordingDevices)
 PROXY_METHOD3(int32_t, PlayoutDeviceName, uint16_t, char*, char*)
+PROXY_METHOD1(std::optional<DeviceNameWithFormat>,
+              PlayoutDeviceNameWithFormat,
+              uint16_t)
 PROXY_METHOD3(int32_t, RecordingDeviceName, uint16_t, char*, char*)
+PROXY_METHOD1(std::optional<DeviceNameWithFormat>,
+              RecordingDeviceNameWithFormat,
+              uint16_t)
 PROXY_METHOD1(int32_t, SetPlayoutDevice, uint16_t)
-PROXY_METHOD1(int32_t, SetPlayoutDeviceIndex, uint16_t)
+PROXY_METHOD1(int32_t, SetPlayoutDeviceId, const std::string&)
 PROXY_METHOD1(int32_t, SetPlayoutDevice, WindowsDeviceType)
 PROXY_METHOD1(int32_t, SetRecordingDevice, uint16_t)
 PROXY_METHOD1(int32_t, SetRecordingDevice, WindowsDeviceType)

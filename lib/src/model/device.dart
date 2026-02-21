@@ -47,6 +47,9 @@ class MediaDeviceInfo {
     deviceId = map['deviceId'];
     label = map['label'];
     kind = MediaDeviceKind.values[map['kind']];
+    sampleRate = map['sampleRate'] as int?;
+    numChannels = map['numChannels'] as int?;
+    containerId = map['containerId'] as String?;
     if (map['audioKind'] != null) {
       audioDeviceKind = AudioDeviceKind.values[map['audioKind']];
     }
@@ -59,6 +62,9 @@ class MediaDeviceInfo {
     deviceId = info.deviceId;
     label = info.label;
     kind = MediaDeviceKind.values[info.kind.index];
+    sampleRate = info.sampleRate;
+    numChannels = info.numChannels;
+    containerId = info.containerId;
     isFailed = false;
   }
 
@@ -70,6 +76,21 @@ class MediaDeviceInfo {
 
   /// Media kind of the device (for example, `audioinput` for microphone).
   late MediaDeviceKind kind;
+
+  /// Native sample rate in `Hz`
+  ///
+  /// For audio devices only. `null` for video or if is unavailable.
+  int? sampleRate;
+
+  /// Number of channels.
+  ///
+  /// For audio devices only. `null` for video or if is unavailable.
+  int? numChannels;
+
+  /// Platform container ID (physical device identifier).
+  ///
+  /// For audio devices only. `null` for video or if is unavailable.
+  String? containerId;
 
   /// Additional information on the nature of the audio device.
   AudioDeviceKind? audioDeviceKind;

@@ -27,7 +27,15 @@ class _GetSourcesSampleState extends State<GetSourcesSample> {
       var devicesInfo = '';
       for (var device in mediaDeviceInfos) {
         devicesInfo +=
-            'Kind: ${device.kind} (${device.audioDeviceKind})\nName: ${device.label}\nId: ${device.deviceId}\n\n';
+            'Kind: ${device.kind} (${device.audioDeviceKind})\nName: ${device.label}\nId: ${device.deviceId}\n';
+        if (device.sampleRate != null || device.numChannels != null) {
+          devicesInfo +=
+              'Sample rate: ${device.sampleRate ?? "—"}, Channels: ${device.numChannels ?? "—"}\n';
+        }
+        if (device.containerId != null && device.containerId!.isNotEmpty) {
+          devicesInfo += 'Container ID: ${device.containerId}\n';
+        }
+        devicesInfo += '\n';
       }
       for (var display in mediaDisplayInfos) {
         devicesInfo +=

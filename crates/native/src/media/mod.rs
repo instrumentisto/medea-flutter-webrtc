@@ -230,7 +230,8 @@ impl Webrtc {
                         |devices| {
                             devices
                                 .into_iter()
-                                .map(|(label, id)| format!("{label} ({id})"))
+                                .map(|(label, id, ..)|
+                                    format!("{label} ({id})"))
                                 .collect::<Vec<_>>()
                         },
                     );
@@ -329,34 +330,9 @@ impl Webrtc {
                     bail!("Cannot find any available audio input device");
                 }
 
-                self.audio_device_module.recording_device_name(0)?.1.into()
-            };
-
-            let Some(device_index) =
-                self.get_index_of_audio_recording_device(&device_id)?
-            else {
-                let available =
-                    self.enumerate_audio_input_devices().map_or_else(
-                        |e| {
-                            vec![format!(
-                                "<failed to enumerate audio input devices: {e}>"
-                            )]
-                        },
-                        |devices| {
-                            devices
-                                .into_iter()
-                                .map(|(label, id)| format!("{label} ({id})"))
-                                .collect::<Vec<_>>()
-                        },
-                    );
-                log::error!(
-                    "Cannot find requested(`{device_id}`) audio input device. \
-                     Currently available devices are: {available:?}",
-                );
-                bail!(
-                    "Cannot find audio device with the specified ID: \
-                     `{device_id}`",
-                );
+                self.audio_device_module
+                    .recording_device_name_with_format(0)?
+                    .device_id
             };
 
             if let Some(src) = self.audio_sources.get(&device_id) {
@@ -378,7 +354,35 @@ impl Webrtc {
                 let src = Arc::new(AudioSource::new(
                     device_id.clone(),
                     self.audio_device_module
-                        .create_audio_source(device_index, &processing)?,
+                        .create_audio_source(&device_id, &processing)
+                        .inspect_err(|_| {
+                            let available = self
+                                .enumerate_audio_input_devices()
+                                .map_or_else(
+                                    |err| {
+                                        vec![format!(
+                                            "<failed to enumerate audio \
+                                             input devices: {err}>",
+                                        )]
+                                    },
+                                    |devices| {
+                                        devices
+                                            .into_iter()
+                                            .map(|d| {
+                                                format!(
+                                                    "{} ({})",
+                                                    d.name, d.device_id,
+                                                )
+                                            })
+                                            .collect::<Vec<_>>()
+                                    },
+                                );
+                            log::error!(
+                                "Cannot find requested(`{device_id}`) audio \
+                                 input device. Currently available devices \
+                                 are: {available:?}",
+                            );
+                        })?,
                     Some(processing),
                 ));
                 self.audio_sources.insert(device_id, Arc::clone(&src));

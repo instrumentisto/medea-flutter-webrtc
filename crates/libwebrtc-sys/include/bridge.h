@@ -190,16 +190,24 @@ int16_t playout_devices(const AudioDeviceModule& audio_device_module);
 int16_t recording_devices(const AudioDeviceModule& audio_device_module);
 
 // Obtains information regarding the specified audio playout device.
-int32_t playout_device_name(const AudioDeviceModule& audio_device_module,
-                            int16_t index,
-                            rust::String& name,
-                            rust::String& guid);
+int32_t playout_device_name_with_format(
+    const AudioDeviceModule& audio_device_module,
+    int16_t index,
+    rust::String& name,
+    rust::String& guid,
+    uint32_t& sample_rate,
+    uint16_t& num_channels,
+    rust::String& container_id);
 
 // Obtains information regarding the specified audio recording device.
-int32_t recording_device_name(const AudioDeviceModule& audio_device_module,
-                              int16_t index,
-                              rust::String& name,
-                              rust::String& guid);
+int32_t recording_device_name_with_format(
+    const AudioDeviceModule& audio_device_module,
+    int16_t index,
+    rust::String& name,
+    rust::String& guid,
+    uint32_t& sample_rate,
+    uint16_t& num_channels,
+    rust::String& container_id);
 
 // Stops playout of audio on the specified device.
 int32_t stop_playout(const AudioDeviceModule& audio_device_module);
@@ -215,11 +223,10 @@ int32_t init_playout(const AudioDeviceModule& audio_device_module);
 // Starts playout of audio on the specified device.
 int32_t start_playout(const AudioDeviceModule& audio_device_module);
 
-// Specifies which device to use for playout audio using an index
-// retrieved by the corresponding enumeration method which is
-// `AudiDeviceModule::PlayoutDeviceName`.
+// Specifies which device to use for playout audio by its device ID (e.g.
+// from a `DeviceNameWithFormat`).
 int32_t set_audio_playout_device(const AudioDeviceModule& audio_device_module,
-                                 uint16_t index);
+                                 rust::String device_id);
 
 // Creates a new `AudioProcessing` using the provided `Environment`.
 std::unique_ptr<AudioProcessing> create_audio_processing(
@@ -281,7 +288,7 @@ std::unique_ptr<VideoTrackSourceInterface> create_display_video_source(
 // Creates a new `AudioSourceInterface`.
 std::unique_ptr<AudioSourceInterface> create_audio_source(
     const AudioDeviceModule& audio_device_module,
-    uint16_t device_index,
+    rust::String device_id,
     const std::unique_ptr<AudioProcessing>& ap);
 
 // Creates a new `AudioSourceInterface` for display audio.

@@ -1668,22 +1668,28 @@ pub(crate) mod webrtc {
             audio_device_module: &AudioDeviceModule,
         ) -> i16;
 
-        /// Writes device info to the provided `name` and `id` for the given
-        /// audio playout device `index`.
-        pub fn playout_device_name(
+        /// Obtains information about the audio playout device with the provided
+        /// device `index`.
+        pub fn playout_device_name_with_format(
             audio_device_module: &AudioDeviceModule,
             index: i16,
             name: &mut String,
             id: &mut String,
+            sample_rate: &mut u32,
+            num_channels: &mut u16,
+            container_id: &mut String,
         ) -> i32;
 
-        /// Writes device info to the provided `name` and `id` for the given
-        /// audio recording device `index`.
-        pub fn recording_device_name(
+        /// Obtains information about the audio recording device with the
+        /// provided device `index`.
+        pub fn recording_device_name_with_format(
             audio_device_module: &AudioDeviceModule,
             index: i16,
             name: &mut String,
             id: &mut String,
+            sample_rate: &mut u32,
+            num_channels: &mut u16,
+            container_id: &mut String,
         ) -> i32;
 
         /// Stops playout of audio on the given device.
@@ -1701,12 +1707,13 @@ pub(crate) mod webrtc {
         /// Starts playout of audio on the given device.
         pub fn start_playout(audio_device_module: &AudioDeviceModule) -> i32;
 
-        /// Specifies which speaker to use for playing out audio using an index
-        /// retrieved by the corresponding enumeration method
-        /// [`AudiDeviceModule::PlayoutDeviceName`].
+        /// Specifies which device to use for playout by its stable device ID
+        /// (e.g. from [`PlayoutDeviceNameWithFormat`]).
+        ///
+        /// Returns non-zero if the device is not found.
         pub fn set_audio_playout_device(
             audio_device_module: &AudioDeviceModule,
-            index: u16,
+            device_id: String,
         ) -> i32;
     }
 
@@ -2850,7 +2857,7 @@ pub(crate) mod webrtc {
         /// Creates a new [`AudioSourceInterface`].
         pub fn create_audio_source(
             audio_device_module: &AudioDeviceModule,
-            device_index: u16,
+            device_id: String,
             ap: &UniquePtr<AudioProcessing>,
         ) -> UniquePtr<AudioSourceInterface>;
 

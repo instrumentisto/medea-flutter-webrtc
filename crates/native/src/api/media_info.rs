@@ -24,6 +24,21 @@ pub struct MediaDeviceInfo {
 
     /// Label describing the represented device.
     pub label: String,
+
+    /// Native sample rate in `Hz`.
+    ///
+    /// For audio devices only. [`None`] for video or if is unavailable.
+    pub sample_rate: Option<u32>,
+
+    /// Number of channels.
+    ///
+    /// For audio devices only. [`None`] for video or if is unavailable.
+    pub num_channels: Option<u16>,
+
+    /// Platform container ID (physical device identifier).
+    ///
+    /// For audio devices only. [`None`] for video or if is unavailable.
+    pub container_id: Option<String>,
 }
 
 /// Information describing a display.
