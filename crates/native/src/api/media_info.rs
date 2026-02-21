@@ -30,7 +30,7 @@ pub struct MediaDeviceInfo {
     /// For audio devices only. [`None`] for video or if is unavailable.
     pub sample_rate: Option<u32>,
 
-    /// Number of channels
+    /// Number of channels.
     ///
     /// For audio devices only. [`None`] for video or if is unavailable.
     pub num_channels: Option<u16>,

@@ -25,7 +25,7 @@ class MediaDeviceInfo {
   /// For audio devices only. [`None`] for video or if is unavailable.
   final int? sampleRate;
 
-  /// Number of channels
+  /// Number of channels.
   ///
   /// For audio devices only. [`None`] for video or if is unavailable.
   final int? numChannels;
