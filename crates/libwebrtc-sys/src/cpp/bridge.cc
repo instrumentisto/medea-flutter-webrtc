@@ -204,8 +204,8 @@ int16_t recording_devices(const AudioDeviceModule& audio_device_module) {
   return audio_device_module->RecordingDevices();
 }
 
-// Calls `AudioDeviceModule->PlayoutDeviceNameWithFormat()` to get name, guid,
-// sample rate, channel count and container ID.
+// Calls `AudioDeviceModule->PlayoutDeviceNameWithFormat()` to get the name,
+// GUID, sample rate, channel count and container ID.
 int32_t playout_device_name_with_format(
     const AudioDeviceModule& audio_device_module,
     int16_t index,
@@ -228,8 +228,8 @@ int32_t playout_device_name_with_format(
   return 0;
 }
 
-// Calls `AudioDeviceModule->RecordingDeviceNameWithFormat()` to get name, guid,
-// sample rate, channel count and container ID.
+// Calls `AudioDeviceModule->RecordingDeviceNameWithFormat()` to get the name,
+// Guid, sample rate, channel count and container ID.
 int32_t recording_device_name_with_format(
     const AudioDeviceModule& audio_device_module,
     int16_t index,

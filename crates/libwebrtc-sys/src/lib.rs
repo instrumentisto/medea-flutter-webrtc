@@ -351,10 +351,10 @@ pub struct AudioDeviceNameWithFormat {
     /// Physical device identifier if available.
     pub container_id: Option<String>,
 
-    /// Audio sample rate in `Hz` if available.
+    /// Audio sample rate in `Hz`, if available.
     pub sample_rate: Option<u32>,
 
-    /// Audio channels count if available.
+    /// Audio channels count, if available.
     pub num_channels: Option<u16>,
 }
 
@@ -409,8 +409,8 @@ impl AudioDeviceModule {
         webrtc::recording_devices(&self.0).try_into().unwrap_or_default()
     }
 
-    /// Returns [`AudioDeviceNameWithFormat`] for the audio playout device by
-    /// its `index`.
+    /// Returns the [`AudioDeviceNameWithFormat`] for the audio playout device
+    /// by its `index`.
     pub fn playout_device_name_with_format(
         &self,
         index: i16,
@@ -451,7 +451,7 @@ impl AudioDeviceModule {
         })
     }
 
-    /// Returns [`AudioDeviceNameWithFormat`] for the audio recording device
+    /// Returns the [`AudioDeviceNameWithFormat`] for the audio recording device
     /// by its `index`.
     pub fn recording_device_name_with_format(
         &self,

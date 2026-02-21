@@ -16,8 +16,9 @@ use crate::{
     media::{AudioDeviceId, MediaTrackSource, TrackOrigin, VideoDeviceId},
 };
 
-/// Enumerated audio device with optional format/container info. Used for both
-/// inputs and outputs in device lists and change detection.
+/// Enumerated audio device with optional format/container info.
+///
+/// Used for both inputs and outputs in device lists and change detection.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct AudioDeviceInfo {
     /// Human-readable device name.
@@ -26,13 +27,13 @@ pub struct AudioDeviceInfo {
     /// Unique device identifier.
     pub device_id: AudioDeviceId,
 
-    /// Physical device identifier if available.
+    /// Physical device identifier, if available.
     pub container_id: Option<String>,
 
-    /// Audio sample rate in `Hz` if available.
+    /// Audio sample rate in `Hz`, if available.
     pub sample_rate: Option<u32>,
 
-    /// Audio channels count if available.
+    /// Audio channels count, if available.
     pub num_channels: Option<u16>,
 }
 

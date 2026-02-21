@@ -87,7 +87,7 @@ impl AudioDeviceModule {
         Ok(Self { inner })
     }
 
-    /// Returns device name and optional format for the given audio playout
+    /// Returns device name and optional format for the provided audio playout
     /// device `index`.
     ///
     /// # Errors
@@ -118,13 +118,13 @@ impl AudioDeviceModule {
         })
     }
 
-    /// Returns device name and optional format for the given audio recording
+    /// Returns device name and optional format for the provided audio recording
     /// device `index`.
     ///
     /// # Errors
     ///
-    /// If [`sys::AudioDeviceModule::recording_device_name_with_format()`]
-    /// call fails.
+    /// If [`sys::AudioDeviceModule::recording_device_name_with_format()`] call
+    /// fails.
     pub fn recording_device_name_with_format(
         &self,
         index: i16,

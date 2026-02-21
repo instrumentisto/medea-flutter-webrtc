@@ -224,7 +224,7 @@ int32_t init_playout(const AudioDeviceModule& audio_device_module);
 int32_t start_playout(const AudioDeviceModule& audio_device_module);
 
 // Specifies which device to use for playout audio by its device ID (e.g.
-// from PlayoutDeviceNameWithFormat).
+// from a `DeviceNameWithFormat`).
 int32_t set_audio_playout_device(const AudioDeviceModule& audio_device_module,
                                  rust::String device_id);
 

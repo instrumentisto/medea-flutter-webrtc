@@ -84,11 +84,11 @@ class ExtendedADM : public webrtc::AudioDeviceModule {
   // Changes the used playout device by its device ID.
   virtual int32_t SetPlayoutDeviceId(const std::string& device_id) = 0;
 
-  // Returns `DeviceNameWithFormat` for the given playout device index.
+  // Returns `DeviceNameWithFormat` for the provided playout device index.
   virtual std::optional<DeviceNameWithFormat> PlayoutDeviceNameWithFormat(
       uint16_t index) = 0;
 
-  // Returns `DeviceNameWithFormat` for the given recording device index.
+  // Returns `DeviceNameWithFormat` for the provided recording device index.
   virtual std::optional<DeviceNameWithFormat> RecordingDeviceNameWithFormat(
       uint16_t index) = 0;
 };

@@ -20,15 +20,19 @@ class MediaDeviceInfo {
   /// Label describing the represented device.
   final String label;
 
-  /// For audio devices: native sample rate. `None` video or if unavailable.
+  /// Native sample rate in `Hz`.
+  ///
+  /// For audio devices only. [`None`] for video or if is unavailable.
   final int? sampleRate;
 
-  /// For audio devices: number of channels. `None` for video or if
-  /// unavailable.
+  /// Number of channels
+  ///
+  /// For audio devices only. [`None`] for video or if is unavailable.
   final int? numChannels;
 
-  /// For audio devices: platform container ID (physical device identifier).
-  /// `None` for video or if unavailable.
+  /// Platform container ID (physical device identifier).
+  ///
+  /// For audio devices only. [`None`] for video or if is unavailable.
   final String? containerId;
 
   const MediaDeviceInfo({

@@ -17,7 +17,8 @@
 
 namespace {
 
-// Retrieves the friendly name (`PKEY_Device_FriendlyName`) of the provided `IMMDevice`.
+// Retrieves the friendly name (`PKEY_Device_FriendlyName`) of the provided
+// `IMMDevice`.
 HRESULT GetDeviceFriendlyName(IMMDevice* device, std::string& name_out) {
   RETURN_HR_IF(E_INVALIDARG, device == nullptr);
 
@@ -54,7 +55,8 @@ HRESULT GetDeviceFriendlyName(IMMDevice* device, std::string& name_out) {
   return S_OK;
 }
 
-// Finds a WASAPI endpoint by matching its friendly name (`PKEY_Device_FriendlyName`).
+// Finds a WASAPI endpoint by matching its friendly name
+// (`PKEY_Device_FriendlyName`).
 HRESULT GetEndpointByName(EDataFlow flow,
                           const std::string& device_name,
                           wil::com_ptr_nothrow<IMMDevice>& device) {
@@ -90,7 +92,8 @@ HRESULT GetEndpointByName(EDataFlow flow,
   return HRESULT_FROM_WIN32(ERROR_NOT_FOUND);
 }
 
-// Retrieves the PnP container ID (`PKEY_Device_ContainerId`) of the provided `IMMDevice`.
+// Retrieves the PnP container ID (`PKEY_Device_ContainerId`) of the provided
+// `IMMDevice`.
 HRESULT GetContainerIdUtf8Internal(IMMDevice* device,
                                    std::string& container_id) {
   RETURN_HR_IF(E_INVALIDARG, device == nullptr);
@@ -130,8 +133,8 @@ HRESULT GetContainerIdUtf8Internal(IMMDevice* device,
   return S_OK;
 }
 
-// Populates container_id, sample_rate, and num_channels by finding the
-// WASAPI device whose friendly name matches device_name.
+// Populates a `container_id`, `sample_rate`, and `num_channels` by finding the
+// WASAPI device whose friendly name matches the provided `device_name`.
 HRESULT GetDeviceFormatInternal(EDataFlow flow,
                                 const std::string& device_name,
                                 DeviceNameWithFormat& out) {
@@ -177,7 +180,7 @@ HRESULT GetDeviceFormatInternal(EDataFlow flow,
 
 }  // namespace
 
-// Fills format info for a playout device by matching its friendly name.
+// Fills the format info for a playout device by matching its friendly name.
 bool GetPlayoutDeviceFormat(const std::string& device_name,
                             DeviceNameWithFormat& out) {
   HRESULT hr = GetDeviceFormatInternal(eRender, device_name, out);
@@ -189,7 +192,7 @@ bool GetPlayoutDeviceFormat(const std::string& device_name,
   return true;
 }
 
-// Fills format info for a recording device by matching its friendly name.
+// Fills the format info for a recording device by matching its friendly name.
 bool GetRecordingDeviceFormat(const std::string& device_name,
                               DeviceNameWithFormat& out) {
   HRESULT hr = GetDeviceFormatInternal(eCapture, device_name, out);

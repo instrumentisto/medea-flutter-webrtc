@@ -77,14 +77,19 @@ class MediaDeviceInfo {
   /// Media kind of the device (for example, `audioinput` for microphone).
   late MediaDeviceKind kind;
 
-  /// For audio devices: native sample rate in hertz. Null for video or if unavailable.
+  /// Native sample rate in `Hz`
+  ///
+  /// For audio devices only. `null` for video or if is unavailable.
   int? sampleRate;
 
-  /// For audio devices: number of channels. Null for video or if unavailable.
+  /// Number of channels.
+  ///
+  /// For audio devices only. `null` for video or if is unavailable.
   int? numChannels;
 
-  /// For audio devices: platform container ID (physical device identifier). Null for
-  /// video or if unavailable.
+  /// Platform container ID (physical device identifier).
+  ///
+  /// For audio devices only. `null` for video or if is unavailable.
   String? containerId;
 
   /// Additional information on the nature of the audio device.

@@ -1668,7 +1668,7 @@ pub(crate) mod webrtc {
             audio_device_module: &AudioDeviceModule,
         ) -> i16;
 
-        /// Obtains information about the audio playout device with the given
+        /// Obtains information about the audio playout device with the provided
         /// device `index`.
         pub fn playout_device_name_with_format(
             audio_device_module: &AudioDeviceModule,
@@ -1681,7 +1681,7 @@ pub(crate) mod webrtc {
         ) -> i32;
 
         /// Obtains information about the audio recording device with the
-        /// given device `index`.
+        /// provided device `index`.
         pub fn recording_device_name_with_format(
             audio_device_module: &AudioDeviceModule,
             index: i16,
@@ -1708,8 +1708,9 @@ pub(crate) mod webrtc {
         pub fn start_playout(audio_device_module: &AudioDeviceModule) -> i32;
 
         /// Specifies which device to use for playout by its stable device ID
-        /// (e.g. from [`PlayoutDeviceNameWithFormat`]). Returns non-zero if
-        /// the device is not found.
+        /// (e.g. from [`PlayoutDeviceNameWithFormat`]).
+        ///
+        /// Returns non-zero if the device is not found.
         pub fn set_audio_playout_device(
             audio_device_module: &AudioDeviceModule,
             device_id: String,

@@ -21,7 +21,7 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Added
 
-- `sampleRate`, `numChannels`,  `containerId` optional fields to `MediaDeviceInfo` (only works on [Windows] right now). ([#286])
+- `sampleRate`, `numChannels`,  `containerId` optional fields to `MediaDeviceInfo` (only available on [Windows] right now). ([#286])
 
 [#284]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/284
 [#285]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/285

@@ -4,33 +4,40 @@
 #include <cstdint>
 #include <string>
 
-/// Audio device information.
+// Audio device information.
 struct DeviceNameWithFormat {
-  /// Human-readable device name.
+  // Human-readable device name.
   std::string name;
 
-  /// Unique identifier for the represented device.
+  // Unique identifier for the represented device.
   std::string guid;
 
-  /// For audio devices: platform container ID (physical device identifier).
+  // Platform container ID (physical device identifier).
+  //
+  // For audio devices only.
   std::string container_id;
 
-  /// For audio devices: native sample rate.
+  // Native sample rate in `Hz`.
+  //
+  // For audio devices only.
   uint32_t sample_rate = 0;
 
-  /// For audio devices: number of channels.
+  // Number of channels.
+  //
+  // For audio devices only.
   uint16_t num_channels = 0;
 };
 
 // TODO: Only implemented on Windows.
-// Fills sample_rate, num_channels and container_id by finding the WASAPI
-// device whose friendly name matches `device_name`.
+// Fills the `sample_rate`, `num_channels` and `container_id` by finding the
+// WASAPI playout device whose friendly name matches the provided `device_name`.
 bool GetPlayoutDeviceFormat(const std::string& device_name,
                             DeviceNameWithFormat& out);
 
 // TODO: Only implemented on Windows.
-// Fills sample_rate, num_channels and container_id by finding the WASAPI
-// device whose friendly name matches `device_name`.
+// Fills the `sample_rate`, `num_channels` and `container_id` by finding the
+// WASAPI recording device whose friendly name matches the provided
+// `device_name`.
 bool GetRecordingDeviceFormat(const std::string& device_name,
                               DeviceNameWithFormat& out);
 

@@ -362,7 +362,7 @@ impl Webrtc {
                                     |err| {
                                         vec![format!(
                                             "<failed to enumerate audio \
-                                             input devices: {err}>"
+                                             input devices: {err}>",
                                         )]
                                     },
                                     |devices| {
@@ -371,7 +371,7 @@ impl Webrtc {
                                             .map(|d| {
                                                 format!(
                                                     "{} ({})",
-                                                    d.name, d.device_id
+                                                    d.name, d.device_id,
                                                 )
                                             })
                                             .collect::<Vec<_>>()
