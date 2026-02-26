@@ -21,6 +21,9 @@ constexpr auto kBuffersFullCount = 7;
 constexpr auto kBuffersKeepReadyCount = 5;
 constexpr auto kRecordingPart =
     (kRecordingFrequency * kBufferSizeMs + 999) / 1000;
+constexpr auto kRecordingPartSamples = kRecordingPart * kRecordingChannels;
+constexpr size_t kRecordingPartSamplesBytes =
+    kRecordingPartSamples * (kBitsPerSample / 8);
 
 // Uniform interface for recording audio.
 class AudioRecorder {

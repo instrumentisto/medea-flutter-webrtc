@@ -18,7 +18,7 @@ Initially, represented a fork of the [Flutter-WebRTC] plugin, but at the moment,
 ## Supported platforms
 
 - [macOS] 10.15+
-- [Linux] (with [PulseAudio] and [X11] for screen sharing)
+- [Linux] (with [OpenAL]-compatible backend, [X11] for screen sharing, [PipeWire] for system audio capture)
 - [Windows] 10+ (build 20348)
 - [Android] 24+
 - [iOS] 15+
@@ -128,7 +128,8 @@ The [original upstream source code][0] is licensed under [MIT license][1] with m
 [Linux]: https://www.linux.org
 [macOS]: https://www.apple.com/macos
 [Medea Jason WebRTC client]: https://github.com/instrumentisto/medea-jason
-[PulseAudio]: https://www.freedesktop.org/wiki/Software/PulseAudio
+[OpenAL]: https://github.com/kcat/openal-soft
+[PipeWire]: https://pipewire.org/
 [WebRTC]: https://webrtc.org
 [Windows]: https://www.microsoft.com/windows
 [X11]: https://www.x.org
