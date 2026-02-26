@@ -270,7 +270,7 @@ API_AVAILABLE(macos(13.0))
 @end
 
 API_AVAILABLE(macos(13.0)) SysAudioSource::SysAudioSource() {
-  recorded_samples_.reserve(kRecordingPart * kRecordingChannels);
+  recorded_samples_.reserve(kRecordingPartSamples);
   source_ = bridge::LocalAudioSource::Create(webrtc::AudioOptions(), nullptr);
 }
 

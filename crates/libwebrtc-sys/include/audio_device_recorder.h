@@ -42,7 +42,7 @@ class AudioDeviceRecorder final : public AudioRecorder {
   std::recursive_mutex _mutex;
   bool _recordingFailed = false;
   bool _recording = false;
-  int _recordBufferSize = kRecordingPart * sizeof(int16_t) * kRecordingChannels;
+  int _recordBufferSize = static_cast<int>(kRecordingPartSamplesBytes);
   std::vector<char> _recordedSamples;
   int _emptyRecordingData = 0;
 };

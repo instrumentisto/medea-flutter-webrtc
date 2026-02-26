@@ -1104,7 +1104,7 @@ webrtc::scoped_refptr<bridge::LocalAudioSource> CreateFakeAudioSource() {
   auto th = std::thread([src] {
     // TODO: Thread will keep runinng even after returned LocalAudioSource is dropped
     //       but this is supposed to be used only in tests so no big deal
-    std::vector<int16_t> buffer(kRecordingPart * kRecordingChannels);
+    std::vector<int16_t> buffer(kRecordingPartSamples);
 
     // Generate a 440 Hz test tone.
     const double frequency = 440.0;
