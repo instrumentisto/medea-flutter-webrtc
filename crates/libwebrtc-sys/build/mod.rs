@@ -350,6 +350,7 @@ fn link_libs() -> anyhow::Result<()> {
     #[cfg(target_os = "linux")]
     {
         for dep in [
+            "libpipewire-0.3",
             "x11",
             "xfixes",
             "xdamage",
@@ -357,7 +358,6 @@ fn link_libs() -> anyhow::Result<()> {
             "xtst",
             "xrandr",
             "xcomposite",
-            "libpipewire-0.3",
         ] {
             drop(pkg_config::Config::new().probe(dep)?);
         }

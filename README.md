@@ -129,7 +129,7 @@ The [original upstream source code][0] is licensed under [MIT license][1] with m
 [macOS]: https://www.apple.com/macos
 [Medea Jason WebRTC client]: https://github.com/instrumentisto/medea-jason
 [OpenAL]: https://github.com/kcat/openal-soft
-[PipeWire]: https://pipewire.org/
+[PipeWire]: https://pipewire.org
 [WebRTC]: https://webrtc.org
 [Windows]: https://www.microsoft.com/windows
 [X11]: https://www.x.org

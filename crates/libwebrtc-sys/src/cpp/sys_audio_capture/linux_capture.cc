@@ -236,7 +236,7 @@ void SysAudioSource::CreateVirtualSink() {
   }
   pw_properties_setf(props, PW_KEY_NODE_NAME, "medea-sysaudio-mix");
   pw_properties_setf(props, PW_KEY_AUDIO_CHANNELS, "%u",
-                    static_cast<unsigned>(kRecordingChannels));
+                     static_cast<unsigned>(kRecordingChannels));
 
   sink_proxy_ = reinterpret_cast<struct pw_proxy*>(pw_core_create_object(
       pw_core_, "adapter", PW_TYPE_INTERFACE_Node, PW_VERSION_NODE,
@@ -292,7 +292,8 @@ void SysAudioSource::OnSinkReady() {
   info.channels = kRecordingChannels;
 
   const struct spa_pod* params[1];
-  params[0] = spa_format_audio_raw_build(&pod_builder, SPA_PARAM_EnumFormat, &info);
+  params[0] = spa_format_audio_raw_build(&pod_builder, SPA_PARAM_EnumFormat,
+                                         &info);
 
   // Connect capture stream to sink
   int res = pw_stream_connect(
@@ -489,11 +490,11 @@ void SysAudioSource::OnCaptureStreamProcess(void* data) {
 }
 
 void SysAudioSource::OnRegistryGlobal(void* data,
-                                     uint32_t id,
-                                     uint32_t permissions,
-                                     const char* type,
-                                     uint32_t version,
-                                     const struct spa_dict* props) {
+                                      uint32_t id,
+                                      uint32_t permissions,
+                                      const char* type,
+                                      uint32_t version,
+                                      const struct spa_dict* props) {
   auto* self = static_cast<SysAudioSource*>(data);
 
   if (!props || !type) {
@@ -539,7 +540,8 @@ void SysAudioSource::OnRegistryGlobal(void* data,
 
   if (std::string_view(type) == PW_TYPE_INTERFACE_Node) {
     const char* serial_str = spa_dict_lookup(props, PW_KEY_OBJECT_SERIAL);
-    if (self->sink_id_ != SPA_ID_INVALID && id == self->sink_id_ && serial_str) {
+    if (self->sink_id_ != SPA_ID_INVALID &&
+        id == self->sink_id_ && serial_str) {
       self->sink_serial_ = serial_str;
       self->OnSinkReady();
     }

@@ -79,9 +79,10 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-                       libgtk-3-dev libpulse-dev libudev-dev libxcomposite-dev \
-                       libxdamage-dev libxfixes-dev libxrandr-dev libxtst-dev \
-                       libpipewire-0.3-dev ninja-build lld-19 binutils build-essential clang
+                       libgtk-3-dev libpipewire-0.3-dev libpulse-dev \
+                       libudev-dev libxcomposite-dev  libxdamage-dev \
+                       libxfixes-dev libxrandr-dev libxtst-dev \
+                       ninja-build lld-19 binutils build-essential clang
           # TODO: Remove once lld-19 becomes the default in Ubuntu repositories
           sudo update-alternatives --install /usr/bin/lld lld /usr/bin/lld-19 100
           sudo update-alternatives --set lld /usr/bin/lld-19
@@ -105,9 +106,10 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-                       libgtk-3-dev libpulse-dev libudev-dev libxcomposite-dev \
-                       libxdamage-dev libxfixes-dev libxrandr-dev libxtst-dev \
-                       libpipewire-0.3-dev ninja-build lld-19 binutils build-essential clang
+                       libgtk-3-dev libpipewire-0.3-dev libpulse-dev \
+                       libudev-dev libxcomposite-dev libxdamage-dev \
+                       libxfixes-dev libxrandr-dev libxtst-dev \
+                       ninja-build lld-19 binutils build-essential clang
           # TODO: Remove once lld-19 becomes the default in Ubuntu repositories
           sudo update-alternatives --install /usr/bin/lld lld /usr/bin/lld-19 100
           sudo update-alternatives --set lld /usr/bin/lld-19
@@ -219,8 +221,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
                        cmake curl \
-                       libgtk-3-dev liblzma-dev libpipewire-0.3-dev libpulse-dev \
-                       libudev-dev libssl-dev \
+                       libgtk-3-dev liblzma-dev libpipewire-0.3-dev \
+                       libpulse-dev libudev-dev libssl-dev \
                        ninja-build lld-19 binutils build-essential clang-19
           sudo update-alternatives --install /usr/bin/lld lld /usr/bin/lld-19 100
           sudo update-alternatives --set lld /usr/bin/lld-19
@@ -455,9 +457,10 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-                       libgtk-3-dev libpulse-dev libudev-dev libxcomposite-dev \
-                       libxdamage-dev libxfixes-dev libxrandr-dev libxtst-dev \
-                       libpipewire-0.3-dev ninja-build lld-19 binutils build-essential
+                       libgtk-3-dev libpipewire-0.3-dev libpulse-dev \
+                       libudev-dev libxcomposite-dev libxdamage-dev \
+                       libxfixes-dev libxrandr-dev libxtst-dev \
+                       ninja-build lld-19 binutils build-essential
           # TODO: Remove once lld-19 becomes the default in Ubuntu repositories
           sudo update-alternatives --install /usr/bin/lld lld /usr/bin/lld-19 100
           sudo update-alternatives --set lld /usr/bin/lld-19

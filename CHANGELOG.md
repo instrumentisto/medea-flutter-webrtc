@@ -22,7 +22,7 @@ All user visible changes to this project will be documented in this file. This p
 ### Added
 
 - `sampleRate`, `numChannels`,  `containerId` optional fields to `MediaDeviceInfo` (only available on [Windows] right now). ([#286])
-- Support for system audio capturing on [Linux] via `getDisplayMedia()` using [PipeWire]. ([#288])
+- System audio capturing on [Linux] via `getDisplayMedia()` using [PipeWire]. ([#288])
 
 [#284]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/284
 [#285]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/285
@@ -678,7 +678,7 @@ See [changelog in upstream repository](https://github.com/flutter-webrtc/flutter
 [H264]: https://bloggeek.me/webrtcglossary/h-264/
 [Linux]: https://www.linux.org
 [OpenAL]: https://github.com/kcat/openal-soft
-[PipeWire]: https://pipewire.org/
+[PipeWire]: https://pipewire.org
 [Semantic Versioning 2.0.0]: https://semver.org
 [Swift]: https://developer.apple.com/swift
 [WIL]: https://github.com/microsoft/wil

@@ -121,7 +121,7 @@ class SysAudioSource final : public AudioRecorder {
   std::string sink_serial_;
   std::vector<SinkInputPort> sink_input_ports_;
 
-  // Links from app output ports to sink input ports grouped by output node id.
+  // Links from app output ports to sink input ports grouped by output node ID.
   std::unordered_map<uint32_t, std::vector<struct pw_proxy*>> link_proxies_by_node_;
 
   // `Stream/Output/Audio` nodes that are being captured.
@@ -130,7 +130,7 @@ class SysAudioSource final : public AudioRecorder {
   // Single capture stream reading from the virtual sink.
   CaptureStream capture_stream_;
 
-  // Our own PipeWire client ids.
+  // Our own PipeWire client IDs.
   std::unordered_set<uint32_t> our_client_ids_;
 };
 
