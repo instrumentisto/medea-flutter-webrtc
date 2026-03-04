@@ -233,6 +233,13 @@ fn main() -> anyhow::Result<()> {
             .flag("-DWEBRTC_POSIX")
             .flag("-DWEBRTC_USE_X11")
             .flag("-std=c++20");
+
+        let pw = pkg_config::Config::new()
+            .probe("libpipewire-0.3")
+            .map_err(|e| anyhow::anyhow!("`libpipewire-0.3` not found: {e}"))?;
+        for inc in &pw.include_paths {
+            build.include(inc);
+        }
     }
     #[cfg(target_os = "macos")]
     {
@@ -342,9 +349,16 @@ fn link_libs() -> anyhow::Result<()> {
     let target = get_target()?;
     #[cfg(target_os = "linux")]
     {
-        for dep in
-            ["x11", "xfixes", "xdamage", "xext", "xtst", "xrandr", "xcomposite"]
-        {
+        for dep in [
+            "libpipewire-0.3",
+            "x11",
+            "xfixes",
+            "xdamage",
+            "xext",
+            "xtst",
+            "xrandr",
+            "xcomposite",
+        ] {
             drop(pkg_config::Config::new().probe(dep)?);
         }
         match env::var("PROFILE").unwrap_or_default().as_str() {

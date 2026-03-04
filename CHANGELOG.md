@@ -17,19 +17,21 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Changed
 
-- Upgraded [libwebrtc] to [145.0.7632.75] version. ([#285])
+- Upgraded [libwebrtc] to [145.0.7632.116] version. ([#285], [todo])
 - Upgraded [WIL] to [1.0.260126.7] version. ([49e3d400])
 
 ### Added
 
 - `sampleRate`, `numChannels`,  `containerId` optional fields to `MediaDeviceInfo` (only available on [Windows] right now). ([#286])
+- System audio capturing on [Linux] via `getDisplayMedia()` using [PipeWire]. ([#288])
 
 [#284]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/284
 [#285]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/285
 [#286]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/286
+[#288]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/288
 [49e3d400]: https://github.com/instrumentisto/medea-flutter-webrtc/commit/49e3d400eb5eca222642ef3f7c609e9ff47d61cf
 [1.0.260126.7]: https://github.com/microsoft/wil/releases/tag/v1.0.260126.7
-[145.0.7632.75]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/145.0.7632.75
+[145.0.7632.116]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/145.0.7632.116
 
 
 
@@ -677,6 +679,7 @@ See [changelog in upstream repository](https://github.com/flutter-webrtc/flutter
 [H264]: https://bloggeek.me/webrtcglossary/h-264/
 [Linux]: https://www.linux.org
 [OpenAL]: https://github.com/kcat/openal-soft
+[PipeWire]: https://pipewire.org
 [Semantic Versioning 2.0.0]: https://semver.org
 [Swift]: https://developer.apple.com/swift
 [WIL]: https://github.com/microsoft/wil

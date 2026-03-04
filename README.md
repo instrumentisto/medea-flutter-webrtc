@@ -2,7 +2,7 @@ Medea Flutter-WebRTC
 ====================
 
 [![pub](https://img.shields.io/pub/v/medea_flutter_webrtc "pub")](https://pub.dev/packages/medea_flutter_webrtc)
-[![libwebrtc](https://img.shields.io/badge/libwebrtc-145.0.7632.75-blue "libwebrtc")](https://github.com/instrumentisto/libwebrtc-bin/releases/tag/145.0.7632.75)
+[![libwebrtc](https://img.shields.io/badge/libwebrtc-145.0.7632.116-blue "libwebrtc")](https://github.com/instrumentisto/libwebrtc-bin/releases/tag/145.0.7632.116)
 [![OpenAL](https://img.shields.io/badge/OpenAL-1.25.1-blue "OpenAL")](https://github.com/kcat/openal-soft/releases/tag/1.25.1)
 [![WIL](https://img.shields.io/badge/WIL-1.0.260126.7-blue "WIL")](https://github.com/microsoft/wil/releases/tag/v1.0.260126.7)
 
@@ -18,7 +18,7 @@ Initially, represented a fork of the [Flutter-WebRTC] plugin, but at the moment,
 ## Supported platforms
 
 - [macOS] 10.15+
-- [Linux] (with [PulseAudio] and [X11] for screen sharing)
+- [Linux] (with [OpenAL]-compatible backend, [X11] for screen sharing, [PipeWire] for system audio capture)
 - [Windows] 10+ (build 20348)
 - [Android] 24+
 - [iOS] 15+
@@ -128,7 +128,8 @@ The [original upstream source code][0] is licensed under [MIT license][1] with m
 [Linux]: https://www.linux.org
 [macOS]: https://www.apple.com/macos
 [Medea Jason WebRTC client]: https://github.com/instrumentisto/medea-jason
-[PulseAudio]: https://www.freedesktop.org/wiki/Software/PulseAudio
+[OpenAL]: https://github.com/kcat/openal-soft
+[PipeWire]: https://pipewire.org
 [WebRTC]: https://webrtc.org
 [Windows]: https://www.microsoft.com/windows
 [X11]: https://www.x.org

@@ -93,7 +93,7 @@ HRESULT AudioClientActivationHandler::ActivateCompleted(
 }
 
 SysAudioSource::SysAudioSource() {
-  recorded_samples_.reserve(kRecordingPart * kRecordingChannels);
+  recorded_samples_.reserve(kRecordingPartSamples);
   source_ = bridge::LocalAudioSource::Create(webrtc::AudioOptions(), nullptr);
   audio_client_activation_handler_ = Make<AudioClientActivationHandler>();
 }
