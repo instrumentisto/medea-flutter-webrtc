@@ -6,10 +6,15 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.17.2] · 2026-03-05
-[0.17.2]: https://github.com/instrumentisto/medea-flutter-webrtc/tree/0.17.2
+## [0.18.0] · 2026-03-05
+[0.18.0]: https://github.com/instrumentisto/medea-flutter-webrtc/tree/0.18.0
 
-[Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.17.1...0.17.2)
+[Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.17.1...0.18.0)
+
+### BC Breaks
+
+- Bumped up minimum supported [Flutter] version to 3.41. ([#287])
+- Bumped up minimum supported [Dart] version to 3.11. ([#287])
 
 ### Fixed
 
@@ -28,6 +33,7 @@ All user visible changes to this project will be documented in this file. This p
 [#284]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/284
 [#285]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/285
 [#286]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/286
+[#287]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/287
 [#288]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/288
 [49e3d400]: https://github.com/instrumentisto/medea-flutter-webrtc/commit/49e3d400eb5eca222642ef3f7c609e9ff47d61cf
 [1.0.260126.7]: https://github.com/microsoft/wil/releases/tag/v1.0.260126.7
