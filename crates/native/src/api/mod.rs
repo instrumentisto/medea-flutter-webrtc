@@ -180,7 +180,13 @@ pub fn sender_replace_track(
     transceiver: RustOpaque<Arc<RtpTransceiver>>,
     track_id: Option<String>,
 ) -> anyhow::Result<()> {
-    WEBRTC.lock().unwrap().sender_replace_track(&peer, &transceiver, track_id)
+    WEBRTC
+        .lock()
+        .unwrap()
+        .sender_replace_track(&peer, &transceiver, track_id)
+        .inspect_err(|e| {
+            log::error!("Error in `sender_replace_track`: {e:#}");
+        })
 }
 
 /// Returns [`RtpParameters`] from the provided [`RtpTransceiver`]'s `sender`.
@@ -198,5 +204,7 @@ pub fn sender_set_parameters(
     transceiver: RustOpaque<Arc<RtpTransceiver>>,
     params: RtcRtpSendParameters,
 ) -> anyhow::Result<()> {
-    transceiver.sender_set_parameters(params)
+    transceiver.sender_set_parameters(params).inspect_err(|e| {
+        log::error!("Error in `sender_set_parameters`: {e:#}");
+    })
 }

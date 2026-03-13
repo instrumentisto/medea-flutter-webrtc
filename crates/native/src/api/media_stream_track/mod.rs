@@ -223,7 +223,13 @@ pub fn update_audio_processing(
     track_id: String,
     conf: AudioProcessingConstraints,
 ) -> anyhow::Result<()> {
-    WEBRTC.lock().unwrap().apply_audio_processing_config(track_id, &conf)
+    WEBRTC
+        .lock()
+        .unwrap()
+        .apply_audio_processing_config(track_id, &conf)
+        .inspect_err(|e| {
+            log::error!("Error in `update_audio_processing`: {e:#}");
+        })
 }
 
 /// Creates a new [`VideoSink`] attached to the specified video track.

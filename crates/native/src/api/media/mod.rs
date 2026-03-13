@@ -33,7 +33,9 @@ pub fn is_fake_media() -> bool {
 /// Returns a list of all available media input and output devices, such as
 /// microphones, cameras, headsets, and so forth.
 pub fn enumerate_devices() -> anyhow::Result<Vec<MediaDeviceInfo>> {
-    WEBRTC.lock().unwrap().enumerate_devices()
+    WEBRTC.lock().unwrap().enumerate_devices().inspect_err(|e| {
+        log::error!("Error in `enumerate_devices`: {e:#}");
+    })
 }
 
 /// Returns a list of all available displays that can be used for screen
@@ -45,12 +47,18 @@ pub fn enumerate_displays() -> Vec<MediaDisplayInfo> {
 
 /// Sets the specified `audio playout` device.
 pub fn set_audio_playout_device(device_id: String) -> anyhow::Result<()> {
-    WEBRTC.lock().unwrap().set_audio_playout_device(device_id)
+    WEBRTC.lock().unwrap().set_audio_playout_device(device_id).inspect_err(
+        |e| {
+            log::error!("Error in `set_audio_playout_device`: {e:#}");
+        },
+    )
 }
 
 /// Indicates whether the microphone is available to set volume.
 pub fn microphone_volume_is_available() -> anyhow::Result<bool> {
-    WEBRTC.lock().unwrap().microphone_volume_is_available()
+    WEBRTC.lock().unwrap().microphone_volume_is_available().inspect_err(|e| {
+        log::error!("Error in `microphone_volume_is_available`: {e:#}");
+    })
 }
 
 /// Sets the microphone system volume according to the specified `level` in
@@ -58,12 +66,16 @@ pub fn microphone_volume_is_available() -> anyhow::Result<bool> {
 ///
 /// Valid values range is `[0; 100]`.
 pub fn set_microphone_volume(level: u8) -> anyhow::Result<()> {
-    WEBRTC.lock().unwrap().set_microphone_volume(level)
+    WEBRTC.lock().unwrap().set_microphone_volume(level).inspect_err(|e| {
+        log::error!("Error in `set_microphone_volume`: {e:#}");
+    })
 }
 
 /// Returns the current level of the microphone volume in `[0; 100]` range.
 pub fn microphone_volume() -> anyhow::Result<u32> {
-    WEBRTC.lock().unwrap().microphone_volume()
+    WEBRTC.lock().unwrap().microphone_volume().inspect_err(|e| {
+        log::error!("Error in `microphone_volume`: {e:#}");
+    })
 }
 
 /// Indicates whether system audio capture is available on this platform.

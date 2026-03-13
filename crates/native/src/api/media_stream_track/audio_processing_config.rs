@@ -74,5 +74,9 @@ impl From<sys::NoiseSuppressionLevel> for NoiseSuppressionLevel {
 pub fn get_audio_processing_config(
     track_id: String,
 ) -> anyhow::Result<AudioProcessingConfig> {
-    WEBRTC.lock().unwrap().get_audio_processing_config(track_id)
+    WEBRTC.lock().unwrap().get_audio_processing_config(track_id).inspect_err(
+        |e| {
+            log::error!("Error in `get_audio_processing_config`: {e:#}");
+        },
+    )
 }

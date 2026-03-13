@@ -35,7 +35,11 @@ pub fn create_peer_connection(
     cb: StreamSink<PeerConnectionEvent>,
     configuration: RtcConfiguration,
 ) -> anyhow::Result<()> {
-    WEBRTC.lock().unwrap().create_peer_connection(&cb, configuration)
+    WEBRTC.lock().unwrap().create_peer_connection(&cb, configuration).inspect_err(
+        |e| {
+            log::error!("Error in `create_peer_connection`: {e:#}");
+        },
+    )
 }
 
 /// Initiates the creation of an SDP offer for the purpose of starting a new
@@ -48,10 +52,11 @@ pub fn create_offer(
     use_rtp_mux: bool,
 ) -> anyhow::Result<RtcSessionDescription> {
     let (tx, rx) = mpsc::channel();
-
     peer.create_offer(voice_activity_detection, ice_restart, use_rtp_mux, tx);
-
-    rx.recv_timeout(RX_TIMEOUT)?
+    rx.recv_timeout(RX_TIMEOUT)
+        .map_err(anyhow::Error::from)
+        .and_then(|r| r)
+        .inspect_err(|e| log::error!("Error in `create_offer`: {e:#}"))
 }
 
 /// Creates an SDP answer to an offer received from a remote peer during an
@@ -64,10 +69,11 @@ pub fn create_answer(
     use_rtp_mux: bool,
 ) -> anyhow::Result<RtcSessionDescription> {
     let (tx, rx) = mpsc::channel();
-
     peer.create_answer(voice_activity_detection, ice_restart, use_rtp_mux, tx);
-
-    rx.recv_timeout(RX_TIMEOUT)?
+    rx.recv_timeout(RX_TIMEOUT)
+        .map_err(anyhow::Error::from)
+        .and_then(|r| r)
+        .inspect_err(|e| log::error!("Error in `create_answer`: {e:#}"))
 }
 
 /// Adds the new ICE `candidate` to the given [`PeerConnection`].
@@ -79,10 +85,12 @@ pub fn add_ice_candidate(
     sdp_mline_index: i32,
 ) -> anyhow::Result<()> {
     let (tx, rx) = mpsc::channel();
-
-    peer.add_ice_candidate(candidate, sdp_mid, sdp_mline_index, tx)?;
-
-    rx.recv_timeout(RX_TIMEOUT)?
+    peer.add_ice_candidate(candidate, sdp_mid, sdp_mline_index, tx)
+        .inspect_err(|e| log::error!("Error in `add_ice_candidate`: {e:#}"))?;
+    rx.recv_timeout(RX_TIMEOUT)
+        .map_err(anyhow::Error::from)
+        .and_then(|r| r)
+        .inspect_err(|e| log::error!("Error in `add_ice_candidate`: {e:#}"))
 }
 
 /// Closes the [`PeerConnection`].
