@@ -35,11 +35,13 @@ pub fn create_peer_connection(
     cb: StreamSink<PeerConnectionEvent>,
     configuration: RtcConfiguration,
 ) -> anyhow::Result<()> {
-    WEBRTC.lock().unwrap().create_peer_connection(&cb, configuration).inspect_err(
-        |e| {
+    WEBRTC
+        .lock()
+        .unwrap()
+        .create_peer_connection(&cb, configuration)
+        .inspect_err(|e| {
             log::error!("Error in `create_peer_connection`: {e:#}");
-        },
-    )
+        })
 }
 
 /// Initiates the creation of an SDP offer for the purpose of starting a new
