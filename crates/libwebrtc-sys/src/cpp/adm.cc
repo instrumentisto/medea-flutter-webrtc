@@ -282,22 +282,38 @@ int32_t OpenALAudioDeviceModule::SetPlayoutDeviceId(
   // Ensure playout is stopped before switching the device id.
   std::lock_guard<std::recursive_mutex> lk(_playout_mutex);
 
+  RTC_LOG(LS_INFO) << "OpenALADM: SetPlayoutDeviceId called with device_id=\""
+                   << device_id << "\"";
+
   if (Playing()) {
-    RTC_LOG(LS_INFO) << "Stopping playout before changing playout device";
+    RTC_LOG(LS_ERROR)
+        << "OpenALADM: SetPlayoutDeviceId called while playout is active; "
+        << "device switch is not allowed in this state";
     return -1;
   }
 
   bool has_requested_device = false;
+  int index = 0;
   EnumerateDevices(ALC_ALL_DEVICES_SPECIFIER, [&](const char* device) {
-    if (std::string(device) == device_id) {
+    const std::string current(device);
+    RTC_LOG(LS_INFO) << "OpenALADM: available playout device #" << index
+                     << ": \"" << current << "\"";
+    if (current == device_id) {
       has_requested_device = true;
     }
+    ++index;
   });
 
   if (has_requested_device) {
+    RTC_LOG(LS_INFO)
+        << "OpenALADM: Found requested playout device; updating "
+        << "_playoutDeviceId to \"" << device_id << "\"";
     _playoutDeviceId = device_id;
     return 0;
   } else {
+    RTC_LOG(LS_ERROR)
+        << "OpenALADM: Requested playout device_id=\"" << device_id
+        << "\" not found among available OpenAL devices";
     return -1;
   }
 }

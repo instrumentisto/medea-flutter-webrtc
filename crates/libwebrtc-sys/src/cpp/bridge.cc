@@ -278,7 +278,18 @@ int32_t start_playout(const AudioDeviceModule& audio_device_module) {
 // ID.
 int32_t set_audio_playout_device(const AudioDeviceModule& audio_device_module,
                                  rust::String device_id) {
-  return audio_device_module->SetPlayoutDeviceId(std::string(device_id));
+  std::string device_id_str(device_id);
+
+  RTC_LOG(LS_INFO) << "[bridge.cc] set_audio_playout_device requested for "
+                   << "device_id=\"" << device_id_str << "\"";
+
+  int32_t result =
+      audio_device_module->SetPlayoutDeviceId(std::move(device_id_str));
+
+  RTC_LOG(LS_INFO) << "[bridge.cc] AudioDeviceModule::SetPlayoutDeviceId "
+                   << "returned code=" << result;
+
+  return result;
 }
 
 // Calls `BuiltinAudioProcessingBuilder().Create()`.
