@@ -216,57 +216,31 @@ impl Webrtc {
         &mut self,
         device_id: String,
     ) -> anyhow::Result<()> {
-        log::info!(
-            "set_audio_playout_device requested for device_id={device_id}"
-        );
-
-        match self.enumerate_audio_output_devices() {
-            Ok(devices) => {
-                log::debug!(
-                    "Currently enumerated audio output devices ({}):",
-                    devices.len()
-                );
-                for d in devices {
-                    log::debug!(
-                        "- output device: id={:?}, name=\"{}\", container_id={:?}, \
-                         sample_rate={:?}, num_channels={:?}",
-                        d.device_id,
-                        d.name,
-                        d.container_id,
-                        d.sample_rate,
-                        d.num_channels,
-                    );
-                }
-            }
-            Err(e) => {
-                log::warn!(
-                    "Failed to enumerate audio output devices before switching \
-                     playout device: {e}"
-                );
-            }
-        }
-
         let device_id = AudioDeviceId::from(device_id);
 
-        log::info!(
-            "set_audio_playout_device resolved AudioDeviceId={:?}",
-            device_id
-        );
-
         let adm = &self.audio_device_module;
-        log::info!("Stopping current playout before switching device");
         adm.stop_playout()?;
-        log::info!(
-            "Calling AudioDeviceModule::set_playout_device with id={:?}",
-            device_id
-        );
-        if let Err(e) = adm.set_playout_device(device_id) {
+        if let Err(e) = adm.set_playout_device(device_id.clone()) {
+            let available = self.enumerate_audio_output_devices().map_or_else(
+                |err| {
+                    vec![format!(
+                        "<failed to enumerate audio output devices: {err}>",
+                    )]
+                },
+                |devices| {
+                    devices
+                        .into_iter()
+                        .map(|d| format!("{} ({})", d.name, d.device_id))
+                        .collect::<Vec<_>>()
+                },
+            );
+            log::error!(
+                "Cannot find requested(`{device_id}`) audio output device. \
+                 Currently available devices are: {available:?}",
+            );
+
             // Device not found or rejected; restore playout so the ADM is not
             // left in a permanently-stopped state.
-            log::error!(
-                "AudioDeviceModule::set_playout_device failed: {e}. \
-                 Attempting to restore previous playout state."
-            );
             if let Err(err) = adm.init_playout() {
                 log::error!(
                     "Failed to restore playout after device switch \
@@ -282,11 +256,8 @@ impl Webrtc {
 
             return Err(e);
         }
-        log::info!("set_audio_playout_device before init_playout");
         adm.init_playout()?;
-        log::info!("set_audio_playout_device before start_playout");
         adm.start_playout()?;
-        log::info!("set_audio_playout_device OK");
 
         Ok(())
     }
