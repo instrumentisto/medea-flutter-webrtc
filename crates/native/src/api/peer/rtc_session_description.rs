@@ -77,7 +77,9 @@ pub fn set_remote_description(
     kind: SdpType,
     sdp: String,
 ) -> anyhow::Result<()> {
-    peer.set_remote_description(kind.into(), sdp)
+    peer.set_remote_description(kind.into(), sdp).inspect_err(|e| {
+        log::error!("Error in `set_remote_description`: {e:#}");
+    })
 }
 
 /// Changes the local description associated with the connection.
@@ -88,8 +90,9 @@ pub fn set_local_description(
     sdp: String,
 ) -> anyhow::Result<()> {
     let (tx, rx) = mpsc::channel();
-
     peer.set_local_description(kind.into(), sdp, tx);
-
-    rx.recv_timeout(RX_TIMEOUT)?
+    rx.recv_timeout(RX_TIMEOUT)
+        .map_err(anyhow::Error::from)
+        .and_then(|r| r)
+        .inspect_err(|e| log::error!("Error in `set_local_description`: {e:#}"))
 }

@@ -56,13 +56,13 @@ bool SysAudioSource::StartCapture() {
 
   pw_loop_ = pw_main_loop_new(nullptr);
   if (!pw_loop_) {
-    RTC_LOG(LS_ERROR) << "SysAudioSource: pw_main_loop_new failed";
+    RTC_LOG(LS_ERROR) << "`SysAudioSource`: `pw_main_loop_new` failed";
     return false;
   }
 
   pw_ctx_ = pw_context_new(pw_main_loop_get_loop(pw_loop_), nullptr, 0);
   if (!pw_ctx_) {
-    RTC_LOG(LS_ERROR) << "SysAudioSource: pw_context_new failed";
+    RTC_LOG(LS_ERROR) << "`SysAudioSource`: `pw_context_new` failed";
     pw_main_loop_destroy(pw_loop_);
     pw_loop_ = nullptr;
     return false;
@@ -70,7 +70,7 @@ bool SysAudioSource::StartCapture() {
 
   pw_core_ = pw_context_connect(pw_ctx_, nullptr, 0);
   if (!pw_core_) {
-    RTC_LOG(LS_ERROR) << "SysAudioSource: pw_context_connect failed";
+    RTC_LOG(LS_ERROR) << "`SysAudioSource`: `pw_context_connect` failed";
     pw_context_destroy(pw_ctx_);
     pw_ctx_ = nullptr;
     pw_main_loop_destroy(pw_loop_);
@@ -80,7 +80,7 @@ bool SysAudioSource::StartCapture() {
 
   pw_registry_ = pw_core_get_registry(pw_core_, PW_VERSION_REGISTRY, 0);
   if (!pw_registry_) {
-    RTC_LOG(LS_ERROR) << "SysAudioSource: pw_core_get_registry failed";
+    RTC_LOG(LS_ERROR) << "`SysAudioSource`: `pw_core_get_registry` failed";
     pw_core_disconnect(pw_core_);
     pw_core_ = nullptr;
     pw_context_destroy(pw_ctx_);
@@ -95,7 +95,7 @@ bool SysAudioSource::StartCapture() {
 
   CreateVirtualSink();
   if (!sink_proxy_) {
-    RTC_LOG(LS_ERROR) << "SysAudioSource: CreateVirtualSink failed";
+    RTC_LOG(LS_ERROR) << "`SysAudioSource`: `CreateVirtualSink` failed";
     pw_proxy_destroy(reinterpret_cast<struct pw_proxy*>(pw_registry_));
     pw_registry_ = nullptr;
     pw_core_disconnect(pw_core_);
@@ -266,7 +266,7 @@ void SysAudioSource::OnSinkReady() {
   struct pw_properties* props =
       pw_properties_new(PW_KEY_TARGET_OBJECT, sink_serial_.c_str(), nullptr);
   if (!props) {
-    RTC_LOG(LS_ERROR) << "SysAudioSource: pw_properties_new failed";
+    RTC_LOG(LS_ERROR) << "`SysAudioSource`: `pw_properties_new` failed";
     return;
   }
 
@@ -274,7 +274,7 @@ void SysAudioSource::OnSinkReady() {
   capture_stream_.stream =
       pw_stream_new(pw_core_, "medea-sys-audio-capture", props);
   if (!capture_stream_.stream) {
-    RTC_LOG(LS_ERROR) << "SysAudioSource: pw_stream_new failed";
+    RTC_LOG(LS_ERROR) << "`SysAudioSource`: `pw_stream_new` failed";
     return;
   }
 
@@ -305,7 +305,7 @@ void SysAudioSource::OnSinkReady() {
       params, 1);
 
   if (res < 0) {
-    RTC_LOG(LS_ERROR) << "SysAudioSource: pw_stream_connect failed: "
+    RTC_LOG(LS_ERROR) << "`SysAudioSource`: `pw_stream_connect` failed: "
                       << spa_strerror(res);
     spa_hook_remove(&capture_stream_.listener);
     pw_stream_destroy(capture_stream_.stream);
@@ -397,10 +397,10 @@ void SysAudioSource::OnCaptureStreamStateChanged(void* data,
                                                  const char* error) {
   auto* cs = static_cast<CaptureStream*>(data);
 
-  RTC_LOG(LS_INFO) << "SysAudioSource: capture stream state -> "
+  RTC_LOG(LS_INFO) << "`SysAudioSource`: capture stream state -> "
                       << pw_stream_state_as_string(new_state);
   if (new_state == PW_STREAM_STATE_ERROR && error) {
-    RTC_LOG(LS_ERROR) << "SysAudioSource: capture stream error: " << error;
+    RTC_LOG(LS_ERROR) << "`SysAudioSource`: capture stream error: " << error;
   }
 }
 

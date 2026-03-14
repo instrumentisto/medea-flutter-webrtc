@@ -7,6 +7,7 @@ use std::{
     thread,
 };
 
+use itertools::Itertools as _;
 use libwebrtc_sys as sys;
 
 use crate::{
@@ -220,7 +221,26 @@ impl Webrtc {
 
         let adm = &self.audio_device_module;
         adm.stop_playout()?;
-        if let Err(e) = adm.set_playout_device(device_id) {
+        if let Err(e) = adm.set_playout_device(device_id.clone()) {
+            let available = self.enumerate_audio_output_devices().map_or_else(
+                |err| {
+                    vec![format!(
+                        "<failed to enumerate audio output devices: {err}>",
+                    )]
+                },
+                |devices| {
+                    devices
+                        .into_iter()
+                        .map(|d| format!("{} (`{}`)", d.name, d.device_id))
+                        .collect::<Vec<_>>()
+                },
+            );
+            log::error!(
+                "Cannot find requested(`{device_id}`) audio output device, \
+                 currently available devices are: {}",
+                available.iter().format(", "),
+            );
+
             // Device not found or rejected; restore playout so the ADM is not
             // left in a permanently-stopped state.
             if let Err(err) = adm.init_playout() {

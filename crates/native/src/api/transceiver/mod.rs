@@ -48,7 +48,11 @@ pub fn add_transceiver(
     media_type: MediaType,
     init: RtpTransceiverInit,
 ) -> anyhow::Result<RtcRtpTransceiver> {
-    PeerConnection::add_transceiver(peer, media_type.into(), init)
+    PeerConnection::add_transceiver(peer, media_type.into(), init).inspect_err(
+        |e| {
+            log::error!("Error in `add_transceiver`: {e:#}");
+        },
+    )
 }
 
 /// Returns a sequence of [`RtcRtpTransceiver`] objects representing the RTP
@@ -67,7 +71,9 @@ pub fn set_transceiver_direction(
     transceiver: RustOpaque<Arc<RtpTransceiver>>,
     direction: RtpTransceiverDirection,
 ) -> anyhow::Result<()> {
-    transceiver.set_direction(direction)
+    transceiver.set_direction(direction).inspect_err(|e| {
+        log::error!("Error in `set_transceiver_direction`: {e:#}");
+    })
 }
 
 /// Changes the receive direction of the specified [`RtcRtpTransceiver`].
@@ -76,7 +82,9 @@ pub fn set_transceiver_recv(
     transceiver: RustOpaque<Arc<RtpTransceiver>>,
     recv: bool,
 ) -> anyhow::Result<()> {
-    transceiver.set_recv(recv)
+    transceiver.set_recv(recv).inspect_err(|e| {
+        log::error!("Error in `set_transceiver_recv`: {e:#}");
+    })
 }
 
 /// Changes the send direction of the specified [`RtcRtpTransceiver`].
@@ -85,7 +93,9 @@ pub fn set_transceiver_send(
     transceiver: RustOpaque<Arc<RtpTransceiver>>,
     send: bool,
 ) -> anyhow::Result<()> {
-    transceiver.set_send(send)
+    transceiver.set_send(send).inspect_err(|e| {
+        log::error!("Error in `set_transceiver_send`: {e:#}");
+    })
 }
 
 /// Returns the [negotiated media ID (mid)][1] of the specified
@@ -118,5 +128,7 @@ pub fn get_transceiver_direction(
 pub fn stop_transceiver(
     transceiver: RustOpaque<Arc<RtpTransceiver>>,
 ) -> anyhow::Result<()> {
-    transceiver.stop()
+    transceiver.stop().inspect_err(|e| {
+        log::error!("Error in `stop_transceiver`: {e:#}");
+    })
 }

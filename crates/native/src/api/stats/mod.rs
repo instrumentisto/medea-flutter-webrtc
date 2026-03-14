@@ -603,9 +603,13 @@ pub fn get_peer_stats(
     peer: RustOpaque<Arc<PeerConnection>>,
 ) -> anyhow::Result<Vec<RtcStats>> {
     let (tx, rx) = mpsc::channel();
-
     peer.get_stats(tx);
-    let report = rx.recv_timeout(RX_TIMEOUT)?;
-
-    Ok(report.get_stats()?.into_iter().map(RtcStats::from).collect())
+    let report = rx
+        .recv_timeout(RX_TIMEOUT)
+        .map_err(anyhow::Error::from)
+        .inspect_err(|e| log::error!("Error in `get_peer_stats`: {e:#}"))?;
+    report
+        .get_stats()
+        .map(|stats| stats.into_iter().map(RtcStats::from).collect())
+        .inspect_err(|e| log::error!("Error in `get_peer_stats`: {e:#}"))
 }

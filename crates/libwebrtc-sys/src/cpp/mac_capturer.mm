@@ -52,7 +52,7 @@ AVCaptureDeviceFormat* SelectClosestFormat(AVCaptureDevice* device, size_t width
 
 // Creates a new `MacCapturer`.
 MacCapturer::MacCapturer(size_t width, size_t height, size_t target_fps, AVCaptureDevice* device) {
-  RTC_LOG(LS_INFO) << "MacCapturer width=" << width << ", height=" << height
+  RTC_LOG(LS_INFO) << "`MacCapturer`: width=" << width << ", height=" << height
                    << ", target_fps=" << target_fps;
 
   adapter_ = [[RTCVideoSourceAdapter alloc] init];
@@ -88,7 +88,7 @@ webrtc::scoped_refptr<MacCapturer> MacCapturer::Create(size_t width,
   NSArray<AVCaptureDevice*>* devices = discoverySession.devices;
   AVCaptureDevice* device = [devices objectAtIndex:capture_device_index];
   if (!device) {
-    RTC_LOG(LS_ERROR) << "Failed to create MacCapture";
+    RTC_LOG(LS_ERROR) << "Failed to create `MacCapture`";
     return nullptr;
   }
 

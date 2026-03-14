@@ -242,7 +242,7 @@ void ScreenVideoCapturer::OnCaptureResult(
             dst_buffer.get()->StrideU(), dst_buffer.get()->MutableDataV(),
             dst_buffer.get()->StrideV(), output_size.width(),
             output_size.height()) < 0) {
-      RTC_LOG(LS_ERROR) << "ConvertToI420 Failed";
+      RTC_LOG(LS_ERROR) << "`ConvertToI420` failed";
       return;
     }
   }
