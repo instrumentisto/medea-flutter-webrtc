@@ -22,15 +22,15 @@ HRESULT AudioClientActivationHandler::ActivateCompleted(
   if (FAILED(hr)) {
     activate_result = hr;
     activate_completed.SetEvent();
-    RTC_LOG(LS_ERROR) << "SysAudioSource: Failed to get activation"
-                      << " result. OS error: " << hr << ".";
+    RTC_LOG(LS_ERROR) << "`SysAudioSource`: failed to get activation result, "
+                      << "OS error: " << hr;
     return hr;
   }
 
   if (FAILED(activate_result)) {
     activate_completed.SetEvent();
-    RTC_LOG(LS_ERROR) << "SysAudioSource: Failed to activate audio"
-                      << " interface. OS error: " << activate_result << ".";
+    RTC_LOG(LS_ERROR) << "`SysAudioSource`: failed to activate audio "
+                      << "interface, OS error: " << activate_result;
     return activate_result;
   }
 
@@ -39,8 +39,8 @@ HRESULT AudioClientActivationHandler::ActivateCompleted(
   if (FAILED(hr)) {
     activate_result = hr;
     activate_completed.SetEvent();
-    RTC_LOG(LS_ERROR) << "SysAudioSource: Failed to copy audio"
-                      << " client. OS error: " << hr << ".";
+    RTC_LOG(LS_ERROR) << "`SysAudioSource`: failed to copy audio client, "
+                      << "OS error: " << hr;
     return hr;
   }
 
@@ -60,8 +60,8 @@ HRESULT AudioClientActivationHandler::ActivateCompleted(
   if (FAILED(hr)) {
     activate_result = hr;
     activate_completed.SetEvent();
-    RTC_LOG(LS_ERROR) << "SysAudioSource: Failed to initialize audio"
-                      << " client. OS error: " << hr << ".";
+    RTC_LOG(LS_ERROR) << "`SysAudioSource`: failed to initialize audio client, "
+                      << "OS error: " << hr;
     return hr;
   }
 
@@ -71,8 +71,8 @@ HRESULT AudioClientActivationHandler::ActivateCompleted(
   if (FAILED(hr)) {
     activate_result = hr;
     activate_completed.SetEvent();
-    RTC_LOG(LS_ERROR) << "SysAudioSource: Failed to get"
-                      << " IAudioCaptureClient. OS error: " << hr << ".";
+    RTC_LOG(LS_ERROR) << "`SysAudioSource`: failed to get "
+                      << "`IAudioCaptureClient`, OS error: " << hr;
     return hr;
   }
 
@@ -81,8 +81,8 @@ HRESULT AudioClientActivationHandler::ActivateCompleted(
   if (FAILED(hr)) {
     activate_result = hr;
     activate_completed.SetEvent();
-    RTC_LOG(LS_ERROR) << "SysAudioSource: Failed to start audio"
-                      << " client. OS error: " << hr << ".";
+    RTC_LOG(LS_ERROR) << "`SysAudioSource`: failed to start audio client, "
+                      << "OS error: " << hr;
     return hr;
   }
 
@@ -109,9 +109,8 @@ bool SysAudioSource::StartCapture() {
       wil::EventOptions::None);
 
   if (FAILED(hr)) {
-    RTC_LOG(LS_ERROR) << "SysAudioSource: Failed to create audio"
-                      << " client activation event handler. OS error: " << hr
-                      << ".";
+    RTC_LOG(LS_ERROR) << "`SysAudioSource`: failed to create audio client "
+                      << "activation event handler, OS error: " << hr;
     recording_failed_ = true;
     return false;
   }
@@ -137,8 +136,8 @@ bool SysAudioSource::StartCapture() {
       &activateParams, audio_client_activation_handler_.get(), &asyncOp);
 
   if (FAILED(hr)) {
-    RTC_LOG(LS_ERROR) << "SysAudioSource: Failed to start"
-                      << " AudioClient activation. OS error: " << hr << ".";
+    RTC_LOG(LS_ERROR) << "`SysAudioSource`: failed to start `AudioClient` "
+                      << "activation, OS error: " << hr;
     recording_failed_ = true;
     return false;
   }
@@ -195,8 +194,8 @@ bool SysAudioSource::ProcessRecordedPart(bool firstInCycle) {
           &packetLength);
 
   if (FAILED(hr)) {
-    RTC_LOG(LS_ERROR) << "SysAudioSource: Failed to get next audio"
-                      << " packet size. OS error: " << hr << ".";
+    RTC_LOG(LS_ERROR) << "`SysAudioSource`: failed to get next audio packet "
+                      << "size, OS error: " << hr;
     return false;
   }
 
@@ -212,18 +211,18 @@ bool SysAudioSource::ProcessRecordedPart(bool firstInCycle) {
       &buffer, &numFramesAvailable, &flags, nullptr, nullptr);
 
   if (FAILED(hr)) {
-    RTC_LOG(LS_ERROR) << "SysAudioSource: Failed to get audio"
-                      << " buffer. OS error: " << hr << ".";
+    RTC_LOG(LS_ERROR) << "`SysAudioSource`: failed to get audio buffer, "
+                      << "OS error: " << hr;
     return false;
   }
 
   if (flags & AUDCLNT_BUFFERFLAGS_DATA_DISCONTINUITY) {
-    RTC_LOG(LS_WARNING) << "SysAudioSource: "
-                        << "AUDCLNT_BUFFERFLAGS_DATA_DISCONTINUITY.";
+    RTC_LOG(LS_WARNING) << "`SysAudioSource`: "
+                        << "`AUDCLNT_BUFFERFLAGS_DATA_DISCONTINUITY`";
   }
   if (flags & AUDCLNT_BUFFERFLAGS_TIMESTAMP_ERROR) {
-    RTC_LOG(LS_WARNING) << "SysAudioSource: "
-                        << "AUDCLNT_BUFFERFLAGS_TIMESTAMP_ERROR.";
+    RTC_LOG(LS_WARNING) << "`SysAudioSource`: "
+                        << "`AUDCLNT_BUFFERFLAGS_TIMESTAMP_ERROR`";
   }
 
   if (flags & AUDCLNT_BUFFERFLAGS_SILENT) {
@@ -247,8 +246,8 @@ bool SysAudioSource::ProcessRecordedPart(bool firstInCycle) {
       numFramesAvailable);
 
   if (FAILED(hr)) {
-    RTC_LOG(LS_ERROR) << "SysAudioSource: Failed to release audio"
-                      << " buffer. OS error: " << hr << ".";
+    RTC_LOG(LS_ERROR) << "`SysAudioSource`: failed to release audio buffer, "
+                      << "OS error: " << hr;
     return false;
   }
 

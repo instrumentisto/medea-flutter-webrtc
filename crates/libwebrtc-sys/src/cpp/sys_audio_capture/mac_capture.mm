@@ -299,18 +299,18 @@ API_AVAILABLE(macos(13.0)) bool SysAudioSource::StartCapture() {
                                                   NSEC_PER_SEC));
     if (waitResult != 0) {
       RTC_LOG(LS_ERROR)
-          << "`SysAudioSource(Mac)`: Timeout waiting for shareable content";
+          << "`SysAudioSource(Mac)`: timeout waiting for shareable content";
       return false;
     }
     if (!content || contentError) {
       RTC_LOG(LS_ERROR)
-          << "`SysAudioSource(Mac)`: Failed to get shareable content";
+          << "`SysAudioSource(Mac)`: failed to get shareable content";
       return false;
     }
 
     SCDisplay* display = content.displays.firstObject;
     if (!display) {
-      RTC_LOG(LS_ERROR) << "`SysAudioSource(Mac)`: Failed to find any displays";
+      RTC_LOG(LS_ERROR) << "`SysAudioSource(Mac)`: failed to find any displays";
       return false;
     }
 
@@ -323,7 +323,7 @@ API_AVAILABLE(macos(13.0)) bool SysAudioSource::StartCapture() {
 
     if (!filter) {
       RTC_LOG(LS_ERROR)
-          << "`SysAudioSource(Mac)`: Failed to create `SCContentFilter`";
+          << "`SysAudioSource(Mac)`: failed to create `SCContentFilter`";
       return false;
     }
 
@@ -340,7 +340,7 @@ API_AVAILABLE(macos(13.0)) bool SysAudioSource::StartCapture() {
                                          configuration:cfg
                                          delegate:output];
     if (!stream) {
-      RTC_LOG(LS_ERROR) << "`SysAudioSource(Mac)`: Failed to create `SCStream`";
+      RTC_LOG(LS_ERROR) << "`SysAudioSource(Mac)`: failed to create `SCStream`";
       return false;
     }
 

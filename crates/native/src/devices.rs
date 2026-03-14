@@ -7,6 +7,7 @@ use std::{
     thread,
 };
 
+use itertools::Itertools as _;
 use libwebrtc_sys as sys;
 
 use crate::{
@@ -230,13 +231,14 @@ impl Webrtc {
                 |devices| {
                     devices
                         .into_iter()
-                        .map(|d| format!("{} ({})", d.name, d.device_id))
+                        .map(|d| format!("{} (`{}`)", d.name, d.device_id))
                         .collect::<Vec<_>>()
                 },
             );
             log::error!(
-                "Cannot find requested(`{device_id}`) audio output device. \
-                 Currently available devices are: {available:?}",
+                "Cannot find requested(`{device_id}`) audio output device, \
+                 currently available devices are: {}",
+                available.iter().format(", "),
             );
 
             // Device not found or rejected; restore playout so the ADM is not

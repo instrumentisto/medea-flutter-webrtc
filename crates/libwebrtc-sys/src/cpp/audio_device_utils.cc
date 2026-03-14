@@ -144,7 +144,7 @@ HRESULT GetDeviceFormatInternal(EDataFlow flow,
   HRESULT cid_hr =
       GetContainerIdUtf8Internal(device.get(), out.container_id);
   if (FAILED(cid_hr)) {
-    RTC_LOG(LS_ERROR) << "GetContainerIdUtf8Internal failed: hr=0x"
+    RTC_LOG(LS_ERROR) << "`GetContainerIdUtf8Internal` failed: hr=0x"
                       << std::hex << cid_hr;
     out.container_id.clear();
   }
@@ -155,7 +155,7 @@ HRESULT GetDeviceFormatInternal(EDataFlow flow,
                                     nullptr,
                                     reinterpret_cast<void**>(client.put()));
   if (FAILED(act_hr)) {
-    RTC_LOG(LS_ERROR) << "IAudioClient activation failed: hr=0x"
+    RTC_LOG(LS_ERROR) << "`IAudioClient` activation failed: hr=0x"
                       << std::hex << act_hr;
     return S_OK;
   }
@@ -163,7 +163,7 @@ HRESULT GetDeviceFormatInternal(EDataFlow flow,
   wil::unique_cotaskmem_ptr<WAVEFORMATEX> mix_format;
   HRESULT fmt_hr = client->GetMixFormat(wil::out_param(mix_format));
   if (FAILED(fmt_hr)) {
-    RTC_LOG(LS_ERROR) << "GetMixFormat failed: hr=0x" << std::hex << fmt_hr;
+    RTC_LOG(LS_ERROR) << "`GetMixFormat` failed: hr=0x" << std::hex << fmt_hr;
     return S_OK;
   }
 
@@ -185,7 +185,7 @@ bool GetPlayoutDeviceFormat(const std::string& device_name,
                             DeviceNameWithFormat& out) {
   HRESULT hr = GetDeviceFormatInternal(eRender, device_name, out);
   if (FAILED(hr)) {
-    RTC_LOG(LS_ERROR) << "GetPlayoutDeviceFormat failed: hr=0x"
+    RTC_LOG(LS_ERROR) << "`GetPlayoutDeviceFormat` failed: hr=0x"
                       << std::hex << hr;
     return false;
   }
@@ -197,7 +197,7 @@ bool GetRecordingDeviceFormat(const std::string& device_name,
                               DeviceNameWithFormat& out) {
   HRESULT hr = GetDeviceFormatInternal(eCapture, device_name, out);
   if (FAILED(hr)) {
-    RTC_LOG(LS_ERROR) << "GetRecordingDeviceFormat failed: hr=0x"
+    RTC_LOG(LS_ERROR) << "`GetRecordingDeviceFormat` failed: hr=0x"
                       << std::hex << hr;
     return false;
   }

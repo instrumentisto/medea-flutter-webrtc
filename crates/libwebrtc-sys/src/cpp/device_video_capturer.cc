@@ -22,8 +22,8 @@ webrtc::scoped_refptr<DeviceVideoCapturer> DeviceVideoCapturer::Create(
       new webrtc::RefCountedObject<DeviceVideoCapturer>());
 
   if (!capturer->Init(width, height, max_fps, device_index)) {
-    RTC_LOG(LS_ERROR) << "Failed to create DeviceVideoCapturer(w = " << width
-                      << ", h = " << height << ", fps = " << max_fps << ")";
+    RTC_LOG(LS_ERROR) << "Failed to create `DeviceVideoCapturer(w = " << width
+                      << ", h = " << height << ", fps = " << max_fps << ")`";
     return nullptr;
   }
 
