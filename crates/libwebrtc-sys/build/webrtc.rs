@@ -46,10 +46,10 @@ fn get_expected_libwebrtc_hash() -> anyhow::Result<&'static str> {
             "811d2107ceab9f63967c8a59bbe932bd9b3c56b69eec33bbe11eb162e4103dbf"
         }
         Platform::MacOSArm64 => {
-            "c8ca620c60757e2d5ed6975771dfbc374b380a82cdaff07fe45e071534cc6785"
+            "5d41cc03552b1f38c9c37ba617ad8440ef84f4cf67dacafeffa3d0dd97e24248"
         }
         Platform::MacOSX64 => {
-            "bf41849546dbb708dd43e00f05e2ef46fdddc0bef16b3376143103769e8bacd7"
+            "c8ca620c60757e2d5ed6975771dfbc374b380a82cdaff07fe45e071534cc6785"
         }
         Platform::WindowsX64 => {
             "27fc97bfc766effbf482bb21983b8bcfec23fae05622421fc85036c4d5d0ed71"
