@@ -26,9 +26,9 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
-  instrumentisto-libwebrtc-bin: 52c2bf53c2fd7b834b5564a782ed73fd3ed5f2fe
-  integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
-  medea_flutter_webrtc: e50b79800b3858a927593f22e0e67acd9d084235
+  instrumentisto-libwebrtc-bin: 368494f4a56bb21e519dd7d7184b5f40b19c9957
+  integration_test: 252f60fa39af5e17c3aa9899d35d908a0721b573
+  medea_flutter_webrtc: 5faba875242a27af51a0da7ab4796d29bb0991db
 
 PODFILE CHECKSUM: 96cbd66feeeb9e49d88210ea2b661316b312dda7
 
