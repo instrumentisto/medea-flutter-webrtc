@@ -1266,7 +1266,6 @@ void config_high_pass_filter_set_enabled(AudioProcessingConfig& config,
 void config_echo_cancellation_set_enabled(AudioProcessingConfig& config,
                                           bool enabled) {
   config.echo_canceller.enabled = enabled;
-  config.echo_canceller.mobile_mode = false;
 }
 
 // Enables/disables noise suppression in the provided `AudioProcessingConfig`.
