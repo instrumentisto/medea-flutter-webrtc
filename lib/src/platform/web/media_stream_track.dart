@@ -75,7 +75,12 @@ class WebMediaStreamTrack extends MediaStreamTrack {
   @override
   FacingMode? facingMode() {
     var settings = jsTrack.getSettings();
-    String? facingMode = settings.facingMode;
+    String? facingMode;
+    try {
+      facingMode = settings.facingMode;
+    } catch (_) {
+      return null;
+    }
     return FacingMode.values.firstWhereOrNull(
       (element) => element.name.toLowerCase() == facingMode,
     );
@@ -84,12 +89,20 @@ class WebMediaStreamTrack extends MediaStreamTrack {
   @override
   FutureOr<int?> height() {
     var settings = jsTrack.getSettings();
-    return settings.height;
+    try {
+      return settings.height;
+    } catch (_) {
+      return null;
+    }
   }
 
   @override
   FutureOr<int?> width() {
     var settings = jsTrack.getSettings();
-    return settings.width;
+    try {
+      return settings.width;
+    } catch (_) {
+      return null;
+    }
   }
 }
