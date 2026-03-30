@@ -14,6 +14,11 @@ All user visible changes to this project will be documented in this file. This p
 
 - Upgraded [libwebrtc] to [146.0.7680.153] version. ([todo])
 
+### Fixed
+
+- `TypeError` thrown from `WebMediaStreamTrack` `facingMode()`, `height()`, `width()` functions. ([#297])
+
+[#297]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/297
 [146.0.7680.153]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/146.0.7680.153
 
 
