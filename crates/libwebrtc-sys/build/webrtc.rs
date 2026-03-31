@@ -166,7 +166,12 @@ impl Artifact {
             }
             out_file.flush()?;
 
-            if format!("{:x}", hasher.finalize()).as_str() != self.digest {
+            let digest = hasher
+                .finalize()
+                .iter()
+                .map(|byte| format!("{byte:02x}"))
+                .collect::<String>();
+            if digest != self.digest {
                 anyhow::bail!("SHA-256 checksum doesn't match");
             }
         }
