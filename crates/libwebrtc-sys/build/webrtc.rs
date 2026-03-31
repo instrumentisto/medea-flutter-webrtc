@@ -3,7 +3,9 @@
 //! [`libwebrtc-bin`]: https://github.com/instrumentisto/libwebrtc-bin
 
 use std::{
-    env, fs,
+    env,
+    fmt::Write as _,
+    fs,
     fs::File,
     io::{BufReader, BufWriter, Read as _, Write as _},
     path::PathBuf,
@@ -166,11 +168,13 @@ impl Artifact {
             }
             out_file.flush()?;
 
-            let digest = hasher
-                .finalize()
-                .iter()
-                .map(|byte| format!("{byte:02x}"))
-                .collect::<String>();
+            let digest = {
+                let mut digest = String::with_capacity(64);
+                for byte in hasher.finalize() {
+                    write!(&mut digest, "{byte:02x}")?;
+                }
+                digest
+            };
             if digest != self.digest {
                 anyhow::bail!("SHA-256 checksum doesn't match");
             }
