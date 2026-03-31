@@ -10,6 +10,10 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](https://github.com/instrumentisto/medea-flutter-webrtc/compare/0.18.1...main)
 
+## BC Breaks
+
+- Upgraded [`flutter_rust_bridge`] crate to [2.12.0][frb-2.12.0] version. ([#298])
+
 ### Changed
 
 - Upgraded [libwebrtc] to [146.0.7680.164] version. ([todo])
@@ -19,7 +23,9 @@ All user visible changes to this project will be documented in this file. This p
 - `TypeError` thrown from `WebMediaStreamTrack`'s `facingMode()`, `height()`, `width()` functions. ([#297])
 
 [#297]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/297
+[#298]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/298
 [146.0.7680.164]: https://github.com/instrumentisto/libwebrtc-bin/releases/tag/146.0.7680.164
+[frb-2.12.0]: https://github.com/fzyzcjy/flutter_rust_bridge/releases/tag/v2.12.0
 
 
 
