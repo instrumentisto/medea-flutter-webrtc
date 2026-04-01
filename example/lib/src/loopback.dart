@@ -46,6 +46,7 @@ class _LoopbackState extends State<Loopback> {
   bool _echoCancellationEnabled = true;
   bool _autoGainControlEnabled = true;
   NoiseSuppressionLevel _noiseSuppressionLevel = NoiseSuppressionLevel.veryHigh;
+  bool _verboseLogging = false;
 
   @override
   void initState() {
@@ -90,7 +91,7 @@ class _LoopbackState extends State<Loopback> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   void _makeCall() async {
-    await setLogLevel(LogLevel.info);
+    await setLogLevel(LogLevel.warning);
     // Correct place for testing these APIs.
     //await setupAudioSessionManagement(false);
     //await setOutputAudioId("speaker");
@@ -514,6 +515,20 @@ class _LoopbackState extends State<Loopback> {
           return Center(
             child: Column(
               children: [
+                CheckboxListTile(
+                  dense: true,
+                  title: const Text('Verbose logging'),
+                  value: _verboseLogging,
+                  onChanged: (bool? value) async {
+                    final next = value ?? false;
+                    setState(() {
+                      _verboseLogging = next;
+                    });
+                    await setLogLevel(
+                      next ? LogLevel.verbose : LogLevel.warning,
+                    );
+                  },
+                ),
                 Row(
                   children: [
                     Container(

@@ -21,6 +21,7 @@ All user visible changes to this project will be documented in this file. This p
 ### Fixed
 
 - `TypeError` thrown from `WebMediaStreamTrack`'s `facingMode()`, `height()`, `width()` functions. ([#297])
+- `setLogLevel()` only executing once on macOS. ([#298])
 
 [#297]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/297
 [#298]: https://github.com/instrumentisto/medea-flutter-webrtc/pull/298
