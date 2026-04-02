@@ -1,5 +1,5 @@
 group = "com.instrumentisto.medea_flutter_webrtc"
-version = "0.18.2-dev"
+version = "0.19.0-dev"
 
 def webrtcBranch = System.getenv("WEBRTC_BRANCH")
 

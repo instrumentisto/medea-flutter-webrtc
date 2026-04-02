@@ -49,8 +49,17 @@ SysLogSink* g_sys_log_sink = nullptr;
 void SetWebRTCLogSink(webrtc::LoggingSeverity severity) {
   std::lock_guard<std::mutex> lock(g_sys_log_sink_mutex);
 
-  if (severity != webrtc::LS_NONE && !g_sys_log_sink) {
-    g_sys_log_sink = new SysLogSink();
+  if (g_sys_log_sink) {
+    webrtc::LogMessage::RemoveLogToStream(g_sys_log_sink);
+  }
+
+  if (severity == webrtc::LS_NONE) {
+    delete g_sys_log_sink;
+    g_sys_log_sink = nullptr;
+  } else {
+    if (!g_sys_log_sink) {
+      g_sys_log_sink = new SysLogSink();
+    }
     webrtc::LogMessage::AddLogToStream(g_sys_log_sink, severity);
   }
 }
