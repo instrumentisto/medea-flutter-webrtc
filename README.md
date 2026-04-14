@@ -15,6 +15,13 @@ Initially, represented a fork of the [Flutter-WebRTC] plugin, but at the moment,
 
 
 
+## Status
+
+__PROJECT IS CLOSED AND ARCHIVED. NO MAINTAINING WILL BE CONTINUED.__
+
+
+
+
 ## Supported platforms
 
 - [macOS] 10.15+
